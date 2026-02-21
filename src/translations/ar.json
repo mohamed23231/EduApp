@@ -1,6 +1,6 @@
 {
   "onboarding": {
-    "message": "مرحبا بكم في موقع تطبيق obytes"
+    "message": "مرحبا بك في Privat Edu"
   },
   "settings": {
     "about": "حول التطبيق ",
@@ -29,5 +29,5 @@
     "version": "إصدار",
     "website": "موقع الكتروني"
   },
-  "welcome": "test arabic"
+  "welcome": "مرحبا بك في Privat Edu"
 }
