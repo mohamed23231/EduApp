@@ -1,4 +1,26 @@
 {
+  "auth": {
+    "login": {
+      "createAccount": "Create Account",
+      "dontHaveAccount": "Don't have an account?",
+      "emailLabel": "Email Address",
+      "forgotPassword": "Forgot Password?",
+      "genericError": "Failed to sign in. Please try again.",
+      "orConnectWith": "OR CONNECT WITH",
+      "passwordLabel": "Password",
+      "protectedBy": "PROTECTED BY PRIVAT EDU SECURITY",
+      "submit": "Sign In",
+      "submitting": "Signing In...",
+      "subtitle": "Welcome back! Please login to your school management portal.",
+      "title": "Privat Edu",
+      "validation": {
+        "emailInvalid": "Please enter a valid email",
+        "emailRequired": "Email is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordRequired": "Password is required"
+      }
+    }
+  },
   "onboarding": {
     "message": "Welcome to Privat Edu"
   },

@@ -1,4 +1,26 @@
 {
+  "auth": {
+    "login": {
+      "createAccount": "إنشاء حساب",
+      "dontHaveAccount": "ليس لديك حساب؟",
+      "emailLabel": "البريد الإلكتروني",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "genericError": "تعذر تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقاً.",
+      "orConnectWith": "أو الاتصال عبر",
+      "passwordLabel": "كلمة المرور",
+      "protectedBy": "محمي بواسطة أمان Privat Edu",
+      "submit": "تسجيل الدخول",
+      "submitting": "جاري تسجيل الدخول...",
+      "subtitle": "مرحباً بعودتك! يرجى تسجيل الدخول إلى بوابة إدارة المدرسة.",
+      "title": "Privat Edu",
+      "validation": {
+        "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "passwordRequired": "كلمة المرور مطلوبة"
+      }
+    }
+  },
   "onboarding": {
     "message": "مرحبا بك في Privat Edu"
   },
