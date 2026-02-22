@@ -19,6 +19,36 @@
         "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
         "passwordRequired": "كلمة المرور مطلوبة"
       }
+    },
+    "onboarding": {
+      "genericError": "فشل إنشاء الملف الشخصي. يرجى المحاولة مرة أخرى.",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "submit": "إكمال الإعداد",
+      "title": "أكمل ملفك الشخصي"
+    },
+    "signup": {
+      "alreadyHaveAccount": "لديك حساب بالفعل؟",
+      "consent": "بالنقر على إنشاء حساب، فإنك توافق على {{terms}} و{{privacy}}",
+      "emailLabel": "البريد الإلكتروني",
+      "fullNameLabel": "الاسم الكامل",
+      "fullNamePlaceholder": "أدخل اسمك الكامل",
+      "genericError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+      "loginLink": "تسجيل الدخول",
+      "parentLabel": "ولي أمر",
+      "passwordLabel": "كلمة المرور",
+      "roleLabel": "أنا...",
+      "submit": "إنشاء حساب",
+      "teacherLabel": "معلم",
+      "termsLink": "شروط الخدمة",
+      "title": "إنشاء حسابك",
+      "validation": {
+        "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+        "fullNameRequired": "الاسم الكامل مطلوب",
+        "fullNameTooLong": "يجب أن يكون الاسم الكامل 100 حرف أو أقل",
+        "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "roleRequired": "يرجى اختيار دور"
+      }
     }
   },
   "onboarding": {

@@ -2,9 +2,9 @@ import { Redirect } from 'expo-router';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore as useAuth } from '@/features/auth/use-auth-store';
-import { OnboardingScreen } from '@/modules/onboarding/screens/onboarding-screen';
+import { SignupScreen } from '@/modules/auth/screens/signup-screen';
 
-export default function OnboardingRoute() {
+export default function SignupRoute() {
   const status = useAuth.use.status();
   const user = useAuth.use.user();
 
@@ -13,16 +13,16 @@ export default function OnboardingRoute() {
     return null;
   }
 
-  // Not authenticated → redirect to login
-  if (status === 'signOut') {
-    return <Redirect href={AppRoute.auth.login} />;
-  }
-
   // Fully authenticated user → redirect to their role dashboard
   if (status === 'signIn' && user) {
     return <Redirect href={getHomeRouteForRole(user.role)} />;
   }
 
-  // signIn + user null (onboarding pending) → show onboarding screen
-  return <OnboardingScreen />;
+  // Signed in but onboarding pending → redirect to onboarding
+  if (status === 'signIn' && !user) {
+    return <Redirect href={AppRoute.auth.onboarding} />;
+  }
+
+  // signOut → show signup screen
+  return <SignupScreen />;
 }

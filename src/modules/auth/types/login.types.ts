@@ -10,6 +10,8 @@ export type LoginUser = {
   id: string;
   email: string;
   role: UserRole;
+  fullName?: string;
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
 };
 
 export type LoginResponseSuccess = {
@@ -22,8 +24,9 @@ export type LoginResponseSuccess = {
 export type LoginResponseOnboarding = {
   access: string;
   refresh: string;
-  user: null;
+  user: LoginUser | null;
   onboardingRequired: true;
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
 };
 
 export type LoginResponse = LoginResponseSuccess | LoginResponseOnboarding;

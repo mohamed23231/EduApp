@@ -19,6 +19,36 @@
         "passwordMinLength": "Password must be at least 8 characters",
         "passwordRequired": "Password is required"
       }
+    },
+    "onboarding": {
+      "genericError": "Profile creation failed. Please try again.",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "submit": "Complete Setup",
+      "title": "Complete Your Profile"
+    },
+    "signup": {
+      "alreadyHaveAccount": "Already have an account?",
+      "consent": "By tapping Create Account, you agree to our {{terms}} and {{privacy}}",
+      "emailLabel": "Email",
+      "fullNameLabel": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "genericError": "Something went wrong. Please try again.",
+      "loginLink": "Log In",
+      "parentLabel": "Parent",
+      "passwordLabel": "Password",
+      "roleLabel": "I AM A...",
+      "submit": "Create Account",
+      "teacherLabel": "Teacher",
+      "termsLink": "Terms of Service",
+      "title": "Create Your Account",
+      "validation": {
+        "emailInvalid": "Please enter a valid email",
+        "fullNameRequired": "Full name is required",
+        "fullNameTooLong": "Full name must be 100 characters or less",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "roleRequired": "Please select a role"
+      }
     }
   },
   "onboarding": {

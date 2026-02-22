@@ -1,6 +1,7 @@
 export const AppRoute = {
   auth: {
     login: '/login',
+    signup: '/signup',
     onboarding: '/onboarding',
   },
   parent: {

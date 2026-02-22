@@ -1,6 +1,7 @@
 import type { LoginFormValues } from '../types';
 import { useForm } from '@tanstack/react-form';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowRight, Eye, EyeOff, GraduationCap } from '@/components/ui/icons';
+import { AppRoute } from '@/core/navigation/routes';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { loginSchema } from '../validators';
 
@@ -29,6 +31,7 @@ export function LoginForm({ onSubmit, isSubmitting, error }: LoginFormProps) {
   const [showPassword, setShowPassword] = React.useState(false);
   const { language, setLanguage } = useSelectedLanguage();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const isRTL = i18n.language === 'ar' || language === 'ar';
 
   const toggleLanguage = () => {
@@ -265,7 +268,7 @@ export function LoginForm({ onSubmit, isSubmitting, error }: LoginFormProps) {
           <Text style={styles.createAccountText}>
             {t('auth.login.dontHaveAccount')}
           </Text>
-          <Pressable>
+          <Pressable onPress={() => router.push(AppRoute.auth.signup)}>
             <Text style={styles.createAccountLink}>
               {t('auth.login.createAccount')}
             </Text>

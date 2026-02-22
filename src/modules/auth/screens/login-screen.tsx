@@ -10,7 +10,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { AppRoute } from '@/core/navigation/routes';
-import { useAuthStore } from '@/features/auth/use-auth-store';
+import { setOnboardingContext, useAuthStore } from '@/features/auth/use-auth-store';
 
 import { LoginForm } from '../components/login-form';
 import { useLogin } from '../hooks/use-login';
@@ -37,15 +37,33 @@ export function LoginScreen() {
     setErrorMsg(null);
     try {
       const response = await login(values);
-      signIn({
-        token: { access: response.access, refresh: response.refresh },
-        user: response.user,
-      });
 
       if (response.onboardingRequired) {
+        // Persist onboarding context before signing in
+        if (response.onboardingReason === 'PROFILE_NOT_FOUND' && response.user) {
+          // User exists in DB — we have role and fullName
+          setOnboardingContext({
+            email: response.user.email,
+            role: response.user.role as 'TEACHER' | 'PARENT',
+            fullName: response.user.fullName,
+          });
+        }
+        else {
+          // USER_NOT_FOUND — no DB user row, only email is known
+          setOnboardingContext({ email: values.email });
+        }
+
+        signIn({
+          token: { access: response.access, refresh: response.refresh },
+          user: null,
+        });
         router.replace(AppRoute.auth.onboarding);
       }
       else {
+        signIn({
+          token: { access: response.access, refresh: response.refresh },
+          user: response.user,
+        });
         router.replace(getHomeRouteForRole(response.user.role));
       }
     }
