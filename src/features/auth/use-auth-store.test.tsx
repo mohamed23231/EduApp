@@ -1,6 +1,8 @@
 /**
  * Feature: mobile-signup-onboarding
  * Properties: P12, P13, P16, P17, P18, P19 — auth store behaviour
+ *
+ * Feature: auth-baseline-parent-mvp, Property 6: Onboarding Context Round Trip
  */
 
 import * as fc from 'fast-check';
@@ -8,6 +10,7 @@ import * as fc from 'fast-check';
 // ─── Imports after mocks ──────────────────────────────────────────────────────
 
 import {
+  clearOnboardingContext,
   getDraftData,
   hydrateAuth,
   setDraftData,
@@ -220,6 +223,100 @@ describe('use-auth-store — p19: hydration completes before route guard evaluat
 
           const { status } = useAuthStore.getState();
           expect(['signIn', 'signOut']).toContain(status);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+});
+
+// ─── Property 6: Onboarding Context Round Trip (auth-baseline-parent-mvp) ────
+
+describe('use-auth-store — Property 6: Onboarding Context Round Trip', () => {
+  it('property 6 — persist context via setOnboardingContext, hydrate, verify restored context is identical', async () => {
+    // Feature: auth-baseline-parent-mvp, Property 6: Onboarding Context Round Trip
+    await fc.assert(
+      fc.asyncProperty(
+        fc.record({
+          email: fc.emailAddress(),
+          role: fc.option(fc.constantFrom('TEACHER' as const, 'PARENT' as const), { nil: undefined }),
+          fullName: fc.option(fc.string({ minLength: 1, maxLength: 100 }), { nil: undefined }),
+        }),
+        async (ctx) => {
+          signOut();
+          mmkvStore.clear();
+
+          // Persist the onboarding context
+          setOnboardingContext(ctx);
+
+          // Verify it's stored in the in-memory MMKV
+          const storedInMMKV = mmkvStore.get('onboarding_context');
+          expect(storedInMMKV).toEqual(ctx);
+
+          // Verify it's set in the store state
+          let state = useAuthStore.getState();
+          expect(state.onboardingContext).toEqual(ctx);
+
+          // Simulate app restart: clear store state but keep MMKV
+          // In a real app, the store would be recreated. Here we simulate by:
+          // 1. Clearing the store via signOut
+          // 2. Clearing the in-memory store state (simulating fresh app start)
+          signOut();
+
+          // Clear the onboarding context from store state to simulate fresh app start
+          clearOnboardingContext();
+          state = useAuthStore.getState();
+          expect(state.onboardingContext).toBeNull();
+
+          // Now set it back in MMKV (simulating it was persisted before app restart)
+          mmkvStore.set('onboarding_context', ctx);
+
+          // Hydrate from MMKV with tokens present
+          (getToken as jest.Mock).mockReturnValue({ access: 'tok', refresh: 'ref' });
+          (getAuthUser as jest.Mock).mockReturnValue(null);
+
+          hydrateAuth();
+
+          // Verify the context is restored identically
+          state = useAuthStore.getState();
+          expect(state.onboardingContext).toEqual(ctx);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  it('property 6 — clearOnboardingContext sets context to null', async () => {
+    // Feature: auth-baseline-parent-mvp, Property 6: Onboarding Context Round Trip
+    await fc.assert(
+      fc.asyncProperty(
+        fc.record({
+          email: fc.emailAddress(),
+          role: fc.option(fc.constantFrom('TEACHER' as const, 'PARENT' as const), { nil: undefined }),
+          fullName: fc.option(fc.string({ minLength: 1, maxLength: 100 }), { nil: undefined }),
+        }),
+        async (ctx) => {
+          signOut();
+          mmkvStore.clear();
+
+          // Set the onboarding context
+          setOnboardingContext(ctx);
+
+          let state = useAuthStore.getState();
+          expect(state.onboardingContext).toEqual(ctx);
+
+          // Verify it's in MMKV
+          expect(mmkvStore.get('onboarding_context')).toEqual(ctx);
+
+          // Clear the onboarding context
+          clearOnboardingContext();
+
+          // Verify it's removed from store state
+          state = useAuthStore.getState();
+          expect(state.onboardingContext).toBeNull();
+
+          // Verify it's removed from MMKV
+          expect(mmkvStore.get('onboarding_context')).toBeUndefined();
         },
       ),
       { numRuns: 100 },

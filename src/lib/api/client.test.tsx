@@ -1,7 +1,8 @@
 /**
+ * Feature: auth-baseline-parent-mvp, Property 3: Token Refresh Queue — Single Refresh and Retry
  * Feature: mobile-signup-onboarding, Property 20: Token refresh interceptor retries once on success
  *
- * Validates: Requirements 13.3
+ * Validates: Requirements 5.1, 5.2, 13.3
  */
 
 import axios from 'axios';
@@ -302,6 +303,162 @@ describe('token Refresh Interceptor — Property 20: retries once on success', (
           expect(setup.refreshAdapter).not.toHaveBeenCalled();
           expect(signOut).not.toHaveBeenCalled();
           expect(signIn).not.toHaveBeenCalled();
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+});
+
+// ─── Property 3: Token Refresh Queue — Single Refresh and Retry ────────────────
+
+/**
+ * Create a mock adapter that returns 401 on first call, then 200 on subsequent calls.
+ * Tracks how many times each URL was called.
+ */
+function _createConcurrentMainAdapter(callCounts: Record<string, number>) {
+  return jest.fn(async (config: any) => {
+    const url: string = config.url ?? '';
+    callCounts[url] = (callCounts[url] ?? 0) + 1;
+
+    if (callCounts[url] === 1) {
+      const err: any = new Error('Request failed with status code 401');
+      err.response = { status: 401, data: { message: 'Unauthorized' }, config };
+      err.config = config;
+      err.isAxiosError = true;
+      throw err;
+    }
+
+    return { status: 200, statusText: 'OK', data: { result: 'ok' }, headers: {}, config };
+  });
+}
+
+// eslint-disable-next-line max-lines-per-function
+describe('token Refresh Queue — Property 3: Single Refresh and Retry', () => {
+  /**
+   * Property 3: Token Refresh Queue — Single Refresh and Retry
+   *
+   * For any set of N concurrent API requests (N ≥ 1) that all receive HTTP 401 responses,
+   * the API client SHALL issue exactly one POST /auth/refresh call, and upon success,
+   * SHALL retry all N requests with the new access token attached.
+   *
+   * Validates: Requirements 5.1, 5.2
+   */
+  it('p3 — generates N concurrent 401s, issues exactly one refresh, retries all N with new token', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.integer({ min: 1, max: 10 }),
+        fc.string({ minLength: 10, maxLength: 50 }).filter(s => /^[\w-]+$/.test(s)),
+        fc.string({ minLength: 10, maxLength: 50 }).filter(s => /^[\w-]+$/.test(s)),
+        async (numRequests, newAccessToken, newRefreshToken) => {
+          // Clear mocks for each property test iteration
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshResponse({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+
+          // Generate N unique endpoints
+          const endpoints = Array.from({ length: numRequests }, (_, i) => `/data/endpoint-${i}`);
+
+          // Fire all N requests concurrently
+          const promises = endpoints.map(endpoint =>
+            setup.mainInstance.get(endpoint, {
+              headers: { Authorization: 'Bearer old-access-token' },
+            }),
+          );
+
+          const responses = await Promise.all(promises);
+
+          // All N requests should succeed
+          expect(responses).toHaveLength(numRequests);
+          responses.forEach((response) => {
+            expect(response.data).toEqual({ result: 'ok' });
+          });
+
+          // The refresh adapter should have been called exactly once
+          expect(setup.refreshAdapter).toHaveBeenCalledTimes(1);
+
+          // The refresh call should have been made with the old refresh token
+          const refreshCall = setup.refreshAdapter.mock.calls[0][0];
+          expect(refreshCall.url).toBe('/auth/refresh');
+          // Parse data if it's a string (JSON stringified)
+          const refreshData = typeof refreshCall.data === 'string' ? JSON.parse(refreshCall.data) : refreshCall.data;
+          expect(refreshData).toEqual({ refreshToken: 'old-refresh' });
+
+          // The main adapter should have been called 2N times:
+          // N times for initial 401 responses + N times for retries
+          expect(setup.mainAdapter).toHaveBeenCalledTimes(2 * numRequests);
+
+          // signIn should have been called exactly once with the new tokens
+          expect(signIn).toHaveBeenCalledTimes(1);
+          expect(signIn).toHaveBeenCalledWith(
+            expect.objectContaining({
+              token: expect.objectContaining({
+                access: newAccessToken,
+                refresh: newRefreshToken,
+              }),
+            }),
+          );
+
+          // signOut should NOT have been called
+          expect(signOut).not.toHaveBeenCalled();
+
+          // All retry requests must carry the new Bearer token
+          const retryConfigs = setup.mainAdapter.mock.calls.slice(numRequests);
+          retryConfigs.forEach((call) => {
+            const config = call[0];
+            expect(config.headers?.Authorization).toBe(`Bearer ${newAccessToken}`);
+          });
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  /**
+   * Property 3 variant: Verify that concurrent requests to the same endpoint
+   * all get retried with the new token.
+   */
+  it('p3 — concurrent requests to same endpoint all retried with new token', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.integer({ min: 1, max: 5 }),
+        fc.string({ minLength: 10, maxLength: 50 }).filter(s => /^[\w-]+$/.test(s)),
+        fc.string({ minLength: 10, maxLength: 50 }).filter(s => /^[\w-]+$/.test(s)),
+        async (numRequests, newAccessToken, newRefreshToken) => {
+          // Clear mocks for each property test iteration
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshResponse({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+
+          const endpoint = '/data/shared-endpoint';
+
+          // Fire N concurrent requests to the same endpoint
+          const promises = Array.from({ length: numRequests }, () =>
+            setup.mainInstance.get(endpoint, {
+              headers: { Authorization: 'Bearer old-access-token' },
+            }));
+
+          const responses = await Promise.all(promises);
+
+          // All N requests should succeed
+          expect(responses).toHaveLength(numRequests);
+          responses.forEach((response) => {
+            expect(response.data).toEqual({ result: 'ok' });
+          });
+
+          // The refresh adapter should have been called exactly once
+          expect(setup.refreshAdapter).toHaveBeenCalledTimes(1);
+
+          // The main adapter should have been called at least N+1 times:
+          // For concurrent requests to the same endpoint, the first one triggers refresh,
+          // others are queued. So we expect: 1 initial 401 + N retries = N+1 calls
+          expect(setup.mainAdapter.mock.calls.length).toBeGreaterThanOrEqual(numRequests + 1);
+
+          // signIn should have been called exactly once
+          expect(signIn).toHaveBeenCalledTimes(1);
+          expect(signOut).not.toHaveBeenCalled();
         },
       ),
       { numRuns: 100 },

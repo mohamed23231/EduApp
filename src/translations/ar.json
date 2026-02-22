@@ -54,6 +54,58 @@
   "onboarding": {
     "message": "مرحبا بك في Privat Edu"
   },
+  "parent": {
+    "attendance": {
+      "emptyMessage": "لا توجد سجلات حضور متاحة.",
+      "statusAbsent": "غائب",
+      "statusExcused": "معذور",
+      "statusNotMarked": "لم يتم تحديده",
+      "statusPresent": "حاضر",
+      "title": "الحضور"
+    },
+    "common": {
+      "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "loading": "جاري التحميل...",
+      "offlineError": "لا توجد اتصال بالإنترنت. يرجى التحقق من شبكتك والمحاولة مرة أخرى.",
+      "retry": "إعادة محاولة",
+      "serverError": "خطأ في الخادم. يرجى المحاولة لاحقاً."
+    },
+    "dashboard": {
+      "emptyMessage": "ربط طالب للبدء.",
+      "emptyTitle": "لم يتم ربط أي طلاب",
+      "linkStudentCta": "ربط طالب",
+      "title": "طلابي"
+    },
+    "linkStudent": {
+      "description": "أدخل رمز التكامل المقدم من مدرستك لربط حساب طفلك.",
+      "fallbackHelp": "ليس لديك رمز؟ يرجى التواصل مع مكتب إدارة مدرستك للحصول على المساعدة.",
+      "helpContent": "يمكنك العثور على رمز التكامل في خطاب الترحيب من مدرستك، أو التواصل مع إدارة المدرسة.",
+      "helpLink": "أين أجد الرمز؟",
+      "inputLabel": "رمز تكامل الطالب",
+      "inputPlaceholder": "EDU-123-456",
+      "submit": "ربط الطالب",
+      "title": "ربط طالبك",
+      "validation": {
+        "codeRequired": "رمز الوصول مطلوب"
+      }
+    },
+    "studentDetails": {
+      "labels": {
+        "email": "البريد الإلكتروني",
+        "enrollmentDate": "تاريخ التسجيل",
+        "grade": "المرحلة",
+        "phone": "رقم الهاتف",
+        "school": "المدرسة"
+      },
+      "title": "تفاصيل الطالب",
+      "viewAttendance": "عرض الحضور"
+    },
+    "studentList": {
+      "emptyMessage": "ربط طالب لرؤيته هنا.",
+      "emptyTitle": "لا توجد طلاب",
+      "title": "الطلاب"
+    }
+  },
   "settings": {
     "about": "حول التطبيق ",
     "app_name": "اسم التطبيق",

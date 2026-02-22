@@ -8,6 +8,8 @@ export const AppRoute = {
     dashboard: '/(parent)/dashboard',
     students: '/(parent)/students',
     linkStudent: '/(parent)/students/link',
+    studentDetails: (id: string) => `/(parent)/students/${id}` as const,
+    studentAttendance: (id: string) => `/(parent)/students/${id}/attendance` as const,
   },
   teacher: {
     dashboard: '/(teacher)/dashboard',

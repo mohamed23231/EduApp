@@ -52,6 +52,20 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
+// Mock expo-router
+jest.mock('expo-router', () => ({
+  useRouter: jest.fn(() => ({
+    back: jest.fn(),
+    push: jest.fn(),
+    replace: jest.fn(),
+    navigate: jest.fn(),
+    canGoBack: jest.fn(() => true),
+  })),
+  useLocalSearchParams: jest.fn(() => ({})),
+  usePathname: jest.fn(() => '/'),
+  useSegments: jest.fn(() => []),
+}));
+
 // Mock expo-localization
 jest.mock('expo-localization', () => ({
   getLocales: jest.fn(() => [
@@ -101,3 +115,30 @@ global.window = {};
 
 // @ts-expect-error
 global.window = global;
+
+// Mock i18next
+jest.mock('i18next', () => ({
+  use: jest.fn(function () { return this; }),
+  init: jest.fn(function () { return this; }),
+  t: jest.fn((key: string) => key),
+  language: 'en',
+  languages: ['en', 'ar'],
+  changeLanguage: jest.fn(),
+  dir: jest.fn(() => 'ltr'),
+}));
+
+// Mock react-i18next
+jest.mock('react-i18next', () => ({
+  useTranslation: jest.fn(() => ({
+    t: (key: string) => key,
+    i18n: {
+      language: 'en',
+      changeLanguage: jest.fn(),
+    },
+  })),
+  initReactI18next: {
+    type: '3rdParty',
+    init: jest.fn(),
+    use: jest.fn(function () { return this; }),
+  },
+}));

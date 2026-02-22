@@ -54,6 +54,58 @@
   "onboarding": {
     "message": "Welcome to Privat Edu"
   },
+  "parent": {
+    "attendance": {
+      "emptyMessage": "No attendance records available.",
+      "statusAbsent": "Absent",
+      "statusExcused": "Excused",
+      "statusNotMarked": "Not Marked",
+      "statusPresent": "Present",
+      "title": "Attendance"
+    },
+    "common": {
+      "genericError": "Something went wrong. Please try again.",
+      "loading": "Loading...",
+      "offlineError": "No internet connection. Please check your network and try again.",
+      "retry": "Retry",
+      "serverError": "Server error. Please try again later."
+    },
+    "dashboard": {
+      "emptyMessage": "Link a student to get started.",
+      "emptyTitle": "No Students Linked",
+      "linkStudentCta": "Link a Student",
+      "title": "My Students"
+    },
+    "linkStudent": {
+      "description": "Enter the integration code provided by your school to link your child's account.",
+      "fallbackHelp": "Don't have a code? Please contact your school's administration office for assistance.",
+      "helpContent": "You can find the integration code in the welcome letter from your school, or contact the school administration.",
+      "helpLink": "Where do I find the code?",
+      "inputLabel": "Student Integration Code",
+      "inputPlaceholder": "EDU-123-456",
+      "submit": "Link Student",
+      "title": "Link Your Student",
+      "validation": {
+        "codeRequired": "Access code is required"
+      }
+    },
+    "studentDetails": {
+      "labels": {
+        "email": "Email",
+        "enrollmentDate": "Enrollment Date",
+        "grade": "Grade",
+        "phone": "Phone",
+        "school": "School"
+      },
+      "title": "Student Details",
+      "viewAttendance": "View Attendance"
+    },
+    "studentList": {
+      "emptyMessage": "Link a student to see them here.",
+      "emptyTitle": "No Students",
+      "title": "Students"
+    }
+  },
   "settings": {
     "about": "About",
     "app_name": "App Name",
