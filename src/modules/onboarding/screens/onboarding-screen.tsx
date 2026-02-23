@@ -138,7 +138,7 @@ export function OnboardingScreen() {
       await ensureFreshToken();
 
       // 2. Call profile endpoint
-      const profileEndpoint = `/api/v1/${role.toLowerCase()}s/profile`;
+      const profileEndpoint = `/${role.toLowerCase()}s/profile`;
       await client.post(profileEndpoint, { name: fullName.trim(), phone: phone.trim() || undefined });
 
       // 3. Call validate-token to get full user object
@@ -172,7 +172,7 @@ export function OnboardingScreen() {
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
       <StatusBar style="light" translucent />
       <KeyboardAvoidingView
         style={styles.flex}

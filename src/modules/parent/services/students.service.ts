@@ -1,6 +1,7 @@
 import type { LinkStudentRequest, Student, StudentDetails } from '../types/student.types';
 import type { ApiSuccess } from '@/shared/types/api';
 import { client } from '@/lib/api/client';
+import { unwrapData } from '@/shared/services/api-utils';
 
 type BackendStudent = {
   id: string;
@@ -12,21 +13,8 @@ function mapBackendStudent(student: BackendStudent): Student {
   return {
     id: student.id,
     fullName: student.name,
-    grade: student.gradeLevel ?? undefined,
-    schoolName: undefined,
+    gradeLevel: student.gradeLevel ?? undefined,
   };
-}
-
-function unwrapData<T>(payload: ApiSuccess<T> | T): T {
-  if (
-    payload
-    && typeof payload === 'object'
-    && 'success' in (payload as Record<string, unknown>)
-    && 'data' in (payload as Record<string, unknown>)
-  ) {
-    return (payload as ApiSuccess<T>).data;
-  }
-  return payload as T;
 }
 
 export async function fetchStudents(): Promise<Student[]> {

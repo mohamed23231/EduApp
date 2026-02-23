@@ -3,12 +3,12 @@
  * Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StudentDetailsScreen } from '../student-details-screen';
 import { useStudentDetails } from '../../hooks';
+import { StudentDetailsScreen } from '../student-details-screen';
 
 // Mock dependencies
 jest.mock('expo-router');
@@ -33,12 +33,12 @@ const mockStudent = {
   fullName: 'John Doe',
   email: 'john@example.com',
   phone: '123-456-7890',
-  schoolName: 'Example School',
-  grade: 'A',
+  gradeLevel: 'Grade A',
   enrollmentDate: '2024-01-01',
 };
 
-describe('StudentDetailsScreen', () => {
+// eslint-disable-next-line max-lines-per-function
+describe('studentDetailsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
@@ -46,7 +46,7 @@ describe('StudentDetailsScreen', () => {
     (useLocalSearchParams as jest.Mock).mockReturnValue({ id: '1' });
   });
 
-  describe('Loading State', () => {
+  describe('loading State', () => {
     it('should render loading state with spinner', () => {
       (useStudentDetails as jest.Mock).mockReturnValue({
         data: undefined,
@@ -63,7 +63,7 @@ describe('StudentDetailsScreen', () => {
     });
   });
 
-  describe('Error State', () => {
+  describe('error State', () => {
     it('should render error state with error message and retry button', () => {
       const mockError = new Error('Failed to fetch');
       const mockRefetch = jest.fn();
@@ -103,7 +103,7 @@ describe('StudentDetailsScreen', () => {
     });
   });
 
-  describe('Success State', () => {
+  describe('success State', () => {
     it('should render student details with all profile information', () => {
       (useStudentDetails as jest.Mock).mockReturnValue({
         data: mockStudent,
@@ -120,8 +120,7 @@ describe('StudentDetailsScreen', () => {
       // Check for profile information
       expect(screen.getByText('john@example.com')).toBeTruthy();
       expect(screen.getByText('123-456-7890')).toBeTruthy();
-      expect(screen.getByText('Example School')).toBeTruthy();
-      expect(screen.getByText('A')).toBeTruthy();
+      expect(screen.getByText('Grade A')).toBeTruthy();
       expect(screen.getByText('2024-01-01')).toBeTruthy();
     });
 
@@ -161,7 +160,7 @@ describe('StudentDetailsScreen', () => {
       const partialStudent = {
         id: '1',
         fullName: 'Jane Doe',
-        schoolName: 'Another School',
+        gradeLevel: 'Grade 5',
       };
 
       (useStudentDetails as jest.Mock).mockReturnValue({
@@ -175,14 +174,14 @@ describe('StudentDetailsScreen', () => {
 
       // Check for available information
       expect(screen.getByText('Jane Doe')).toBeTruthy();
-      expect(screen.getByText('Another School')).toBeTruthy();
+      expect(screen.getByText('Grade 5')).toBeTruthy();
 
       // Check that unavailable information is not rendered
       expect(screen.queryByText('john@example.com')).toBeFalsy();
     });
   });
 
-  describe('Missing ID State', () => {
+  describe('missing ID State', () => {
     it('should render error when id is missing', () => {
       (useLocalSearchParams as jest.Mock).mockReturnValue({});
 

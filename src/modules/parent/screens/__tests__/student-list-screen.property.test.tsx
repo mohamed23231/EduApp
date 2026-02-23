@@ -14,25 +14,25 @@
  * Validates: Requirements 8.3, 10.1
  */
 
-import React from 'react';
+import type { Student } from '../../types/student.types';
 import { render, screen } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import * as fc from 'fast-check';
-import { StudentListScreen } from '../student-list-screen';
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStudents } from '../../hooks';
-import type { Student } from '../../types/student.types';
+import { StudentListScreen } from '../student-list-screen';
 
 // Mock dependencies
 jest.mock('expo-router');
 jest.mock('react-i18next');
 jest.mock('../../hooks');
 jest.mock('../../services/error-utils', () => ({
-    extractErrorMessage: jest.fn((_error, _t) => 'Test error message'),
+  extractErrorMessage: jest.fn((_error, _t) => 'Test error message'),
 }));
 
 const mockRouter = {
-    push: jest.fn(),
+  push: jest.fn(),
 };
 
 const mockT = (key: string) => key;
@@ -43,123 +43,121 @@ const mockT = (key: string) => key;
  * Generate a random Student object
  */
 const studentArbitrary = fc.record({
-    id: fc.uuid(),
-    fullName: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
-    schoolName: fc.option(
-        fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
-        { nil: undefined },
-    ),
+  id: fc.uuid(),
+  fullName: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
+  gradeLevel: fc.option(
+    fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
+    { nil: undefined },
+  ),
 });
 
 /**
  * Generate a non-empty array of Student objects
  */
 const nonEmptyStudentArrayArbitrary = fc.uniqueArray(studentArbitrary, {
-    minLength: 1,
-    maxLength: 20,
-    selector: student => student.id,
+  minLength: 1,
+  maxLength: 20,
+  selector: student => student.id,
 });
 
 // ─── Tests ──────────────────────────────────────────────────────────────────
 
-describe('StudentListScreen - Property 8: Student List Rendering Completeness', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-        (useRouter as jest.Mock).mockReturnValue(mockRouter);
-        (useTranslation as jest.Mock).mockReturnValue({ t: mockT });
-    });
+describe('studentListScreen - Property 8: Student List Rendering Completeness', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    (useTranslation as jest.Mock).mockReturnValue({ t: mockT });
+  });
 
-    it('should render every student name in a non-empty student array', () => {
-        fc.assert(
-            fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
-                (useStudents as jest.Mock).mockReturnValue({
-                    data: students,
-                    isLoading: false,
-                    error: null,
-                    refetch: jest.fn(),
-                });
+  it('should render every student name in a non-empty student array', () => {
+    fc.assert(
+      fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
+        (useStudents as jest.Mock).mockReturnValue({
+          data: students,
+          isLoading: false,
+          error: null,
+          refetch: jest.fn(),
+        });
 
-                render(<StudentListScreen />);
+        render(<StudentListScreen />);
 
-                // Verify every student's name is rendered at least once
-                for (const student of students) {
-                    expect(screen.queryAllByText(student.fullName).length).toBeGreaterThan(0);
-                }
-            }),
-            { numRuns: 100 },
-        );
-    });
+        // Verify every student's name is rendered at least once
+        for (const student of students) {
+          expect(screen.queryAllByText(student.fullName).length).toBeGreaterThan(0);
+        }
+      }),
+      { numRuns: 100 },
+    );
+  });
 
-    it('should render exactly as many student items as in the input array', () => {
-        fc.assert(
-            fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
-                (useStudents as jest.Mock).mockReturnValue({
-                    data: students,
-                    isLoading: false,
-                    error: null,
-                    refetch: jest.fn(),
-                });
+  it('should render exactly as many student items as in the input array', () => {
+    fc.assert(
+      fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
+        (useStudents as jest.Mock).mockReturnValue({
+          data: students,
+          isLoading: false,
+          error: null,
+          refetch: jest.fn(),
+        });
 
-                render(<StudentListScreen />);
+        render(<StudentListScreen />);
 
-                const nameFrequency = new Map<string, number>();
-                students.forEach((student) => {
-                    nameFrequency.set(student.fullName, (nameFrequency.get(student.fullName) ?? 0) + 1);
-                });
+        const nameFrequency = new Map<string, number>();
+        students.forEach((student) => {
+          nameFrequency.set(student.fullName, (nameFrequency.get(student.fullName) ?? 0) + 1);
+        });
 
-                for (const [name, count] of nameFrequency.entries()) {
-                    expect(screen.queryAllByText(name).length).toBe(count);
-                }
-            }),
-            { numRuns: 100 },
-        );
-    });
+        for (const [name, count] of nameFrequency.entries()) {
+          expect(screen.queryAllByText(name).length).toBe(count);
+        }
+      }),
+      { numRuns: 100 },
+    );
+  });
 
-    it('should render school names when available for all students', () => {
-        fc.assert(
-            fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
-                (useStudents as jest.Mock).mockReturnValue({
-                    data: students,
-                    isLoading: false,
-                    error: null,
-                    refetch: jest.fn(),
-                });
+  it('should render all student names even when gradeLevel is missing or present', () => {
+    fc.assert(
+      fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
+        (useStudents as jest.Mock).mockReturnValue({
+          data: students,
+          isLoading: false,
+          error: null,
+          refetch: jest.fn(),
+        });
 
-                render(<StudentListScreen />);
+        render(<StudentListScreen />);
 
-                // Verify school names are rendered when available
-                for (const student of students) {
-                    if (student.schoolName) {
-                        expect(screen.queryAllByText(student.schoolName).length).toBeGreaterThan(0);
-                    }
-                }
-            }),
-            { numRuns: 100 },
-        );
-    });
+        // Names remain the stable UI contract regardless of optional fields
+        for (const student of students) {
+          expect(screen.queryAllByText(student.fullName).length).toBeGreaterThan(0);
+        }
+      }),
+      { numRuns: 100 },
+    );
+  });
 
-    it('should render duplicate names according to their frequency', () => {
-        fc.assert(
-            fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
-                (useStudents as jest.Mock).mockReturnValue({
-                    data: students,
-                    isLoading: false,
-                    error: null,
-                    refetch: jest.fn(),
-                });
+  it('should render duplicate names according to their frequency', () => {
+    fc.assert(
+      fc.property(nonEmptyStudentArrayArbitrary, (students: Student[]) => {
+        (useStudents as jest.Mock).mockReturnValue({
+          data: students,
+          isLoading: false,
+          error: null,
+          refetch: jest.fn(),
+        });
 
-                render(<StudentListScreen />);
+        render(<StudentListScreen />);
 
-                const nameFrequency = new Map<string, number>();
-                students.forEach((student) => {
-                    nameFrequency.set(student.fullName, (nameFrequency.get(student.fullName) ?? 0) + 1);
-                });
+        const nameFrequency = new Map<string, number>();
+        students.forEach((student) => {
+          nameFrequency.set(student.fullName, (nameFrequency.get(student.fullName) ?? 0) + 1);
+        });
 
-                for (const [name, count] of nameFrequency.entries()) {
-                    expect(screen.queryAllByText(name).length).toBe(count);
-                }
-            }),
-            { numRuns: 100 },
-        );
-    });
+        for (const [name, count] of nameFrequency.entries()) {
+          expect(screen.queryAllByText(name).length).toBe(count);
+        }
+      }),
+      { numRuns: 100 },
+    );
+  });
 });

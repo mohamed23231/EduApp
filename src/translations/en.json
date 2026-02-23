@@ -56,7 +56,12 @@
   },
   "parent": {
     "attendance": {
+      "absent": "Absent",
       "emptyMessage": "No attendance records available.",
+      "excused": "Excused",
+      "notMarked": "Not Marked",
+      "present": "Present",
+      "rate": "Attendance Rate",
       "statusAbsent": "Absent",
       "statusExcused": "Excused",
       "statusNotMarked": "Not Marked",
@@ -64,6 +69,8 @@
       "title": "Attendance"
     },
     "common": {
+      "back": "Back",
+      "brandName": "Privat Edu",
       "genericError": "Something went wrong. Please try again.",
       "loading": "Loading...",
       "offlineError": "No internet connection. Please check your network and try again.",
@@ -74,6 +81,12 @@
       "emptyMessage": "Link a student to get started.",
       "emptyTitle": "No Students Linked",
       "linkStudentCta": "Link a Student",
+      "noTimeline": "No recent attendance records.",
+      "statsError": "Failed to load attendance stats.",
+      "statsTitle": "Attendance Overview",
+      "termLabel": "Term",
+      "timelineError": "Failed to load attendance timeline.",
+      "timelineTitle": "Recent Attendance",
       "title": "My Students"
     },
     "linkStudent": {
@@ -88,6 +101,16 @@
       "validation": {
         "codeRequired": "Access code is required"
       }
+    },
+    "profile": {
+      "accountSection": "Account",
+      "emailLabel": "Email",
+      "languageLabel": "Language",
+      "logoutButton": "Log Out",
+      "logoutConfirm": "Are you sure you want to log out?",
+      "roleLabel": "Role",
+      "roleParent": "Parent",
+      "title": "Profile"
     },
     "studentDetails": {
       "labels": {
@@ -104,6 +127,10 @@
       "emptyMessage": "Link a student to see them here.",
       "emptyTitle": "No Students",
       "title": "Students"
+    },
+    "tabs": {
+      "dashboard": "Dashboard",
+      "profile": "Profile"
     }
   },
   "settings": {

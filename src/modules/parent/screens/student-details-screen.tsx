@@ -75,17 +75,10 @@ export function StudentDetailsScreen() {
 
       {/* Student Profile Information */}
       <View className="mb-6">
-        {student.grade && (
+        {student.gradeLevel && (
           <View className="mb-4">
             <Text className="mb-1 text-sm text-gray-600">{t('parent.studentDetails.labels.grade')}</Text>
-            <Text className="text-base font-semibold">{student.grade}</Text>
-          </View>
-        )}
-
-        {student.schoolName && (
-          <View className="mb-4">
-            <Text className="mb-1 text-sm text-gray-600">{t('parent.studentDetails.labels.school')}</Text>
-            <Text className="text-base font-semibold">{student.schoolName}</Text>
+            <Text className="text-base font-semibold">{student.gradeLevel}</Text>
           </View>
         )}
 

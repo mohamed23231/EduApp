@@ -6,9 +6,7 @@
 export type Student = {
   id: string;
   fullName: string;
-  avatarUrl?: string;
-  grade?: string;
-  schoolName?: string;
+  gradeLevel?: string;
 };
 
 export type StudentDetails = Student & {
@@ -27,4 +25,23 @@ export type AttendanceRecord = {
 
 export type LinkStudentRequest = {
   accessCode: string;
+};
+
+export type AttendanceStats = {
+  attendanceRate: number;
+  present: number;
+  absent: number;
+  excused: number;
+  notMarked: number;
+  totalSessions: number;
+  termName: string;
+  termStartDate: string;
+  termEndDate: string;
+};
+
+export type TimelineRecord = {
+  date: string;
+  time: string;
+  status: AttendanceStatus;
+  excuseNote?: string;
 };

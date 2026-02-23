@@ -73,9 +73,6 @@ export function StudentListScreen() {
             accessibilityRole="button"
           >
             <Text className="text-base font-semibold">{item.fullName}</Text>
-            {item.schoolName && (
-              <Text className="mt-1 text-sm text-gray-600">{item.schoolName}</Text>
-            )}
           </Pressable>
         )}
       />

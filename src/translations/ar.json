@@ -56,7 +56,12 @@
   },
   "parent": {
     "attendance": {
+      "absent": "غائب",
       "emptyMessage": "لا توجد سجلات حضور متاحة.",
+      "excused": "معذور",
+      "notMarked": "لم يُحدَّد",
+      "present": "حاضر",
+      "rate": "معدل الحضور",
       "statusAbsent": "غائب",
       "statusExcused": "معذور",
       "statusNotMarked": "لم يتم تحديده",
@@ -64,6 +69,8 @@
       "title": "الحضور"
     },
     "common": {
+      "back": "رجوع",
+      "brandName": "برايفت إديو",
       "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
       "loading": "جاري التحميل...",
       "offlineError": "لا توجد اتصال بالإنترنت. يرجى التحقق من شبكتك والمحاولة مرة أخرى.",
@@ -74,6 +81,12 @@
       "emptyMessage": "ربط طالب للبدء.",
       "emptyTitle": "لم يتم ربط أي طلاب",
       "linkStudentCta": "ربط طالب",
+      "noTimeline": "لا توجد سجلات حضور حديثة.",
+      "statsError": "فشل تحميل إحصائيات الحضور.",
+      "statsTitle": "نظرة عامة على الحضور",
+      "termLabel": "الفصل الدراسي",
+      "timelineError": "فشل تحميل سجل الحضور.",
+      "timelineTitle": "الحضور الأخير",
       "title": "طلابي"
     },
     "linkStudent": {
@@ -88,6 +101,16 @@
       "validation": {
         "codeRequired": "رمز الوصول مطلوب"
       }
+    },
+    "profile": {
+      "accountSection": "الحساب",
+      "emailLabel": "البريد الإلكتروني",
+      "languageLabel": "اللغة",
+      "logoutButton": "تسجيل الخروج",
+      "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "roleLabel": "الدور",
+      "roleParent": "ولي أمر",
+      "title": "الملف الشخصي"
     },
     "studentDetails": {
       "labels": {
@@ -104,6 +127,10 @@
       "emptyMessage": "ربط طالب لرؤيته هنا.",
       "emptyTitle": "لا توجد طلاب",
       "title": "الطلاب"
+    },
+    "tabs": {
+      "dashboard": "لوحة التحكم",
+      "profile": "الملف الشخصي"
     }
   },
   "settings": {

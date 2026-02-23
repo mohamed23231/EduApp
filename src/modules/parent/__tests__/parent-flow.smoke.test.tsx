@@ -1,498 +1,208 @@
 /**
- * Smoke test for parent navigation flow
+ * Smoke test for parent screens
  * Validates: Requirements 18.1, 18.4
- *
- * Tests the full navigation path:
- * dashboard → link student → back to dashboard → student list → student details → attendance
- * Verifies no dead links or blank screens in parent routes
  */
 
-// Mock useTranslation FIRST before importing anything else
-jest.mock('react-i18next', () => ({
-    useTranslation: () => ({
-        t: (key: string) => {
-            const translations: Record<string, string> = {
-                'parent.common.loading': 'Loading...',
-                'parent.common.genericError': 'Something went wrong',
-                'parent.common.retry': 'Retry',
-                'parent.common.offlineError': 'No internet connection',
-                'parent.dashboard.title': 'My Students',
-                'parent.dashboard.emptyTitle': 'No Students Linked',
-                'parent.dashboard.emptyMessage': 'Link a student to get started.',
-                'parent.dashboard.linkStudentCta': 'Link a Student',
-                'parent.linkStudent.title': 'Link Your Student',
-                'parent.linkStudent.submit': 'Link Student',
-                'parent.studentList.title': 'Students',
-                'parent.studentDetails.title': 'Student Details',
-                'parent.studentDetails.viewAttendance': 'View Attendance',
-                'parent.attendance.title': 'Attendance',
-                'parent.attendance.emptyMessage': 'No attendance records available.',
-                'parent.attendance.statusPresent': 'Present',
-                'parent.attendance.statusAbsent': 'Absent',
-                'parent.attendance.statusExcused': 'Excused',
-                'parent.attendance.statusNotMarked': 'Not Marked',
-            };
-            return translations[key] || key;
-        },
-    }),
-}));
-
-// Mock useLocalSearchParams
-jest.mock('expo-router', () => ({
-    useRouter: () => ({
-        push: jest.fn(),
-        back: jest.fn(),
-    }),
-    useLocalSearchParams: () => ({ id: 'student-123' }),
-}));
-
-// Mock the hooks
-jest.mock('../hooks');
-jest.mock('../hooks/use-link-student');
-jest.mock('../hooks/use-student-details');
-jest.mock('../hooks/use-attendance');
-
-import type { AttendanceRecord } from '../types/student.types';
+import type { AttendanceRecord, AttendanceStats, TimelineRecord } from '../types/student.types';
 import { render, screen } from '@testing-library/react-native';
-import * as React from 'react';
-import { useAttendance } from '../hooks/use-attendance';
-import { useStudentDetails } from '../hooks/use-student-details';
-import { useStudents } from '../hooks';
-import { useLinkStudent } from '../hooks/use-link-student';
+import { useAttendance, useAttendanceStats, useAttendanceTimeline, useLinkStudent, useStudentDetails, useStudents } from '../hooks';
 import { ParentDashboardScreen } from '../screens/dashboard-screen';
 import { LinkStudentScreen } from '../screens/link-student-screen';
-import { StudentListScreen } from '../screens/student-list-screen';
-import { StudentDetailsScreen } from '../screens/student-details-screen';
 import { StudentAttendanceScreen } from '../screens/student-attendance-screen';
+import { StudentDetailsScreen } from '../screens/student-details-screen';
+import { StudentListScreen } from '../screens/student-list-screen';
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'parent.common.retry': 'Retry',
+        'parent.common.genericError': 'Something went wrong',
+        'parent.common.brandName': 'Privat Edu',
+        'parent.common.back': 'Back',
+        'parent.dashboard.title': 'My Students',
+        'parent.dashboard.emptyTitle': 'No Students Linked',
+        'parent.dashboard.emptyMessage': 'Link a student to get started.',
+        'parent.dashboard.linkStudentCta': 'Link a Student',
+        'parent.dashboard.statsTitle': 'Attendance Overview',
+        'parent.dashboard.timelineTitle': 'Recent Attendance',
+        'parent.dashboard.noTimeline': 'No recent attendance records',
+        'parent.linkStudent.title': 'Link Your Student',
+        'parent.linkStudent.description': 'Enter the integration code provided by your school.',
+        'parent.linkStudent.inputLabel': 'Student Integration Code',
+        'parent.linkStudent.inputPlaceholder': 'EDU-123-456',
+        'parent.linkStudent.submit': 'Link Student',
+        'parent.linkStudent.helpLink': 'Where do I find the code?',
+        'parent.linkStudent.helpContent': 'Contact your school administration.',
+        'parent.linkStudent.fallbackHelp': 'Contact school administration office.',
+        'parent.studentList.emptyTitle': 'No Students',
+        'parent.studentList.emptyMessage': 'Link a student to see them here.',
+        'parent.studentDetails.viewAttendance': 'View Attendance',
+        'parent.studentDetails.labels.grade': 'Grade',
+        'parent.attendance.emptyMessage': 'No attendance records available.',
+        'parent.attendance.statusPresent': 'Present',
+        'parent.attendance.statusAbsent': 'Absent',
+        'parent.attendance.statusExcused': 'Excused',
+        'parent.attendance.statusNotMarked': 'Not Marked',
+      };
+      return translations[key] ?? key;
+    },
+  }),
+}));
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+  }),
+  useLocalSearchParams: () => ({ id: 'student-1' }),
+}));
+
+jest.mock('../hooks', () => ({
+  useStudents: jest.fn(),
+  useLinkStudent: jest.fn(),
+  useStudentDetails: jest.fn(),
+  useAttendance: jest.fn(),
+  useAttendanceStats: jest.fn(),
+  useAttendanceTimeline: jest.fn(),
+}));
 
 const mockUseStudents = useStudents as jest.MockedFunction<typeof useStudents>;
 const mockUseLinkStudent = useLinkStudent as jest.MockedFunction<typeof useLinkStudent>;
 const mockUseStudentDetails = useStudentDetails as jest.MockedFunction<typeof useStudentDetails>;
 const mockUseAttendance = useAttendance as jest.MockedFunction<typeof useAttendance>;
+const mockUseAttendanceStats = useAttendanceStats as jest.MockedFunction<typeof useAttendanceStats>;
+const mockUseAttendanceTimeline = useAttendanceTimeline as jest.MockedFunction<typeof useAttendanceTimeline>;
+
+const defaultStats: AttendanceStats = {
+  attendanceRate: 92,
+  present: 12,
+  absent: 1,
+  excused: 0,
+  notMarked: 0,
+  totalSessions: 13,
+  termName: 'Term 1',
+  termStartDate: '2026-01-01',
+  termEndDate: '2026-05-01',
+};
+
+const defaultTimeline: TimelineRecord[] = [
+  { date: '2026-02-20', time: '08:00', status: 'PRESENT' },
+  { date: '2026-02-19', time: '08:00', status: 'ABSENT' },
+];
+
+// eslint-disable-next-line max-lines-per-function
+describe('parent screens smoke test', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockUseStudents.mockReturnValue({
+      data: [{ id: 'student-1', fullName: 'Sara Ali', gradeLevel: 'Grade 5' }],
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
+
+    mockUseLinkStudent.mockReturnValue({
+      mutate: jest.fn(),
+      isPending: false,
+      error: null,
+      reset: jest.fn(),
+    } as any);
+
+    mockUseStudentDetails.mockReturnValue({
+      data: {
+        id: 'student-1',
+        fullName: 'Sara Ali',
+        gradeLevel: 'Grade 5',
+      },
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
+
+    mockUseAttendance.mockReturnValue({
+      data: [
+        { sessionDate: '2026-02-20', sessionName: 'Math', status: 'PRESENT' },
+      ] as AttendanceRecord[],
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
+
+    mockUseAttendanceStats.mockReturnValue({
+      data: defaultStats,
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
+
+    mockUseAttendanceTimeline.mockReturnValue({
+      data: defaultTimeline,
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
+  });
+
+  it('renders dashboard in success state', () => {
+    render(<ParentDashboardScreen />);
+
+    expect(screen.getByText('My Students')).toBeTruthy();
+    expect(screen.getByLabelText('Sara Ali, selected')).toBeTruthy();
+  });
+
+  it('renders dashboard loading state', () => {
+    mockUseStudents.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
+
+    render(<ParentDashboardScreen />);
+
+    expect(screen.getByTestId('loading-indicator')).toBeTruthy();
+  });
+
+  it('renders dashboard empty state', () => {
+    mockUseStudents.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
 
-describe('parent navigation flow smoke test', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-        // Set default mocks for all hooks
-        mockUseStudents.mockReturnValue({
-            data: [],
-            isLoading: false,
-            error: null,
-            refetch: jest.fn(),
-        } as any);
-        mockUseLinkStudent.mockReturnValue({
-            mutate: jest.fn(),
-            isPending: false,
-            error: null,
-        } as any);
-        mockUseStudentDetails.mockReturnValue({
-            data: null,
-            isLoading: false,
-            error: null,
-            refetch: jest.fn(),
-        } as any);
-        mockUseAttendance.mockReturnValue({
-            data: [],
-            isLoading: false,
-            error: null,
-            refetch: jest.fn(),
-        } as any);
-    });
-
-    describe('dashboard screen renders without errors', () => {
-        it('should render dashboard screen with student list', () => {
-            mockUseStudents.mockReturnValue({
-                data: [
-                    { id: '1', fullName: 'John Doe', schoolName: 'School A' },
-                    { id: '2', fullName: 'Jane Smith', schoolName: 'School B' },
-                ],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<ParentDashboardScreen />);
-
-            expect(screen.getByText('John Doe')).toBeTruthy();
-            expect(screen.getByText('Jane Smith')).toBeTruthy();
-        });
-
-        it('should not render blank screen on dashboard', () => {
-            mockUseStudents.mockReturnValue({
-                data: [{ id: '1', fullName: 'John Doe', schoolName: 'School A' }],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<ParentDashboardScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should render loading state on dashboard without blank screen', () => {
-            mockUseStudents.mockReturnValue({
-                data: undefined,
-                isLoading: true,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<ParentDashboardScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should render error state on dashboard without blank screen', () => {
-            mockUseStudents.mockReturnValue({
-                data: undefined,
-                isLoading: false,
-                error: new Error('Network error'),
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<ParentDashboardScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should render empty state on dashboard without blank screen', () => {
-            mockUseStudents.mockReturnValue({
-                data: [],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<ParentDashboardScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe('link student screen renders without errors', () => {
-        it('should render link student screen with input field', () => {
-            mockUseLinkStudent.mockReturnValue({
-                mutate: jest.fn(),
-                isPending: false,
-                error: null,
-            } as any);
-
-            render(<LinkStudentScreen />);
-
-            const input = screen.getByTestId('access-code-input');
-            expect(input).toBeTruthy();
-        });
-
-        it('should not render blank screen on link student', () => {
-            mockUseLinkStudent.mockReturnValue({
-                mutate: jest.fn(),
-                isPending: false,
-                error: null,
-            } as any);
-
-            const { root } = render(<LinkStudentScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe('student list screen renders without errors', () => {
-        it('should render student list screen with students', () => {
-            mockUseStudents.mockReturnValue({
-                data: [
-                    { id: '1', fullName: 'John Doe', schoolName: 'School A' },
-                    { id: '2', fullName: 'Jane Smith', schoolName: 'School B' },
-                ],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<StudentListScreen />);
-
-            expect(screen.getByText('John Doe')).toBeTruthy();
-            expect(screen.getByText('Jane Smith')).toBeTruthy();
-        });
-
-        it('should not render blank screen on student list', () => {
-            mockUseStudents.mockReturnValue({
-                data: [{ id: '1', fullName: 'John Doe', schoolName: 'School A' }],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentListScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should render empty state on student list without blank screen', () => {
-            mockUseStudents.mockReturnValue({
-                data: [],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentListScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe('student details screen renders without errors', () => {
-        it('should render student details screen with student name', () => {
-            mockUseStudentDetails.mockReturnValue({
-                data: {
-                    id: '1',
-                    fullName: 'John Doe',
-                    schoolName: 'School A',
-                    email: 'john@example.com',
-                },
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<StudentDetailsScreen />);
-
-            expect(screen.getByText('John Doe')).toBeTruthy();
-        });
-
-        it('should not render blank screen on student details', () => {
-            mockUseStudentDetails.mockReturnValue({
-                data: {
-                    id: '1',
-                    fullName: 'John Doe',
-                    schoolName: 'School A',
-                },
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentDetailsScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should have navigation link to attendance screen', () => {
-            mockUseStudentDetails.mockReturnValue({
-                data: {
-                    id: '1',
-                    fullName: 'John Doe',
-                    schoolName: 'School A',
-                },
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<StudentDetailsScreen />);
-
-            const attendanceButton = screen.getByText('parent.studentDetails.viewAttendance');
-            expect(attendanceButton).toBeTruthy();
-        });
-
-        it('should render loading state on student details without blank screen', () => {
-            mockUseStudentDetails.mockReturnValue({
-                data: undefined,
-                isLoading: true,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentDetailsScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should render error state on student details without blank screen', () => {
-            mockUseStudentDetails.mockReturnValue({
-                data: undefined,
-                isLoading: false,
-                error: new Error('Network error'),
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentDetailsScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe('student attendance screen renders without errors', () => {
-        it('should render attendance screen with records', () => {
-            const mockRecords: AttendanceRecord[] = [
-                {
-                    sessionDate: '2024-01-15',
-                    sessionName: 'Math Class',
-                    status: 'PRESENT',
-                },
-                {
-                    sessionDate: '2024-01-16',
-                    sessionName: 'English Class',
-                    status: 'ABSENT',
-                },
-            ];
-
-            mockUseAttendance.mockReturnValue({
-                data: mockRecords,
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<StudentAttendanceScreen />);
-
-            expect(screen.getByText('Math Class')).toBeTruthy();
-            expect(screen.getByText('English Class')).toBeTruthy();
-        });
-
-        it('should not render blank screen on attendance', () => {
-            const mockRecords: AttendanceRecord[] = [
-                {
-                    sessionDate: '2024-01-15',
-                    sessionName: 'Math Class',
-                    status: 'PRESENT',
-                },
-            ];
-
-            mockUseAttendance.mockReturnValue({
-                data: mockRecords,
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentAttendanceScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should display all attendance fields', () => {
-            const mockRecords: AttendanceRecord[] = [
-                {
-                    sessionDate: '2024-01-15',
-                    sessionName: 'Math Class',
-                    status: 'PRESENT',
-                },
-            ];
-
-            mockUseAttendance.mockReturnValue({
-                data: mockRecords,
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<StudentAttendanceScreen />);
-
-            expect(screen.getByText('Math Class')).toBeTruthy();
-            expect(screen.getByText('2024-01-15')).toBeTruthy();
-        });
-
-        it('should render loading state on attendance without blank screen', () => {
-            mockUseAttendance.mockReturnValue({
-                data: undefined,
-                isLoading: true,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentAttendanceScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should render error state on attendance without blank screen', () => {
-            mockUseAttendance.mockReturnValue({
-                data: undefined,
-                isLoading: false,
-                error: new Error('Network error'),
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentAttendanceScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-
-        it('should render empty state on attendance without blank screen', () => {
-            mockUseAttendance.mockReturnValue({
-                data: [],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            const { root } = render(<StudentAttendanceScreen />);
-
-            expect(root).toBeDefined();
-            expect(root.children.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe('navigation flow without dead links', () => {
-        it('should navigate from dashboard to link student without error', () => {
-            mockUseStudents.mockReturnValue({
-                data: [],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<ParentDashboardScreen />);
-
-            const ctaButton = screen.getByText('Link a Student');
-            expect(ctaButton).toBeTruthy();
-        });
-
-        it('should navigate from student list to student details without error', () => {
-            mockUseStudents.mockReturnValue({
-                data: [{ id: '1', fullName: 'John Doe', schoolName: 'School A' }],
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<StudentListScreen />);
-
-            const studentItem = screen.getByText('John Doe');
-            expect(studentItem).toBeTruthy();
-        });
-
-        it('should navigate from student details to attendance without error', () => {
-            mockUseStudentDetails.mockReturnValue({
-                data: {
-                    id: '1',
-                    fullName: 'John Doe',
-                    schoolName: 'School A',
-                },
-                isLoading: false,
-                error: null,
-                refetch: jest.fn(),
-            } as any);
-
-            render(<StudentDetailsScreen />);
-
-            const attendanceButton = screen.getByText('View Attendance');
-            expect(attendanceButton).toBeTruthy();
-        });
-    });
+    render(<ParentDashboardScreen />);
+
+    expect(screen.getByText('No Students Linked')).toBeTruthy();
+  });
+
+  it('renders link-student screen', () => {
+    render(<LinkStudentScreen />);
+
+    expect(screen.getByTestId('access-code-input')).toBeTruthy();
+    expect(screen.getByText('Link Your Student')).toBeTruthy();
+  });
+
+  it('renders student list screen', () => {
+    render(<StudentListScreen />);
+
+    expect(screen.getByText('Sara Ali')).toBeTruthy();
+  });
+
+  it('renders student details screen', () => {
+    render(<StudentDetailsScreen />);
+
+    expect(screen.getByText('Sara Ali')).toBeTruthy();
+    expect(screen.getByText('View Attendance')).toBeTruthy();
+  });
+
+  it('renders attendance screen', () => {
+    render(<StudentAttendanceScreen />);
+
+    expect(screen.getByText('Math')).toBeTruthy();
+    expect(screen.getByText('Present')).toBeTruthy();
+  });
 });

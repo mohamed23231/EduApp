@@ -10,6 +10,20 @@ jest.mock('react-native-worklets', () => ({
 // Mock react-native-reanimated
 jest.mock('react-native-reanimated', () => {
   const View = require('react-native').View;
+  const createEnteringAnimation = () => {
+    const chain: {
+      delay: jest.Mock;
+      duration: jest.Mock;
+      springify: jest.Mock;
+      damping: jest.Mock;
+    } = {
+      delay: jest.fn(() => chain),
+      duration: jest.fn(() => chain),
+      springify: jest.fn(() => chain),
+      damping: jest.fn(() => chain),
+    };
+    return chain;
+  };
 
   return {
     __esModule: true,
@@ -20,6 +34,7 @@ jest.mock('react-native-reanimated', () => {
     },
     useSharedValue: jest.fn(() => ({ value: 0 })),
     useAnimatedStyle: jest.fn(fn => fn()),
+    useAnimatedProps: jest.fn(fn => fn()),
     withTiming: jest.fn(value => value),
     withSpring: jest.fn(value => value),
     withDecay: jest.fn(value => value),
@@ -37,16 +52,16 @@ jest.mock('react-native-reanimated', () => {
       out: jest.fn(fn => fn),
       inOut: jest.fn(fn => fn),
     },
-    FadeIn: { duration: jest.fn(() => ({})) },
-    FadeOut: { duration: jest.fn(() => ({})) },
-    FadeInDown: { duration: jest.fn(() => ({})) },
-    FadeInUp: { duration: jest.fn(() => ({})) },
-    FadeInLeft: { duration: jest.fn(() => ({})) },
-    FadeInRight: { duration: jest.fn(() => ({})) },
-    SlideInDown: { duration: jest.fn(() => ({})) },
-    SlideInUp: { duration: jest.fn(() => ({})) },
-    SlideInLeft: { duration: jest.fn(() => ({})) },
-    SlideInRight: { duration: jest.fn(() => ({})) },
+    FadeIn: createEnteringAnimation(),
+    FadeOut: createEnteringAnimation(),
+    FadeInDown: createEnteringAnimation(),
+    FadeInUp: createEnteringAnimation(),
+    FadeInLeft: createEnteringAnimation(),
+    FadeInRight: createEnteringAnimation(),
+    SlideInDown: createEnteringAnimation(),
+    SlideInUp: createEnteringAnimation(),
+    SlideInLeft: createEnteringAnimation(),
+    SlideInRight: createEnteringAnimation(),
     Layout: {},
     Keyframe: jest.fn(),
   };
