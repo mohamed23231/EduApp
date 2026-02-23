@@ -1,1 +1,16 @@
-export {};
+export type {
+  AccessCode,
+  AttendanceRecord,
+  AttendanceStatus,
+  CreateSessionInput,
+  CreateStudentInput,
+  MarkAttendanceInput,
+  PaginatedStudents,
+  SessionInstance,
+  SessionState,
+  SessionTemplate,
+  Student,
+  UpdateAttendanceInput,
+  UpdateSessionInput,
+  UpdateStudentInput,
+} from './teacher.types';

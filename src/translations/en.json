@@ -146,6 +146,138 @@
       }
     }
   },
+  "teacher": {
+    "attendance": {
+      "absent": "Absent",
+      "absentLabel": "Mark Absent",
+      "emptyMessage": "No students assigned to this session.",
+      "excused": "Excused",
+      "excusedLabel": "Mark Excused",
+      "excuseNote": "Reason",
+      "present": "Present",
+      "presentLabel": "Mark Present",
+      "submitButton": "Submit Attendance",
+      "submitting": "Submitting...",
+      "title": "Mark Attendance",
+      "sessionNotActive": "This session is not active yet.",
+      "sessionClosed": "This session has ended.",
+      "partialFailureError": "Some attendance records failed to save.",
+      "conflictError": "One or more records were already submitted.",
+      "retryButton": "Retry Failed"
+    },
+    "common": {
+      "back": "Back",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "edit": "Edit",
+      "error": "An error occurred",
+      "genericError": "Something went wrong. Please try again.",
+      "loading": "Loading...",
+      "retry": "Retry",
+      "save": "Save"
+    },
+    "connectionCode": {
+      "codeLabel": "Student Access Code",
+      "confirmRegenerateMessage": "The old code will stop working. Students will need the new code to link their accounts.",
+      "confirmRegenerateTitle": "Regenerate Access Code?",
+      "copyButton": "Copy Code",
+      "copiedMessage": "Access code copied to clipboard",
+      "copiedTitle": "Copied",
+      "expiresAt": "Expires on {{date}}",
+      "regenerateButton": "Regenerate Code",
+      "regenerateWarning": "Regenerating will invalidate the current code",
+      "regenerating": "Regenerating...",
+      "shareButton": "Share Code",
+      "title": "Student Access Code"
+    },
+    "dashboard": {
+      "emptyMessage": "No sessions scheduled for today.",
+      "emptyTitle": "No Sessions Today",
+      "greeting": "Hello, {{name}}! 👋",
+      "sessionsTitle": "Today's Sessions",
+      "title": "Teacher Dashboard"
+    },
+    "sessions": {
+      "assignedStudents": "Assigned Students",
+      "assignStudentsButton": "Assign Students",
+      "assignStudentsEmpty": "No students assigned yet",
+      "conflictError": "This session conflicts with another session.",
+      "createButton": "Create Session",
+      "createTitle": "New Session",
+      "daysOfWeek": "Days",
+      "deleteButton": "Delete Session",
+      "deleteConfirmMessage": "This session and all its instances will be permanently deleted.",
+      "deleteConfirmTitle": "Delete Session?",
+      "deleteSuccess": "Session deleted successfully",
+      "editTitle": "Edit Session",
+      "emptyMessage": "No sessions scheduled.",
+      "emptyTitle": "Create Your First Session",
+      "removeStudentConfirm": "Remove this student?",
+      "sessionForm": {
+        "daysLabel": "Days of Week",
+        "subjectLabel": "Subject",
+        "subjectPlaceholder": "Enter subject name",
+        "timeLabel": "Start Time",
+        "timePlaceholder": "HH:mm",
+        "validation": {
+          "daysRequired": "Select at least one day",
+          "subjectRequired": "Subject is required",
+          "timeInvalid": "Time must be in HH:mm format",
+          "timeRequired": "Time is required"
+        }
+      },
+      "startSessionButton": "Start Session",
+      "status": {
+        "ACTIVE": "Active",
+        "CLOSED": "Closed",
+        "DRAFT": "Draft"
+      },
+      "submitting": "Creating...",
+      "title": "Sessions",
+      "updating": "Updating..."
+    },
+    "students": {
+      "createButton": "Create Student",
+      "createTitle": "Add Student",
+      "deleteButton": "Delete Student",
+      "deleteConfirmMessage": "This student and all their records will be permanently deleted.",
+      "deleteConfirmTitle": "Delete Student?",
+      "deleteSuccess": "Student deleted successfully",
+      "editTitle": "Edit Student",
+      "emptyMessage": "No students added yet. Create one to get started.",
+      "emptyTitle": "No Students",
+      "connectionCodeButton": "Access Code",
+      "form": {
+        "gradeLabel": "Grade (Optional)",
+        "gradePlaceholder": "e.g., 10th Grade",
+        "nameLabel": "Student Name",
+        "namePlaceholder": "Enter student name",
+        "notesLabel": "Notes (Optional)",
+        "notesPla​ceholder": "Add any additional notes",
+        "validation": {
+          "nameRequired": "Student name is required"
+        }
+      },
+      "noConnectionCode": "No access code generated yet",
+      "search": "Search by name...",
+      "searchPlaceholder": "Type to search...",
+      "submitting": "Creating...",
+      "title": "Students",
+      "updating": "Updating..."
+    },
+    "onboarding": {
+      "title": "Complete Your Profile",
+      "subtitle": "Please provide your contact information",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "submit": "Complete Setup",
+      "submitting": "Setting up...",
+      "error": "Setup failed. Please try again."
+    }
+  },
   "settings": {
     "about": "About",
     "app_name": "App Name",
