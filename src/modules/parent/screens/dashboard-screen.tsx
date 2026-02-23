@@ -11,11 +11,13 @@ import {
   AttendanceDonutChart,
   AttendanceStatCard,
   EmptyDashboard,
+  NotificationBell,
   StudentSelector,
   TimelineItem,
 } from '../components';
 import { useAttendanceStats, useAttendanceTimeline, useStudents } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
+import { useNotificationStore } from '../store/use-notification-store';
 
 type AttendanceStatsSectionProps = {
   isLoading: boolean;
@@ -108,6 +110,7 @@ export function ParentDashboardScreen() {
   const router = useRouter();
   const { data: students, isLoading, error, refetch } = useStudents();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const unreadCount = useNotificationStore.use.unreadCount();
 
   const effectiveSelectedId = useMemo(() => {
     if (!students?.length) {
@@ -167,13 +170,19 @@ export function ParentDashboardScreen() {
     <SafeAreaView edges={['top']} style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('parent.dashboard.title')}</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => router.push(AppRoute.parent.linkStudent)}
-          testID="add-student-button"
-        >
-          <Ionicons name="add-circle" size={28} color="#3B82F6" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <NotificationBell
+            unreadCount={unreadCount}
+            onPress={() => router.push(AppRoute.parent.notifications)}
+          />
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => router.push(AppRoute.parent.linkStudent)}
+            testID="add-student-button"
+          >
+            <Ionicons name="add-circle" size={28} color="#3B82F6" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -222,6 +231,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: '#111827',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   addButton: {
     padding: 4,

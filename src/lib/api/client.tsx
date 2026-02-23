@@ -23,10 +23,23 @@ export const authClient = axios.create({
   baseURL: resolveAuthBaseURL(baseURL),
 });
 
+function getDeviceTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+  catch {
+    return 'Asia/Riyadh'; // fallback default
+  }
+}
+
 function applyCommonRequestHeaders(instance: typeof client) {
   instance.interceptors.request.use((config) => {
     const language = getLanguage() ?? 'en';
     config.headers.set('X-Language', language);
+
+    // Add device timezone for authenticated parent requests
+    const timezone = getDeviceTimezone();
+    config.headers.set('X-Timezone', timezone);
 
     const token = getToken();
     if (token?.access) {

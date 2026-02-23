@@ -4,3 +4,5 @@ export { EmptyDashboard } from './empty-dashboard';
 export { getAvatarColor, getInitials, StudentAvatar } from './student-avatar';
 export { StudentSelector } from './student-selector';
 export { TimelineItem } from './timeline-item';
+export { NotificationBell } from './notification-bell';
+export { NotificationItem } from './notification-item';

@@ -131,6 +131,19 @@
     "tabs": {
       "dashboard": "Dashboard",
       "profile": "Profile"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "emptyTitle": "No Notifications",
+      "empty": "You don't have any notifications yet.",
+      "markAllAsRead": "Mark all as read",
+      "error": "Failed to load notifications. Please try again.",
+      "pushDisabled": "Push notifications are off. In-app notifications are still active.",
+      "openSettings": "Open Settings",
+      "absence": {
+        "title": "Absence Alert",
+        "body": "{studentName} was marked absent on {sessionDate}"
+      }
     }
   },
   "settings": {
