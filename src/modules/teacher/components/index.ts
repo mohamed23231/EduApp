@@ -5,6 +5,9 @@ export { EmptyState } from './empty-state';
 export { ErrorBoundary } from './error-boundary';
 export { FilterChips } from './filter-chips';
 export type { FilterOption } from './filter-chips';
+export { RatingInput } from './rating-input';
+export { RatingInputEnhanced } from './rating-input-enhanced';
+// BatchRatingSheet is imported directly in attendance-sheet-screen
 export { ScreenHeader } from './screen-header';
 export { SessionCard } from './session-card';
 export { DashboardSkeleton, SessionListSkeleton, StudentListSkeleton } from './skeleton-loader';

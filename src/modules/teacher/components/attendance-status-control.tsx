@@ -15,13 +15,16 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Input, Text } from '@/components/ui';
+import { RatingInputEnhanced } from './rating-input-enhanced';
 
 type AttendanceStatusControlProps = {
   student: { id: string; name: string };
   status: AttendanceStatus | null;
   excuseNote: string;
+  rating: number | null;
   onStatusChange: (status: AttendanceStatus) => void;
   onExcuseNoteChange: (note: string) => void;
+  onRatingChange: (rating: number | null) => void;
   disabled: boolean;
 };
 
@@ -121,8 +124,10 @@ export function AttendanceStatusControl({
   student,
   status,
   excuseNote,
+  rating,
   onStatusChange,
   onExcuseNoteChange,
+  onRatingChange,
   disabled,
 }: AttendanceStatusControlProps) {
   const { t } = useTranslation();
@@ -179,6 +184,12 @@ export function AttendanceStatusControl({
           style={styles.excuseNoteInput}
         />
       )}
+
+      <RatingInputEnhanced
+        value={rating}
+        onChange={onRatingChange}
+        disabled={disabled}
+      />
     </View>
   );
 }

@@ -11,6 +11,7 @@ export const AppRoute = {
     linkStudent: '/(parent)/students/link',
     studentDetails: (id: string) => `/(parent)/students/${id}` as const,
     studentAttendance: (id: string) => `/(parent)/students/${id}/attendance` as const,
+    studentPerformance: (id: string) => `/(parent)/students/${id}/performance` as const,
     notifications: '/(parent)/notifications',
   },
   teacher: {
@@ -24,6 +25,8 @@ export const AppRoute = {
     sessionCreate: '/(teacher)/sessions/create',
     sessionEdit: (id: string) => `/(teacher)/sessions/${id}/edit` as const,
     attendance: (instanceId: string) => `/(teacher)/attendance/${instanceId}` as const,
+    sessionRankings: (templateId: string) => `/(teacher)/sessions/${templateId}/rankings` as const,
+    studentPerformance: (studentId: string) => `/(teacher)/students/${studentId}/performance` as const,
   },
   admin: {
     dashboard: '/(admin)/dashboard',

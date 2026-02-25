@@ -24,6 +24,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
+import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
 import {
   EmptyState,
   FilterChips,
@@ -211,6 +212,7 @@ export function StudentListScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const actionsRef = useRef<StudentActionsSheetRef>(null);
+  const { isTeacherPerformanceEnabled } = useFeatureFlags();
 
   const { students, isLoading, isRefreshing, isPaginating, error, setSearch, loadMore, refetch } = useStudents();
   const { sessionMap, assignedStudentIds, refetch: refetchSessions } = useStudentSessions();
@@ -241,6 +243,11 @@ export function StudentListScreen() {
 
   const handleEdit = useCallback(
     (id: string) => router.push(AppRoute.teacher.studentEdit(id) as any),
+    [router],
+  );
+
+  const handleViewPerformance = useCallback(
+    (id: string) => router.push(AppRoute.teacher.studentPerformance(id) as any),
     [router],
   );
 
@@ -288,7 +295,7 @@ export function StudentListScreen() {
         filter={filter}
         t={t}
       />
-      <StudentActionsSheet ref={actionsRef} onEdit={handleEdit} onDeleted={handleRefresh} />
+      <StudentActionsSheet ref={actionsRef} onEdit={handleEdit} onDeleted={handleRefresh} onViewPerformance={isTeacherPerformanceEnabled ? handleViewPerformance : undefined} />
     </SafeAreaView>
   );
 }

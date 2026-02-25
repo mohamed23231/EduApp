@@ -14,6 +14,11 @@ export {
 export { extractErrorMessage, isAxiosError } from './error-utils';
 export { getErrorDetails, logError } from './logger';
 export {
+  getParentStudentPerformance,
+  getSessionRankings,
+  getTeacherStudentPerformance,
+} from './performance.service';
+export {
   assignStudents,
   createTemplate,
   deleteTemplate,

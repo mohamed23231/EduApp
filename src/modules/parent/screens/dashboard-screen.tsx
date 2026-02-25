@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
@@ -232,6 +232,23 @@ export function ParentDashboardScreen() {
           timeline={timeline}
           onRetry={() => refetchTimeline()}
         />
+
+        {effectiveSelectedId && (
+          <TouchableOpacity
+            style={styles.performanceCard}
+            onPress={() => router.push(AppRoute.parent.studentPerformance(effectiveSelectedId))}
+            testID="performance-button"
+          >
+            <View style={styles.performanceIcon}>
+              <Ionicons name="stats-chart" size={20} color="#3B82F6" />
+            </View>
+            <View style={styles.performanceContent}>
+              <Text style={styles.performanceTitle}>{t('parent.dashboard.performanceTitle')}</Text>
+              <Text style={styles.performanceSubtitle}>{t('parent.dashboard.performanceSubtitle')}</Text>
+            </View>
+            <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -369,5 +386,40 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     textAlign: 'center',
     marginBottom: 16,
+  },
+  performanceCard: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  performanceIcon: {
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    borderRadius: 10,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  performanceContent: {
+    flex: 1,
+  },
+  performanceTitle: {
+    color: '#111827',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  performanceSubtitle: {
+    color: '#6B7280',
+    fontSize: 13,
+    marginTop: 2,
   },
 });

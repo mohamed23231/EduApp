@@ -6,6 +6,8 @@ export { TeacherProfileScreen } from './profile-screen';
 export { SessionCreateScreen } from './session-create-screen';
 export { SessionEditScreen } from './session-edit-screen';
 export { SessionListScreen } from './session-list-screen';
+export { SessionRankingsScreen } from './session-rankings-screen';
 export { StudentCreateScreen } from './student-create-screen';
 export { StudentEditScreen } from './student-edit-screen';
 export { StudentListScreen } from './student-list-screen';
+export { TeacherStudentPerformanceScreen } from './teacher-student-performance-screen';

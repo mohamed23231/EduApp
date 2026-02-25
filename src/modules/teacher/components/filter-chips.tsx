@@ -87,6 +87,7 @@ export function FilterChips<T extends string = string>({
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
+      style={styles.scrollView}
     >
       {options.map(option => (
         <Chip
@@ -101,7 +102,8 @@ export function FilterChips<T extends string = string>({
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 16, gap: 8, paddingVertical: 2 },
+  scrollView: { flexGrow: 0 },
+  container: { paddingHorizontal: 16, gap: 8, paddingVertical: 8 },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',

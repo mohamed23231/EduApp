@@ -9,6 +9,7 @@ type BackendAttendanceRecord = {
   sessionInstanceId: string;
   status: 'PRESENT' | 'ABSENT' | 'EXCUSED';
   excuseNote?: string | null;
+  rating: number | null;
   createdAt: string;
 };
 
@@ -19,6 +20,7 @@ function mapBackendAttendanceRecord(record: BackendAttendanceRecord): Attendance
     sessionInstanceId: record.sessionInstanceId,
     status: record.status,
     excuseNote: record.excuseNote ?? null,
+    rating: record.rating ?? null,
     createdAt: record.createdAt,
   };
 }

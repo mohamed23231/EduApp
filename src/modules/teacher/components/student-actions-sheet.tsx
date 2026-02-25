@@ -148,7 +148,7 @@ function CodeSection({ code, isLoadingCode, onCopy, onShare, t }: {
   );
 }
 
-export function StudentActionsSheet({ ref, onEdit, onDeleted }: Props & { ref?: React.RefObject<StudentActionsSheetRef | null> }) {
+export function StudentActionsSheet({ ref, onEdit, onDeleted, onViewPerformance }: Props & { ref?: React.RefObject<StudentActionsSheetRef | null>; onViewPerformance?: (id: string) => void }) {
   const { t } = useTranslation();
   const state = useStudentActions(onDeleted);
 
@@ -162,6 +162,11 @@ export function StudentActionsSheet({ ref, onEdit, onDeleted }: Props & { ref?: 
     onEdit(state.student!.id);
   };
 
+  const handlePerformancePress = () => {
+    state.sheetModal.dismiss();
+    onViewPerformance?.(state.student!.id);
+  };
+
   return (
     <>
       <Modal ref={state.sheetModal.ref} snapPoints={['55%']} title={state.student.name}>
@@ -171,6 +176,7 @@ export function StudentActionsSheet({ ref, onEdit, onDeleted }: Props & { ref?: 
           </View>
           <View style={styles.actions}>
             <ActionRow icon="create-outline" label={t('teacher.studentActions.editStudent')} onPress={handleEditPress} />
+            {onViewPerformance && <ActionRow icon="bar-chart-outline" label={t('teacher.performance.studentPerformance')} onPress={handlePerformancePress} color="#3B82F6" />}
             {state.code && <ActionRow icon="refresh-outline" label={t('teacher.studentActions.regenerateCode')} onPress={() => state.confirmRegenModal.present()} color="#F59E0B" />}
             <ActionRow icon="trash-outline" label={t('teacher.studentActions.deleteStudent')} onPress={() => state.confirmDeleteModal.present()} color="#DC2626" danger />
           </View>

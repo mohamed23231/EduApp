@@ -32,6 +32,8 @@ import {
 } from '../components';
 import { useSessionCrud } from '../hooks';
 import { getAvailableStudents, getTemplate } from '../services';
+import { AppRoute } from '@/core/navigation/routes';
+import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
 import { sessionSchema } from '../validators';
 
 type FormErrors = Record<string, string>;
@@ -261,7 +263,9 @@ function useSessionEditState(id: string) {
 
 export function SessionEditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const state = useSessionEditState(id ?? '');
+  const { isTeacherPerformanceEnabled } = useFeatureFlags();
   const {
     t,
     formData,
@@ -297,6 +301,17 @@ export function SessionEditScreen() {
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
       <ScreenHeader title={t('teacher.sessions.editTitle')} />
+      {isTeacherPerformanceEnabled && (
+        <Pressable
+          style={styles.topStudentsButton}
+          onPress={() => router.push(AppRoute.teacher.sessionRankings(id ?? '') as any)}
+          accessibilityRole="button"
+        >
+          <Ionicons name="trophy-outline" size={18} color="#3B82F6" />
+          <Text style={styles.topStudentsText}>{t('teacher.rankings.topStudents')}</Text>
+          <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+        </Pressable>
+      )}
       <EditFormBody
         formData={formData}
         errors={errors}
@@ -340,6 +355,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',
+  },
+  topStudentsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#EFF6FF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#DBEAFE',
+  },
+  topStudentsText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3B82F6',
   },
   flex: {
     flex: 1,

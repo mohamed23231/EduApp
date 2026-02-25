@@ -55,6 +55,7 @@ type BackendAttendanceRecord = {
   studentId: string;
   status: 'PRESENT' | 'ABSENT' | 'EXCUSED';
   excuseNote?: string | null;
+  rating?: number | null;
   createdAt: string;
 };
 
@@ -74,6 +75,7 @@ function mapBackendAttendanceRecord(record: BackendAttendanceRecord): Attendance
     studentId: record.studentId,
     status: record.status,
     excuseNote: record.excuseNote ?? undefined,
+    rating: record.rating ?? null,
     createdAt: record.createdAt,
   };
 }

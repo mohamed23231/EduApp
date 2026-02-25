@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, View } from 'react-native';
 import { Button, Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
+import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
 import { useStudentDetails } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
 
@@ -20,6 +21,7 @@ export function StudentDetailsScreen() {
 
   // Hooks must always be called in the same order - no conditional returns before hooks
   const { data: student, isLoading, error, refetch } = useStudentDetails(id || '');
+  const { isParentPerformanceEnabled } = useFeatureFlags();
 
   if (!id) {
     return (
@@ -109,6 +111,17 @@ export function StudentDetailsScreen() {
         label={t('parent.studentDetails.viewAttendance')}
         onPress={() => router.push(AppRoute.parent.studentAttendance(id))}
       />
+
+      {/* Navigation to Performance */}
+      {isParentPerformanceEnabled && (
+        <View style={{ marginTop: 12 }}>
+          <Button
+            label={t('parent.performance.title')}
+            onPress={() => router.push(AppRoute.parent.studentPerformance(id) as any)}
+            variant="outline"
+          />
+        </View>
+      )}
     </View>
   );
 }
