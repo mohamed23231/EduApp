@@ -28,7 +28,7 @@ export default function TeacherTabsLayout() {
           fontSize: 11,
           fontWeight: '600',
         },
-        animation: 'shift',
+        animation: 'fade',
       }}
     >
       <Tabs.Screen

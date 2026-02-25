@@ -1,5 +1,4 @@
 import type { LoginFormValues } from '../types';
-import axios from 'axios';
 import { Redirect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
@@ -11,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { AppRoute } from '@/core/navigation/routes';
 import { setOnboardingContext, useAuthStore } from '@/features/auth/use-auth-store';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 
 import { LoginForm } from '../components/login-form';
 import { useLogin } from '../hooks/use-login';
@@ -68,12 +68,7 @@ export function LoginScreen() {
       }
     }
     catch (error) {
-      let msg = t('auth.login.genericError');
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message) {
-          msg = error.response.data.message;
-        }
-      }
+      const msg = getApiErrorMessage(error, t('auth.login.genericError'));
       setErrorMsg(msg);
     }
   };

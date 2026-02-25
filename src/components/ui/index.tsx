@@ -5,6 +5,7 @@ import { withUniwind } from 'uniwind';
 export * from './button';
 export * from './checkbox';
 export { default as colors } from './colors';
+export * from './confirm-modal';
 export * from './focus-aware-status-bar';
 export * from './image';
 export * from './input';

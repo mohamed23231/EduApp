@@ -1,4 +1,3 @@
-import type { AxiosError } from 'axios';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
@@ -26,8 +25,9 @@ import {
   signIn,
   useAuthStore,
 } from '@/features/auth/use-auth-store';
-import { authClient, client } from '@/lib/api/client';
 import { getToken } from '@/lib/auth/utils';
+import { createProfile, refreshToken, validateToken } from '@/modules/auth/services';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,14 +97,9 @@ export function OnboardingScreen() {
       const secondsUntilExpiry = exp - Date.now() / 1000;
 
       if (secondsUntilExpiry < 60) {
-        // Proactively refresh before it expires
-        const { data } = await authClient.post('/auth/refresh', {
-          refreshToken: token.refresh,
-        });
-        const newAccess: string = data.data.accessToken;
-        const newRefresh: string = data.data.refreshToken;
-        signIn({ token: { access: newAccess, refresh: newRefresh }, user: null });
-        return newAccess;
+        const result = await refreshToken(token.refresh);
+        signIn({ token: { access: result.accessToken, refresh: result.refreshToken }, user: null });
+        return result.accessToken;
       }
     }
     catch {
@@ -138,12 +133,10 @@ export function OnboardingScreen() {
       await ensureFreshToken();
 
       // 2. Call profile endpoint
-      const profileEndpoint = `/${role.toLowerCase()}s/profile`;
-      await client.post(profileEndpoint, { name: fullName.trim(), phone: phone.trim() || undefined });
+      await createProfile(role, { name: fullName.trim(), phone: phone.trim() || undefined });
 
       // 3. Call validate-token to get full user object
-      const { data: validateData } = await authClient.post('/auth/validate-token');
-      const validatedUser = validateData.data?.user ?? validateData.data;
+      const validatedUser = await validateToken();
 
       // 4. Update Auth_Store with full user, clear onboarding state
       const currentToken = getToken();
@@ -155,14 +148,11 @@ export function OnboardingScreen() {
       router.replace(getHomeRouteForRole(role));
     }
     catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-
       // Save draft data on failure
       setDraftData({ phone: phone.trim() || undefined });
 
-      // Display backend error or fallback
-      const backendMsg = axiosError.response?.data?.message;
-      setErrorMsg(backendMsg || t('auth.onboarding.genericError'));
+      const msg = getApiErrorMessage(error, t('auth.onboarding.genericError'));
+      setErrorMsg(msg);
     }
     finally {
       setIsSubmitting(false);
@@ -191,10 +181,10 @@ export function OnboardingScreen() {
             {/* API Error */}
             {errorMsg
               ? (
-                  <Text style={styles.apiError} testID="onboarding-error">
-                    {errorMsg}
-                  </Text>
-                )
+                <Text style={styles.apiError} testID="onboarding-error">
+                  {errorMsg}
+                </Text>
+              )
               : null}
 
             {/* Role Selector — only shown when role is missing from context */}
@@ -270,10 +260,10 @@ export function OnboardingScreen() {
               {isSubmitting
                 ? <ActivityIndicator color="#FFFFFF" />
                 : (
-                    <Text style={styles.submitButtonLabel}>
-                      {t('auth.onboarding.submit')}
-                    </Text>
-                  )}
+                  <Text style={styles.submitButtonLabel}>
+                    {t('auth.onboarding.submit')}
+                  </Text>
+                )}
             </Pressable>
           </View>
         </ScrollView>

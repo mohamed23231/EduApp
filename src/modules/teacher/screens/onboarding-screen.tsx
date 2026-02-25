@@ -18,8 +18,8 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Input, Text } from '@/components/ui';
 import { useAuthStore } from '@/features/auth/use-auth-store';
-import { client } from '@/lib/api/client';
 import { getToken, isTokenExpiringWithin } from '@/lib/auth/utils';
+import { refreshToken } from '@/modules/auth/services';
 import { createTeacherProfile, getTeacherIdHash, trackOnboardingCompleted } from '../services';
 import { getErrorDetails, logError } from '../services/logger';
 import { teacherOnboardingSchema } from '../validators';
@@ -120,7 +120,9 @@ export function OnboardingScreen() {
       const token = getToken();
       if (token?.access && isTokenExpiringWithin(token.access, 60)) {
         try {
-          await client.post('/auth/refresh', { refreshToken: token.refresh });
+          const result = await refreshToken(token.refresh);
+          // Token is updated via the auth store interceptor
+          void result;
         }
         catch {
           logError({ screen: 'OnboardingScreen', action: 'tokenRefresh', errorCode: 'TOKEN_REFRESH_FAILED', statusCode: 0, message: 'Failed to refresh token before profile submission' });

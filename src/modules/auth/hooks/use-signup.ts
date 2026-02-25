@@ -1,10 +1,10 @@
 import type { SignupPayload } from '../types/signup.types';
+import type { SignupResponse } from '../services/signup.service';
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '@/lib/api/client';
+import { signupService } from '../services';
 
 export function useSignup() {
-  return useMutation({
-    mutationFn: (data: SignupPayload) =>
-      authClient.post('/auth/signup', data).then(res => res.data.data),
+  return useMutation<SignupResponse, Error, SignupPayload>({
+    mutationFn: signupService,
   });
 }

@@ -8,9 +8,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Text, useModal } from '@/components/ui';
+import { Button, ConfirmModal, Text, useModal } from '@/components/ui';
 import { AttendanceStatusControl } from '../components';
 import { BatchRatingSheet } from '../components/batch-rating-sheet';
 import { useAttendance } from '../hooks';
@@ -24,6 +24,25 @@ export function AttendanceSheetScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const batchRatingModal = useModal();
+
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    variant: 'default' | 'destructive' | 'success';
+    hideCancelButton: boolean;
+    onConfirm: () => void;
+  }>({
+    visible: false,
+    title: '',
+    message: '',
+    variant: 'default',
+    hideCancelButton: false,
+    onConfirm: () => { },
+  });
+
+  const dismissConfirm = () => setConfirmModal(prev => ({ ...prev, visible: false }));
 
   const {
     session,
@@ -50,34 +69,53 @@ export function AttendanceSheetScreen() {
 
   const handleSubmit = async () => {
     if (!session) {
-      Alert.alert(
-        t('teacher.attendance.error'),
-        t('teacher.common.genericError'),
-        [{ text: t('teacher.common.retry'), style: 'default' }],
-      );
+      setConfirmModal({
+        visible: true,
+        title: t('teacher.attendance.error'),
+        message: t('teacher.common.genericError'),
+        variant: 'destructive',
+        hideCancelButton: true,
+        onConfirm: dismissConfirm,
+      });
       return;
     }
 
     if (session.state !== 'ACTIVE') {
-      Alert.alert(
-        t('teacher.attendance.error'),
-        t('teacher.attendance.sessionNotActive'),
-        [{ text: t('teacher.common.ok'), style: 'default' }],
-      );
+      setConfirmModal({
+        visible: true,
+        title: t('teacher.attendance.error'),
+        message: t('teacher.attendance.sessionNotActive'),
+        variant: 'destructive',
+        hideCancelButton: true,
+        onConfirm: dismissConfirm,
+      });
       return;
     }
 
     try {
       await submitAttendance();
-      Alert.alert(
-        t('teacher.attendance.title'),
-        t('teacher.attendance.submitButton'),
-        [{ text: t('teacher.common.ok'), style: 'default', onPress: () => router.back() }],
-      );
+      setConfirmModal({
+        visible: true,
+        title: t('teacher.attendance.submitSuccess'),
+        message: '',
+        variant: 'success',
+        hideCancelButton: true,
+        onConfirm: () => {
+          dismissConfirm();
+          router.back();
+        },
+      });
     }
     catch (err) {
       const message = extractErrorMessage(err, t, 'teacher.common.genericError');
-      Alert.alert(t('teacher.attendance.error'), message);
+      setConfirmModal({
+        visible: true,
+        title: t('teacher.attendance.error'),
+        message,
+        variant: 'destructive',
+        hideCancelButton: true,
+        onConfirm: dismissConfirm,
+      });
     }
   };
 
@@ -229,6 +267,18 @@ export function AttendanceSheetScreen() {
             />
           </>
         )}
+
+      <ConfirmModal
+        visible={confirmModal.visible}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        confirmLabel={t('teacher.common.ok')}
+        cancelLabel={t('teacher.common.cancel')}
+        hideCancelButton={confirmModal.hideCancelButton}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={dismissConfirm}
+      />
     </SafeAreaView>
   );
 }

@@ -1,5 +1,4 @@
 import type { SignupPayload } from '../types';
-import axios from 'axios';
 import { Redirect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
@@ -23,6 +22,7 @@ import { setOnboardingContext, signIn, useAuthStore } from '@/features/auth/use-
 
 import { SignupForm } from '../components/signup-form';
 import { useSignup } from '../hooks/use-signup';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 
 function ChevronLeft({ color = '#0F172A' }: { color?: string }) {
   return (
@@ -75,10 +75,7 @@ export function SignupScreen() {
       router.replace(AppRoute.auth.onboarding);
     }
     catch (error) {
-      let msg = t('auth.signup.genericError');
-      if (axios.isAxiosError(error) && error.response?.data?.message) {
-        msg = error.response.data.message;
-      }
+      const msg = getApiErrorMessage(error, t('auth.signup.genericError'));
       setErrorMsg(msg);
     }
   };
