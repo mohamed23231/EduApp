@@ -1,5 +1,6 @@
-import { StudentListScreen } from '@/modules/teacher/screens';
+import { Redirect } from 'expo-router';
+import { AppRoute } from '@/core/navigation/routes';
 
 export default function StudentListRoute() {
-  return <StudentListScreen />;
+  return <Redirect href={AppRoute.teacher.students} />;
 }

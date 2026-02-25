@@ -465,3 +465,265 @@ describe('token Refresh Queue — Property 3: Single Refresh and Retry', () => {
     );
   });
 });
+
+/**
+ * Property-Based Tests for API Client - Teacher MVP Flow
+ *
+ * Feature: teacher-mvp-flow
+ * Properties 17-19: Token refresh single-flight, forced logout, and auth endpoint skip
+ */
+describe('aPI Client — Property 17: Token refresh single-flight and queue behavior', () => {
+  /**
+   * Property 17: Token refresh single-flight and queue behavior
+   *
+   * For any number of concurrent 401 responses on non-auth endpoints, exactly one
+   * refresh request shall be made. All queued requests shall be replayed with the
+   * new access token after refresh succeeds. After successful refresh, the Auth_Store
+   * shall contain the new tokens.
+   *
+   * Feature: teacher-mvp-flow
+   * Property 17: Token refresh single-flight and queue behavior
+   * Validates: Requirements 20.1, 20.2, 20.3
+   */
+  it('p17 — exactly one refresh for concurrent 401s, all requests queued and retried', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.integer({ min: 2, max: 10 }),
+        fc.string({ minLength: 10, maxLength: 50 }).filter(s => /^[\w-]+$/.test(s)),
+        fc.string({ minLength: 10, maxLength: 50 }).filter(s => /^[\w-]+$/.test(s)),
+        async (numConcurrentRequests, newAccessToken, newRefreshToken) => {
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshResponse({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+
+          // Generate N unique endpoints
+          const endpoints = Array.from({ length: numConcurrentRequests }, (_, i) => `/data/endpoint-${i}`);
+
+          // Fire all N requests concurrently (simulating concurrent 401s)
+          const promises = endpoints.map(endpoint =>
+            setup.mainInstance.get(endpoint, {
+              headers: { Authorization: 'Bearer old-access-token' },
+            }),
+          );
+
+          const responses = await Promise.all(promises);
+
+          // All requests should succeed after refresh and retry
+          expect(responses).toHaveLength(numConcurrentRequests);
+          responses.forEach((response) => {
+            expect(response.data).toEqual({ result: 'ok' });
+          });
+
+          // Exactly one refresh should have been made
+          expect(setup.refreshAdapter).toHaveBeenCalledTimes(1);
+
+          // Auth store should have new tokens
+          expect(signIn).toHaveBeenCalledWith(
+            expect.objectContaining({
+              token: expect.objectContaining({
+                access: newAccessToken,
+                refresh: newRefreshToken,
+              }),
+            }),
+          );
+
+          // No forced logout
+          expect(signOut).not.toHaveBeenCalled();
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  it('p17 — queued requests are replayed with new token after refresh', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.integer({ min: 1, max: 5 }),
+        async (numRequests) => {
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshResponse({ accessToken: 'new-access', refreshToken: 'new-refresh' });
+
+          const endpoints = Array.from({ length: numRequests }, (_, i) => `/data/endpoint-${i}`);
+
+          // Fire all requests concurrently
+          const promises = endpoints.map(endpoint =>
+            setup.mainInstance.get(endpoint, {
+              headers: { Authorization: 'Bearer old-access-token' },
+            }),
+          );
+
+          await Promise.all(promises);
+
+          // Verify all retry calls have the new token
+          const _retryCallCount = setup.mainAdapter.mock.calls.length - numRequests;
+          const retryCalls = setup.mainAdapter.mock.calls.slice(numRequests);
+
+          retryCalls.forEach((call) => {
+            const config = call[0];
+            expect(config.headers?.Authorization).toBe('Bearer new-access');
+          });
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+});
+
+describe('aPI Client — Property 18: Forced logout on refresh failure', () => {
+  /**
+   * Property 18: Forced logout on refresh failure
+   *
+   * For any failed token refresh (invalid refresh token, network error), the Auth_Store
+   * shall transition to signOut state with null tokens and null user. No further API
+   * retries shall be attempted.
+   *
+   * Feature: teacher-mvp-flow
+   * Property 18: Forced logout on refresh failure
+   * Validates: Requirements 20.4
+   */
+  it('p18 — refresh failure triggers forced logout', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.string({ minLength: 1, maxLength: 20 }).filter(s => /^[a-z0-9]+$/.test(s)),
+        async (endpoint) => {
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshShouldFail(true); // Simulate refresh failure
+
+          let threw = false;
+          try {
+            await setup.mainInstance.get(`/data/${endpoint}`, {
+              headers: { Authorization: 'Bearer old-access-token' },
+            });
+          }
+          catch {
+            threw = true;
+          }
+
+          expect(threw).toBe(true);
+
+          // Refresh should have been attempted
+          expect(setup.refreshAdapter).toHaveBeenCalled();
+
+          // Forced logout should have been called
+          expect(signOut).toHaveBeenCalled();
+
+          // signIn should NOT have been called
+          expect(signIn).not.toHaveBeenCalled();
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  it('p18 — no retries after refresh failure', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.string({ minLength: 1, maxLength: 20 }).filter(s => /^[a-z0-9]+$/.test(s)),
+        async (endpoint) => {
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshShouldFail(true);
+
+          let threw = false;
+          try {
+            await setup.mainInstance.get(`/data/${endpoint}`, {
+              headers: { Authorization: 'Bearer old-access-token' },
+            });
+          }
+          catch {
+            threw = true;
+          }
+
+          expect(threw).toBe(true);
+
+          // Main adapter should have been called only once (initial 401)
+          // No retry should have been attempted
+          expect(setup.mainAdapter).toHaveBeenCalledTimes(1);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+});
+
+describe('aPI Client — Property 19: Auth endpoint refresh skip', () => {
+  /**
+   * Property 19: Auth endpoint refresh skip
+   *
+   * For any 401 response on auth endpoints (/auth/login, /auth/signup, /auth/refresh,
+   * /auth/setup-password), the API client shall not attempt a token refresh and shall
+   * reject the error immediately.
+   *
+   * Feature: teacher-mvp-flow
+   * Property 19: Auth endpoint refresh skip
+   * Validates: Requirements 20.5
+   */
+  it('p19 — auth endpoints skip refresh on 401', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.constantFrom('/auth/login', '/auth/signup', '/auth/refresh', '/auth/setup-password'),
+        async (authEndpoint) => {
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshResponse({ accessToken: 'new-token', refreshToken: 'new-refresh' });
+
+          let threw = false;
+          try {
+            await setup.mainInstance.post(authEndpoint, {}, {
+              headers: { Authorization: 'Bearer old-access-token' },
+            });
+          }
+          catch {
+            threw = true;
+          }
+
+          expect(threw).toBe(true);
+
+          // Refresh should NOT have been attempted
+          expect(setup.refreshAdapter).not.toHaveBeenCalled();
+
+          // No forced logout
+          expect(signOut).not.toHaveBeenCalled();
+
+          // No token update
+          expect(signIn).not.toHaveBeenCalled();
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  it('p19 — non-auth endpoints trigger refresh on 401', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.string({ minLength: 1, maxLength: 20 }).filter(s => /^[a-z0-9]+$/.test(s)),
+        async (endpoint) => {
+          jest.clearAllMocks();
+
+          const setup = buildInterceptorSetup();
+          setup.setRefreshResponse({ accessToken: 'new-token', refreshToken: 'new-refresh' });
+
+          const response = await setup.mainInstance.get(`/data/${endpoint}`, {
+            headers: { Authorization: 'Bearer old-access-token' },
+          });
+
+          expect(response.data).toEqual({ result: 'ok' });
+
+          // Refresh SHOULD have been attempted for non-auth endpoints
+          expect(setup.refreshAdapter).toHaveBeenCalled();
+
+          // Token should have been updated
+          expect(signIn).toHaveBeenCalled();
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+});

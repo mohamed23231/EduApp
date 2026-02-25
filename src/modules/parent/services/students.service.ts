@@ -7,13 +7,24 @@ type BackendStudent = {
   id: string;
   name: string;
   gradeLevel?: string | null;
+  teacherProfile?: {
+    id: string;
+    user?: {
+      fullName?: string;
+      email?: string;
+    };
+  } | null;
 };
 
 function mapBackendStudent(student: BackendStudent): Student {
+  const teacherName = student.teacherProfile?.user?.fullName
+    ?? student.teacherProfile?.user?.email
+    ?? undefined;
   return {
     id: student.id,
     fullName: student.name,
     gradeLevel: student.gradeLevel ?? undefined,
+    teacherName,
   };
 }
 

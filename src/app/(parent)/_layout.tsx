@@ -4,7 +4,7 @@ import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore as useAuth } from '@/features/auth/use-auth-store';
-import { usePushNotificationHandler, usePushPermissionDetection, registerPushToken } from '@/modules/parent/services/push-notification-handler';
+import { registerPushToken, usePushNotificationHandler, usePushPermissionDetection } from '@/modules/parent/services/push-notification-handler';
 
 export default function ParentLayout() {
   const status = useAuth.use.status();
@@ -16,7 +16,7 @@ export default function ParentLayout() {
 
   // Register push token after auth is ready
   useEffect(() => {
-    if (status === 'signIn' && user) {
+    if (status === 'signIn' && user?.role === UserRole.PARENT) {
       void registerPushToken();
     }
   }, [status, user]);

@@ -7,14 +7,17 @@
 import type { CreateSessionInput, SessionTemplate, UpdateSessionInput } from '../types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import { useAuthStore } from '@/features/auth/use-auth-store';
 import { QueryKey } from '@/shared/constants/query-keys';
 import {
   assignStudents,
   createTemplate,
   deleteTemplate,
+  getTemplate,
   removeStudents,
   updateTemplate,
 } from '../services';
+import { getTeacherIdHash, trackSessionCreated } from '../services/analytics.service';
 
 type UseSessionCrudResult = {
   createSession: (data: CreateSessionInput) => Promise<SessionTemplate>;
@@ -25,82 +28,115 @@ type UseSessionCrudResult = {
   isSubmitting: boolean;
 };
 
+type ReconcileConfig = {
+  templateId: string;
+  targetIds: string[];
+  existingIds: string[];
+  doAssign: (p: { templateId: string; studentIds: string[] }) => Promise<void>;
+  doRemove: (p: { templateId: string; studentIds: string[] }) => Promise<void>;
+};
+
+/**
+ * Reconcile student assignments: add new, remove old
+ */
+async function reconcileStudents(config: ReconcileConfig) {
+  const existingSet = new Set(config.existingIds);
+  const targetSet = new Set(config.targetIds);
+
+  const idsToAdd = config.targetIds.filter(id => !existingSet.has(id));
+  const idsToRemove = config.existingIds.filter(id => !targetSet.has(id));
+
+  if (idsToAdd.length > 0)
+    await config.doAssign({ templateId: config.templateId, studentIds: idsToAdd });
+  if (idsToRemove.length > 0)
+    await config.doRemove({ templateId: config.templateId, studentIds: idsToRemove });
+}
+
 /**
  * Hook to manage session template CRUD operations
  */
 export function useSessionCrud(): UseSessionCrudResult {
   const queryClient = useQueryClient();
+  const user = useAuthStore.use.user();
+  const invalidateSessions = () => queryClient.invalidateQueries({ queryKey: QueryKey.teacher.sessions });
 
   const createMutation = useMutation({
     mutationFn: createTemplate,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QueryKey.teacher.students });
+    onSuccess: (template) => {
+      if (user?.id)
+        trackSessionCreated(getTeacherIdHash(user.id), template.id);
+      invalidateSessions();
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateSessionInput }) =>
-      updateTemplate(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QueryKey.teacher.students });
-    },
+    mutationFn: ({ id, data }: { id: string; data: UpdateSessionInput }) => updateTemplate(id, data),
+    onSuccess: invalidateSessions,
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteTemplate,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QueryKey.teacher.students });
-    },
+    onSuccess: invalidateSessions,
   });
 
   const assignMutation = useMutation({
-    mutationFn: ({ templateId, studentIds }: { templateId: string; studentIds: string[] }) =>
-      assignStudents(templateId, studentIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QueryKey.teacher.students });
-    },
+    mutationFn: ({ templateId, studentIds }: { templateId: string; studentIds: string[] }) => assignStudents(templateId, studentIds),
+    onSuccess: invalidateSessions,
   });
 
   const removeMutation = useMutation({
-    mutationFn: ({ templateId, studentIds }: { templateId: string; studentIds: string[] }) =>
-      removeStudents(templateId, studentIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QueryKey.teacher.students });
-    },
+    mutationFn: ({ templateId, studentIds }: { templateId: string; studentIds: string[] }) => removeStudents(templateId, studentIds),
+    onSuccess: invalidateSessions,
   });
 
   const handleCreateSession = useCallback(
     async (data: CreateSessionInput): Promise<SessionTemplate> => {
-      return createMutation.mutateAsync(data);
+      const { studentIds, ...templateData } = data;
+      const template = await createMutation.mutateAsync(templateData);
+
+      if (studentIds.length > 0) {
+        await assignMutation.mutateAsync({ templateId: template.id, studentIds });
+      }
+
+      return getTemplate(template.id);
     },
-    [createMutation],
+    [assignMutation, createMutation],
   );
 
   const handleUpdateSession = useCallback(
     async (id: string, data: UpdateSessionInput): Promise<SessionTemplate> => {
-      return updateMutation.mutateAsync({ id, data });
+      const { studentIds, ...templateData } = data;
+      const updated = await updateMutation.mutateAsync({ id, data: templateData });
+
+      if (!studentIds)
+        return updated;
+
+      const existing = await getTemplate(id);
+      await reconcileStudents({
+        templateId: id,
+        targetIds: studentIds,
+        existingIds: existing.assignedStudents.map(s => s.id),
+        doAssign: p => assignMutation.mutateAsync(p),
+        doRemove: p => removeMutation.mutateAsync(p),
+      });
+
+      return getTemplate(id);
     },
-    [updateMutation],
+    [assignMutation, removeMutation, updateMutation],
   );
 
   const handleDeleteSession = useCallback(
-    async (id: string): Promise<void> => {
-      return deleteMutation.mutateAsync(id);
-    },
+    (id: string) => deleteMutation.mutateAsync(id),
     [deleteMutation],
   );
 
   const handleAssignStudents = useCallback(
-    async (templateId: string, studentIds: string[]): Promise<void> => {
-      return assignMutation.mutateAsync({ templateId, studentIds });
-    },
+    (templateId: string, studentIds: string[]) => assignMutation.mutateAsync({ templateId, studentIds }),
     [assignMutation],
   );
 
   const handleRemoveStudents = useCallback(
-    async (templateId: string, studentIds: string[]): Promise<void> => {
-      return removeMutation.mutateAsync({ templateId, studentIds });
-    },
+    (templateId: string, studentIds: string[]) => removeMutation.mutateAsync({ templateId, studentIds }),
     [removeMutation],
   );
 

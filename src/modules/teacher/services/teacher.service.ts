@@ -16,11 +16,11 @@ type CreateTeacherProfileInput = {
 };
 
 export async function getTeacherProfile(): Promise<TeacherProfile> {
-  const response = await client.get<ApiSuccess<TeacherProfile> | TeacherProfile>('/api/v1/teachers/me');
+  const response = await client.get<ApiSuccess<TeacherProfile> | TeacherProfile>('/teachers/me');
   return unwrapData<TeacherProfile>(response.data);
 }
 
 export async function createTeacherProfile(data: CreateTeacherProfileInput): Promise<TeacherProfile> {
-  const response = await client.post<ApiSuccess<TeacherProfile> | TeacherProfile>('/api/v1/teachers/profile', data);
+  const response = await client.post<ApiSuccess<TeacherProfile> | TeacherProfile>('/teachers/profile', data);
   return unwrapData<TeacherProfile>(response.data);
 }

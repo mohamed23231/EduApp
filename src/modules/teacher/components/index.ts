@@ -1,5 +1,18 @@
 export { AttendanceStatusControl } from './attendance-status-control';
+export { ConfirmSheet } from './confirm-sheet';
 export { DayOfWeekPicker } from './day-of-week-picker';
 export { EmptyState } from './empty-state';
+export { ErrorBoundary } from './error-boundary';
+export { FilterChips } from './filter-chips';
+export type { FilterOption } from './filter-chips';
+export { ScreenHeader } from './screen-header';
 export { SessionCard } from './session-card';
+export { DashboardSkeleton, SessionListSkeleton, StudentListSkeleton } from './skeleton-loader';
+export { StatusBadge } from './status-badge';
+export { StudentActionsSheet } from './student-actions-sheet';
+export type { StudentActionsSheetRef } from './student-actions-sheet';
+export { StudentCard } from './student-card';
 export { StudentPicker } from './student-picker';
+export { StudentSelectSheet } from './student-select-sheet';
+export { SuccessSheet } from './success-sheet';
+export { TimePickerSheet } from './time-picker-sheet';

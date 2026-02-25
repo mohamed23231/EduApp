@@ -1,5 +1,6 @@
-import { DashboardScreen } from '@/modules/teacher/screens';
+import { Redirect } from 'expo-router';
+import { AppRoute } from '@/core/navigation/routes';
 
 export default function Dashboard() {
-  return <DashboardScreen />;
+  return <Redirect href={AppRoute.teacher.dashboard} />;
 }

@@ -1,5 +1,10 @@
+import { ErrorBoundary } from '@/modules/teacher/components';
 import { SessionCreateScreen } from '@/modules/teacher/screens';
 
 export default function SessionCreateRoute() {
-  return <SessionCreateScreen />;
+  return (
+    <ErrorBoundary screenName="SessionCreateScreen">
+      <SessionCreateScreen />
+    </ErrorBoundary>
+  );
 }

@@ -28,5 +28,13 @@ export default function TeacherLayout() {
     return <Redirect href={getHomeRouteForRole(user.role)} />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        animationDuration: 250,
+      }}
+    />
+  );
 }

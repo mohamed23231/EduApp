@@ -4,6 +4,7 @@ import type { ApiErrorEnvelope } from '@/shared/types/api';
 
 import { extractErrorMessage, isAxiosError } from '../error-utils';
 
+// eslint-disable-next-line max-lines-per-function
 describe('error-utils', () => {
   let mockT: jest.Mock;
 
@@ -37,6 +38,7 @@ describe('error-utils', () => {
     });
   });
 
+  // eslint-disable-next-line max-lines-per-function
   describe('extractErrorMessage', () => {
     it('should return backend message when present and non-empty', () => {
       const error = {

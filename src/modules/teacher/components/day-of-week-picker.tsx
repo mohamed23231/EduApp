@@ -38,7 +38,7 @@ export function DayOfWeekPicker({ selectedDays, onDaysChange }: DayOfWeekPickerP
       <Text style={styles.title}>{t('teacher.sessions.selectDays')}</Text>
 
       <View style={styles.daysContainer}>
-        {DAYS.map(day => {
+        {DAYS.map((day) => {
           const isSelected = selectedDays.includes(day.value);
           const isRTL = i18n.language === 'ar';
 

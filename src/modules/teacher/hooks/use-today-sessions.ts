@@ -1,17 +1,14 @@
 /**
  * useTodaySessions hook
- * Fetches today's sessions on mount and screen focus
- * Recalculates date on timezone change
+ * Fetches today's sessions on mount.
+ * Exposes refetch for pull-to-refresh and focus refetch.
+ * Prevents duplicate concurrent requests.
  */
 
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { getTodayInstances } from '../services';
-import { setLoadingSessions, setSessionsError, setTodaySessions } from '../store/use-teacher-store';
+import { setLoadingSessions, setSessionsError, setTodaySessions, useTeacherStore } from '../store/use-teacher-store';
 
-/**
- * Format current date as YYYY-MM-DD in device local timezone
- */
 function getTodayDate(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -24,13 +21,21 @@ type UseTodaySessionsResult = {
   refetch: () => Promise<void>;
 };
 
-/**
- * Hook to fetch and manage today's sessions
- */
 export function useTodaySessions(): UseTodaySessionsResult {
+  const isFetchingRef = useRef(false);
+
   const fetchSessions = useCallback(async () => {
+    // Prevent duplicate concurrent requests
+    if (isFetchingRef.current)
+      return;
+    isFetchingRef.current = true;
+
     try {
-      setLoadingSessions(true);
+      // Only show loading spinner when there's no data yet
+      const { todaySessions } = useTeacherStore.getState();
+      if (todaySessions.length === 0) {
+        setLoadingSessions(true);
+      }
       setSessionsError(null);
       const date = getTodayDate();
       const sessions = await getTodayInstances(date);
@@ -42,22 +47,14 @@ export function useTodaySessions(): UseTodaySessionsResult {
     }
     finally {
       setLoadingSessions(false);
+      isFetchingRef.current = false;
     }
   }, []);
 
-  // Fetch on mount
+  // Fetch on mount only
   useEffect(() => {
     fetchSessions();
   }, [fetchSessions]);
 
-  // Refetch on screen focus
-  useFocusEffect(
-    useCallback(() => {
-      fetchSessions();
-    }, [fetchSessions]),
-  );
-
-  return {
-    refetch: fetchSessions,
-  };
+  return { refetch: fetchSessions };
 }

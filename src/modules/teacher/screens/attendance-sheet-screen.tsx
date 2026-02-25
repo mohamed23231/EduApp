@@ -16,7 +16,8 @@ import { extractErrorMessage } from '../services';
 export function AttendanceSheetScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { instanceId } = useLocalSearchParams();
+  const params = useLocalSearchParams<{ 'instance-id': string }>();
+  const instanceId = params['instance-id'];
 
   const {
     session,

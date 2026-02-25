@@ -13,6 +13,7 @@ import fc from 'fast-check';
 
 // Feature: auth-baseline-parent-mvp, Property 5: Auth Endpoint Refresh Skip
 
+// eslint-disable-next-line max-lines-per-function
 describe('Property 5: Auth Endpoint Refresh Skip', () => {
   const AUTH_SKIP_REFRESH_URLS = [
     '/auth/login',

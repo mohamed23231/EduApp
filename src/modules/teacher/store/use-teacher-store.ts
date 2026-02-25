@@ -1,6 +1,6 @@
+import type { SessionInstance } from '../types';
 import { create } from 'zustand';
 import { createSelectors } from '@/lib/utils';
-import type { SessionInstance } from '../types';
 
 // ─── Store Types ─────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ export type TeacherState = {
 
 // ─── Store Implementation ─────────────────────────────────────────────────────
 
-const _useTeacherStore = create<TeacherState>((set) => ({
+const _useTeacherStore = create<TeacherState>(set => ({
   // Initial state
   todaySessions: [],
   isLoadingSessions: false,
@@ -51,8 +51,8 @@ const _useTeacherStore = create<TeacherState>((set) => ({
    * Update the state of a specific session
    */
   updateSessionState: (sessionId: string, state: SessionInstance['state']) => {
-    set((prevState) => ({
-      todaySessions: prevState.todaySessions.map((session) =>
+    set(prevState => ({
+      todaySessions: prevState.todaySessions.map(session =>
         session.id === sessionId ? { ...session, state } : session,
       ),
     }));

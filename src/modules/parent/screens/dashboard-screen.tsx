@@ -1,4 +1,4 @@
-import type { AttendanceStats, TimelineRecord } from '../types';
+import type { AttendanceStats, Student, TimelineRecord } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -25,6 +25,22 @@ type AttendanceStatsSectionProps = {
   stats: AttendanceStats | undefined;
   onRetry: () => void;
 };
+
+function TeacherInfoRow({ student, t }: { student: Student; t: (key: string) => string }) {
+  if (!student.teacherName)
+    return null;
+  return (
+    <View style={styles.teacherRow}>
+      <View style={styles.teacherIcon}>
+        <Ionicons name="school-outline" size={16} color="#6366F1" />
+      </View>
+      <View style={styles.teacherInfo}>
+        <Text style={styles.teacherLabel}>{t('parent.dashboard.teacherLabel')}</Text>
+        <Text style={styles.teacherName} numberOfLines={1}>{student.teacherName}</Text>
+      </View>
+    </View>
+  );
+}
 
 function AttendanceStatsSection({ isLoading, error, stats, onRetry }: AttendanceStatsSectionProps) {
   const { t } = useTranslation();
@@ -122,6 +138,11 @@ export function ParentDashboardScreen() {
     return students[0].id;
   }, [students, selectedStudentId]);
 
+  const selectedStudent = useMemo(
+    () => students?.find(s => s.id === effectiveSelectedId) ?? null,
+    [students, effectiveSelectedId],
+  );
+
   const {
     data: stats,
     isLoading: statsLoading,
@@ -194,6 +215,10 @@ export function ParentDashboardScreen() {
           />
         </View>
 
+        {selectedStudent && (
+          <TeacherInfoRow student={selectedStudent} t={t} />
+        )}
+
         <AttendanceStatsSection
           isLoading={statsLoading}
           error={statsError}
@@ -248,6 +273,45 @@ const styles = StyleSheet.create({
   },
   studentSelectorContainer: {
     marginBottom: 16,
+  },
+  teacherRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  teacherIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EDE9FE',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  teacherInfo: {
+    flex: 1,
+  },
+  teacherLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#9CA3AF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  teacherName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111827',
+    marginTop: 1,
   },
   card: {
     backgroundColor: '#FFFFFF',

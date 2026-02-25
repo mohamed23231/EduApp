@@ -8,16 +8,16 @@ import { fetchNotifications } from '../store/use-notification-store';
  * and gets latest unreadCount from server
  */
 export function useNotificationForegroundSync() {
-    useEffect(() => {
-        const subscription = AppState.addEventListener('change', async (state) => {
-            if (state === 'active') {
-                // Refresh first page and get latest unreadCount
-                await fetchNotifications(true);
-            }
-        });
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (state) => {
+      if (state === 'active') {
+        // Refresh first page and get latest unreadCount
+        await fetchNotifications(true);
+      }
+    });
 
-        return () => {
-            subscription.remove();
-        };
-    }, []);
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 }

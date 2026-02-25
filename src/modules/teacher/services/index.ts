@@ -1,7 +1,32 @@
 export {
-  createTeacherProfile,
-  getTeacherProfile,
-} from './teacher.service';
+  getTeacherIdHash,
+  track,
+  trackAttendanceSubmitted,
+  trackConnectionCodeShared,
+  trackOnboardingCompleted,
+  trackSessionCreated,
+  trackStudentCreated,
+} from './analytics.service';
+export {
+  markAttendance,
+  updateAttendance,
+} from './attendance.service';
+export { extractErrorMessage, isAxiosError } from './error-utils';
+export { getErrorDetails, logError } from './logger';
+export {
+  assignStudents,
+  createTemplate,
+  deleteTemplate,
+  endSession,
+  getAvailableStudents,
+  getInstanceDetail,
+  getTemplate,
+  getTemplates,
+  getTodayInstances,
+  removeStudents,
+  startSession,
+  updateTemplate,
+} from './sessions.service';
 export {
   createStudent,
   deleteStudent,
@@ -12,28 +37,6 @@ export {
   updateStudent,
 } from './students.service';
 export {
-  assignStudents,
-  createTemplate,
-  deleteTemplate,
-  getAvailableStudents,
-  getInstanceDetail,
-  getTemplate,
-  getTodayInstances,
-  removeStudents,
-  startSession,
-  updateTemplate,
-} from './sessions.service';
-export {
-  markAttendance,
-  updateAttendance,
-} from './attendance.service';
-export {
-  getTeacherIdHash,
-  track,
-  trackAttendanceSubmitted,
-  trackConnectionCodeShared,
-  trackOnboardingCompleted,
-  trackSessionCreated,
-  trackStudentCreated,
-} from './analytics.service';
-export { extractErrorMessage, isAxiosError } from './error-utils';
+  createTeacherProfile,
+  getTeacherProfile,
+} from './teacher.service';

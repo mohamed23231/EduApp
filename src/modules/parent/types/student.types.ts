@@ -7,6 +7,7 @@ export type Student = {
   id: string;
   fullName: string;
   gradeLevel?: string;
+  teacherName?: string;
 };
 
 export type StudentDetails = Student & {

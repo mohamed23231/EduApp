@@ -1,12 +1,11 @@
 /**
  * useStudents hook
  * Paginated student list with debounced search (300ms)
- * Infinite scroll
- * Validates: Requirements 4.1, 4.3, 6.2, 7.1, 7.4, 7.6, 7.7, 8.1, 8.2, 8.3, 8.5, 8.6, 9.1, 9.5, 9.6, 11.2, 11.5, 11.6, 11.8, 11.9, 12.1, 12.2, 12.3, 12.4, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.9, 14.2, 14.5, 14.6, 14.7, 14.8, 15.2, 15.3
+ * Infinite scroll with proper loading state separation.
  */
 
-import type { PaginatedStudents, Student } from '../types';
-import { useCallback, useEffect, useState } from 'react';
+import type { Student } from '../types';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getStudents } from '../services';
 
 const DEBOUNCE_MS = 300;
@@ -21,6 +20,8 @@ type UseStudentsResult = {
     hasMore: boolean;
   };
   isLoading: boolean;
+  isRefreshing: boolean;
+  isPaginating: boolean;
   error: string | null;
   search: string;
   setSearch: (search: string) => void;
@@ -28,13 +29,24 @@ type UseStudentsResult = {
   refetch: () => void;
 };
 
-/**
- * Hook to manage paginated student list with search
- */
+async function fetchStudentPage(params: {
+  page: number;
+  limit: number;
+  search?: string;
+}) {
+  return getStudents({
+    page: params.page,
+    limit: params.limit,
+    search: params.search || undefined,
+  });
+}
+
 export function useStudents(): UseStudentsResult {
   const [students, setStudents] = useState<Student[]>([]);
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isPaginating, setIsPaginating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearchState] = useState<string>('');
   const [pagination, setPagination] = useState({
@@ -44,74 +56,70 @@ export function useStudents(): UseStudentsResult {
     hasMore: true,
   });
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const hasFetchedOnce = useRef(false);
 
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
     }, DEBOUNCE_MS);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [search]);
 
-  // Fetch students when page or search changes
+  // Fetch students when search changes
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        setIsLoading(true);
+        if (!hasFetchedOnce.current) {
+          setIsLoading(true);
+        }
         setError(null);
-
-        const result = await getStudents({
+        const result = await fetchStudentPage({
           page: 1,
           limit: DEFAULT_PAGE_SIZE,
-          search: debouncedSearch || undefined,
+          search: debouncedSearch,
         });
-
         setStudents(result.students);
         setPagination(result.pagination);
         setPage(1);
+        hasFetchedOnce.current = true;
       }
       catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch students';
-        setError(errorMessage);
+        setError(
+          err instanceof Error ? err.message : 'Failed to fetch students',
+        );
       }
       finally {
         setIsLoading(false);
       }
     };
-
     fetchStudents();
   }, [debouncedSearch]);
 
   const loadMore = useCallback(async () => {
-    if (isLoading || !pagination.hasMore) {
+    if (isPaginating || isLoading || !pagination.hasMore)
       return;
-    }
-
     try {
-      setIsLoading(true);
+      setIsPaginating(true);
       const nextPage = page + 1;
-
-      const result = await getStudents({
+      const result = await fetchStudentPage({
         page: nextPage,
         limit: DEFAULT_PAGE_SIZE,
-        search: debouncedSearch || undefined,
+        search: debouncedSearch,
       });
-
       setStudents(prev => [...prev, ...result.students]);
       setPagination(result.pagination);
       setPage(nextPage);
     }
     catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load more students';
-      setError(errorMessage);
+      setError(
+        err instanceof Error ? err.message : 'Failed to load more students',
+      );
     }
     finally {
-      setIsLoading(false);
+      setIsPaginating(false);
     }
-  }, [isLoading, page, pagination.hasMore, debouncedSearch]);
+  }, [isPaginating, isLoading, page, pagination.hasMore, debouncedSearch]);
 
   const setSearch = useCallback((newSearch: string) => {
     setSearchState(newSearch);
@@ -119,25 +127,24 @@ export function useStudents(): UseStudentsResult {
 
   const refetch = useCallback(async () => {
     try {
-      setIsLoading(true);
+      setIsRefreshing(true);
       setError(null);
-
-      const result = await getStudents({
+      const result = await fetchStudentPage({
         page: 1,
         limit: DEFAULT_PAGE_SIZE,
-        search: debouncedSearch || undefined,
+        search: debouncedSearch,
       });
-
       setStudents(result.students);
       setPagination(result.pagination);
       setPage(1);
     }
     catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch students';
-      setError(errorMessage);
+      setError(
+        err instanceof Error ? err.message : 'Failed to fetch students',
+      );
     }
     finally {
-      setIsLoading(false);
+      setIsRefreshing(false);
     }
   }, [debouncedSearch]);
 
@@ -145,6 +152,8 @@ export function useStudents(): UseStudentsResult {
     students,
     pagination,
     isLoading,
+    isRefreshing,
+    isPaginating,
     error,
     search,
     setSearch,

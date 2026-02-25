@@ -18,6 +18,9 @@ type StudentPickerProps = {
 export function StudentPicker({ availableStudents, selectedIds, onSelectionChange }: StudentPickerProps) {
   const { t } = useTranslation();
 
+  const allSelected = availableStudents.length > 0
+    && availableStudents.every(s => selectedIds.includes(s.id));
+
   const handleToggle = (studentId: string) => {
     const newSelectedIds = selectedIds.includes(studentId)
       ? selectedIds.filter(id => id !== studentId)
@@ -25,9 +28,29 @@ export function StudentPicker({ availableStudents, selectedIds, onSelectionChang
     onSelectionChange(newSelectedIds);
   };
 
+  const handleToggleAll = () => {
+    if (allSelected) {
+      onSelectionChange([]);
+    }
+    else {
+      onSelectionChange(availableStudents.map(s => s.id));
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{t('teacher.sessions.selectStudents')}</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>{t('teacher.sessions.selectStudents')}</Text>
+        {availableStudents.length > 0 && (
+          <TouchableOpacity onPress={handleToggleAll} activeOpacity={0.7}>
+            <Text style={styles.selectAllText}>
+              {allSelected
+                ? t('teacher.sessions.deselectAll')
+                : t('teacher.sessions.selectAll')}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
       {availableStudents.length === 0
         ? (
@@ -70,7 +93,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 12,
+  },
+  selectAllText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3B82F6',
   },
   emptyText: {
     fontSize: 14,
@@ -87,7 +120,7 @@ const styles = StyleSheet.create({
   },
   studentInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginStart: 12,
   },
   studentName: {
     fontSize: 15,

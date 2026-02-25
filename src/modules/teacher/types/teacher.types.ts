@@ -18,9 +18,11 @@ export type Student = {
 };
 
 export type AccessCode = {
+  id?: string;
   code: string;
+  status?: 'active' | 'revoked';
   createdAt: string;
-  expiresAt?: string;
+  revokedAt?: string | null;
 };
 
 // Session types
@@ -32,6 +34,14 @@ export type SessionInstance = {
   time: string; // HH:mm
   state: SessionState;
   studentCount: number;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  assignedStudents?: Student[];
+  attendanceRecords?: AttendanceRecord[];
+  template?: {
+    id: string;
+    subject: string;
+  };
   attendanceSummary?: {
     present: number;
     absent: number;
@@ -39,12 +49,14 @@ export type SessionInstance = {
   };
 };
 
+export type SessionInstanceDetail = SessionInstance;
+
 export type SessionTemplate = {
   id: string;
   subject: string;
   daysOfWeek: number[]; // 1-7 (Mon-Sun)
   time: string; // HH:mm
-  studentIds: string[];
+  assignedStudents: Student[];
 };
 
 // Attendance types
@@ -53,8 +65,8 @@ export type AttendanceRecord = {
   studentId: string;
   sessionInstanceId: string;
   status: AttendanceStatus;
-  excuseNote?: string;
-  markedAt: string;
+  excuseNote?: string | null;
+  createdAt: string;
 };
 
 // Input types

@@ -1,39 +1,50 @@
 /**
- * EmptyState component
- * Reusable empty state with illustration and localized message
- * Validates: Requirements 5.1, 5.2, 5.3, 5.4, 7.2, 7.3, 9.2, 14.1, 15.1, 15.5
+ * EmptyState
+ * Reusable empty state with icon illustration and optional CTA button.
  */
 
-import { useTranslation } from 'react-i18next';
+import type { ComponentProps } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
-import { Text } from '@/components/ui';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Button, Text } from '@/components/ui';
 
 type EmptyStateProps = {
-  emoji?: string;
+  icon?: ComponentProps<typeof Ionicons>['name'];
   title: string;
   message?: string;
   actionLabel?: string;
   onAction?: () => void;
 };
 
-export function EmptyState({ emoji = '📋', title, message, actionLabel, onAction }: EmptyStateProps) {
-  const { t } = useTranslation();
+export function EmptyState({
+  icon = 'document-text-outline',
+  title,
+  message,
+  actionLabel,
+  onAction,
+}: EmptyStateProps) {
+  const showAction = actionLabel && onAction;
 
   return (
     <View style={styles.container}>
-      <View style={styles.illustrationCircle}>
-        <Text style={styles.emoji}>{emoji}</Text>
-      </View>
+      <Animated.View entering={FadeInDown.duration(400)} style={styles.iconWrap}>
+        <View style={styles.circle}>
+          <Ionicons name={icon} size={36} color="#3B82F6" />
+        </View>
+      </Animated.View>
 
-      <Text style={styles.title}>{title}</Text>
+      <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+        <Text style={styles.title}>{title}</Text>
+      </Animated.View>
 
-      {message && <Text style={styles.message}>{message}</Text>}
+      {message
+        ? <Animated.View entering={FadeInDown.delay(200).duration(400)}><Text style={styles.message}>{message}</Text></Animated.View>
+        : null}
 
-      {actionLabel && onAction && (
-        <Text style={styles.actionButton} onPress={onAction}>
-          {actionLabel}
-        </Text>
-      )}
+      {showAction
+        ? <Animated.View entering={FadeInDown.delay(300).duration(400)}><Button label={actionLabel} onPress={onAction} variant="default" style={styles.btn} /></Animated.View>
+        : null}
     </View>
   );
 }
@@ -43,38 +54,38 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: 40,
     paddingVertical: 48,
+    gap: 6,
   },
-  illustrationCircle: {
+  iconWrap: {
+    marginBottom: 12,
+  },
+  circle: {
     width: 80,
     height: 80,
     borderRadius: 40,
     backgroundColor: '#EFF6FF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
-  },
-  emoji: {
-    fontSize: 36,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#111827',
-    marginBottom: 8,
     textAlign: 'center',
   },
   message: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#9CA3AF',
     textAlign: 'center',
-    marginBottom: 32,
     lineHeight: 20,
+    marginBottom: 12,
   },
-  actionButton: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#3B82F6',
+  btn: {
+    marginTop: 4,
+    minWidth: 200,
   },
 });

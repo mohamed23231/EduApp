@@ -72,7 +72,9 @@ const _useAuthStore = create<AuthState>((set, get) => ({
   signOut: () => {
     removeToken();
     removeAuthUser();
-    set({ status: 'signOut', token: null, user: null });
+    removeItem(ONBOARDING_CONTEXT);
+    removeItem(DRAFT_DATA);
+    set({ status: 'signOut', token: null, user: null, onboardingContext: null });
   },
 
   hydrate: () => {

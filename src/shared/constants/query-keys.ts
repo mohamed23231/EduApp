@@ -15,6 +15,7 @@ export const QueryKey = {
   teacher: {
     me: ['teacher', 'me'] as const,
     students: ['teacher', 'students'] as const,
+    sessions: ['teacher', 'sessions'] as const,
   },
   admin: {
     teachers: ['admin', 'teachers'] as const,

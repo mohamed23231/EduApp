@@ -1,16 +1,32 @@
-import type { CreateSessionInput, SessionInstance, SessionTemplate, Student, UpdateSessionInput } from '../types';
+import type {
+  AttendanceRecord,
+  CreateSessionInput,
+  SessionInstance,
+  SessionInstanceDetail,
+  SessionTemplate,
+  Student,
+  UpdateSessionInput,
+} from '../types';
 import type { ApiSuccess } from '@/shared/types/api';
-import { client } from '@/lib/api/client';
+import { authClient } from '@/lib/api/client';
 import { unwrapData } from '@/shared/services/api-utils';
 
 type BackendSessionInstance = {
   id: string;
   templateId: string;
-  subject: string;
+  template?: {
+    id: string;
+    subject: string;
+  };
+  subject?: string;
   date: string;
   time: string;
   state: 'DRAFT' | 'ACTIVE' | 'CLOSED';
-  studentCount: number;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  assignedStudents?: BackendStudent[];
+  attendanceRecords?: BackendAttendanceRecord[];
+  studentCount?: number;
   attendanceSummary?: {
     present: number;
     absent: number;
@@ -23,7 +39,7 @@ type BackendSessionTemplate = {
   subject: string;
   daysOfWeek: number[];
   time: string;
-  studentIds: string[];
+  assignedStudents?: BackendStudent[];
 };
 
 type BackendStudent = {
@@ -33,28 +49,14 @@ type BackendStudent = {
   notes?: string | null;
 };
 
-function mapBackendSessionInstance(instance: BackendSessionInstance): SessionInstance {
-  return {
-    id: instance.id,
-    templateId: instance.templateId,
-    subject: instance.subject,
-    date: instance.date,
-    time: instance.time,
-    state: instance.state,
-    studentCount: instance.studentCount,
-    attendanceSummary: instance.attendanceSummary ?? undefined,
-  };
-}
-
-function mapBackendSessionTemplate(template: BackendSessionTemplate): SessionTemplate {
-  return {
-    id: template.id,
-    subject: template.subject,
-    daysOfWeek: template.daysOfWeek,
-    time: template.time,
-    studentIds: template.studentIds,
-  };
-}
+type BackendAttendanceRecord = {
+  id: string;
+  sessionInstanceId: string;
+  studentId: string;
+  status: 'PRESENT' | 'ABSENT' | 'EXCUSED';
+  excuseNote?: string | null;
+  createdAt: string;
+};
 
 function mapBackendStudent(student: BackendStudent): Student {
   return {
@@ -65,60 +67,142 @@ function mapBackendStudent(student: BackendStudent): Student {
   };
 }
 
+function mapBackendAttendanceRecord(record: BackendAttendanceRecord): AttendanceRecord {
+  return {
+    id: record.id,
+    sessionInstanceId: record.sessionInstanceId,
+    studentId: record.studentId,
+    status: record.status,
+    excuseNote: record.excuseNote ?? undefined,
+    createdAt: record.createdAt,
+  };
+}
+
+function mapBackendSessionInstance(instance: BackendSessionInstance): SessionInstance {
+  const assignedStudents = instance.assignedStudents?.map(mapBackendStudent) ?? [];
+  const attendanceRecords = instance.attendanceRecords?.map(mapBackendAttendanceRecord) ?? [];
+  const templateId = instance.templateId || instance.template?.id || '';
+  const subject = instance.subject || instance.template?.subject || '';
+
+  const attendanceSummary = instance.attendanceSummary || (instance.state === 'CLOSED'
+    ? {
+      present: attendanceRecords.filter(r => r.status === 'PRESENT').length,
+      absent: attendanceRecords.filter(r => r.status === 'ABSENT').length,
+      excused: attendanceRecords.filter(r => r.status === 'EXCUSED').length,
+    }
+    : undefined);
+
+  return {
+    id: instance.id,
+    templateId,
+    subject,
+    date: instance.date,
+    time: instance.time,
+    state: instance.state,
+    startedAt: instance.startedAt ?? null,
+    endedAt: instance.endedAt ?? null,
+    studentCount: instance.studentCount ?? assignedStudents.length,
+    assignedStudents,
+    attendanceRecords,
+    template: instance.template
+      ? { id: instance.template.id, subject: instance.template.subject }
+      : undefined,
+    attendanceSummary: attendanceSummary ?? undefined,
+  };
+}
+
+function mapBackendSessionTemplate(template: BackendSessionTemplate): SessionTemplate {
+  return {
+    id: template.id,
+    subject: template.subject,
+    daysOfWeek: template.daysOfWeek,
+    time: template.time,
+    assignedStudents: template.assignedStudents?.map(mapBackendStudent) ?? [],
+  };
+}
+
 /**
  * Get today's session instances
  * @param date - Date in YYYY-MM-DD format (local timezone)
  */
 export async function getTodayInstances(date: string): Promise<SessionInstance[]> {
-  const response = await client.get<ApiSuccess<BackendSessionInstance[]> | BackendSessionInstance[]>(`/api/session-instances?date=${date}`);
+  const response = await authClient.get<ApiSuccess<BackendSessionInstance[]> | BackendSessionInstance[]>(`/session-instances?date=${date}`);
   const instances = unwrapData<BackendSessionInstance[]>(response.data);
   return instances.map(mapBackendSessionInstance);
 }
 
-export async function getInstanceDetail(id: string): Promise<SessionInstance> {
-  const response = await client.get<ApiSuccess<BackendSessionInstance> | BackendSessionInstance>(`/api/session-instances/${id}`);
+export async function getInstanceDetail(id: string): Promise<SessionInstanceDetail> {
+  const response = await authClient.get<ApiSuccess<BackendSessionInstance> | BackendSessionInstance>(`/session-instances/${id}`);
   const instance = unwrapData<BackendSessionInstance>(response.data);
   return mapBackendSessionInstance(instance);
 }
 
 export async function startSession(id: string): Promise<SessionInstance> {
-  const response = await client.post<ApiSuccess<BackendSessionInstance> | BackendSessionInstance>(`/api/session-instances/${id}/start`);
+  const response = await authClient.post<ApiSuccess<BackendSessionInstance> | BackendSessionInstance>(`/session-instances/${id}/start`);
   const instance = unwrapData<BackendSessionInstance>(response.data);
   return mapBackendSessionInstance(instance);
 }
 
-export async function createTemplate(data: CreateSessionInput): Promise<SessionTemplate> {
-  const response = await client.post<ApiSuccess<BackendSessionTemplate> | BackendSessionTemplate>('/api/session-templates', data);
+export async function endSession(id: string): Promise<SessionInstance> {
+  const response = await authClient.post<ApiSuccess<BackendSessionInstance> | BackendSessionInstance>(`/session-instances/${id}/end`);
+  const instance = unwrapData<BackendSessionInstance>(response.data);
+  return mapBackendSessionInstance(instance);
+}
+
+
+export async function createTemplate(
+  data: Pick<CreateSessionInput, 'subject' | 'daysOfWeek' | 'time'>,
+): Promise<SessionTemplate> {
+  const payload = {
+    subject: data.subject,
+    daysOfWeek: data.daysOfWeek,
+    time: data.time,
+  };
+  const response = await authClient.post<ApiSuccess<BackendSessionTemplate> | BackendSessionTemplate>('/session-templates', payload);
   const template = unwrapData<BackendSessionTemplate>(response.data);
   return mapBackendSessionTemplate(template);
 }
 
 export async function getTemplate(id: string): Promise<SessionTemplate> {
-  const response = await client.get<ApiSuccess<BackendSessionTemplate> | BackendSessionTemplate>(`/api/session-templates/${id}`);
+  const response = await authClient.get<ApiSuccess<BackendSessionTemplate> | BackendSessionTemplate>(`/session-templates/${id}`);
   const template = unwrapData<BackendSessionTemplate>(response.data);
   return mapBackendSessionTemplate(template);
 }
 
-export async function updateTemplate(id: string, data: UpdateSessionInput): Promise<SessionTemplate> {
-  const response = await client.patch<ApiSuccess<BackendSessionTemplate> | BackendSessionTemplate>(`/api/session-templates/${id}`, data);
+export async function getTemplates(): Promise<SessionTemplate[]> {
+  const response = await authClient.get<ApiSuccess<BackendSessionTemplate[]> | BackendSessionTemplate[]>('/session-templates');
+  const templates = unwrapData<BackendSessionTemplate[]>(response.data);
+  return templates.map(mapBackendSessionTemplate);
+}
+
+export async function updateTemplate(
+  id: string,
+  data: Pick<UpdateSessionInput, 'subject' | 'daysOfWeek' | 'time'>,
+): Promise<SessionTemplate> {
+  const payload = {
+    subject: data.subject,
+    daysOfWeek: data.daysOfWeek,
+    time: data.time,
+  };
+  const response = await authClient.patch<ApiSuccess<BackendSessionTemplate> | BackendSessionTemplate>(`/session-templates/${id}`, payload);
   const template = unwrapData<BackendSessionTemplate>(response.data);
   return mapBackendSessionTemplate(template);
 }
 
 export async function deleteTemplate(id: string): Promise<void> {
-  await client.delete(`/api/session-templates/${id}`);
+  await authClient.delete(`/session-templates/${id}`);
 }
 
 export async function getAvailableStudents(templateId: string): Promise<Student[]> {
-  const response = await client.get<ApiSuccess<BackendStudent[]> | BackendStudent[]>(`/api/session-templates/${templateId}/available-students`);
+  const response = await authClient.get<ApiSuccess<BackendStudent[]> | BackendStudent[]>(`/session-templates/${templateId}/available-students`);
   const students = unwrapData<BackendStudent[]>(response.data);
   return students.map(mapBackendStudent);
 }
 
 export async function assignStudents(templateId: string, studentIds: string[]): Promise<void> {
-  await client.post(`/api/session-templates/${templateId}/students`, { studentIds });
+  await authClient.post(`/session-templates/${templateId}/students`, { studentIds });
 }
 
 export async function removeStudents(templateId: string, studentIds: string[]): Promise<void> {
-  await client.delete(`/api/session-templates/${templateId}/students`, { data: { studentIds } });
+  await authClient.delete(`/session-templates/${templateId}/students`, { data: { studentIds } });
 }

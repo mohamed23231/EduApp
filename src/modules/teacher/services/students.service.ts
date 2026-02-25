@@ -1,6 +1,6 @@
 import type { AccessCode, CreateStudentInput, PaginatedStudents, Student, UpdateStudentInput } from '../types';
 import type { ApiSuccess } from '@/shared/types/api';
-import { client } from '@/lib/api/client';
+import { authClient } from '@/lib/api/client';
 import { unwrapData } from '@/shared/services/api-utils';
 
 type BackendStudent = {
@@ -11,17 +11,20 @@ type BackendStudent = {
 };
 
 type BackendPaginatedStudents = {
-  students: BackendStudent[];
-  page: number;
-  limit: number;
-  total: number;
-  hasMore: boolean;
+  data: BackendStudent[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 };
 
 type BackendAccessCode = {
+  id?: string;
   code: string;
+  status?: 'active' | 'revoked';
   createdAt: string;
-  expiresAt?: string | null;
+  revokedAt?: string | null;
 };
 
 function mapBackendStudent(student: BackendStudent): Student {
@@ -34,27 +37,30 @@ function mapBackendStudent(student: BackendStudent): Student {
 }
 
 function mapBackendPaginatedStudents(data: BackendPaginatedStudents): PaginatedStudents {
+  const hasMore = data.pagination.page * data.pagination.limit < data.pagination.total;
   return {
-    students: data.students.map(mapBackendStudent),
+    students: data.data.map(mapBackendStudent),
     pagination: {
-      page: data.page,
-      limit: data.limit,
-      total: data.total,
-      hasMore: data.hasMore,
+      page: data.pagination.page,
+      limit: data.pagination.limit,
+      total: data.pagination.total,
+      hasMore,
     },
   };
 }
 
 function mapBackendAccessCode(data: BackendAccessCode): AccessCode {
   return {
+    id: data.id,
     code: data.code,
+    status: data.status,
     createdAt: data.createdAt,
-    expiresAt: data.expiresAt ?? undefined,
+    revokedAt: data.revokedAt ?? undefined,
   };
 }
 
 export async function createStudent(data: CreateStudentInput): Promise<Student> {
-  const response = await client.post<ApiSuccess<BackendStudent> | BackendStudent>('/api/students', data);
+  const response = await authClient.post<ApiSuccess<BackendStudent> | BackendStudent>('/students', data);
   const student = unwrapData<BackendStudent>(response.data);
   return mapBackendStudent(student);
 }
@@ -67,35 +73,35 @@ export async function getStudents(params: { page: number; limit: number; search?
   if (params.search) {
     queryParams.append('search', params.search);
   }
-  const response = await client.get<ApiSuccess<BackendPaginatedStudents> | BackendPaginatedStudents>(`/api/students?${queryParams.toString()}`);
+  const response = await authClient.get<ApiSuccess<BackendPaginatedStudents> | BackendPaginatedStudents>(`/students?${queryParams.toString()}`);
   const data = unwrapData<BackendPaginatedStudents>(response.data);
   return mapBackendPaginatedStudents(data);
 }
 
 export async function getStudent(id: string): Promise<Student> {
-  const response = await client.get<ApiSuccess<BackendStudent> | BackendStudent>(`/api/students/${id}`);
+  const response = await authClient.get<ApiSuccess<BackendStudent> | BackendStudent>(`/students/${id}`);
   const student = unwrapData<BackendStudent>(response.data);
   return mapBackendStudent(student);
 }
 
 export async function updateStudent(id: string, data: UpdateStudentInput): Promise<Student> {
-  const response = await client.patch<ApiSuccess<BackendStudent> | BackendStudent>(`/api/students/${id}`, data);
+  const response = await authClient.patch<ApiSuccess<BackendStudent> | BackendStudent>(`/students/${id}`, data);
   const student = unwrapData<BackendStudent>(response.data);
   return mapBackendStudent(student);
 }
 
 export async function deleteStudent(id: string): Promise<void> {
-  await client.delete(`/api/students/${id}`);
+  await authClient.delete(`/students/${id}`);
 }
 
 export async function getAccessCode(studentId: string): Promise<AccessCode> {
-  const response = await client.get<ApiSuccess<BackendAccessCode> | BackendAccessCode>(`/api/students/${studentId}/access-code`);
+  const response = await authClient.get<ApiSuccess<BackendAccessCode> | BackendAccessCode>(`/students/${studentId}/access-code`);
   const data = unwrapData<BackendAccessCode>(response.data);
   return mapBackendAccessCode(data);
 }
 
 export async function regenerateAccessCode(studentId: string): Promise<AccessCode> {
-  const response = await client.post<ApiSuccess<BackendAccessCode> | BackendAccessCode>(`/api/students/${studentId}/access-code/regenerate`);
+  const response = await authClient.post<ApiSuccess<BackendAccessCode> | BackendAccessCode>(`/students/${studentId}/access-code/regenerate`);
   const data = unwrapData<BackendAccessCode>(response.data);
   return mapBackendAccessCode(data);
 }

@@ -1,6 +1,6 @@
-import type { ApiSuccess } from '@/shared/types/api';
 import type { AttendanceRecord, MarkAttendanceInput, UpdateAttendanceInput } from '../types';
-import { client } from '@/lib/api/client';
+import type { ApiSuccess } from '@/shared/types/api';
+import { authClient } from '@/lib/api/client';
 import { unwrapData } from '@/shared/services/api-utils';
 
 type BackendAttendanceRecord = {
@@ -9,7 +9,7 @@ type BackendAttendanceRecord = {
   sessionInstanceId: string;
   status: 'PRESENT' | 'ABSENT' | 'EXCUSED';
   excuseNote?: string | null;
-  markedAt: string;
+  createdAt: string;
 };
 
 function mapBackendAttendanceRecord(record: BackendAttendanceRecord): AttendanceRecord {
@@ -18,19 +18,19 @@ function mapBackendAttendanceRecord(record: BackendAttendanceRecord): Attendance
     studentId: record.studentId,
     sessionInstanceId: record.sessionInstanceId,
     status: record.status,
-    excuseNote: record.excuseNote ?? undefined,
-    markedAt: record.markedAt,
+    excuseNote: record.excuseNote ?? null,
+    createdAt: record.createdAt,
   };
 }
 
 export async function markAttendance(data: MarkAttendanceInput): Promise<AttendanceRecord> {
-  const response = await client.post<ApiSuccess<BackendAttendanceRecord> | BackendAttendanceRecord>('/api/attendance', data);
+  const response = await authClient.post<ApiSuccess<BackendAttendanceRecord> | BackendAttendanceRecord>('/attendance', data);
   const record = unwrapData<BackendAttendanceRecord>(response.data);
   return mapBackendAttendanceRecord(record);
 }
 
 export async function updateAttendance(id: string, data: UpdateAttendanceInput): Promise<AttendanceRecord> {
-  const response = await client.patch<ApiSuccess<BackendAttendanceRecord> | BackendAttendanceRecord>(`/api/attendance/${id}`, data);
+  const response = await authClient.patch<ApiSuccess<BackendAttendanceRecord> | BackendAttendanceRecord>(`/attendance/${id}`, data);
   const record = unwrapData<BackendAttendanceRecord>(response.data);
   return mapBackendAttendanceRecord(record);
 }

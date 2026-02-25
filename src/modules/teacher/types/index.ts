@@ -7,6 +7,7 @@ export type {
   MarkAttendanceInput,
   PaginatedStudents,
   SessionInstance,
+  SessionInstanceDetail,
   SessionState,
   SessionTemplate,
   Student,

@@ -5,9 +5,12 @@
  */
 
 import type { AccessCode } from '../types';
+import * as ExpoClipboard from 'expo-clipboard';
 import { useCallback, useEffect, useState } from 'react';
-import { Clipboard, Share } from 'react-native';
+import { Share } from 'react-native';
+import { useAuthStore } from '@/features/auth/use-auth-store';
 import { getAccessCode, regenerateAccessCode } from '../services';
+import { getTeacherIdHash, trackConnectionCodeShared } from '../services/analytics.service';
 
 type UseConnectionCodeResult = {
   code: AccessCode | null;
@@ -27,6 +30,7 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const user = useAuthStore.use.user();
 
   const fetchCode = useCallback(async () => {
     try {
@@ -66,7 +70,7 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
     }
 
     try {
-      await Clipboard.setString(code.code);
+      await ExpoClipboard.setStringAsync(code.code);
     }
     catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to copy to clipboard';
@@ -83,6 +87,10 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
       await Share.share({
         message: code.code,
       });
+      // Track analytics on successful share
+      if (user?.id) {
+        trackConnectionCodeShared(getTeacherIdHash(user.id), studentId);
+      }
     }
     catch (err) {
       // User cancelled sharing - not an error
@@ -92,7 +100,7 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
       const errorMessage = err instanceof Error ? err.message : 'Failed to share access code';
       setError(errorMessage);
     }
-  }, [code]);
+  }, [code, user, studentId]);
 
   // Fetch code on mount
   useEffect(() => {
