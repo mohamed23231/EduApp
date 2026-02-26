@@ -9,7 +9,7 @@ import 'tsx/cjs';
 import Env from './env';
 
 const EXPO_ACCOUNT_OWNER = process.env.EXPO_ACCOUNT_OWNER;
-const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID;
+const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID || 'a78173db-7bed-463b-9616-9a3ff01e3dc2';
 
 const appIconBadgeConfig: AppIconBadgeConfig = {
   enabled: Env.EXPO_PUBLIC_APP_ENV !== 'production',
@@ -40,7 +40,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     updates: {
+      url: 'https://u.expo.dev/a78173db-7bed-463b-9616-9a3ff01e3dc2',
       fallbackToCacheTimeout: 0,
+    },
+    runtimeVersion: {
+      policy: 'appVersion',
     },
     assetBundlePatterns: ['**/*'],
     ios: {
@@ -124,14 +128,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     appConfig.owner = EXPO_ACCOUNT_OWNER;
   }
 
-  if (EAS_PROJECT_ID) {
-    appConfig.extra = {
-      ...appConfig.extra,
-      eas: {
-        projectId: EAS_PROJECT_ID,
-      },
-    };
-  }
+  appConfig.extra = {
+    ...appConfig.extra,
+    eas: {
+      projectId: EAS_PROJECT_ID,
+    },
+  };
 
   return appConfig;
 };

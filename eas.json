@@ -32,7 +32,10 @@
       },
       "environment": "preview",
       "env": {
-        "EXPO_PUBLIC_APP_ENV": "preview"
+        "EXPO_PUBLIC_APP_ENV": "preview",
+        "EXPO_PUBLIC_API_URL": "https://education-production-cb7a.up.railway.app/api/v1",
+        "EXPO_PUBLIC_VAR_NUMBER": "10",
+        "EXPO_PUBLIC_VAR_BOOL": "true"
       }
     },
     "development": {
