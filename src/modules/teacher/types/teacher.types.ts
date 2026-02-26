@@ -191,3 +191,69 @@ export type ParentPerformanceResponse = {
   filter?: { window: WindowFilter };
   nextCursor: string | null;
 };
+
+// ─── Teacher Lifecycle / Profile API types ────────────────────────────────────
+
+export type TeacherStatus = 'INVITED' | 'TRIAL' | 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
+
+export type TrialLimits = {
+  maxStudents: number | null;
+  maxSessions: number | null;
+  maxSessionHours: number | null;
+};
+
+export type TrialUsage = {
+  currentStudents: number;
+  currentSessions: number;
+  currentSessionHours: number;
+};
+
+export type TrialRemaining = {
+  students: number | null;
+  sessions: number | null;
+  sessionHours: number | null;
+};
+
+export type TrialData = {
+  isTrial: true;
+  startDate: string;
+  endDate: string;
+  daysRemaining: number;
+  limits: TrialLimits;
+  usage: TrialUsage;
+  remaining: TrialRemaining;
+};
+
+export type SubscriptionLimits = {
+  maxStudents: number | null;
+  maxSessions: number | null;
+  maxSessionHours: number | null;
+};
+
+export type SubscriptionData = {
+  isActive: boolean;
+  status: string;
+  planName: string;
+  startDate: string;
+  endDate: string | null;
+  daysRemaining: number | null;
+  limits: SubscriptionLimits;
+  billingCycle: 'MONTHLY' | 'YEARLY';
+};
+
+export type EntitlementsData = {
+  canCreateStudent: boolean;
+  canCreateSession: boolean;
+  canMarkAttendance: boolean;
+  canUpdateStudent: boolean;
+  canDeleteStudent: boolean;
+  canUpdateSession: boolean;
+  canDeleteSession: boolean;
+};
+
+export type ProfileResponseDto = {
+  teacherStatus: TeacherStatus;
+  trial: TrialData | null;
+  subscription: SubscriptionData | null;
+  entitlements: EntitlementsData;
+};

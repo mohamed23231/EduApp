@@ -299,7 +299,47 @@
       "logoutConfirm": "Are you sure you want to log out?",
       "roleLabel": "Role",
       "roleTeacher": "Teacher",
-      "title": "Profile"
+      "title": "Profile",
+      "statusSection": "Account Status",
+      "status": {
+        "INVITED": "Invited",
+        "TRIAL": "Trial",
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "EXPIRED": "Expired"
+      },
+      "trial": {
+        "title": "Trial Period",
+        "endDate": "Trial ends on {{date}}",
+        "daysRemaining_one": "{{count}} day remaining",
+        "daysRemaining_other": "{{count}} days remaining",
+        "warningDaysRemaining": "Trial ending soon!",
+        "usage": "Usage",
+        "students": "Students",
+        "sessions": "Sessions",
+        "sessionHours": "Session Hours",
+        "unlimited": "Unlimited",
+        "usageFormat": "{{current}} / {{limit}}"
+      },
+      "subscription": {
+        "title": "Subscription",
+        "planName": "Plan",
+        "status": "Status",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "billingCycle": "Billing Cycle",
+        "daysRemaining_one": "{{count}} day remaining",
+        "daysRemaining_other": "{{count}} days remaining",
+        "billingCycleMonthly": "Monthly",
+        "billingCycleYearly": "Yearly",
+        "unlimited": "Unlimited",
+        "expiredLabel": "Expired"
+      },
+      "expired": {
+        "bannerTitle": "Account Expired",
+        "bannerMessage": "Your account has expired. Write actions are blocked.",
+        "renewalCta": "Contact your admin to reactivate your account."
+      }
     },
     "rankings": {
       "averageRating": "Average Rating",

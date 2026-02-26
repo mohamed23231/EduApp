@@ -22,6 +22,7 @@ import { Button, Input, Modal, Text, useModal } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
 import { ScreenHeader } from '../components';
 import { useStudentCrud } from '../hooks';
+import { extractErrorMessage } from '../services/error-utils';
 import { studentSchema } from '../validators';
 
 /** Student creation form fields */
@@ -155,7 +156,7 @@ export function StudentCreateScreen() {
       }
       else {
         setErrors({
-          form: error instanceof Error ? error.message : t('teacher.common.genericError'),
+          form: extractErrorMessage(error, t),
         });
       }
     }

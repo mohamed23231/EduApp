@@ -4,6 +4,7 @@
 
 import type { ApiSuccess } from '@/shared/types/api';
 import { authClient } from '@/lib/api/client';
+import type { UserRole } from '@/core/auth/roles';
 
 type RefreshTokenPayload = {
     accessToken: string;
@@ -13,12 +14,20 @@ type RefreshTokenPayload = {
 type ValidateTokenUser = {
     id: string;
     email: string;
-    role: string;
+    role: UserRole;
     fullName?: string;
 };
 
 type ValidateTokenPayload = {
     user: ValidateTokenUser;
+};
+
+type ValidateTokenDirectPayload = {
+    userId: string;
+    email: string;
+    role: UserRole;
+    status?: string;
+    profile?: unknown;
 };
 
 export type RefreshTokenResponse = {
@@ -37,14 +46,33 @@ export async function refreshToken(currentRefreshToken: string): Promise<Refresh
 }
 
 export async function validateToken(): Promise<ValidateTokenResponse> {
-    const response = await authClient.post<ApiSuccess<ValidateTokenPayload> | ValidateTokenPayload>(
+    const response = await authClient.post<
+        ApiSuccess<ValidateTokenPayload | ValidateTokenDirectPayload> | ValidateTokenPayload | ValidateTokenDirectPayload
+    >(
         '/auth/validate-token',
     );
-    const data = response.data;
+    const raw = response.data as Record<string, unknown>;
+    const payload = ('success' in raw && 'data' in raw)
+        ? (raw.data as Record<string, unknown>)
+        : raw;
 
-    // Handle both envelope and raw formats
-    if ('success' in (data as Record<string, unknown>) && 'data' in (data as Record<string, unknown>)) {
-        return (data as ApiSuccess<ValidateTokenPayload>).data.user;
+    // Shape A: { user: { id, email, role } }
+    if (payload.user && typeof payload.user === 'object') {
+        return payload.user as ValidateTokenUser;
     }
-    return (data as ValidateTokenPayload).user;
+
+    // Shape B: { userId, email, role, ... } -> normalize to AuthUser shape
+    if (
+        typeof payload.userId === 'string'
+        && typeof payload.email === 'string'
+        && typeof payload.role === 'string'
+    ) {
+        return {
+            id: payload.userId,
+            email: payload.email,
+            role: payload.role as UserRole,
+        };
+    }
+
+    throw new Error('Invalid validate-token response shape');
 }

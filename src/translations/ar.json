@@ -299,7 +299,47 @@
       "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
       "roleLabel": "الدور",
       "roleTeacher": "معلم",
-      "title": "الملف الشخصي"
+      "title": "الملف الشخصي",
+      "statusSection": "حالة الحساب",
+      "status": {
+        "INVITED": "مدعو",
+        "TRIAL": "تجريبي",
+        "ACTIVE": "نشط",
+        "SUSPENDED": "موقوف",
+        "EXPIRED": "منتهي"
+      },
+      "trial": {
+        "title": "الفترة التجريبية",
+        "endDate": "تنتهي التجربة في {{date}}",
+        "daysRemaining_one": "يوم واحد متبقٍ",
+        "daysRemaining_other": "{{count}} أيام متبقية",
+        "warningDaysRemaining": "التجربة على وشك الانتهاء!",
+        "usage": "الاستخدام",
+        "students": "الطلاب",
+        "sessions": "الحصص",
+        "sessionHours": "ساعات الحصص",
+        "unlimited": "غير محدود",
+        "usageFormat": "{{current}} / {{limit}}"
+      },
+      "subscription": {
+        "title": "الاشتراك",
+        "planName": "الخطة",
+        "status": "الحالة",
+        "startDate": "تاريخ البدء",
+        "endDate": "تاريخ الانتهاء",
+        "billingCycle": "دورة الفوترة",
+        "daysRemaining_one": "يوم واحد متبقٍ",
+        "daysRemaining_other": "{{count}} أيام متبقية",
+        "billingCycleMonthly": "شهري",
+        "billingCycleYearly": "سنوي",
+        "unlimited": "غير محدود",
+        "expiredLabel": "منتهي"
+      },
+      "expired": {
+        "bannerTitle": "انتهى الحساب",
+        "bannerMessage": "انتهت صلاحية حسابك. الإجراءات الكتابية محظورة.",
+        "renewalCta": "تواصل مع المسؤول لإعادة تفعيل حسابك."
+      }
     },
     "rankings": {
       "averageRating": "متوسط التقييم",

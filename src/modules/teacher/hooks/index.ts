@@ -1,4 +1,5 @@
 export { useAttendance } from './use-attendance';
+export { useTeacherProfile } from './use-teacher-profile';
 export { useConnectionCode } from './use-connection-code';
 export { useSessionCrud } from './use-session-crud';
 export { useSessionRankings } from './use-session-rankings';

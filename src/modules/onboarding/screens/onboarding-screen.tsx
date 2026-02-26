@@ -27,7 +27,7 @@ import {
 } from '@/features/auth/use-auth-store';
 import { getToken } from '@/lib/auth/utils';
 import { createProfile, refreshToken, validateToken } from '@/modules/auth/services';
-import { getApiErrorMessage } from '@/shared/services/api-utils';
+import { getApiErrorMessage, isApiError } from '@/shared/services/api-utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -54,6 +54,43 @@ function getJwtExpiry(accessToken: string): number | null {
   catch {
     return null;
   }
+}
+
+function isProfileAlreadyExistsError(error: unknown): boolean {
+  if (!isApiError(error)) {
+    return false;
+  }
+
+  const status = error.response?.status;
+  const data = error.response?.data as Record<string, unknown> | undefined;
+
+  const normalize = (value: unknown): string => {
+    if (typeof value === 'string') {
+      return value.toLowerCase();
+    }
+    if (Array.isArray(value)) {
+      return value
+        .filter((item): item is string => typeof item === 'string')
+        .join(' ')
+        .toLowerCase();
+    }
+    if (value && typeof value === 'object' && 'message' in (value as Record<string, unknown>)) {
+      return normalize((value as Record<string, unknown>).message);
+    }
+    return '';
+  };
+
+  const normalizedMessage = [
+    normalize(data?.message),
+    normalize(data?.error),
+    normalize((error as { message?: unknown }).message),
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (status === 400 || status === 409)
+    && (normalizedMessage.includes('profile already exists')
+      || normalizedMessage.includes('الملف الشخصي موجود'));
 }
 
 // ─── OnboardingScreen ─────────────────────────────────────────────────────────
@@ -133,19 +170,30 @@ export function OnboardingScreen() {
       await ensureFreshToken();
 
       // 2. Call profile endpoint
-      await createProfile(role, { name: fullName.trim(), phone: phone.trim() || undefined });
+      try {
+        await createProfile(role, { name: fullName.trim(), phone: phone.trim() || undefined });
+      }
+      catch (error) {
+        // If profile already exists, treat onboarding as already completed and continue.
+        if (!isProfileAlreadyExistsError(error)) {
+          throw error;
+        }
+      }
 
       // 3. Call validate-token to get full user object
       const validatedUser = await validateToken();
 
       // 4. Update Auth_Store with full user, clear onboarding state
       const currentToken = getToken();
-      signIn({ token: currentToken!, user: validatedUser });
+      if (!currentToken) {
+        throw new Error('Missing auth token after onboarding');
+      }
+      signIn({ token: currentToken, user: validatedUser });
       clearOnboardingContext();
       clearDraftData();
 
       // 5. Navigate to role dashboard
-      router.replace(getHomeRouteForRole(role));
+      router.replace(getHomeRouteForRole(validatedUser.role));
     }
     catch (error) {
       // Save draft data on failure
