@@ -6,6 +6,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle, G } from 'react-native-svg';
+import { Color } from '@/components/ui/color-utils';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -46,7 +47,7 @@ export function AttendanceDonutChart({ attendanceRate, size = 160 }: AttendanceD
             cx={center}
             cy={center}
             r={radius}
-            stroke="#E5E7EB"
+            stroke={Color.gray(200)}
             strokeWidth={strokeWidth}
             fill="none"
           />
@@ -54,7 +55,7 @@ export function AttendanceDonutChart({ attendanceRate, size = 160 }: AttendanceD
             cx={center}
             cy={center}
             r={radius}
-            stroke="#22C55E"
+            stroke={Color.status.present()}
             strokeWidth={strokeWidth}
             fill="none"
             strokeDasharray={`${circumference}`}
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
   },
   rateText: {
     fontWeight: '700',
-    color: '#111827',
+    color: Color.text.primary(),
     textAlign: 'center',
   },
 });

@@ -1,20 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
-
-export const AVATAR_COLORS = [
-  '#6366F1',
-  '#8B5CF6',
-  '#EC4899',
-  '#F43F5E',
-  '#F97316',
-  '#EAB308',
-  '#22C55E',
-  '#14B8A6',
-  '#06B6D4',
-  '#3B82F6',
-  '#A855F7',
-  '#E11D48',
-];
+import { Color } from '@/components/ui/color-utils';
 
 export function getInitials(name: string): string {
   const trimmed = name.trim();
@@ -32,8 +18,8 @@ export function getAvatarColor(name: string): string {
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const index = Math.abs(hash) % AVATAR_COLORS.length;
-  return AVATAR_COLORS[index];
+  const index = Math.abs(hash);
+  return Color.avatar.getColor(index);
 }
 
 const SIZE_MAP = {
@@ -68,7 +54,7 @@ export function StudentAvatar({ name, size = 'md', selected = false, onPress }: 
             width: ring,
             height: ring,
             borderRadius: ring / 2,
-            borderColor: selected ? '#6366F1' : 'transparent',
+            borderColor: selected ? Color.indigo(500) : 'transparent',
           },
         ]}
       >
@@ -104,7 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   initials: {
-    color: '#FFFFFF',
+    color: Color.white(),
     fontWeight: '700',
   },
 });

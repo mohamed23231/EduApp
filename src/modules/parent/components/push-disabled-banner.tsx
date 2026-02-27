@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui';
+import { Color } from '@/components/ui/color-utils';
 import {
   getPushPermissionStatus,
   openNotificationSettings,
@@ -66,7 +67,7 @@ export function PushDisabledBanner() {
       testID="push-disabled-banner"
     >
       <View style={styles.content}>
-        <Ionicons name="notifications-off" size={20} color="#F59E0B" style={styles.icon} />
+        <Ionicons name="notifications-off" size={20} color={Color.warning(500)} style={styles.icon} />
         <Text style={styles.message}>{message}</Text>
       </View>
       {showSettingsButton && (
@@ -76,7 +77,7 @@ export function PushDisabledBanner() {
           accessibilityLabel={t('parent.notifications.openSettings')}
           testID="open-settings-button"
         >
-          <Ionicons name="chevron-forward" size={20} color="#3B82F6" />
+          <Ionicons name="chevron-forward" size={20} color={Color.blue(500)} />
         </TouchableOpacity>
       )}
     </View>
@@ -88,9 +89,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFBEB',
+    backgroundColor: Color.warning(50),
     borderBottomWidth: 1,
-    borderBottomColor: '#FCD34D',
+    borderBottomColor: Color.warning(200),
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     fontSize: 14,
-    color: '#92400E',
+    color: Color.warning(700),
     fontWeight: '500',
   },
 });

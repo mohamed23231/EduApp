@@ -16,6 +16,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui';
+import { Color } from '@/components/ui/color-utils';
 
 type StudentCardProps = {
   student: Student;
@@ -24,21 +25,16 @@ type StudentCardProps = {
   onPress: (student: Student) => void;
 };
 
-const AVATAR_COLORS = [
-  { bg: '#EDE9FE', text: '#7C3AED' },
-  { bg: '#DBEAFE', text: '#2563EB' },
-  { bg: '#D1FAE5', text: '#059669' },
-  { bg: '#FEF3C7', text: '#D97706' },
-  { bg: '#FCE7F3', text: '#DB2777' },
-  { bg: '#E0E7FF', text: '#4338CA' },
-];
-
 function getAvatarColor(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  const index = Math.abs(hash);
+  return {
+    bg: Color.avatar.getBgColor(index),
+    text: Color.avatar.getColor(index),
+  };
 }
 
 export function StudentCard({ student, index, sessionInfo, onPress }: StudentCardProps) {
@@ -91,7 +87,7 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
               {student.gradeLevel
                 ? (
                   <View style={styles.gradePill}>
-                    <Ionicons name="school-outline" size={11} color="#6B7280" />
+                    <Ionicons name="school-outline" size={11} color={Color.gray(500)} />
                     <Text style={styles.gradeText}>{student.gradeLevel}</Text>
                   </View>
                 )
@@ -100,7 +96,7 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
               {isAssigned
                 ? (
                   <View style={styles.sessionPill}>
-                    <Ionicons name="calendar-outline" size={11} color="#059669" />
+                    <Ionicons name="calendar-outline" size={11} color={Color.success(600)} />
                     <Text style={styles.sessionText}>
                       {t('teacher.students.sessionCount', { count: sessionInfo.sessionCount })}
                     </Text>
@@ -108,7 +104,7 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
                 )
                 : (
                   <View style={styles.unassignedPill}>
-                    <Ionicons name="alert-circle-outline" size={11} color="#D97706" />
+                    <Ionicons name="alert-circle-outline" size={11} color={Color.warning(600)} />
                     <Text style={styles.unassignedText}>
                       {t('teacher.students.noSessions')}
                     </Text>
@@ -127,7 +123,7 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
           </View>
 
           {/* Action hint */}
-          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color="#D1D5DB" />
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color={Color.gray(300)} />
         </Pressable>
       </Animated.View>
     </MotiView>
@@ -139,11 +135,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Color.white(),
     borderRadius: 16,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
+    borderColor: Color.gray(200),
+    shadowColor: Color.black(),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -159,37 +155,37 @@ const styles = StyleSheet.create({
   },
   avatarLetter: { fontSize: 19, fontWeight: '700' },
   info: { flex: 1, gap: 4 },
-  name: { fontSize: 16, fontWeight: '600', color: '#111827' },
+  name: { fontSize: 16, fontWeight: '600', color: Color.text.primary() },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   gradePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Color.gray(100),
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  gradeText: { fontSize: 11, color: '#6B7280', fontWeight: '500' },
+  gradeText: { fontSize: 11, color: Color.gray(500), fontWeight: '500' },
   sessionPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: Color.success(50),
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  sessionText: { fontSize: 11, color: '#059669', fontWeight: '500' },
+  sessionText: { fontSize: 11, color: Color.success(600), fontWeight: '500' },
   unassignedPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: Color.warning(50),
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  unassignedText: { fontSize: 11, color: '#D97706', fontWeight: '500' },
-  sessionSubjects: { fontSize: 12, color: '#9CA3AF', marginTop: 1 },
+  unassignedText: { fontSize: 11, color: Color.warning(600), fontWeight: '500' },
+  sessionSubjects: { fontSize: 12, color: Color.gray(400), marginTop: 1 },
 });

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Button, Text } from '@/components/ui';
+import { Color } from '@/components/ui/color-utils';
 
 type EmptyDashboardProps = {
   onLinkStudent: () => void;
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: Color.blue(50),
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -55,13 +56,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: Color.text.primary(),
     marginBottom: 8,
     textAlign: 'center',
   },
   message: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Color.text.secondary(),
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 20,

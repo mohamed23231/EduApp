@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import { Color } from '@/components/ui/color-utils';
 
 type StatItemProps = {
   color: string;
@@ -31,9 +32,9 @@ export function AttendanceStatCard({ present, absent, excused }: AttendanceStatC
 
   return (
     <View style={styles.container}>
-      <StatItem color="#22C55E" label={t('parent.attendance.statusPresent')} count={present} />
-      <StatItem color="#EF4444" label={t('parent.attendance.statusAbsent')} count={absent} />
-      <StatItem color="#F59E0B" label={t('parent.attendance.statusExcused')} count={excused} />
+      <StatItem color={Color.status.present()} label={t('parent.attendance.statusPresent')} count={present} />
+      <StatItem color={Color.status.absent()} label={t('parent.attendance.statusAbsent')} count={absent} />
+      <StatItem color={Color.status.excused()} label={t('parent.attendance.statusExcused')} count={excused} />
     </View>
   );
 }
@@ -61,11 +62,11 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: Color.text.secondary(),
   },
   statCount: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: Color.text.primary(),
   },
 });

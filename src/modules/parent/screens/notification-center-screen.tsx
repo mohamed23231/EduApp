@@ -1,11 +1,14 @@
 import type { Href } from 'expo-router';
 import type { Notification } from '../services/notifications.service';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
+  I18nManager,
+  Pressable,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -31,8 +34,18 @@ function SkeletonLoader() {
 
 function NotificationHeader({ isRTL: _isRTL }: { isRTL: boolean }) {
   const { t } = useTranslation();
+  const router = useRouter();
   return (
     <View style={styles.header}>
+      <Pressable
+        onPress={() => router.back()}
+        style={styles.backButton}
+        accessibilityRole="button"
+        accessibilityLabel={t('parent.common.back')}
+        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+      >
+        <Ionicons name="arrow-back" size={24} color="#111827" />
+      </Pressable>
       <Text style={styles.headerTitle}>{t('parent.notifications.title')}</Text>
     </View>
   );
@@ -172,6 +185,15 @@ export function NotificationCenterScreen() {
     <SafeAreaView edges={['top']} style={styles.container}>
       <PushDisabledBanner />
       <View style={[styles.header, isRTL && styles.headerRTL]}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel={t('parent.common.back')}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Ionicons name="arrow-back" size={24} color="#111827" />
+        </Pressable>
         <Text style={styles.headerTitle}>{t('parent.notifications.title')}</Text>
         <MarkAllButton unreadCount={unreadCount} isMarkingAll={isMarkingAll} onPress={handleMarkAllAsRead} />
       </View>
@@ -220,10 +242,15 @@ const styles = StyleSheet.create({
   headerRTL: {
     flexDirection: 'row-reverse',
   },
+  backButton: {
+    padding: 8,
+    marginEnd: 8,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#111827',
+    flex: 1,
   },
   markAllButton: {
     color: '#3B82F6',

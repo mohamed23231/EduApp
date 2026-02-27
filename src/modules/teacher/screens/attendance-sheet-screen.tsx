@@ -273,6 +273,7 @@ export function AttendanceSheetScreen() {
         title={confirmModal.title}
         message={confirmModal.message}
         variant={confirmModal.variant}
+        disableAnimations
         confirmLabel={t('teacher.common.ok')}
         cancelLabel={t('teacher.common.cancel')}
         hideCancelButton={confirmModal.hideCancelButton}

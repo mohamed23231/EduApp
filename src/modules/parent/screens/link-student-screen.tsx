@@ -79,7 +79,7 @@ function ScreenHeader({
         testID="back-button"
       >
         <Ionicons
-          name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'}
+          name="arrow-back"
           size={24}
           color="#111827"
         />
@@ -347,7 +347,7 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,

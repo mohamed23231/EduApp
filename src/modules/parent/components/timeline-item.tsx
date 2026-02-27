@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import { Color, withOpacity } from '@/components/ui/color-utils';
 
 const STATUS_ICON: Record<AttendanceStatus, keyof typeof Ionicons.glyphMap> = {
   PRESENT: 'checkmark-circle',
@@ -12,10 +13,10 @@ const STATUS_ICON: Record<AttendanceStatus, keyof typeof Ionicons.glyphMap> = {
 };
 
 const STATUS_COLOR: Record<AttendanceStatus, string> = {
-  PRESENT: '#22C55E',
-  ABSENT: '#EF4444',
-  EXCUSED: '#F59E0B',
-  NOT_MARKED: '#9CA3AF',
+  PRESENT: Color.status.present(),
+  ABSENT: Color.status.absent(),
+  EXCUSED: Color.status.excused(),
+  NOT_MARKED: Color.status.notMarked(),
 };
 
 type TimelineItemProps = {
@@ -69,7 +70,7 @@ function formatTime(raw: string): string {
 export function TimelineItem({ date, time, status, excuseNote }: TimelineItemProps) {
   const { t } = useTranslation();
   const color = STATUS_COLOR[status];
-  const badgeBg = `${color}18`;
+  const badgeBg = withOpacity(color, 0.1);
   const statusLabelMap: Record<AttendanceStatus, string> = {
     PRESENT: t('parent.attendance.statusPresent'),
     ABSENT: t('parent.attendance.statusAbsent'),
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Color.gray(100),
     gap: 12,
   },
   iconCircle: {
@@ -124,16 +125,16 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: Color.gray(700),
   },
   time: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: Color.gray(400),
     marginTop: 2,
   },
   excuseNote: {
     fontSize: 12,
-    color: '#6B7280',
+    color: Color.gray(500),
     marginTop: 3,
     fontStyle: 'italic',
   },

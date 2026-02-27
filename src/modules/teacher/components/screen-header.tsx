@@ -37,7 +37,7 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
         accessibilityLabel="Go back"
       >
         <Ionicons
-          name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'}
+          name="chevron-back"
           size={24}
           color="#3B82F6"
         />
@@ -56,7 +56,7 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
