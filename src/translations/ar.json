@@ -51,6 +51,16 @@
       }
     }
   },
+  "notification": {
+    "absence": {
+      "body": "تم تحديد {{studentName}} كغائب في {{sessionDate}}",
+      "title": "تنبيه غياب"
+    },
+    "lowScore": {
+      "body": "حصل {{studentName}} على تقييم {{rating}} من {{teacherName}} بتاريخ {{sessionDate}}",
+      "title": "تنبيه أداء منخفض"
+    }
+  },
   "onboarding": {
     "message": "مرحبا بك في Privat Edu"
   },
@@ -113,9 +123,14 @@
       "empty": "ليس لديك أي إشعارات حتى الآن.",
       "emptyTitle": "لا توجد إشعارات",
       "error": "فشل تحميل الإشعارات. يرجى المحاولة مرة أخرى.",
+      "lowScore": {
+        "body": "حصل {{studentName}} على تقييم {{rating}} من {{teacherName}} بتاريخ {{sessionDate}}",
+        "title": "تنبيه أداء منخفض"
+      },
       "markAllAsRead": "وضع علامة على الكل كمقروء",
       "openSettings": "فتح الإعدادات",
       "pushDisabled": "الإشعارات الفورية معطلة. الإشعارات داخل التطبيق لا تزال نشطة.",
+      "pushUnsupported": "الإشعارات الفورية غير متاحة على المحاكي.",
       "title": "الإشعارات"
     },
     "performance": {

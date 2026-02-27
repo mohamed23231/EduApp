@@ -1,14 +1,25 @@
+import type { PushPermissionStatus } from '../services/push-notification-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui';
-import { getPushPermissionStatus, openNotificationSettings } from '../services/push-notification-handler';
+import {
+  getPushPermissionStatus,
+  openNotificationSettings,
+} from '../services/push-notification-handler';
 
 export function PushDisabledBanner() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isPushDisabled, setIsPushDisabled] = useState(false);
+  const [permissionStatus, setPermissionStatus]
+    = useState<PushPermissionStatus>('undetermined');
   const [isLoading, setIsLoading] = useState(true);
+  const showSettingsButton = permissionStatus !== 'unsupported';
+  const message
+    = permissionStatus === 'unsupported'
+      ? `${t('parent.notifications.pushDisabled')} ${i18n.language.startsWith('ar') ? 'المحاكي لا يدعم الإشعارات الفورية.' : 'Simulator does not support push notifications.'}`
+      : t('parent.notifications.pushDisabled');
 
   useEffect(() => {
     void checkPushPermission();
@@ -27,6 +38,7 @@ export function PushDisabledBanner() {
   const checkPushPermission = async () => {
     try {
       const status = await getPushPermissionStatus();
+      setPermissionStatus(status);
       setIsPushDisabled(status !== 'granted');
     }
     catch (error) {
@@ -55,18 +67,18 @@ export function PushDisabledBanner() {
     >
       <View style={styles.content}>
         <Ionicons name="notifications-off" size={20} color="#F59E0B" style={styles.icon} />
-        <Text style={styles.message}>
-          {t('parent.notifications.pushDisabled')}
-        </Text>
+        <Text style={styles.message}>{message}</Text>
       </View>
-      <TouchableOpacity
-        onPress={handleOpenSettings}
-        accessibilityRole="button"
-        accessibilityLabel={t('parent.notifications.openSettings')}
-        testID="open-settings-button"
-      >
-        <Ionicons name="chevron-forward" size={20} color="#3B82F6" />
-      </TouchableOpacity>
+      {showSettingsButton && (
+        <TouchableOpacity
+          onPress={handleOpenSettings}
+          accessibilityRole="button"
+          accessibilityLabel={t('parent.notifications.openSettings')}
+          testID="open-settings-button"
+        >
+          <Ionicons name="chevron-forward" size={20} color="#3B82F6" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

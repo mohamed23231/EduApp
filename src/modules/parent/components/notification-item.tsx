@@ -19,6 +19,65 @@ type NotificationItemProps = {
   onPress: () => void;
 };
 
+function resolveNotificationTranslationKey(key: string): string {
+  const trimmedKey = key.trim();
+
+  // Backend stores notification keys under "notification.*", while mobile
+  // resources keep them under "parent.notifications.*".
+  if (!trimmedKey.startsWith('notification.')) {
+    return trimmedKey;
+  }
+
+  const suffix = trimmedKey.slice('notification.'.length);
+  const normalizedSuffix = suffix
+    .replace(/^low_score\./, 'lowScore.')
+    .replace(/^low-score\./, 'lowScore.');
+
+  return `parent.notifications.${normalizedSuffix}`;
+}
+
+function buildNotificationFallback(
+  sourceKey: string,
+  params: Record<string, string>,
+  language: string,
+): string {
+  const isArabic = language.startsWith('ar');
+  const studentName = params.studentName ?? (isArabic ? 'الطالب' : 'Student');
+  const sessionDate = params.sessionDate ?? '';
+  const rating = params.rating ?? (isArabic ? 'غير متاح' : 'N/A');
+  const teacherName = params.teacherName ?? (isArabic ? 'المعلم' : 'Teacher');
+
+  const normalizedKey = sourceKey.toLowerCase();
+  const isTitle = normalizedKey.endsWith('.title');
+  const isAbsence = normalizedKey.includes('absence');
+  const isLowScore
+    = normalizedKey.includes('lowscore')
+      || normalizedKey.includes('low_score')
+      || normalizedKey.includes('low-score');
+
+  if (isTitle && isAbsence) {
+    return isArabic ? 'تنبيه غياب' : 'Absence Alert';
+  }
+
+  if (isTitle && isLowScore) {
+    return isArabic ? 'تنبيه أداء منخفض' : 'Low Performance Alert';
+  }
+
+  if (!isTitle && isAbsence) {
+    return isArabic
+      ? `تم تحديد ${studentName} كغائب في ${sessionDate}`
+      : `${studentName} was marked absent on ${sessionDate}`;
+  }
+
+  if (!isTitle && isLowScore) {
+    return isArabic
+      ? `حصل ${studentName} على تقييم ${rating} من ${teacherName} بتاريخ ${sessionDate}`
+      : `${studentName} received a rating of ${rating} from ${teacherName} on ${sessionDate}`;
+  }
+
+  return isArabic ? 'إشعار جديد' : 'New notification';
+}
+
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -40,18 +99,26 @@ function formatDate(dateString: string): string {
 }
 
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isUnread = notification.status === 'UNREAD';
 
   // Resolve title and body from localization keys
-  const title = t(notification.titleKey);
-  const bodyTemplate = t(notification.bodyKey);
+  const resolvedTitleKey = resolveNotificationTranslationKey(notification.titleKey);
+  const resolvedBodyKey = resolveNotificationTranslationKey(notification.bodyKey);
 
-  // Interpolate body params
-  let body = bodyTemplate;
-  Object.entries(notification.bodyParams).forEach(([key, value]) => {
-    body = body.replace(`{${key}}`, value);
+  const translatedTitle = t(resolvedTitleKey);
+  const title
+    = translatedTitle === resolvedTitleKey
+      ? buildNotificationFallback(notification.titleKey, notification.bodyParams, i18n.language)
+      : translatedTitle;
+
+  const translatedBody = t(resolvedBodyKey, {
+    ...notification.bodyParams,
   });
+  const body
+    = translatedBody === resolvedBodyKey
+      ? buildNotificationFallback(notification.bodyKey, notification.bodyParams, i18n.language)
+      : translatedBody;
 
   const accessibilityLabel = `${body}, ${isUnread ? 'unread' : 'read'}`;
   const isRTL = I18nManager.isRTL;

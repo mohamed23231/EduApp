@@ -1,3 +1,8 @@
+import type {
+  Notification as ExpoNotification,
+  NotificationResponse as ExpoNotificationResponse,
+} from 'expo-notifications';
+import type * as ExpoNotifications from 'expo-notifications';
 import type { Href } from 'expo-router';
 import type { AppStateStatus } from 'react-native';
 import Constants from 'expo-constants';
@@ -8,9 +13,12 @@ import { AppState, Linking } from 'react-native';
 import { fetchNotifications } from '../store/use-notification-store';
 import { notificationsService } from './notifications.service';
 
-type ExpoNotificationsModule = typeof import('expo-notifications');
-type ExpoNotification = import('expo-notifications').Notification;
-type ExpoNotificationResponse = import('expo-notifications').NotificationResponse;
+type ExpoNotificationsModule = typeof ExpoNotifications;
+export type PushPermissionStatus
+  = 'granted'
+    | 'denied'
+    | 'undetermined'
+    | 'unsupported';
 
 let notificationsModuleCache: ExpoNotificationsModule | null | undefined;
 
@@ -64,7 +72,9 @@ export async function registerPushToken(): Promise<string | null> {
     }
 
     // Get Expo push token
-    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    const projectId
+      = Constants.easConfig?.projectId
+        ?? Constants.expoConfig?.extra?.eas?.projectId;
     if (!projectId) {
       console.error('Project ID not found in Expo config');
       return null;
@@ -152,6 +162,10 @@ export function usePushPermissionDetection() {
 
     async function handleAppStateChange(state: AppStateStatus) {
       if (state === 'active') {
+        // Retry token registration after app returns to foreground. This
+        // recovers from cases where auth or native permission state was not
+        // fully ready during initial app mount.
+        await registerPushToken();
         // App came to foreground - refresh notifications
         console.log('App came to foreground, refreshing notifications');
         await fetchNotifications(true);
@@ -163,15 +177,19 @@ export function usePushPermissionDetection() {
 /**
  * Get current push notification permission status
  */
-export async function getPushPermissionStatus(): Promise<'granted' | 'denied' | 'undetermined'> {
+export async function getPushPermissionStatus(): Promise<PushPermissionStatus> {
   try {
+    if (!Device.isDevice) {
+      return 'unsupported';
+    }
+
     const Notifications = getNotificationsModule();
     if (!Notifications) {
       return 'undetermined';
     }
 
     const { status } = await Notifications.getPermissionsAsync();
-    return status as 'granted' | 'denied' | 'undetermined';
+    return status as PushPermissionStatus;
   }
   catch (error) {
     console.error('Failed to get push permission status:', error);

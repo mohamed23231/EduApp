@@ -51,6 +51,16 @@
       }
     }
   },
+  "notification": {
+    "absence": {
+      "body": "{{studentName}} was marked absent on {{sessionDate}}",
+      "title": "Absence Alert"
+    },
+    "lowScore": {
+      "body": "{{studentName}} received a rating of {{rating}} from {{teacherName}} on {{sessionDate}}",
+      "title": "Low Performance Alert"
+    }
+  },
   "onboarding": {
     "message": "Welcome to Privat Edu"
   },
@@ -113,9 +123,14 @@
       "empty": "You don't have any notifications yet.",
       "emptyTitle": "No Notifications",
       "error": "Failed to load notifications. Please try again.",
+      "lowScore": {
+        "body": "{{studentName}} received a rating of {{rating}} from {{teacherName}} on {{sessionDate}}",
+        "title": "Low Performance Alert"
+      },
       "markAllAsRead": "Mark all as read",
       "openSettings": "Open Settings",
       "pushDisabled": "Push notifications are off. In-app notifications are still active.",
+      "pushUnsupported": "Push notifications are not available on simulator builds.",
       "title": "Notifications"
     },
     "performance": {
