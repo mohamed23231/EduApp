@@ -1,5 +1,5 @@
-import type { SignupPayload } from '../types/signup.types';
 import type { SignupResponse } from '../services/signup.service';
+import type { SignupPayload } from '../types/signup.types';
 import { useMutation } from '@tanstack/react-query';
 import { signupService } from '../services';
 

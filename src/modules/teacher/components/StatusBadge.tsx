@@ -6,5 +6,5 @@
  * Validates: Requirements 11.1, 11.2, 11.3
  */
 
-export { TeacherStatusBadge as StatusBadge } from './TeacherStatusBadge';
 export type { TeacherStatus } from '../types';
+export { TeacherStatusBadge as StatusBadge } from './TeacherStatusBadge';

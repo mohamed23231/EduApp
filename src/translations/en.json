@@ -9,6 +9,7 @@
       "orConnectWith": "OR CONNECT WITH",
       "passwordLabel": "Password",
       "protectedBy": "PROTECTED BY PRIVAT EDU SECURITY",
+      "signInWithGoogle": "Sign in with Google",
       "submit": "Sign In",
       "submitting": "Signing In...",
       "subtitle": "Welcome back! Please login to your school management portal.",
@@ -27,6 +28,26 @@
       "submit": "Complete Setup",
       "title": "Complete Your Profile"
     },
+    "reset_password": {
+      "title": "Reset Your Password",
+      "subtitle": "Create a new password to secure your account.",
+      "passwordRequired": "Please enter and confirm your new password.",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "submit": "Update Password",
+      "success": "Password updated successfully. You can now sign in.",
+      "error": "Unable to reset password. Please request a new reset email.",
+      "expiredToken": "Reset link has expired. Please request a new one.",
+      "resendEmail": "Request a new reset email"
+    },
+    "errors": {
+      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again.",
+      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "Your Google email is not verified. Please verify it and try again."
+    },
     "signup": {
       "alreadyHaveAccount": "Already have an account?",
       "consent": "By tapping Create Account, you agree to our {{terms}} and {{privacy}}",
@@ -35,9 +56,12 @@
       "fullNamePlaceholder": "Enter your full name",
       "genericError": "Something went wrong. Please try again.",
       "loginLink": "Log In",
+      "orConnectWith": "OR CONNECT WITH",
       "parentLabel": "Parent",
       "passwordLabel": "Password",
       "roleLabel": "I AM A...",
+      "continueWithGoogle": "Continue with Google",
+      "signUpWithGoogle": "Sign up with Google",
       "submit": "Create Account",
       "teacherLabel": "Teacher",
       "termsLink": "Terms of Service",
@@ -309,51 +333,51 @@
     "profile": {
       "accountSection": "Account",
       "emailLabel": "Email",
+      "expired": {
+        "bannerMessage": "Your account has expired. Write actions are blocked.",
+        "bannerTitle": "Account Expired",
+        "renewalCta": "Contact your admin to reactivate your account."
+      },
       "languageLabel": "Language",
       "logoutButton": "Log Out",
       "logoutConfirm": "Are you sure you want to log out?",
       "roleLabel": "Role",
       "roleTeacher": "Teacher",
-      "title": "Profile",
-      "statusSection": "Account Status",
       "status": {
-        "INVITED": "Invited",
-        "TRIAL": "Trial",
         "ACTIVE": "Active",
+        "EXPIRED": "Expired",
+        "INVITED": "Invited",
         "SUSPENDED": "Suspended",
-        "EXPIRED": "Expired"
+        "TRIAL": "Trial"
       },
-      "trial": {
-        "title": "Trial Period",
-        "endDate": "Trial ends on {{date}}",
-        "daysRemaining_one": "{{count}} day remaining",
-        "daysRemaining_other": "{{count}} days remaining",
-        "warningDaysRemaining": "Trial ending soon!",
-        "usage": "Usage",
-        "students": "Students",
-        "sessions": "Sessions",
-        "sessionHours": "Session Hours",
-        "unlimited": "Unlimited",
-        "usageFormat": "{{current}} / {{limit}}"
-      },
+      "statusSection": "Account Status",
       "subscription": {
-        "title": "Subscription",
-        "planName": "Plan",
-        "status": "Status",
-        "startDate": "Start Date",
-        "endDate": "End Date",
         "billingCycle": "Billing Cycle",
-        "daysRemaining_one": "{{count}} day remaining",
-        "daysRemaining_other": "{{count}} days remaining",
         "billingCycleMonthly": "Monthly",
         "billingCycleYearly": "Yearly",
-        "unlimited": "Unlimited",
-        "expiredLabel": "Expired"
+        "daysRemaining_one": "{{count}} day remaining",
+        "daysRemaining_other": "{{count}} days remaining",
+        "endDate": "End Date",
+        "expiredLabel": "Expired",
+        "planName": "Plan",
+        "startDate": "Start Date",
+        "status": "Status",
+        "title": "Subscription",
+        "unlimited": "Unlimited"
       },
-      "expired": {
-        "bannerTitle": "Account Expired",
-        "bannerMessage": "Your account has expired. Write actions are blocked.",
-        "renewalCta": "Contact your admin to reactivate your account."
+      "title": "Profile",
+      "trial": {
+        "daysRemaining_one": "{{count}} day remaining",
+        "daysRemaining_other": "{{count}} days remaining",
+        "endDate": "Trial ends on {{date}}",
+        "sessionHours": "Session Hours",
+        "sessions": "Sessions",
+        "students": "Students",
+        "title": "Trial Period",
+        "unlimited": "Unlimited",
+        "usage": "Usage",
+        "usageFormat": "{{current}} / {{limit}}",
+        "warningDaysRemaining": "Trial ending soon!"
       }
     },
     "rankings": {
@@ -390,8 +414,8 @@
       "deleteConfirmTitle": "Delete Session?",
       "deleteSuccess": "Session deleted successfully",
       "deselectAll": "Deselect All",
-      "editTitle": "Edit Session",
       "editSession": "Edit Session",
+      "editTitle": "Edit Session",
       "emptyMessage": "No sessions scheduled.",
       "emptyTitle": "Create Your First Session",
       "endSession": "End Session",
@@ -422,7 +446,7 @@
       "status": {
         "ACTIVE": "Active",
         "CLOSED": "Closed",
-        "DRAFT": "Draft"
+        "DRAFT": "Upcoming"
       },
       "studentCount": "{{count}} students",
       "studentsLabel": "Students",

@@ -13,20 +13,38 @@ import {
 import { Eye, EyeOff } from '@/components/ui/icons';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { SignupSchema } from '../types';
+import { GoogleSignInButton } from './google-sign-in-button';
 
 export type SignupFormProps = {
   onSubmit: (values: SignupPayload) => void;
   isSubmitting: boolean;
   error?: string | null;
+  onGoogleSignUp?: (idToken: string, role: Role) => void;
+  onGoogleSignInError?: (error: Error) => void;
+  isGoogleSigningIn?: boolean;
+  showGoogleSignIn?: boolean;
+  initialEmail?: string;
+  useExistingGoogleToken?: boolean;
 };
 
 type Role = 'TEACHER' | 'PARENT';
 
 // eslint-disable-next-line max-lines-per-function
-export function SignupForm({ onSubmit, isSubmitting, error }: SignupFormProps) {
+export function SignupForm({
+  onSubmit,
+  isSubmitting,
+  error,
+  onGoogleSignUp,
+  onGoogleSignInError,
+  isGoogleSigningIn = false,
+  showGoogleSignIn = false,
+  initialEmail = '',
+  useExistingGoogleToken = false,
+}: SignupFormProps) {
   const { t, i18n } = useTranslation();
   const { language } = useSelectedLanguage();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [googleRoleError, setGoogleRoleError] = React.useState<string | null>(null);
   const isRTL = i18n.language === 'ar' || language === 'ar';
 
   const getValidationError = (fieldErrors: unknown[]) => {
@@ -56,7 +74,7 @@ export function SignupForm({ onSubmit, isSubmitting, error }: SignupFormProps) {
     defaultValues: {
       role: '' as Role | '',
       fullName: '',
-      email: '',
+      email: initialEmail,
       password: '',
     },
     validators: {
@@ -95,7 +113,10 @@ export function SignupForm({ onSubmit, isSubmitting, error }: SignupFormProps) {
                           styles.roleCard,
                           isSelected && styles.roleCardSelected,
                         ]}
-                        onPress={() => field.handleChange(role)}
+                        onPress={() => {
+                          field.handleChange(role);
+                          setGoogleRoleError(null);
+                        }}
                         testID={`role-card-${role.toLowerCase()}`}
                         accessibilityRole="radio"
                         accessibilityState={{ checked: isSelected }}
@@ -127,6 +148,9 @@ export function SignupForm({ onSubmit, isSubmitting, error }: SignupFormProps) {
                 </View>
                 {hasError && errorMsg
                   ? <Text style={styles.fieldError}>{errorMsg}</Text>
+                  : null}
+                {!hasError && googleRoleError
+                  ? <Text style={styles.fieldError}>{googleRoleError}</Text>
                   : null}
               </View>
             );
@@ -268,6 +292,66 @@ export function SignupForm({ onSubmit, isSubmitting, error }: SignupFormProps) {
             </Pressable>
           )}
         />
+
+        {showGoogleSignIn
+          ? (
+              <>
+                <View style={styles.divider}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerLabel}>
+                    {t('auth.signup.orConnectWith')}
+                  </Text>
+                  <View style={styles.dividerLine} />
+                </View>
+
+                <GoogleSignInButton
+                  onSuccess={(idToken) => {
+                    const selectedRole = form.state.values.role as Role | '';
+                    if (!selectedRole) {
+                      setGoogleRoleError(t('auth.signup.validation.roleRequired'));
+                      return;
+                    }
+                    setGoogleRoleError(null);
+                    onGoogleSignUp?.(idToken, selectedRole as Role);
+                  }}
+                  onError={(googleError) => {
+                    onGoogleSignInError?.(googleError);
+                  }}
+                  isLoading={isGoogleSigningIn}
+                  variant="signup"
+                />
+                {useExistingGoogleToken
+                  ? (
+                      <Pressable
+                        style={[
+                          styles.existingTokenButton,
+                          isGoogleSigningIn && styles.submitButtonDisabled,
+                        ]}
+                        onPress={() => {
+                          const selectedRole = form.state.values.role as Role | '';
+                          if (!selectedRole) {
+                            setGoogleRoleError(t('auth.signup.validation.roleRequired'));
+                            return;
+                          }
+                          setGoogleRoleError(null);
+                          onGoogleSignUp?.('', selectedRole as Role);
+                        }}
+                        disabled={isGoogleSigningIn}
+                        testID="google-continue-button"
+                      >
+                        {isGoogleSigningIn
+                          ? <ActivityIndicator color="#FFFFFF" />
+                          : (
+                              <Text style={styles.existingTokenButtonLabel}>
+                                {t('auth.signup.continueWithGoogle')}
+                              </Text>
+                            )}
+                      </Pressable>
+                    )
+                  : null}
+              </>
+            )
+          : null}
       </View>
     </View>
   );
@@ -289,6 +373,24 @@ const styles = StyleSheet.create({
   },
   container: {
     width: '100%',
+  },
+  divider: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 20,
+    marginTop: 28,
+  },
+  dividerLabel: {
+    color: '#94A3B8',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1.8,
+    marginHorizontal: 14,
+  },
+  dividerLine: {
+    backgroundColor: '#CBD5E1',
+    flex: 1,
+    height: 1,
   },
   eyeButton: {
     padding: 4,
@@ -407,6 +509,19 @@ const styles = StyleSheet.create({
   submitButtonLabel: {
     color: '#FFFFFF',
     fontSize: 20,
+    fontWeight: '700',
+  },
+  existingTokenButton: {
+    alignItems: 'center',
+    backgroundColor: '#2563EB',
+    borderRadius: 16,
+    justifyContent: 'center',
+    marginTop: 10,
+    minHeight: 52,
+  },
+  existingTokenButtonLabel: {
+    color: '#FFFFFF',
+    fontSize: 15,
     fontWeight: '700',
   },
 });

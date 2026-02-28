@@ -54,30 +54,30 @@ export function StudentPicker({ availableStudents, selectedIds, onSelectionChang
 
       {availableStudents.length === 0
         ? (
-          <Text style={styles.emptyText}>{t('teacher.sessions.noStudentsAvailable')}</Text>
-        )
+            <Text style={styles.emptyText}>{t('teacher.sessions.noStudentsAvailable')}</Text>
+          )
         : (
-          availableStudents.map(student => (
-            <TouchableOpacity
-              key={student.id}
-              style={styles.studentItem}
-              onPress={() => handleToggle(student.id)}
-              activeOpacity={0.7}
-            >
-              <Checkbox
-                checked={selectedIds.includes(student.id)}
-                onChange={() => handleToggle(student.id)}
-                accessibilityLabel={`Select ${student.name}`}
-              />
-              <View style={styles.studentInfo}>
-                <Text style={styles.studentName}>{student.name}</Text>
-                {student.gradeLevel && (
-                  <Text style={styles.studentGrade}>{student.gradeLevel}</Text>
-                )}
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
+            availableStudents.map(student => (
+              <TouchableOpacity
+                key={student.id}
+                style={styles.studentItem}
+                onPress={() => handleToggle(student.id)}
+                activeOpacity={0.7}
+              >
+                <Checkbox
+                  checked={selectedIds.includes(student.id)}
+                  onChange={() => handleToggle(student.id)}
+                  accessibilityLabel={`Select ${student.name}`}
+                />
+                <View style={styles.studentInfo}>
+                  <Text style={styles.studentName}>{student.name}</Text>
+                  {student.gradeLevel && (
+                    <Text style={styles.studentGrade}>{student.gradeLevel}</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
     </View>
   );
 }

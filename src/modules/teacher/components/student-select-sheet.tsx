@@ -116,17 +116,17 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
           <View style={styles.countActions}>
             {draft.length < availableStudents.length
               ? (
-                <Pressable onPress={() => setDraft(availableStudents.map(s => s.id))}>
-                  <Text style={styles.selectAllText}>{t('teacher.sessions.selectAll')}</Text>
-                </Pressable>
-              )
+                  <Pressable onPress={() => setDraft(availableStudents.map(s => s.id))}>
+                    <Text style={styles.selectAllText}>{t('teacher.sessions.selectAll')}</Text>
+                  </Pressable>
+                )
               : null}
             {draft.length > 0
               ? (
-                <Pressable onPress={() => setDraft([])}>
-                  <Text style={styles.clearText}>{t('teacher.studentSelect.clearAll')}</Text>
-                </Pressable>
-              )
+                  <Pressable onPress={() => setDraft([])}>
+                    <Text style={styles.clearText}>{t('teacher.studentSelect.clearAll')}</Text>
+                  </Pressable>
+                )
               : null}
           </View>
         </View>

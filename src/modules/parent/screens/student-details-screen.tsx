@@ -2,8 +2,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, View } from 'react-native';
 import { Button, Text } from '@/components/ui';
-import { AppRoute } from '@/core/navigation/routes';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
+import { AppRoute } from '@/core/navigation/routes';
 import { useStudentDetails } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
 

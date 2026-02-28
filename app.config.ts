@@ -27,7 +27,55 @@ const appIconBadgeConfig: AppIconBadgeConfig = {
   ],
 };
 
+const associatedDomainHost = (() => {
+  if (!Env.EXPO_PUBLIC_ASSOCIATED_DOMAIN) {
+    return 'yourdomain.com';
+  }
+  try {
+    return new URL(Env.EXPO_PUBLIC_ASSOCIATED_DOMAIN).host;
+  }
+  catch {
+    return 'yourdomain.com';
+  }
+})();
+
+function deriveIosUrlScheme(iosClientId?: string): string | undefined {
+  if (!iosClientId) {
+    return undefined;
+  }
+
+  const suffix = '.apps.googleusercontent.com';
+  if (!iosClientId.endsWith(suffix)) {
+    return undefined;
+  }
+
+  const clientIdPrefix = iosClientId.slice(0, -suffix.length);
+  if (!clientIdPrefix) {
+    return undefined;
+  }
+
+  return `com.googleusercontent.apps.${clientIdPrefix}`;
+}
+
+const iosGoogleUrlScheme
+  = Env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME
+    ?? deriveIosUrlScheme(Env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
+
+// eslint-disable-next-line max-lines-per-function
 export default ({ config }: ConfigContext): ExpoConfig => {
+  const googleSignInPlugin: [string, Record<string, string | undefined>] | null
+    = iosGoogleUrlScheme
+      ? [
+          '@react-native-google-signin/google-signin',
+          {
+            iosClientId: Env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+            androidClientId: Env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+            webClientId: Env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+            iosUrlScheme: iosGoogleUrlScheme,
+          },
+        ]
+      : null;
+
   const appConfig: ExpoConfig = {
     ...config,
     name: Env.EXPO_PUBLIC_NAME,
@@ -53,6 +101,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
       },
+      associatedDomains: [
+        `applinks:${associatedDomainHost}`,
+      ],
     },
     experiments: {
       typedRoutes: true,
@@ -63,6 +114,23 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: '#2E3C4B',
       },
       package: Env.EXPO_PUBLIC_PACKAGE,
+      intentFilters: [
+        {
+          action: 'android.intent.action.VIEW',
+          autoVerify: true,
+          data: [
+            {
+              scheme: 'https',
+              host: associatedDomainHost,
+              pathPrefix: '/reset-password',
+            },
+          ],
+          category: [
+            'android.intent.category.DEFAULT',
+            'android.intent.category.BROWSABLE',
+          ],
+        },
+      ],
     },
     web: {
       favicon: './assets/favicon.png',
@@ -118,6 +186,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       'expo-localization',
       'expo-notifications',
       'expo-router',
+      ...(googleSignInPlugin ? [googleSignInPlugin] : []),
       ['app-icon-badge', appIconBadgeConfig],
       ['react-native-edge-to-edge'],
       './plugins/with-quoted-react-native-xcode-script',

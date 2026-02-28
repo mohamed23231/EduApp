@@ -1,6 +1,6 @@
 import type { AxiosError } from 'axios';
-import axios from 'axios';
 import type { ApiErrorEnvelope, ApiSuccess } from '@/shared/types/api';
+import axios from 'axios';
 
 /**
  * Normalizes API responses by extracting data from both raw and envelope formats.

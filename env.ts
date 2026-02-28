@@ -1,5 +1,4 @@
 import z from 'zod';
-
 import packageJSON from './package.json';
 
 // Single unified environment schema
@@ -14,6 +13,11 @@ const envSchema = z.object({
   EXPO_PUBLIC_ASSOCIATED_DOMAIN: z.string().url().optional(),
   EXPO_PUBLIC_VAR_NUMBER: z.number(),
   EXPO_PUBLIC_VAR_BOOL: z.boolean(),
+  // Google OAuth Configuration
+  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: z.string().optional(),
+  EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: z.string().optional(),
+  EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: z.string().optional(),
+  EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME: z.string().optional(),
 
   // only available for app.config.ts usage
   APP_BUILD_ONLY_VAR: z.string().optional(),
@@ -58,6 +62,11 @@ const _env: z.infer<typeof envSchema> = {
   EXPO_PUBLIC_ASSOCIATED_DOMAIN: process.env.EXPO_PUBLIC_ASSOCIATED_DOMAIN,
   EXPO_PUBLIC_VAR_NUMBER: Number(process.env.EXPO_PUBLIC_VAR_NUMBER ?? 0),
   EXPO_PUBLIC_VAR_BOOL: process.env.EXPO_PUBLIC_VAR_BOOL === 'true',
+  // Google OAuth Configuration
+  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+  EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+  EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+  EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME: process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME,
   APP_BUILD_ONLY_VAR: process.env.APP_BUILD_ONLY_VAR,
 };
 
@@ -66,8 +75,7 @@ function getValidatedEnv(env: z.infer<typeof envSchema>) {
 
   if (parsed.success === false) {
     const errorMessage
-      = `❌ Invalid environment variables:${
-        JSON.stringify(parsed.error.flatten().fieldErrors, null, 2)
+      = `❌ Invalid environment variables:${JSON.stringify(parsed.error.flatten().fieldErrors, null, 2)
       }\n❌ Missing variables in .env file for APP_ENV=${EXPO_PUBLIC_APP_ENV}`
       + `\n💡 Tip: If you recently updated the .env file, try restarting with -c flag to clear the cache.`;
 

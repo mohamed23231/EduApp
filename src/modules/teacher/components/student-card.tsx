@@ -86,39 +86,39 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
             <View style={styles.metaRow}>
               {student.gradeLevel
                 ? (
-                  <View style={styles.gradePill}>
-                    <Ionicons name="school-outline" size={11} color={Color.gray(500)} />
-                    <Text style={styles.gradeText}>{student.gradeLevel}</Text>
-                  </View>
-                )
+                    <View style={styles.gradePill}>
+                      <Ionicons name="school-outline" size={11} color={Color.gray(500)} />
+                      <Text style={styles.gradeText}>{student.gradeLevel}</Text>
+                    </View>
+                  )
                 : null}
 
               {isAssigned
                 ? (
-                  <View style={styles.sessionPill}>
-                    <Ionicons name="calendar-outline" size={11} color={Color.success(600)} />
-                    <Text style={styles.sessionText}>
-                      {t('teacher.students.sessionCount', { count: sessionInfo.sessionCount })}
-                    </Text>
-                  </View>
-                )
+                    <View style={styles.sessionPill}>
+                      <Ionicons name="calendar-outline" size={11} color={Color.success(600)} />
+                      <Text style={styles.sessionText}>
+                        {t('teacher.students.sessionCount', { count: sessionInfo.sessionCount })}
+                      </Text>
+                    </View>
+                  )
                 : (
-                  <View style={styles.unassignedPill}>
-                    <Ionicons name="alert-circle-outline" size={11} color={Color.warning(600)} />
-                    <Text style={styles.unassignedText}>
-                      {t('teacher.students.noSessions')}
-                    </Text>
-                  </View>
-                )}
+                    <View style={styles.unassignedPill}>
+                      <Ionicons name="alert-circle-outline" size={11} color={Color.warning(600)} />
+                      <Text style={styles.unassignedText}>
+                        {t('teacher.students.noSessions')}
+                      </Text>
+                    </View>
+                  )}
             </View>
 
             {/* Session subjects preview */}
             {isAssigned && sessionInfo.sessions.length > 0
               ? (
-                <Text style={styles.sessionSubjects} numberOfLines={1}>
-                  {sessionInfo.sessions.map(s => s.subject).join(' · ')}
-                </Text>
-              )
+                  <Text style={styles.sessionSubjects} numberOfLines={1}>
+                    {sessionInfo.sessions.map(s => s.subject).join(' · ')}
+                  </Text>
+                )
               : null}
           </View>
 

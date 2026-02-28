@@ -9,6 +9,7 @@
       "orConnectWith": "أو الاتصال عبر",
       "passwordLabel": "كلمة المرور",
       "protectedBy": "محمي بواسطة أمان Privat Edu",
+      "signInWithGoogle": "تسجيل الدخول عبر Google",
       "submit": "تسجيل الدخول",
       "submitting": "جاري تسجيل الدخول...",
       "subtitle": "مرحباً بعودتك! يرجى تسجيل الدخول إلى بوابة إدارة المدرسة.",
@@ -27,6 +28,26 @@
       "submit": "إكمال الإعداد",
       "title": "أكمل ملفك الشخصي"
     },
+    "reset_password": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "أنشئ كلمة مرور جديدة لتأمين حسابك.",
+      "passwordRequired": "يرجى إدخال كلمة المرور الجديدة وتأكيدها.",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      "newPasswordLabel": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور الجديدة",
+      "submit": "تحديث كلمة المرور",
+      "success": "تم تحديث كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.",
+      "error": "تعذر إعادة تعيين كلمة المرور. يرجى طلب بريد إعادة تعيين جديد.",
+      "expiredToken": "انتهت صلاحية رابط إعادة التعيين. يرجى طلب رابط جديد.",
+      "resendEmail": "طلب بريد إعادة تعيين جديد"
+    },
+    "errors": {
+      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى.",
+      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "بريدك الإلكتروني في جوجل غير مُتحقق منه. يرجى التحقق منه والمحاولة مرة أخرى."
+    },
     "signup": {
       "alreadyHaveAccount": "لديك حساب بالفعل؟",
       "consent": "بالنقر على إنشاء حساب، فإنك توافق على {{terms}} و{{privacy}}",
@@ -35,9 +56,12 @@
       "fullNamePlaceholder": "أدخل اسمك الكامل",
       "genericError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
       "loginLink": "تسجيل الدخول",
+      "orConnectWith": "أو الاتصال عبر",
       "parentLabel": "ولي أمر",
       "passwordLabel": "كلمة المرور",
       "roleLabel": "أنا...",
+      "continueWithGoogle": "المتابعة عبر Google",
+      "signUpWithGoogle": "إنشاء حساب عبر Google",
       "submit": "إنشاء حساب",
       "teacherLabel": "معلم",
       "termsLink": "شروط الخدمة",
@@ -309,51 +333,51 @@
     "profile": {
       "accountSection": "الحساب",
       "emailLabel": "البريد الإلكتروني",
+      "expired": {
+        "bannerMessage": "انتهت صلاحية حسابك. الإجراءات الكتابية محظورة.",
+        "bannerTitle": "انتهى الحساب",
+        "renewalCta": "تواصل مع المسؤول لإعادة تفعيل حسابك."
+      },
       "languageLabel": "اللغة",
       "logoutButton": "تسجيل الخروج",
       "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
       "roleLabel": "الدور",
       "roleTeacher": "معلم",
-      "title": "الملف الشخصي",
-      "statusSection": "حالة الحساب",
       "status": {
-        "INVITED": "مدعو",
-        "TRIAL": "تجريبي",
         "ACTIVE": "نشط",
+        "EXPIRED": "منتهي",
+        "INVITED": "مدعو",
         "SUSPENDED": "موقوف",
-        "EXPIRED": "منتهي"
+        "TRIAL": "تجريبي"
       },
-      "trial": {
-        "title": "الفترة التجريبية",
-        "endDate": "تنتهي التجربة في {{date}}",
-        "daysRemaining_one": "يوم واحد متبقٍ",
-        "daysRemaining_other": "{{count}} أيام متبقية",
-        "warningDaysRemaining": "التجربة على وشك الانتهاء!",
-        "usage": "الاستخدام",
-        "students": "الطلاب",
-        "sessions": "الحصص",
-        "sessionHours": "ساعات الحصص",
-        "unlimited": "غير محدود",
-        "usageFormat": "{{current}} / {{limit}}"
-      },
+      "statusSection": "حالة الحساب",
       "subscription": {
-        "title": "الاشتراك",
-        "planName": "الخطة",
-        "status": "الحالة",
-        "startDate": "تاريخ البدء",
-        "endDate": "تاريخ الانتهاء",
         "billingCycle": "دورة الفوترة",
-        "daysRemaining_one": "يوم واحد متبقٍ",
-        "daysRemaining_other": "{{count}} أيام متبقية",
         "billingCycleMonthly": "شهري",
         "billingCycleYearly": "سنوي",
-        "unlimited": "غير محدود",
-        "expiredLabel": "منتهي"
+        "daysRemaining_one": "يوم واحد متبقٍ",
+        "daysRemaining_other": "{{count}} أيام متبقية",
+        "endDate": "تاريخ الانتهاء",
+        "expiredLabel": "منتهي",
+        "planName": "الخطة",
+        "startDate": "تاريخ البدء",
+        "status": "الحالة",
+        "title": "الاشتراك",
+        "unlimited": "غير محدود"
       },
-      "expired": {
-        "bannerTitle": "انتهى الحساب",
-        "bannerMessage": "انتهت صلاحية حسابك. الإجراءات الكتابية محظورة.",
-        "renewalCta": "تواصل مع المسؤول لإعادة تفعيل حسابك."
+      "title": "الملف الشخصي",
+      "trial": {
+        "daysRemaining_one": "يوم واحد متبقٍ",
+        "daysRemaining_other": "{{count}} أيام متبقية",
+        "endDate": "تنتهي التجربة في {{date}}",
+        "sessionHours": "ساعات الحصص",
+        "sessions": "الحصص",
+        "students": "الطلاب",
+        "title": "الفترة التجريبية",
+        "unlimited": "غير محدود",
+        "usage": "الاستخدام",
+        "usageFormat": "{{current}} / {{limit}}",
+        "warningDaysRemaining": "التجربة على وشك الانتهاء!"
       }
     },
     "rankings": {
@@ -390,8 +414,8 @@
       "deleteConfirmTitle": "حذف الحصة؟",
       "deleteSuccess": "تم حذف الحصة بنجاح",
       "deselectAll": "إلغاء تحديد الكل",
-      "editTitle": "تعديل الحصة",
       "editSession": "تعديل الحصة",
+      "editTitle": "تعديل الحصة",
       "emptyMessage": "مفيش حصص متجدولة.",
       "emptyTitle": "أنشئ أول حصة ليك",
       "endSession": "إنهاء الحصة",
@@ -422,7 +446,7 @@
       "status": {
         "ACTIVE": "نشطة",
         "CLOSED": "مغلقة",
-        "DRAFT": "مسودة"
+        "DRAFT": "قادمة"
       },
       "studentCount": "{{count}} طالب",
       "studentsLabel": "الطلاب",

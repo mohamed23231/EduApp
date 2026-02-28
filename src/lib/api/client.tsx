@@ -111,6 +111,10 @@ const AUTH_SKIP_REFRESH_URLS = [
   '/auth/signup',
   '/auth/refresh',
   '/auth/setup-password',
+  '/auth/google/login',
+  '/auth/google/signup',
+  '/auth/forgot-password',
+  '/auth/reset-password/complete',
 ];
 
 function processQueue(error: unknown, token: string | null = null) {

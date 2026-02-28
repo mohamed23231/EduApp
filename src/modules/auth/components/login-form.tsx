@@ -18,15 +18,30 @@ import { ArrowRight, Eye, EyeOff, GraduationCap } from '@/components/ui/icons';
 import { AppRoute } from '@/core/navigation/routes';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { loginSchema } from '../validators';
+import { GoogleSignInButton } from './google-sign-in-button';
 
 export type LoginFormProps = {
   onSubmit: (data: LoginFormValues) => void;
   isSubmitting: boolean;
   error?: string | null;
+  onForgotPassword?: (email: string) => void;
+  onGoogleSignIn?: (idToken: string) => void;
+  onGoogleSignInError?: (error: Error) => void;
+  isGoogleSigningIn?: boolean;
+  showGoogleSignIn?: boolean;
 };
 
 // eslint-disable-next-line max-lines-per-function
-export function LoginForm({ onSubmit, isSubmitting, error }: LoginFormProps) {
+export function LoginForm({
+  onSubmit,
+  isSubmitting,
+  error,
+  onForgotPassword,
+  onGoogleSignIn,
+  onGoogleSignInError,
+  isGoogleSigningIn = false,
+  showGoogleSignIn = false,
+}: LoginFormProps) {
   const { t, i18n } = useTranslation();
   const [showPassword, setShowPassword] = React.useState(false);
   const { language, setLanguage } = useSelectedLanguage();
@@ -164,7 +179,12 @@ export function LoginForm({ onSubmit, isSubmitting, error }: LoginFormProps) {
           <View style={styles.formBlock}>
             <View style={styles.passwordHeader}>
               <Text style={styles.passwordLabel}>{t('auth.login.passwordLabel')}</Text>
-              <Pressable>
+              <Pressable
+                onPress={() => {
+                  const email = form.state.values.email?.trim() ?? '';
+                  onForgotPassword?.(email);
+                }}
+              >
                 <Text style={styles.forgotPassword}>
                   {t('auth.login.forgotPassword')}
                 </Text>
@@ -256,13 +276,30 @@ export function LoginForm({ onSubmit, isSubmitting, error }: LoginFormProps) {
           />
         </View>
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerLabel}>
-            {t('auth.login.orConnectWith')}
-          </Text>
-          <View style={styles.dividerLine} />
-        </View>
+        {showGoogleSignIn
+          ? (
+              <>
+                <View style={styles.divider}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerLabel}>
+                    {t('auth.login.orConnectWith')}
+                  </Text>
+                  <View style={styles.dividerLine} />
+                </View>
+
+                <GoogleSignInButton
+                  onSuccess={(idToken) => {
+                    onGoogleSignIn?.(idToken);
+                  }}
+                  onError={(googleError) => {
+                    onGoogleSignInError?.(googleError);
+                  }}
+                  isLoading={isGoogleSigningIn}
+                  variant="login"
+                />
+              </>
+            )
+          : null}
 
         <View style={styles.createAccountRow}>
           <Text style={styles.createAccountText}>

@@ -65,12 +65,12 @@ function Chip<T extends string>({
         </Text>
         {option.count !== undefined
           ? (
-            <View style={[styles.badge, isActive && styles.badgeActive]}>
-              <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
-                {option.count}
-              </Text>
-            </View>
-          )
+              <View style={[styles.badge, isActive && styles.badgeActive]}>
+                <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
+                  {option.count}
+                </Text>
+              </View>
+            )
           : null}
       </Pressable>
     </Animated.View>

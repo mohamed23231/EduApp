@@ -88,10 +88,10 @@ function mapBackendSessionInstance(instance: BackendSessionInstance): SessionIns
 
   const attendanceSummary = instance.attendanceSummary || (instance.state === 'CLOSED'
     ? {
-      present: attendanceRecords.filter(r => r.status === 'PRESENT').length,
-      absent: attendanceRecords.filter(r => r.status === 'ABSENT').length,
-      excused: attendanceRecords.filter(r => r.status === 'EXCUSED').length,
-    }
+        present: attendanceRecords.filter(r => r.status === 'PRESENT').length,
+        absent: attendanceRecords.filter(r => r.status === 'ABSENT').length,
+        excused: attendanceRecords.filter(r => r.status === 'EXCUSED').length,
+      }
     : undefined);
 
   return {
@@ -150,7 +150,6 @@ export async function endSession(id: string): Promise<SessionInstance> {
   const instance = unwrapData<BackendSessionInstance>(response.data);
   return mapBackendSessionInstance(instance);
 }
-
 
 export async function createTemplate(
   data: Pick<CreateSessionInput, 'subject' | 'daysOfWeek' | 'time'>,

@@ -182,91 +182,91 @@ export function AttendanceSheetScreen() {
 
       {students.length === 0
         ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>{t('teacher.attendance.emptyMessage')}</Text>
-          </View>
-        )
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>{t('teacher.attendance.emptyMessage')}</Text>
+            </View>
+          )
         : (
-          <>
-            {unratedCount > 0 && !sessionNotActive && (
-              <Pressable
-                style={styles.batchRatingButton}
-                onPress={batchRatingModal.present}
-              >
-                <Ionicons name="flash" size={18} color="#F59E0B" />
-                <Text style={styles.batchRatingText}>
-                  {t('teacher.attendance.batchRatingButton', { count: unratedCount })}
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color="#6B7280" />
-              </Pressable>
-            )}
+            <>
+              {unratedCount > 0 && !sessionNotActive && (
+                <Pressable
+                  style={styles.batchRatingButton}
+                  onPress={batchRatingModal.present}
+                >
+                  <Ionicons name="flash" size={18} color="#F59E0B" />
+                  <Text style={styles.batchRatingText}>
+                    {t('teacher.attendance.batchRatingButton', { count: unratedCount })}
+                  </Text>
+                  <Ionicons name="chevron-forward" size={16} color="#6B7280" />
+                </Pressable>
+              )}
 
-            {students.length > 2 && (
-              <View style={styles.searchContainer}>
-                <Ionicons name="search" size={18} color="#9CA3AF" />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder={t('teacher.attendance.searchStudent')}
-                  placeholderTextColor="#9CA3AF"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  autoCapitalize="none"
-                  autoCorrect={false}
+              {students.length > 2 && (
+                <View style={styles.searchContainer}>
+                  <Ionicons name="search" size={18} color="#9CA3AF" />
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder={t('teacher.attendance.searchStudent')}
+                    placeholderTextColor="#9CA3AF"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  {searchQuery.length > 0 && (
+                    <Pressable onPress={() => setSearchQuery('')}>
+                      <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+                    </Pressable>
+                  )}
+                </View>
+              )}
+
+              <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentInner}>
+                {filteredStudents.length === 0
+                  ? (
+                      <View style={styles.noResultsContainer}>
+                        <Text style={styles.noResultsText}>{t('teacher.attendance.noSearchResults')}</Text>
+                      </View>
+                    )
+                  : (
+                      filteredStudents.map((student) => {
+                        const attendance = attendanceMap[student.id];
+                        return (
+                          <AttendanceStatusControl
+                            key={student.id}
+                            student={student}
+                            status={attendance?.status || null}
+                            excuseNote={attendance?.excuseNote || ''}
+                            rating={attendance?.rating ?? null}
+                            onStatusChange={handleStatusChange(student.id)}
+                            onExcuseNoteChange={handleExcuseNoteChange(student.id)}
+                            onRatingChange={handleRatingChange(student.id)}
+                            disabled={sessionNotActive || isSubmitting}
+                          />
+                        );
+                      })
+                    )}
+              </ScrollView>
+
+              <View style={styles.footer}>
+                <Button
+                  label={isSubmitting ? t('teacher.attendance.submitting') : t('teacher.attendance.submitButton')}
+                  onPress={handleSubmit}
+                  loading={isSubmitting}
+                  disabled={sessionNotActive || isSubmitting}
+                  variant="default"
                 />
-                {searchQuery.length > 0 && (
-                  <Pressable onPress={() => setSearchQuery('')}>
-                    <Ionicons name="close-circle" size={18} color="#9CA3AF" />
-                  </Pressable>
+                {error && (
+                  <Text style={styles.errorBanner}>{error}</Text>
                 )}
               </View>
-            )}
-
-            <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentInner}>
-              {filteredStudents.length === 0
-                ? (
-                  <View style={styles.noResultsContainer}>
-                    <Text style={styles.noResultsText}>{t('teacher.attendance.noSearchResults')}</Text>
-                  </View>
-                )
-                : (
-                  filteredStudents.map((student) => {
-                    const attendance = attendanceMap[student.id];
-                    return (
-                      <AttendanceStatusControl
-                        key={student.id}
-                        student={student}
-                        status={attendance?.status || null}
-                        excuseNote={attendance?.excuseNote || ''}
-                        rating={attendance?.rating ?? null}
-                        onStatusChange={handleStatusChange(student.id)}
-                        onExcuseNoteChange={handleExcuseNoteChange(student.id)}
-                        onRatingChange={handleRatingChange(student.id)}
-                        disabled={sessionNotActive || isSubmitting}
-                      />
-                    );
-                  })
-                )}
-            </ScrollView>
-
-            <View style={styles.footer}>
-              <Button
-                label={isSubmitting ? t('teacher.attendance.submitting') : t('teacher.attendance.submitButton')}
-                onPress={handleSubmit}
-                loading={isSubmitting}
-                disabled={sessionNotActive || isSubmitting}
-                variant="default"
+              <BatchRatingSheet
+                ref={batchRatingModal.ref}
+                unmarkedCount={unratedCount}
+                onApply={applyBatchRating}
               />
-              {error && (
-                <Text style={styles.errorBanner}>{error}</Text>
-              )}
-            </View>
-            <BatchRatingSheet
-              ref={batchRatingModal.ref}
-              unmarkedCount={unratedCount}
-              onApply={applyBatchRating}
-            />
-          </>
-        )}
+            </>
+          )}
 
       <ConfirmModal
         visible={confirmModal.visible}

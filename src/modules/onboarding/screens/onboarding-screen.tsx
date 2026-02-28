@@ -229,10 +229,10 @@ export function OnboardingScreen() {
             {/* API Error */}
             {errorMsg
               ? (
-                <Text style={styles.apiError} testID="onboarding-error">
-                  {errorMsg}
-                </Text>
-              )
+                  <Text style={styles.apiError} testID="onboarding-error">
+                    {errorMsg}
+                  </Text>
+                )
               : null}
 
             {/* Role Selector — only shown when role is missing from context */}
@@ -308,10 +308,10 @@ export function OnboardingScreen() {
               {isSubmitting
                 ? <ActivityIndicator color="#FFFFFF" />
                 : (
-                  <Text style={styles.submitButtonLabel}>
-                    {t('auth.onboarding.submit')}
-                  </Text>
-                )}
+                    <Text style={styles.submitButtonLabel}>
+                      {t('auth.onboarding.submit')}
+                    </Text>
+                  )}
             </Pressable>
           </View>
         </ScrollView>

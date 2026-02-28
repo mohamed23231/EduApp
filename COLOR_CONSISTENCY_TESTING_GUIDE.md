@@ -126,16 +126,16 @@ Test these components for consistent color rendering:
 Create a test to verify color values are consistent:
 
 ```typescript
+import { Platform } from 'react-native';
 // __tests__/color-consistency.spec.ts
 import { Color, getPlatformColor } from '@/components/ui/color-utils';
-import { Platform } from 'react-native';
 
 describe('Color Consistency', () => {
   it('should return platform-aware colors', () => {
     const blue500 = Color.blue(500);
     expect(blue500).toBeDefined();
     expect(typeof blue500).toBe('string');
-    expect(blue500).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(blue500).toMatch(/^#[0-9A-F]{6}$/i);
   });
 
   it('should apply Android-specific adjustments', () => {
@@ -159,8 +159,8 @@ describe('Color Consistency', () => {
       Color.gray(500),
     ];
 
-    colors.forEach(color => {
-      expect(color).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    colors.forEach((color) => {
+      expect(color).toMatch(/^#[0-9A-F]{6}$/i);
     });
   });
 });

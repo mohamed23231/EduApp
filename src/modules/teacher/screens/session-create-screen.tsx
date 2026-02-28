@@ -200,7 +200,6 @@ export function SessionCreateScreen() {
       ...prev,
       studentIds: prev.studentIds.filter(id => !assignedStudentIds.has(id)),
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assignedStudentIds]);
 
   const set = (field: keyof SessionFormValues) => (value: SessionFormValues[keyof SessionFormValues]) => {
