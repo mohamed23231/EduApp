@@ -10,21 +10,32 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { PhoneField } from '@/components/ui';
 import { Eye, EyeOff } from '@/components/ui/icons';
+import {
+  buildE164Phone,
+  DEFAULT_COUNTRY_CODE,
+  getPhoneValidationErrorKey,
+} from '@/shared/utils/phone';
 
 export type PhoneLoginFormProps = {
   onSubmit: (data: PhoneLoginParams) => void;
   isSubmitting: boolean;
   error?: string | null;
+  loginModeToggle?: React.ReactNode;
 };
 
 export function PhoneLoginForm({
   onSubmit,
   isSubmitting,
   error,
+  loginModeToggle,
 }: PhoneLoginFormProps) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [countryCode, setCountryCode] = React.useState(DEFAULT_COUNTRY_CODE);
+  const [localNumber, setLocalNumber] = React.useState('');
+  const [clientError, setClientError] = React.useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -32,34 +43,32 @@ export function PhoneLoginForm({
       password: '',
     },
     onSubmit: async ({ value }) => {
-      onSubmit(value);
+      const normalizedPhone = buildE164Phone(countryCode, localNumber);
+      if (!normalizedPhone) {
+        setClientError(getPhoneValidationErrorKey(countryCode));
+        return;
+      }
+      setClientError(null);
+      onSubmit({ ...value, phone: normalizedPhone });
     },
   });
+  const normalizedPhone = buildE164Phone(countryCode, localNumber);
 
   return (
     <View style={styles.container}>
-      {error ? <Text style={styles.apiError}>{error}</Text> : null}
+      {loginModeToggle ?? null}
+      {error || clientError ? <Text style={styles.apiError}>{t(clientError || error || '', { defaultValue: clientError || error || '' })}</Text> : null}
 
-      <form.Field
-        name="phone"
-        children={field => (
-          <View style={styles.formBlock}>
-            <Text style={styles.label}>{t('auth.phone.phoneLabel')}</Text>
-            <TextInput
-              value={field.state.value}
-              onChangeText={field.handleChange}
-              onBlur={field.handleBlur}
-              autoCapitalize="none"
-              keyboardType="phone-pad"
-              autoCorrect={false}
-              placeholder="+966 5X XXX XXXX"
-              placeholderTextColor="#94A3B8"
-              testID="phone-input"
-              style={styles.input}
-            />
-          </View>
-        )}
-      />
+      <View style={styles.formBlock}>
+        <PhoneField
+          label={t('auth.phone.phoneLabel')}
+          countryCode={countryCode}
+          localNumber={localNumber}
+          onCountryCodeChange={setCountryCode}
+          onLocalNumberChange={setLocalNumber}
+          testIDPrefix="phone-login"
+        />
+      </View>
 
       <View style={styles.formBlock}>
         <Text style={styles.label}>{t('auth.phone.passwordLabel')}</Text>
@@ -99,10 +108,10 @@ export function PhoneLoginForm({
           <Pressable
             style={[
               styles.submitButton,
-              (!canSubmit || isSubmitting || validating) && styles.submitButtonDisabled,
+              (!canSubmit || isSubmitting || validating || !normalizedPhone) && styles.submitButtonDisabled,
             ]}
             onPress={() => void form.handleSubmit()}
-            disabled={!canSubmit || isSubmitting || validating}
+            disabled={!canSubmit || isSubmitting || validating || !normalizedPhone}
             testID="phone-login-submit-button"
           >
             {isSubmitting || validating

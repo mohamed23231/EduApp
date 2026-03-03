@@ -1,13 +1,37 @@
 {
   "auth": {
+    "common": {
+      "optional": "optional"
+    },
+    "errors": {
+      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "Your Google email is not verified. Please verify it and try again.",
+      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again."
+    },
+    "invite": {
+      "acceptButton": "Activate Account",
+      "acceptError": "Unable to activate account. Please try again.",
+      "alreadyOnboarded": "This invitation was already used. Please sign in.",
+      "errorTitle": "Invitation Error",
+      "expired": "This invitation has expired.",
+      "fullNameLabel": "Full Name (optional)",
+      "invalid": "This invitation is invalid.",
+      "invalidToken": "Invitation token is missing or invalid.",
+      "passwordLabel": "Password",
+      "subtitle": "Set your password to activate your account.",
+      "title": "Parent Invitation",
+      "validating": "Validating invitation...",
+      "validationError": "Unable to validate invitation right now."
+    },
     "login": {
       "createAccount": "Create Account",
       "dontHaveAccount": "Don't have an account?",
       "emailLabel": "Email Address",
+      "emailTab": "Email",
       "forgotPassword": "Forgot Password?",
       "genericError": "Failed to sign in. Please try again.",
       "orConnectWith": "OR CONNECT WITH",
       "passwordLabel": "Password",
+      "phoneTab": "Phone",
       "protectedBy": "PROTECTED BY PRIVAT EDU SECURITY",
       "signInWithGoogle": "Sign in with Google",
       "submit": "Sign In",
@@ -28,30 +52,56 @@
       "submit": "Complete Setup",
       "title": "Complete Your Profile"
     },
-    "reset_password": {
-      "title": "Reset Your Password",
-      "subtitle": "Create a new password to secure your account.",
-      "passwordRequired": "Please enter and confirm your new password.",
-      "passwordMismatch": "Passwords do not match.",
-      "passwordTooShort": "Password must be at least 8 characters.",
+    "phone": {
+      "countries": {
+        "eg": "Egypt ({{dialCode}})",
+        "sa": "Saudi Arabia ({{dialCode}})"
+      },
+      "countryCodeLabel": "Country",
+      "emailLabel": "Email",
+      "fullNameLabel": "Full Name",
+      "loginButton": "Sign In with Phone",
       "newPasswordLabel": "New Password",
-      "newPasswordPlaceholder": "Enter new password",
+      "otpLabel": "Verification Code",
+      "otpSentHint": "A verification code was sent to {{phone}}",
+      "passwordLabel": "Password",
+      "phoneLabel": "Phone Number",
+      "requestOtp": "Send OTP",
+      "resendOtp": "Resend OTP",
+      "resetPasswordButton": "Reset Password",
+      "resetSubtitle": "Reset password using your phone number and OTP.",
+      "signupButton": "Create Account",
+      "signupExistingAccount": "This phone number already has an account. Please sign in instead.",
+      "signupFlowHint": "First verify your phone, then choose role and complete profile details.",
+      "validation": {
+        "egyptInvalid": "Enter a valid Egyptian mobile number",
+        "saudiInvalid": "Enter a valid Saudi mobile number"
+      },
+      "verifyOtp": "Verify OTP"
+    },
+    "reset_password": {
       "confirmPasswordLabel": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm new password",
-      "submit": "Update Password",
-      "success": "Password updated successfully. You can now sign in.",
       "error": "Unable to reset password. Please request a new reset email.",
       "expiredToken": "Reset link has expired. Please request a new one.",
-      "resendEmail": "Request a new reset email"
-    },
-    "errors": {
-      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again.",
-      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "Your Google email is not verified. Please verify it and try again."
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordRequired": "Please enter and confirm your new password.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "resendEmail": "Request a new reset email",
+      "submit": "Update Password",
+      "subtitle": "Create a new password to secure your account.",
+      "success": "Password updated successfully. You can now sign in.",
+      "title": "Reset Your Password",
+      "useEmailLink": "Use email reset link instead"
     },
     "signup": {
       "alreadyHaveAccount": "Already have an account?",
       "consent": "By tapping Create Account, you agree to our {{terms}} and {{privacy}}",
+      "continueWithGoogle": "Continue with Google",
       "emailLabel": "Email",
+      "emailTab": "Email",
       "fullNameLabel": "Full Name",
       "fullNamePlaceholder": "Enter your full name",
       "genericError": "Something went wrong. Please try again.",
@@ -59,8 +109,8 @@
       "orConnectWith": "OR CONNECT WITH",
       "parentLabel": "Parent",
       "passwordLabel": "Password",
+      "phoneTab": "Phone",
       "roleLabel": "I AM A...",
-      "continueWithGoogle": "Continue with Google",
       "signUpWithGoogle": "Sign up with Google",
       "submit": "Create Account",
       "teacherLabel": "Teacher",
@@ -174,6 +224,8 @@
       "languageLabel": "Language",
       "logoutButton": "Log Out",
       "logoutConfirm": "Are you sure you want to log out?",
+      "phoneAccount": "Phone Account",
+      "phoneLabel": "Phone",
       "roleLabel": "Role",
       "roleParent": "Parent",
       "title": "Profile"
@@ -341,6 +393,8 @@
       "languageLabel": "Language",
       "logoutButton": "Log Out",
       "logoutConfirm": "Are you sure you want to log out?",
+      "phoneAccount": "Phone Account",
+      "phoneLabel": "Phone",
       "roleLabel": "Role",
       "roleTeacher": "Teacher",
       "status": {
@@ -523,8 +577,12 @@
         "namePlaceholder": "Enter student name",
         "notesLabel": "Notes (Optional)",
         "notesPlaceholder": "Add any additional notes",
+        "parentPhoneLabel": "Parent Phone Number",
+        "parentPhonePlaceholder": "Enter parent phone number",
         "validation": {
-          "nameRequired": "Student name is required"
+          "nameRequired": "Student name is required",
+          "parentPhoneInvalid": "Please enter a valid phone number with country code",
+          "parentPhoneRequired": "Parent phone number is required"
         }
       },
       "noConnectionCode": "No access code generated yet",
@@ -543,7 +601,12 @@
       "totalCount_one": "{{count}} student",
       "totalCount_other": "{{count}} students",
       "totalCount_two": "{{count}} students",
-      "updating": "Updating..."
+      "updating": "Updating...",
+      "validation": {
+        "nameRequired": "Student name is required",
+        "parentPhoneInvalid": "Please enter a valid phone number with country code",
+        "parentPhoneRequired": "Parent phone number is required"
+      }
     },
     "tabs": {
       "dashboard": "Home",

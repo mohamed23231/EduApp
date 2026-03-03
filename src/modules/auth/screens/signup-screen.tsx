@@ -27,7 +27,13 @@ import {
   isTokenWithinReuseWindow,
 } from '@/lib/auth/token-reuse-window';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
+import { PhoneSignupForm } from '../components/phone-signup-form';
 import { SignupForm } from '../components/signup-form';
+import {
+  usePhoneOtpRequest,
+  usePhoneSignup,
+  usePhoneSignupVerify,
+} from '../hooks/use-phone-signup';
 import { useSignup } from '../hooks/use-signup';
 import { googleAuthService } from '../services';
 
@@ -56,7 +62,14 @@ export function SignupScreen() {
   const status = useAuthStore.use.status();
   const user = useAuthStore.use.user();
   const { mutateAsync: signup, isPending } = useSignup();
+  const { mutateAsync: phoneSignupMutate, isPending: isPhoneSignupPending } = usePhoneSignup();
+  const { mutateAsync: requestOtp, isPending: isOtpPending } = usePhoneOtpRequest();
+  const {
+    mutateAsync: verifyPhoneSignup,
+    isPending: isPhoneSignupVerifyPending,
+  } = usePhoneSignupVerify();
   const { isGoogleSigninMobileEnabled } = useFeatureFlags();
+  const [signupMode, setSignupMode] = useState<'email' | 'phone'>('email');
   const prefillEmailParam = Array.isArray(params.prefillEmail)
     ? (params.prefillEmail[0] ?? '')
     : (params.prefillEmail ?? '');
@@ -99,6 +112,73 @@ export function SignupScreen() {
     catch (error) {
       const msg = getApiErrorMessage(error, t('auth.signup.genericError'));
       setErrorMsg(msg);
+    }
+  };
+
+  const handlePhoneSignup = async (values: Parameters<typeof phoneSignupMutate>[0]) => {
+    setErrorMsg(null);
+    try {
+      const data = await phoneSignupMutate(values);
+
+      setOnboardingContext({
+        role: data.user?.role as 'TEACHER' | 'PARENT' ?? 'PARENT',
+        email: data.user?.email ?? '',
+        fullName: data.user?.fullName ?? data.fullName,
+        phone: data.user?.phoneE164 ?? data.phoneE164 ?? undefined,
+      });
+
+      signIn({
+        token: { access: data.accessToken, refresh: data.refreshToken },
+        user: null,
+      });
+
+      router.replace(AppRoute.auth.onboarding);
+    }
+    catch (error) {
+      const msg = getApiErrorMessage(error, t('auth.signup.genericError'));
+      setErrorMsg(msg);
+    }
+  };
+
+  const handlePhoneOtpVerify = async (
+    values: Parameters<typeof verifyPhoneSignup>[0],
+  ) => {
+    setErrorMsg(null);
+    try {
+      const result = await verifyPhoneSignup(values);
+
+      if (result.accountExists || !result.canContinue) {
+        setErrorMsg(t('auth.phone.signupExistingAccount'));
+        router.replace({
+          pathname: AppRoute.auth.login as any,
+          params: {
+            mode: 'phone',
+            phone: values.phone,
+          },
+        });
+      }
+
+      return result;
+    }
+    catch (error) {
+      const msg = getApiErrorMessage(error, t('auth.signup.genericError'));
+      setErrorMsg(msg);
+      throw error;
+    }
+  };
+
+  const handlePhoneOtpRequest = async (
+    phone: string,
+    purpose: 'SIGNUP' | 'RESET_PASSWORD',
+  ) => {
+    setErrorMsg(null);
+    try {
+      await requestOtp({ phone, purpose });
+    }
+    catch (error) {
+      const msg = getApiErrorMessage(error, t('auth.signup.genericError'));
+      setErrorMsg(msg);
+      throw error;
     }
   };
 
@@ -183,7 +263,7 @@ export function SignupScreen() {
       router.replace(getHomeRouteForRole(authUser.role));
     }
     catch (error) {
-      const msg = getApiErrorMessage(error, t('auth.signup.genericError'));
+      const msg = getApiErrorMessage(error, t('auth.signup.genericError'), code => t(`auth.errors.${code}`, { defaultValue: '' }));
       setErrorMsg(msg);
     }
     finally {
@@ -192,7 +272,7 @@ export function SignupScreen() {
   };
 
   const handleGoogleSignupError = (error: Error) => {
-    const msg = getApiErrorMessage(error, t('auth.signup.genericError'));
+    const msg = getApiErrorMessage(error, t('auth.signup.genericError'), code => t(`auth.errors.${code}`, { defaultValue: '' }));
     setErrorMsg(msg);
   };
 
@@ -232,18 +312,52 @@ export function SignupScreen() {
 
           {/* Form */}
           <View style={styles.content}>
-            <SignupForm
-              key={prefillEmailParam || 'signup-default'}
-              onSubmit={handleSubmit}
-              isSubmitting={isPending}
-              error={errorMsg}
-              onGoogleSignUp={handleGoogleSignup}
-              onGoogleSignInError={handleGoogleSignupError}
-              isGoogleSigningIn={isGoogleSigningIn}
-              showGoogleSignIn={isGoogleSigninMobileEnabled}
-              initialEmail={prefillEmailParam}
-              useExistingGoogleToken={Boolean(pendingGoogleToken)}
-            />
+            {/* Email / Phone mode toggle */}
+            <View style={styles.modeToggle}>
+              <Pressable
+                style={[styles.modeTab, signupMode === 'email' && styles.modeTabActive]}
+                onPress={() => setSignupMode('email')}
+              >
+                <Text style={signupMode === 'email' ? styles.modeTabLabelActive : styles.modeTabLabel}>
+                  {t('auth.signup.emailTab')}
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modeTab, signupMode === 'phone' && styles.modeTabActive]}
+                onPress={() => setSignupMode('phone')}
+              >
+                <Text style={signupMode === 'phone' ? styles.modeTabLabelActive : styles.modeTabLabel}>
+                  {t('auth.signup.phoneTab')}
+                </Text>
+              </Pressable>
+            </View>
+
+            {signupMode === 'email'
+              ? (
+                  <SignupForm
+                    key={prefillEmailParam || 'signup-default'}
+                    onSubmit={handleSubmit}
+                    isSubmitting={isPending}
+                    error={errorMsg}
+                    onGoogleSignUp={handleGoogleSignup}
+                    onGoogleSignInError={handleGoogleSignupError}
+                    isGoogleSigningIn={isGoogleSigningIn}
+                    showGoogleSignIn={isGoogleSigninMobileEnabled}
+                    initialEmail={prefillEmailParam}
+                    useExistingGoogleToken={Boolean(pendingGoogleToken)}
+                  />
+                )
+              : (
+                  <PhoneSignupForm
+                    onSubmit={handlePhoneSignup}
+                    onOtpRequest={handlePhoneOtpRequest}
+                    onOtpVerify={handlePhoneOtpVerify}
+                    isSubmitting={isPhoneSignupPending}
+                    isRequestingOtp={isOtpPending}
+                    isVerifyingOtp={isPhoneSignupVerifyPending}
+                    error={errorMsg}
+                  />
+                )}
 
             {/* Consent text */}
             <View style={styles.consentRow}>
@@ -282,6 +396,31 @@ export function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
+  modeTab: {
+    alignItems: 'center',
+    flex: 1,
+    paddingVertical: 8,
+  },
+  modeTabActive: {
+    borderBottomColor: '#2563EB',
+    borderBottomWidth: 2,
+  },
+  modeTabLabel: {
+    color: '#94A3B8',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  modeTabLabelActive: {
+    color: '#2563EB',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  modeToggle: {
+    borderBottomColor: '#E2E8F0',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
   backButton: {
     alignItems: 'center',
     height: 40,

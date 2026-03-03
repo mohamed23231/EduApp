@@ -1,12 +1,16 @@
 import type { TFunction } from 'i18next';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
+import { validateToken } from '@/modules/auth/services';
+
+const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';
 
 function getTranslatedRole(role: string | undefined, t: TFunction): string {
   if (!role) {
@@ -18,9 +22,41 @@ function getTranslatedRole(role: string | undefined, t: TFunction): string {
   return role;
 }
 
-function getInitials(email: string | undefined): string {
+function isGeneratedPhoneEmail(email: string | undefined): boolean {
+  return !!email && email.toLowerCase().endsWith(GENERATED_PHONE_EMAIL_DOMAIN);
+}
+
+function getDisplayAccountIdentifier(email: string | undefined, t: TFunction): string {
+  if (!email || isGeneratedPhoneEmail(email)) {
+    return t('parent.profile.phoneAccount');
+  }
+
+  return email;
+}
+
+function getDisplayName(fullName: string | undefined, email: string | undefined, t: TFunction): string {
+  if (fullName?.trim()) {
+    return fullName.trim();
+  }
+  if (email && !isGeneratedPhoneEmail(email)) {
+    return email;
+  }
+  return t('parent.profile.phoneAccount');
+}
+
+function getInitials(fullName: string | undefined, email: string | undefined): string {
+  if (fullName?.trim()) {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return parts[0].slice(0, 2).toUpperCase();
+  }
   if (!email) {
     return '?';
+  }
+  if (isGeneratedPhoneEmail(email)) {
+    return 'P';
   }
   const name = email.split('@')[0];
   const parts = name.split(/[._-]/);
@@ -70,9 +106,64 @@ function LanguageToggle() {
 export function ProfileScreen() {
   const { t } = useTranslation();
   const user = useAuthStore.use.user();
+  const token = useAuthStore.use.token();
+  const signIn = useAuthStore.use.signIn();
   const signOut = useAuthStore.use.signOut();
 
-  const initials = getInitials(user?.email);
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateUserDetails() {
+      if (!user || !token) {
+        return;
+      }
+
+      const missingName = !user.fullName?.trim();
+      const missingPhoneForPhoneAccount
+        = isGeneratedPhoneEmail(user.email) && !user.phoneE164;
+
+      if (!missingName && !missingPhoneForPhoneAccount) {
+        return;
+      }
+
+      try {
+        const validatedUser = await validateToken();
+        if (cancelled) {
+          return;
+        }
+
+        signIn({
+          token,
+          user: {
+            ...user,
+            ...validatedUser,
+          },
+        });
+      }
+      catch {
+        // Best-effort hydration for legacy cached user payloads.
+      }
+    }
+
+    void hydrateUserDetails();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    signIn,
+    token,
+    user,
+  ]);
+
+  const displayName = getDisplayName(user?.fullName, user?.email, t);
+  const initials = getInitials(user?.fullName, user?.email);
+  const accountIdentifier = isGeneratedPhoneEmail(user?.email)
+    ? (user?.phoneE164 ?? getDisplayAccountIdentifier(user?.email, t))
+    : getDisplayAccountIdentifier(user?.email, t);
+  const accountLabel = isGeneratedPhoneEmail(user?.email)
+    ? t('parent.profile.phoneLabel')
+    : t('parent.profile.emailLabel');
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -82,7 +173,7 @@ export function ProfileScreen() {
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
         </View>
-        <Text style={styles.emailHeader}>{user?.email ?? ''}</Text>
+        <Text style={styles.emailHeader}>{displayName}</Text>
         <View style={styles.roleBadgeHeader}>
           <Text style={styles.roleBadgeHeaderText}>{getTranslatedRole(user?.role, t)}</Text>
         </View>
@@ -97,14 +188,14 @@ export function ProfileScreen() {
                 <Ionicons name="mail-outline" size={20} color="#6B7280" />
               </View>
               <Text style={styles.settingsLabel}>
-                {t('parent.profile.emailLabel')}
+                {accountLabel}
               </Text>
             </View>
             <Text
               style={[styles.settingsValue, { textAlign: I18nManager.isRTL ? 'left' : 'right' }]}
               numberOfLines={1}
             >
-              {user?.email ?? ''}
+              {accountIdentifier}
             </Text>
           </View>
 

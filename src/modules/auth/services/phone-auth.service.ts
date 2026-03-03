@@ -5,12 +5,35 @@ import type {
   PhoneLoginParams,
   PhoneLoginResponseUnion,
   PhoneOtpRequestParams,
+  PhoneSignupVerifyParams,
+  PhoneSignupVerifyResponse,
   PhoneResetPasswordConfirmParams,
   PhoneResetPasswordRequestParams,
   PhoneSignupParams,
 } from '../types';
 import type { ApiSuccess } from '@/shared/types/api';
 import { authClient } from '@/lib/api/client';
+
+function normalizePhoneAuthResponse(payload: PhoneAuthResponse): PhoneAuthResponse {
+  if (payload.user) {
+    return payload;
+  }
+
+  if (payload.userId && payload.role) {
+    return {
+      ...payload,
+      user: {
+        id: payload.userId,
+        email: payload.email ?? null,
+        role: payload.role,
+        ...(payload.fullName ? { fullName: payload.fullName } : {}),
+        ...(payload.phoneE164 !== undefined ? { phoneE164: payload.phoneE164 } : {}),
+      },
+    };
+  }
+
+  return payload;
+}
 
 /**
  * Request OTP for phone signup or password reset
@@ -25,6 +48,19 @@ export async function requestPhoneOtp(data: PhoneOtpRequestParams): Promise<void
  */
 export async function phoneSignup(data: PhoneSignupParams): Promise<PhoneAuthResponse> {
   const response = await authClient.post<ApiSuccess<PhoneAuthResponse>>('/auth/phone/signup', data);
+  return normalizePhoneAuthResponse(response.data.data);
+}
+
+/**
+ * Verify signup OTP step and check whether signup can continue.
+ */
+export async function verifyPhoneSignup(
+  data: PhoneSignupVerifyParams,
+): Promise<PhoneSignupVerifyResponse> {
+  const response = await authClient.post<ApiSuccess<PhoneSignupVerifyResponse>>(
+    '/auth/phone/signup/verify',
+    data,
+  );
   return response.data.data;
 }
 
@@ -33,7 +69,7 @@ export async function phoneSignup(data: PhoneSignupParams): Promise<PhoneAuthRes
  */
 export async function phoneLogin(data: PhoneLoginParams): Promise<PhoneLoginResponseUnion> {
   const response = await authClient.post<ApiSuccess<PhoneAuthResponse>>('/auth/phone/login', data);
-  const payload = response.data.data;
+  const payload = normalizePhoneAuthResponse(response.data.data);
   const onboardingRequired = payload.onboardingRequired ?? false;
 
   if (onboardingRequired) {
@@ -88,5 +124,5 @@ export async function validateParentInvite(token: string): Promise<ParentInviteV
  */
 export async function acceptParentInvite(data: ParentInviteAcceptParams): Promise<PhoneAuthResponse> {
   const response = await authClient.post<ApiSuccess<PhoneAuthResponse>>('/auth/parent-invite/accept', data);
-  return response.data.data;
+  return normalizePhoneAuthResponse(response.data.data);
 }

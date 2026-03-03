@@ -1,5 +1,5 @@
 import type { LoginFormValues } from '../types';
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useState } from 'react';
@@ -22,19 +22,29 @@ import { getApiErrorMessage } from '@/shared/services/api-utils';
 
 import { LoginForm } from '../components/login-form';
 import { useLogin } from '../hooks/use-login';
+import { usePhoneLogin } from '../hooks/use-phone-login';
 import { googleAuthService } from '../services';
 
 // eslint-disable-next-line max-lines-per-function
 export function LoginScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    mode?: string | string[];
+    phone?: string | string[];
+  }>();
   const { t } = useTranslation();
   const signIn = useAuthStore.use.signIn();
   const status = useAuthStore.use.status();
   const user = useAuthStore.use.user();
   const { mutateAsync: login, isPending } = useLogin();
+  const { mutateAsync: phoneLogin, isPending: isPhoneLoginPending } = usePhoneLogin();
   const { isGoogleSigninMobileEnabled, isForgotPasswordEnabled } = useFeatureFlags();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+  const modeParam = Array.isArray(params.mode) ? params.mode[0] : params.mode;
+  const phoneParam = Array.isArray(params.phone) ? params.phone[0] : params.phone;
+  const initialMode = modeParam === 'phone' ? 'phone' : 'email';
+  const initialPhone = typeof phoneParam === 'string' ? phoneParam : '';
 
   // Onboarding cold-start: token exists but user is null → resume onboarding
   if (status === 'signIn' && !user) {
@@ -58,6 +68,7 @@ export function LoginScreen() {
             email: response.user.email,
             role: response.user.role as 'TEACHER' | 'PARENT',
             fullName: response.user.fullName,
+            phone: response.user.phoneE164 ?? undefined,
           });
         }
         else {
@@ -115,6 +126,7 @@ export function LoginScreen() {
         id: response.data.user.id,
         email: response.data.user.email,
         role: response.data.user.role as UserRole,
+        fullName: response.data.user.fullName,
       };
 
       if (response.data.onboardingRequired) {
@@ -147,7 +159,7 @@ export function LoginScreen() {
       router.replace(getHomeRouteForRole(authUser.role));
     }
     catch (error) {
-      const msg = getApiErrorMessage(error, t('auth.login.genericError'));
+      const msg = getApiErrorMessage(error, t('auth.login.genericError'), code => t(`auth.errors.${code}`, { defaultValue: '' }));
       setErrorMsg(msg);
     }
     finally {
@@ -156,8 +168,48 @@ export function LoginScreen() {
   };
 
   const handleGoogleSignInError = (error: Error) => {
-    const msg = getApiErrorMessage(error, t('auth.login.genericError'));
+    const msg = getApiErrorMessage(error, t('auth.login.genericError'), code => t(`auth.errors.${code}`, { defaultValue: '' }));
     setErrorMsg(msg);
+  };
+
+  const handlePhoneLogin = async (values: { phone: string; password: string }) => {
+    setErrorMsg(null);
+    try {
+      const response = await phoneLogin(values);
+
+      if (response.onboardingRequired) {
+        if (response.onboardingReason === 'PROFILE_NOT_FOUND' && response.user) {
+          setOnboardingContext({
+            email: response.user.email ?? '',
+            role: response.user.role as 'TEACHER' | 'PARENT',
+            fullName: response.user.fullName,
+            phone: response.user.phoneE164 ?? values.phone,
+          });
+        }
+        signIn({
+          token: { access: response.access, refresh: response.refresh },
+          user: null,
+        });
+        router.replace(AppRoute.auth.onboarding);
+      }
+      else {
+        signIn({
+          token: { access: response.access, refresh: response.refresh },
+          user: {
+            id: response.user.id,
+            email: response.user.email || '',
+            role: response.user.role as UserRole,
+            fullName: response.user.fullName,
+            phoneE164: response.user.phoneE164 ?? null,
+          },
+        });
+        router.replace(getHomeRouteForRole(response.user.role));
+      }
+    }
+    catch (error) {
+      const msg = getApiErrorMessage(error, t('auth.login.genericError'));
+      setErrorMsg(msg);
+    }
   };
 
   const handleForgotPassword = async (email: string) => {
@@ -195,6 +247,18 @@ export function LoginScreen() {
     }
   };
 
+  const handlePhoneForgotPassword = () => {
+    if (!isForgotPasswordEnabled) {
+      Alert.alert(
+        t('auth.login.forgotPassword'),
+        'Forgot password is currently unavailable.',
+      );
+      return;
+    }
+
+    router.push(AppRoute.auth.resetPassword as any);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <StatusBar style="light" translucent />
@@ -210,13 +274,18 @@ export function LoginScreen() {
         >
           <LoginForm
             onSubmit={handleSubmit}
+            onPhoneSubmit={handlePhoneLogin}
             isSubmitting={isPending}
+            isPhoneSubmitting={isPhoneLoginPending}
             error={errorMsg}
             onForgotPassword={handleForgotPassword}
+            onForgotPhonePassword={handlePhoneForgotPassword}
             onGoogleSignIn={handleGoogleSignIn}
             onGoogleSignInError={handleGoogleSignInError}
             isGoogleSigningIn={isGoogleSigningIn}
             showGoogleSignIn={isGoogleSigninMobileEnabled}
+            initialMode={initialMode}
+            initialPhone={initialPhone}
           />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -227,6 +296,31 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+  },
+  modeTab: {
+    alignItems: 'center',
+    flex: 1,
+    paddingVertical: 8,
+  },
+  modeTabActive: {
+    borderBottomColor: '#2563EB',
+    borderBottomWidth: 2,
+  },
+  modeTabLabel: {
+    color: '#94A3B8',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  modeTabLabelActive: {
+    color: '#2563EB',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  modeToggle: {
+    borderBottomColor: '#E2E8F0',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    marginBottom: 20,
   },
   safeArea: {
     backgroundColor: '#FFFFFF',

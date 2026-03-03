@@ -1,25 +1,39 @@
-import type { PhoneOtpPurpose, PhoneSignupParams } from '../types';
-import { useForm } from '@tanstack/react-form';
+import type {
+  PhoneOtpPurpose,
+  PhoneSignupParams,
+  PhoneSignupVerifyParams,
+  PhoneSignupVerifyResponse,
+} from '../types';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { PhoneField } from '@/components/ui';
 import { Eye, EyeOff } from '@/components/ui/icons';
 import { UserRole } from '@/core/auth/roles';
+import {
+  buildE164Phone,
+  DEFAULT_COUNTRY_CODE,
+  getPhoneValidationErrorKey,
+  sanitizeOtpCode,
+} from '@/shared/utils/phone';
 
 type SignupStep = 'phone' | 'otp' | 'details';
 
 export type PhoneSignupFormProps = {
   onSubmit: (data: PhoneSignupParams) => void;
-  onOtpRequest: (phone: string, purpose: PhoneOtpPurpose) => void;
+  onOtpRequest: (phone: string, purpose: PhoneOtpPurpose) => Promise<void>;
+  onOtpVerify: (data: PhoneSignupVerifyParams) => Promise<PhoneSignupVerifyResponse>;
   isSubmitting: boolean;
   isRequestingOtp: boolean;
+  isVerifyingOtp?: boolean;
   error?: string | null;
   otpSent?: boolean;
 };
@@ -28,8 +42,10 @@ export type PhoneSignupFormProps = {
 export function PhoneSignupForm({
   onSubmit,
   onOtpRequest,
+  onOtpVerify,
   isSubmitting,
   isRequestingOtp,
+  isVerifyingOtp = false,
   error,
   otpSent: _otpSent = false,
 }: PhoneSignupFormProps) {
@@ -37,65 +53,120 @@ export function PhoneSignupForm({
   const [showPassword, setShowPassword] = React.useState(false);
   const [step, setStep] = React.useState<SignupStep>('phone');
   const [phone, setPhone] = React.useState('');
+  const [phoneCountryCode, setPhoneCountryCode] = React.useState(DEFAULT_COUNTRY_CODE);
+  const [phoneLocalNumber, setPhoneLocalNumber] = React.useState('');
+  const [clientError, setClientError] = React.useState<string | null>(null);
 
-  const form = useForm({
-    defaultValues: {
-      phone: '',
-      otp: '',
-      password: '',
-      fullName: '',
-      email: '',
-      role: UserRole.PARENT,
-    },
-    onSubmit: async ({ value }) => {
-      onSubmit({
-        phone: value.phone,
-        otp: value.otp,
-        password: value.password,
-        role: value.role,
-        fullName: value.fullName,
-        email: value.email || undefined,
-      });
-    },
-  });
+  const [otp, setOtp] = React.useState('');
+  const [role, setRole] = React.useState<UserRole | ''>('');
+  const [fullName, setFullName] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = React.useState('');
+
+  const normalizeOtp = React.useCallback((value: string) => {
+    return sanitizeOtpCode(value, 6);
+  }, []);
 
   const handleRequestOtp = async () => {
-    const phoneValue = form.state.values.phone?.trim() ?? '';
-    if (!phoneValue)
+    const normalizedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
+    if (!normalizedPhone) {
+      setClientError(getPhoneValidationErrorKey(phoneCountryCode));
       return;
-    setPhone(phoneValue);
-    await onOtpRequest(phoneValue, 'SIGNUP');
-    setStep('otp');
+    }
+
+    setClientError(null);
+    setPhone(normalizedPhone);
+
+    try {
+      await onOtpRequest(normalizedPhone, 'SIGNUP');
+      setStep('otp');
+    }
+    catch {
+      // Parent screen surfaces API errors.
+    }
   };
 
-  const handleVerifyOtp = () => {
-    const otpValue = form.state.values.otp?.trim() ?? '';
-    if (!otpValue)
+  const handleVerifyOtp = async () => {
+    const normalizedPhone = phone || buildE164Phone(phoneCountryCode, phoneLocalNumber);
+    if (!normalizedPhone) {
+      setClientError(getPhoneValidationErrorKey(phoneCountryCode));
       return;
-    setStep('details');
+    }
+
+    if (otp.length !== 6) {
+      return;
+    }
+
+    setClientError(null);
+
+    try {
+      const verification = await onOtpVerify({ phone: normalizedPhone, otp });
+
+      if (verification.accountExists || !verification.canContinue) {
+        setClientError('auth.phone.signupExistingAccount');
+        return;
+      }
+
+      setStep('details');
+    }
+    catch {
+      // Parent screen surfaces API errors.
+    }
+  };
+
+  const handleSubmit = () => {
+    const normalizedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
+    if (!normalizedPhone) {
+      setClientError(getPhoneValidationErrorKey(phoneCountryCode));
+      return;
+    }
+
+    if (!role) {
+      setClientError('auth.signup.validation.roleRequired');
+      return;
+    }
+
+    if (!fullName.trim()) {
+      setClientError('auth.signup.validation.fullNameRequired');
+      return;
+    }
+
+    if (password.length < 8) {
+      setClientError('auth.signup.validation.passwordTooShort');
+      return;
+    }
+
+    setClientError(null);
+
+    onSubmit({
+      phone: normalizedPhone,
+      otp: otp.trim(),
+      password,
+      role,
+      fullName: fullName.trim(),
+      email: email.trim() || undefined,
+    });
   };
 
   const renderPhoneStep = () => (
     <View style={styles.formBlock}>
-      <Text style={styles.label}>{t('auth.phone.phoneLabel')}</Text>
-      <TextInput
-        value={form.state.values.phone}
-        onChangeText={value => form.setFieldValue('phone', value)}
-        autoCapitalize="none"
-        keyboardType="phone-pad"
-        autoCorrect={false}
-        placeholder="+966 5X XXX XXXX"
-        placeholderTextColor="#94A3B8"
-        testID="phone-input"
-        style={styles.input}
+      <PhoneField
+        label={t('auth.phone.phoneLabel')}
+        countryCode={phoneCountryCode}
+        localNumber={phoneLocalNumber}
+        onCountryCodeChange={setPhoneCountryCode}
+        onLocalNumberChange={setPhoneLocalNumber}
+        error={clientError ?? undefined}
+        testIDPrefix="phone-signup"
       />
+      <Text style={styles.stepHint}>{t('auth.phone.signupFlowHint')}</Text>
       <Pressable
         style={[
           styles.secondaryButton,
           isRequestingOtp && styles.secondaryButtonDisabled,
         ]}
-        onPress={handleRequestOtp}
-        disabled={isRequestingOtp || !form.state.values.phone}
+        onPress={() => void handleRequestOtp()}
+        disabled={isRequestingOtp || !buildE164Phone(phoneCountryCode, phoneLocalNumber)}
       >
         {isRequestingOtp
           ? <ActivityIndicator color="#2563EB" />
@@ -115,10 +186,16 @@ export function PhoneSignupForm({
         {t('auth.phone.otpSentHint', { phone })}
       </Text>
       <TextInput
-        value={form.state.values.otp}
-        onChangeText={value => form.setFieldValue('otp', value)}
-        keyboardType="number-pad"
+        value={otp}
+        onChangeText={(value) => {
+          setOtp(normalizeOtp(value));
+          setClientError(null);
+        }}
+        keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
+        autoFocus
+        editable={!isSubmitting}
         autoCorrect={false}
+        textContentType="oneTimeCode"
         placeholder="123456"
         placeholderTextColor="#94A3B8"
         maxLength={6}
@@ -130,7 +207,7 @@ export function PhoneSignupForm({
           styles.secondaryButton,
           isRequestingOtp && styles.secondaryButtonDisabled,
         ]}
-        onPress={handleRequestOtp}
+        onPress={() => void handleRequestOtp()}
         disabled={isRequestingOtp}
       >
         {isRequestingOtp
@@ -142,24 +219,74 @@ export function PhoneSignupForm({
             )}
       </Pressable>
       <Pressable
-        style={styles.verifyButton}
-        onPress={handleVerifyOtp}
-        disabled={!form.state.values.otp || form.state.values.otp.length !== 6}
+        style={[
+          styles.verifyButton,
+          (otp.length !== 6 || isVerifyingOtp) && styles.verifyButtonDisabled,
+        ]}
+        onPress={() => void handleVerifyOtp()}
+        disabled={otp.length !== 6 || isVerifyingOtp}
       >
-        <Text style={styles.verifyButtonLabel}>
-          {t('auth.phone.verifyOtp')}
-        </Text>
+        {isVerifyingOtp
+          ? <ActivityIndicator color="#FFFFFF" />
+          : (
+              <Text style={styles.verifyButtonLabel}>
+                {t('auth.phone.verifyOtp')}
+              </Text>
+            )}
       </Pressable>
     </View>
   );
 
+  // eslint-disable-next-line max-lines-per-function
   const renderDetailsStep = () => (
     <>
       <View style={styles.formBlock}>
+        <Text style={styles.roleLabel}>{t('auth.signup.roleLabel')}</Text>
+        <View style={styles.roleCardsRow}>
+          {([UserRole.TEACHER, UserRole.PARENT] as UserRole[]).map((optionRole) => {
+            const isSelected = role === optionRole;
+            return (
+              <Pressable
+                key={optionRole}
+                style={[styles.roleCard, isSelected && styles.roleCardSelected]}
+                onPress={() => {
+                  setRole(optionRole);
+                  setClientError(null);
+                }}
+                testID={`phone-signup-role-${optionRole.toLowerCase()}`}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: isSelected }}
+              >
+                <Text style={styles.roleAvatar}>
+                  {optionRole === UserRole.TEACHER ? '👩‍🏫' : '👨‍👩‍👧'}
+                </Text>
+                <Text style={[styles.roleCardLabel, isSelected && styles.roleCardLabelSelected]}>
+                  {optionRole === UserRole.TEACHER
+                    ? t('auth.signup.teacherLabel')
+                    : t('auth.signup.parentLabel')}
+                </Text>
+                <View
+                  style={[
+                    styles.radioOuter,
+                    isSelected && styles.radioOuterSelected,
+                  ]}
+                >
+                  {isSelected && <View style={styles.radioInner} />}
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
+      <View style={styles.formBlock}>
         <Text style={styles.label}>{t('auth.phone.fullNameLabel')}</Text>
         <TextInput
-          value={form.state.values.fullName}
-          onChangeText={value => form.setFieldValue('fullName', value)}
+          value={fullName}
+          onChangeText={(value) => {
+            setFullName(value);
+            setClientError(null);
+          }}
           autoCapitalize="words"
           autoCorrect={false}
           placeholder="John Doe"
@@ -173,8 +300,11 @@ export function PhoneSignupForm({
         <Text style={styles.label}>{t('auth.phone.passwordLabel')}</Text>
         <View style={styles.passwordInputWrapper}>
           <TextInput
-            value={form.state.values.password}
-            onChangeText={value => form.setFieldValue('password', value)}
+            value={password}
+            onChangeText={(value) => {
+              setPassword(value);
+              setClientError(null);
+            }}
             secureTextEntry={!showPassword}
             autoCorrect={false}
             testID="password-input"
@@ -204,8 +334,11 @@ export function PhoneSignupForm({
           )
         </Text>
         <TextInput
-          value={form.state.values.email}
-          onChangeText={value => form.setFieldValue('email', value)}
+          value={email}
+          onChangeText={(value) => {
+            setEmail(value);
+            setClientError(null);
+          }}
           autoCapitalize="none"
           keyboardType="email-address"
           autoCorrect={false}
@@ -218,37 +351,45 @@ export function PhoneSignupForm({
     </>
   );
 
+  const canSubmitDetails = Boolean(
+    role
+    && fullName.trim().length > 0
+    && password.length >= 8
+    && otp.length === 6,
+  );
+
   return (
     <View style={styles.container}>
-      {error ? <Text style={styles.apiError}>{error}</Text> : null}
+      {(clientError || error)
+        ? (
+            <Text style={styles.apiError}>
+              {t(clientError || error || '', { defaultValue: clientError || error || '' })}
+            </Text>
+          )
+        : null}
 
       {step === 'phone' && renderPhoneStep()}
       {step === 'otp' && renderOtpStep()}
       {step === 'details' && renderDetailsStep()}
 
       {step === 'details' && (
-        <form.Subscribe
-          selector={state => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, validating]) => (
-            <Pressable
-              style={[
-                styles.submitButton,
-                (!canSubmit || isSubmitting || validating) && styles.submitButtonDisabled,
-              ]}
-              onPress={() => void form.handleSubmit()}
-              disabled={!canSubmit || isSubmitting || validating}
-              testID="phone-signup-submit-button"
-            >
-              {isSubmitting || validating
-                ? <ActivityIndicator color="#FFFFFF" />
-                : (
-                    <Text style={styles.submitButtonLabel}>
-                      {t('auth.phone.signupButton')}
-                    </Text>
-                  )}
-            </Pressable>
-          )}
-        />
+        <Pressable
+          style={[
+            styles.submitButton,
+            (!canSubmitDetails || isSubmitting) && styles.submitButtonDisabled,
+          ]}
+          onPress={() => handleSubmit()}
+          disabled={!canSubmitDetails || isSubmitting}
+          testID="phone-signup-submit-button"
+        >
+          {isSubmitting
+            ? <ActivityIndicator color="#FFFFFF" />
+            : (
+                <Text style={styles.submitButtonLabel}>
+                  {t('auth.phone.signupButton')}
+                </Text>
+              )}
+        </Pressable>
       )}
     </View>
   );
@@ -340,6 +481,68 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
+  stepHint: {
+    color: '#64748B',
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  roleCardsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  roleLabel: {
+    color: '#334155',
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    marginBottom: 12,
+    textTransform: 'uppercase',
+  },
+  roleAvatar: {
+    fontSize: 36,
+    marginBottom: 6,
+  },
+  radioOuter: {
+    alignItems: 'center',
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    borderWidth: 2,
+    height: 20,
+    justifyContent: 'center',
+    marginTop: 8,
+    width: 20,
+  },
+  radioOuterSelected: {
+    borderColor: '#2563EB',
+  },
+  radioInner: {
+    backgroundColor: '#2563EB',
+    borderRadius: 5,
+    height: 10,
+    width: 10,
+  },
+  roleCard: {
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderColor: '#CBD5E1',
+    borderRadius: 16,
+    borderWidth: 2,
+    flex: 1,
+    paddingVertical: 18,
+  },
+  roleCardSelected: {
+    backgroundColor: '#EFF6FF',
+    borderColor: '#2563EB',
+  },
+  roleCardLabel: {
+    color: '#334155',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  roleCardLabelSelected: {
+    color: '#2563EB',
+  },
   verifyButton: {
     alignItems: 'center',
     backgroundColor: '#2563EB',
@@ -347,6 +550,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 8,
     paddingVertical: 12,
+  },
+  verifyButtonDisabled: {
+    opacity: 0.6,
   },
   verifyButtonLabel: {
     color: '#FFFFFF',

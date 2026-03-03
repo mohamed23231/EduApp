@@ -16,6 +16,7 @@ type ValidateTokenUser = {
   email: string;
   role: UserRole;
   fullName?: string;
+  phoneE164?: string | null;
 };
 
 type ValidateTokenPayload = {
@@ -26,8 +27,18 @@ type ValidateTokenDirectPayload = {
   userId: string;
   email: string;
   role: UserRole;
+  fullName?: string;
+  phoneE164?: string | null;
   status?: string;
   profile?: unknown;
+};
+
+type OnboardingContextPayload = {
+  email: string | null;
+  role?: UserRole;
+  fullName?: string;
+  phoneE164?: string | null;
+  onboardingReason: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
 };
 
 export type RefreshTokenResponse = {
@@ -36,6 +47,7 @@ export type RefreshTokenResponse = {
 };
 
 export type ValidateTokenResponse = ValidateTokenUser;
+export type OnboardingContextResponse = OnboardingContextPayload;
 
 export async function refreshToken(currentRefreshToken: string): Promise<RefreshTokenResponse> {
   const response = await authClient.post<ApiSuccess<RefreshTokenPayload>>(
@@ -71,8 +83,19 @@ export async function validateToken(): Promise<ValidateTokenResponse> {
       id: payload.userId,
       email: payload.email,
       role: payload.role as UserRole,
+      fullName: typeof payload.fullName === 'string' ? payload.fullName : undefined,
+      phoneE164: payload.phoneE164 === null || typeof payload.phoneE164 === 'string'
+        ? payload.phoneE164
+        : undefined,
     };
   }
 
   throw new Error('Invalid validate-token response shape');
+}
+
+export async function getOnboardingContext(): Promise<OnboardingContextResponse> {
+  const response = await authClient.post<ApiSuccess<OnboardingContextPayload>>(
+    '/auth/onboarding-context',
+  );
+  return response.data.data;
 }

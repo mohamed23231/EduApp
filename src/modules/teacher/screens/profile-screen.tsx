@@ -12,17 +12,21 @@
 
 import type { TFunction } from 'i18next';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
+import { validateToken } from '@/modules/auth/services';
 import { ExpiredBanner } from '../components/ExpiredBanner';
 import { SubscriptionCard } from '../components/SubscriptionCard';
 import { TeacherStatusBadge } from '../components/TeacherStatusBadge';
 import { TrialCard } from '../components/TrialCard';
 import { useTeacherProfile } from '../hooks/use-teacher-profile';
+
+const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';
 
 function getTranslatedRole(role: string | undefined, t: TFunction): string {
   if (!role)
@@ -32,14 +36,122 @@ function getTranslatedRole(role: string | undefined, t: TFunction): string {
   return role;
 }
 
-function getInitials(email: string | undefined): string {
+function isGeneratedPhoneEmail(email: string | undefined): boolean {
+  return !!email && email.toLowerCase().endsWith(GENERATED_PHONE_EMAIL_DOMAIN);
+}
+
+function getDisplayAccountIdentifier(email: string | undefined, t: TFunction): string {
+  if (!email || isGeneratedPhoneEmail(email)) {
+    return t('teacher.profile.phoneAccount');
+  }
+
+  return email;
+}
+
+function getDisplayName(
+  fullName: string | undefined,
+  email: string | undefined,
+  t: TFunction,
+): string {
+  if (fullName?.trim()) {
+    return fullName.trim();
+  }
+
+  if (email && !isGeneratedPhoneEmail(email)) {
+    return email;
+  }
+
+  return t('teacher.profile.phoneAccount');
+}
+
+function getInitials(fullName: string | undefined, email: string | undefined): string {
+  if (fullName?.trim()) {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2)
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+
   if (!email)
     return '?';
+
+  if (isGeneratedPhoneEmail(email)) {
+    return 'T';
+  }
+
   const name = email.split('@')[0];
   const parts = name.split(/[._-]/);
   if (parts.length >= 2)
     return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
+}
+
+function useTeacherAccountViewModel(
+  user: ReturnType<typeof useAuthStore.use.user>,
+  t: TFunction,
+) {
+  const token = useAuthStore.use.token();
+  const signIn = useAuthStore.use.signIn();
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateUserDetails() {
+      if (!user || !token) {
+        return;
+      }
+
+      const missingName = !user.fullName?.trim();
+      const missingPhoneForPhoneAccount
+        = isGeneratedPhoneEmail(user.email) && !user.phoneE164;
+
+      if (!missingName && !missingPhoneForPhoneAccount) {
+        return;
+      }
+
+      try {
+        const validatedUser = await validateToken();
+        if (cancelled) {
+          return;
+        }
+
+        signIn({
+          token,
+          user: {
+            ...user,
+            ...validatedUser,
+          },
+        });
+      }
+      catch {
+        // Best-effort hydration for legacy cached user payloads.
+      }
+    }
+
+    void hydrateUserDetails();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [signIn, token, user]);
+
+  const isPhoneAccount = isGeneratedPhoneEmail(user?.email);
+  const displayName = getDisplayName(user?.fullName, user?.email, t);
+  const initials = getInitials(user?.fullName, user?.email);
+  const accountIdentifier = isPhoneAccount
+    ? (user?.phoneE164 ?? getDisplayAccountIdentifier(user?.email, t))
+    : getDisplayAccountIdentifier(user?.email, t);
+  const accountLabel = isPhoneAccount
+    ? t('teacher.profile.phoneLabel')
+    : t('teacher.profile.emailLabel');
+
+  return {
+    accountIdentifier,
+    accountLabel,
+    displayName,
+    initials,
+    isPhoneAccount,
+  };
 }
 
 function LanguageToggle() {
@@ -77,8 +189,9 @@ export function TeacherProfileScreen() {
   const { t } = useTranslation();
   const user = useAuthStore.use.user();
   const signOut = useAuthStore.use.signOut();
-  const initials = getInitials(user?.email);
   const { profile, isLoading: _isLoading, error: _error } = useTeacherProfile();
+  const { accountIdentifier, accountLabel, displayName, initials, isPhoneAccount }
+    = useTeacherAccountViewModel(user, t);
 
   const teacherStatus = profile?.teacherStatus;
   const isExpired = teacherStatus === 'EXPIRED';
@@ -92,7 +205,7 @@ export function TeacherProfileScreen() {
               <Text style={styles.avatarText}>{initials}</Text>
             </View>
           </View>
-          <Text style={styles.emailHeader}>{user?.email ?? ''}</Text>
+          <Text style={styles.emailHeader}>{displayName}</Text>
           <View style={styles.roleBadgeHeader}>
             <Text style={styles.roleBadgeHeaderText}>{getTranslatedRole(user?.role, t)}</Text>
           </View>
@@ -127,15 +240,19 @@ export function TeacherProfileScreen() {
             <View style={styles.settingsRow}>
               <View style={styles.settingsRowLeft}>
                 <View style={styles.iconContainer}>
-                  <Ionicons name="mail-outline" size={20} color="#6B7280" />
+                  <Ionicons
+                    name={isPhoneAccount ? 'call-outline' : 'mail-outline'}
+                    size={20}
+                    color="#6B7280"
+                  />
                 </View>
-                <Text style={styles.settingsLabel}>{t('teacher.profile.emailLabel')}</Text>
+                <Text style={styles.settingsLabel}>{accountLabel}</Text>
               </View>
               <Text
                 style={[styles.settingsValue, { textAlign: I18nManager.isRTL ? 'left' : 'right' }]}
                 numberOfLines={1}
               >
-                {user?.email ?? ''}
+                {accountIdentifier}
               </Text>
             </View>
             <View style={styles.divider} />

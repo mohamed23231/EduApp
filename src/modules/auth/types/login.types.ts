@@ -11,6 +11,7 @@ export type LoginUser = {
   email: string;
   role: UserRole;
   fullName?: string;
+  phoneE164?: string | null;
   onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
 };
 

@@ -14,36 +14,62 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PhoneField } from '@/components/ui';
 import { ArrowRight, Eye, EyeOff, GraduationCap } from '@/components/ui/icons';
 import { AppRoute } from '@/core/navigation/routes';
 import { useSelectedLanguage } from '@/lib/i18n';
+import {
+  buildE164Phone,
+  DEFAULT_COUNTRY_CODE,
+  splitE164Phone,
+} from '@/shared/utils/phone';
 import { loginSchema } from '../validators';
 import { GoogleSignInButton } from './google-sign-in-button';
 
 export type LoginFormProps = {
   onSubmit: (data: LoginFormValues) => void;
+  onPhoneSubmit?: (data: { phone: string; password: string }) => void;
   isSubmitting: boolean;
+  isPhoneSubmitting?: boolean;
   error?: string | null;
   onForgotPassword?: (email: string) => void;
+  onForgotPhonePassword?: () => void;
   onGoogleSignIn?: (idToken: string) => void;
   onGoogleSignInError?: (error: Error) => void;
   isGoogleSigningIn?: boolean;
   showGoogleSignIn?: boolean;
+  initialMode?: 'email' | 'phone';
+  initialPhone?: string;
 };
 
 // eslint-disable-next-line max-lines-per-function
 export function LoginForm({
   onSubmit,
+  onPhoneSubmit,
   isSubmitting,
+  isPhoneSubmitting = false,
   error,
   onForgotPassword,
+  onForgotPhonePassword,
   onGoogleSignIn,
   onGoogleSignInError,
   isGoogleSigningIn = false,
   showGoogleSignIn = false,
+  initialMode = 'email',
+  initialPhone = '',
 }: LoginFormProps) {
   const { t, i18n } = useTranslation();
   const [showPassword, setShowPassword] = React.useState(false);
+  const initialPhoneParts = React.useMemo(() => splitE164Phone(initialPhone), [initialPhone]);
+  const [loginMode, setLoginMode] = React.useState<'email' | 'phone'>(initialMode);
+  const [phoneCountryCode, setPhoneCountryCode] = React.useState(
+    initialPhoneParts.countryCode || DEFAULT_COUNTRY_CODE,
+  );
+  const [phoneLocalNumber, setPhoneLocalNumber] = React.useState(
+    initialPhoneParts.localNumber,
+  );
+  const [phonePassword, setPhonePassword] = React.useState('');
+  const [showPhonePassword, setShowPhonePassword] = React.useState(false);
   const { language, setLanguage } = useSelectedLanguage();
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -91,6 +117,7 @@ export function LoginForm({
       onSubmit(value);
     },
   });
+  const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
 
   return (
     <View style={styles.container}>
@@ -133,148 +160,211 @@ export function LoginForm({
         <Text style={styles.title}>{t('auth.login.title')}</Text>
         <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
 
+        {/* Email / Phone tab toggle — always visible */}
+        <View style={styles.modeToggle}>
+          <Pressable
+            style={[styles.modeTab, loginMode === 'email' && styles.modeTabActive]}
+            onPress={() => setLoginMode('email')}
+          >
+            <Text style={loginMode === 'email' ? styles.modeTabLabelActive : styles.modeTabLabel}>
+              {t('auth.login.emailTab')}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.modeTab, loginMode === 'phone' && styles.modeTabActive]}
+            onPress={() => setLoginMode('phone')}
+          >
+            <Text style={loginMode === 'phone' ? styles.modeTabLabelActive : styles.modeTabLabel}>
+              {t('auth.login.phoneTab')}
+            </Text>
+          </Pressable>
+        </View>
+
         {error ? <Text style={styles.apiError}>{error}</Text> : null}
 
-        <View style={styles.form}>
-          <form.Field
-            name="email"
-            children={(field) => {
-              const hasError = field.state.meta.errors.length > 0;
-              const errorMsg = getValidationError(field.state.meta.errors);
+        {loginMode === 'email'
+          ? (
+              /* ── Email form ── */
+              <View style={styles.form}>
+                <form.Field
+                  name="email"
+                  children={(field) => {
+                    const hasError = field.state.meta.errors.length > 0;
+                    const fieldErrorMsg = getValidationError(field.state.meta.errors);
 
-              return (
-                <View style={styles.formBlock}>
-                  <Text style={styles.label}>
-                    {t('auth.login.emailLabel')}
-                  </Text>
-                  <TextInput
-                    value={field.state.value}
-                    onChangeText={field.handleChange}
-                    onBlur={field.handleBlur}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    autoCorrect={false}
-                    placeholder="name@school.edu"
-                    placeholderTextColor="#94A3B8"
-                    testID="email-input"
-                    textAlign={isRTL ? 'right' : 'left'}
-                    style={[
-                      styles.input,
-                      isRTL && styles.inputRTL,
-                      hasError && styles.inputError,
-                    ]}
-                  />
-                  {hasError && errorMsg
-                    ? (
-                        <Text style={styles.fieldError}>
-                          {errorMsg}
+                    return (
+                      <View style={styles.formBlock}>
+                        <Text style={styles.label}>
+                          {t('auth.login.emailLabel')}
                         </Text>
-                      )
-                    : null}
-                </View>
-              );
-            }}
-          />
-
-          <View style={styles.formBlock}>
-            <View style={styles.passwordHeader}>
-              <Text style={styles.passwordLabel}>{t('auth.login.passwordLabel')}</Text>
-              <Pressable
-                onPress={() => {
-                  const email = form.state.values.email?.trim() ?? '';
-                  onForgotPassword?.(email);
-                }}
-              >
-                <Text style={styles.forgotPassword}>
-                  {t('auth.login.forgotPassword')}
-                </Text>
-              </Pressable>
-            </View>
-
-            <form.Field
-              name="password"
-              children={(field) => {
-                const hasError = field.state.meta.errors.length > 0;
-                const errorMsg = getValidationError(field.state.meta.errors);
-
-                return (
-                  <View>
-                    <View style={styles.passwordInputWrapper}>
-                      <TextInput
-                        value={field.state.value}
-                        onChangeText={field.handleChange}
-                        onBlur={field.handleBlur}
-                        secureTextEntry={!showPassword}
-                        autoCorrect={false}
-                        testID="password-input"
-                        textAlign={isRTL ? 'right' : 'left'}
-                        style={[
-                          styles.input,
-                          styles.passwordInput,
-                          isRTL && styles.inputRTL,
-                          hasError && styles.inputError,
-                        ]}
-                      />
-                      <Pressable
-                        onPress={() => setShowPassword(!showPassword)}
-                        style={styles.eyeButton}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      >
-                        {showPassword
-                          ? (
-                              <EyeOff width={20} height={20} color="#94A3B8" />
-                            )
-                          : (
-                              <Eye width={20} height={20} color="#94A3B8" />
-                            )}
-                      </Pressable>
-                    </View>
-                    {hasError && errorMsg
-                      ? (
-                          <Text style={styles.fieldError}>
-                            {errorMsg}
-                          </Text>
-                        )
-                      : null}
-                  </View>
-                );
-              }}
-            />
-          </View>
-
-          <form.Subscribe
-            selector={state => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, validating]) => (
-              <Pressable
-                style={[
-                  styles.submitButton,
-                  (!canSubmit || isSubmitting || validating)
-                  && styles.submitButtonDisabled,
-                ]}
-                onPress={() => void form.handleSubmit()}
-                disabled={!canSubmit || isSubmitting || validating}
-                testID="login-submit-button"
-              >
-                {isSubmitting || validating
-                  ? (
-                      <ActivityIndicator color="#FFFFFF" />
-                    )
-                  : (
-                      <View style={styles.submitButtonContent}>
-                        <Text style={styles.submitButtonLabel}>
-                          {t('auth.login.submit')}
-                        </Text>
-                        <ArrowRight
-                          color="#FFFFFF"
-                          width={16}
-                          height={16}
+                        <TextInput
+                          value={field.state.value}
+                          onChangeText={field.handleChange}
+                          onBlur={field.handleBlur}
+                          autoCapitalize="none"
+                          keyboardType="email-address"
+                          autoCorrect={false}
+                          placeholder="name@school.edu"
+                          placeholderTextColor="#94A3B8"
+                          testID="email-input"
+                          textAlign={isRTL ? 'right' : 'left'}
+                          style={[
+                            styles.input,
+                            isRTL && styles.inputRTL,
+                            hasError && styles.inputError,
+                          ]}
                         />
+                        {hasError && fieldErrorMsg
+                          ? <Text style={styles.fieldError}>{fieldErrorMsg}</Text>
+                          : null}
                       </View>
-                    )}
-              </Pressable>
+                    );
+                  }}
+                />
+
+                <View style={styles.formBlock}>
+                  <View style={styles.passwordHeader}>
+                    <Text style={styles.passwordLabel}>{t('auth.login.passwordLabel')}</Text>
+                    <Pressable onPress={() => onForgotPassword?.(form.state.values.email?.trim() ?? '')}>
+                      <Text style={styles.forgotPassword}>{t('auth.login.forgotPassword')}</Text>
+                    </Pressable>
+                  </View>
+
+                  <form.Field
+                    name="password"
+                    children={(field) => {
+                      const hasError = field.state.meta.errors.length > 0;
+                      const fieldErrorMsg = getValidationError(field.state.meta.errors);
+
+                      return (
+                        <View>
+                          <View style={styles.passwordInputWrapper}>
+                            <TextInput
+                              value={field.state.value}
+                              onChangeText={field.handleChange}
+                              onBlur={field.handleBlur}
+                              secureTextEntry={!showPassword}
+                              autoCorrect={false}
+                              testID="password-input"
+                              textAlign={isRTL ? 'right' : 'left'}
+                              style={[
+                                styles.input,
+                                styles.passwordInput,
+                                isRTL && styles.inputRTL,
+                                hasError && styles.inputError,
+                              ]}
+                            />
+                            <Pressable
+                              onPress={() => setShowPassword(!showPassword)}
+                              style={styles.eyeButton}
+                              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            >
+                              {showPassword
+                                ? <EyeOff width={20} height={20} color="#94A3B8" />
+                                : <Eye width={20} height={20} color="#94A3B8" />}
+                            </Pressable>
+                          </View>
+                          {hasError && fieldErrorMsg
+                            ? <Text style={styles.fieldError}>{fieldErrorMsg}</Text>
+                            : null}
+                        </View>
+                      );
+                    }}
+                  />
+                </View>
+
+                <form.Subscribe
+                  selector={state => [state.canSubmit, state.isSubmitting]}
+                  children={([canSubmit, validating]) => (
+                    <Pressable
+                      style={[
+                        styles.submitButton,
+                        (!canSubmit || isSubmitting || validating) && styles.submitButtonDisabled,
+                      ]}
+                      onPress={() => void form.handleSubmit()}
+                      disabled={!canSubmit || isSubmitting || validating}
+                      testID="login-submit-button"
+                    >
+                      {isSubmitting || validating
+                        ? <ActivityIndicator color="#FFFFFF" />
+                        : (
+                            <View style={styles.submitButtonContent}>
+                              <Text style={styles.submitButtonLabel}>{t('auth.login.submit')}</Text>
+                              <ArrowRight color="#FFFFFF" width={16} height={16} />
+                            </View>
+                          )}
+                    </Pressable>
+                  )}
+                />
+              </View>
+            )
+          : (
+              /* ── Phone form ── */
+              <View style={styles.form}>
+                <View style={styles.formBlock}>
+                  <PhoneField
+                    label={t('auth.phone.phoneLabel')}
+                    countryCode={phoneCountryCode}
+                    localNumber={phoneLocalNumber}
+                    onCountryCodeChange={setPhoneCountryCode}
+                    onLocalNumberChange={setPhoneLocalNumber}
+                    localPlaceholder="5XXXXXXXX"
+                    testIDPrefix="login-phone"
+                  />
+                </View>
+
+                <View style={styles.formBlock}>
+                  <View style={styles.passwordHeader}>
+                    <Text style={styles.passwordLabel}>{t('auth.phone.passwordLabel')}</Text>
+                    <Pressable onPress={onForgotPhonePassword} disabled={!onForgotPhonePassword}>
+                      <Text style={styles.forgotPassword}>{t('auth.login.forgotPassword')}</Text>
+                    </Pressable>
+                  </View>
+                  <View style={styles.passwordInputWrapper}>
+                    <TextInput
+                      value={phonePassword}
+                      onChangeText={setPhonePassword}
+                      secureTextEntry={!showPhonePassword}
+                      autoCorrect={false}
+                      testID="phone-password-input"
+                      style={[styles.input, styles.passwordInput]}
+                    />
+                    <Pressable
+                      onPress={() => setShowPhonePassword(!showPhonePassword)}
+                      style={styles.eyeButton}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      {showPhonePassword
+                        ? <EyeOff width={20} height={20} color="#94A3B8" />
+                        : <Eye width={20} height={20} color="#94A3B8" />}
+                    </Pressable>
+                  </View>
+                </View>
+
+                <Pressable
+                  style={[
+                    styles.submitButton,
+                    (isPhoneSubmitting || !composedPhone || !phonePassword) && styles.submitButtonDisabled,
+                  ]}
+                  onPress={() => {
+                    if (!composedPhone)
+                      return;
+                    onPhoneSubmit?.({ phone: composedPhone, password: phonePassword });
+                  }}
+                  disabled={isPhoneSubmitting || !composedPhone || !phonePassword}
+                  testID="phone-login-submit-button"
+                >
+                  {isPhoneSubmitting
+                    ? <ActivityIndicator color="#FFFFFF" />
+                    : (
+                        <View style={styles.submitButtonContent}>
+                          <Text style={styles.submitButtonLabel}>{t('auth.phone.loginButton')}</Text>
+                          <ArrowRight color="#FFFFFF" width={16} height={16} />
+                        </View>
+                      )}
+                </Pressable>
+              </View>
             )}
-          />
-        </View>
 
         {showGoogleSignIn
           ? (
@@ -527,5 +617,31 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '800',
     textAlign: 'center',
+  },
+  modeTab: {
+    alignItems: 'center',
+    flex: 1,
+    paddingVertical: 10,
+  },
+  modeTabActive: {
+    borderBottomColor: '#2563EB',
+    borderBottomWidth: 2,
+  },
+  modeTabLabel: {
+    color: '#94A3B8',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  modeTabLabelActive: {
+    color: '#2563EB',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  modeToggle: {
+    borderBottomColor: '#E2E8F0',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    marginBottom: 20,
+    marginTop: 16,
   },
 });

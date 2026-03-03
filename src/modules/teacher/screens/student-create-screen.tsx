@@ -4,7 +4,7 @@
  * (assign to session / share code / done).
  */
 
-import type { StudentFormValues } from '../validators';
+import type { CreateStudentFormValues } from '../validators';
 import * as Burnt from 'burnt';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -18,12 +18,17 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, Modal, Text, useModal } from '@/components/ui';
+import { Button, Input, Modal, PhoneField, Text, useModal } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
+import {
+  buildE164Phone,
+  DEFAULT_COUNTRY_CODE,
+  getPhoneValidationErrorKey,
+} from '@/shared/utils/phone';
 import { ScreenHeader } from '../components';
 import { useStudentCrud } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
-import { studentSchema } from '../validators';
+import { createStudentSchema } from '../validators';
 
 /** Student creation form fields */
 function StudentForm({
@@ -31,12 +36,20 @@ function StudentForm({
   errors,
   isSubmitting,
   onFieldChange,
+  parentCountryCode,
+  parentLocalNumber,
+  onParentCountryCodeChange,
+  onParentLocalNumberChange,
   onSubmit,
 }: {
-  formData: StudentFormValues;
+  formData: CreateStudentFormValues;
   errors: Record<string, string>;
   isSubmitting: boolean;
-  onFieldChange: (field: keyof StudentFormValues) => (value: string) => void;
+  onFieldChange: (field: keyof CreateStudentFormValues) => (value: string) => void;
+  parentCountryCode: string;
+  parentLocalNumber: string;
+  onParentCountryCodeChange: (value: string) => void;
+  onParentLocalNumberChange: (value: string) => void;
   onSubmit: () => void;
 }) {
   const { t } = useTranslation();
@@ -64,6 +77,18 @@ function StudentForm({
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(160).duration(350)} style={styles.formGroup}>
+        <PhoneField
+          label={t('teacher.students.form.parentPhoneLabel')}
+          countryCode={parentCountryCode}
+          localNumber={parentLocalNumber}
+          onCountryCodeChange={onParentCountryCodeChange}
+          onLocalNumberChange={onParentLocalNumberChange}
+          error={errors.parentPhone}
+          testIDPrefix="student-parent-phone"
+        />
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(240).duration(350)} style={styles.formGroup}>
         <Text style={styles.label}>{t('teacher.students.form.notesLabel')}</Text>
         <Input
           placeholder={t('teacher.students.form.notesPlaceholder')}
@@ -77,7 +102,7 @@ function StudentForm({
 
       {errors.form ? <Text style={styles.formError}>{errors.form}</Text> : null}
 
-      <Animated.View entering={FadeInDown.delay(240).duration(350)}>
+      <Animated.View entering={FadeInDown.delay(320).duration(350)}>
         <Button
           label={isSubmitting ? t('teacher.students.submitting') : t('teacher.students.createButton')}
           onPress={onSubmit}
@@ -115,31 +140,68 @@ function NextStepSheet({
   );
 }
 
+// eslint-disable-next-line max-lines-per-function
 export function StudentCreateScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { createStudent, isSubmitting } = useStudentCrud();
   const nextStepModal = useModal();
 
-  const [formData, setFormData] = useState<StudentFormValues>({
+  const [formData, setFormData] = useState<CreateStudentFormValues>({
     name: '',
     gradeLevel: '',
     notes: '',
+    parentPhone: '',
   });
+  const [parentCountryCode, setParentCountryCode] = useState(DEFAULT_COUNTRY_CODE);
+  const [parentLocalNumber, setParentLocalNumber] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [createdStudentId, setCreatedStudentId] = useState<string | null>(null);
 
-  const handleFieldChange = (field: keyof StudentFormValues) => (value: string) => {
+  const handleFieldChange = (field: keyof CreateStudentFormValues) => (value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
+  const handleParentCountryCodeChange = (value: string) => {
+    setParentCountryCode(value);
+    const composedPhone = buildE164Phone(value, parentLocalNumber);
+    setFormData(prev => ({ ...prev, parentPhone: composedPhone ?? '' }));
+    if (errors.parentPhone) {
+      setErrors(prev => ({ ...prev, parentPhone: '' }));
+    }
+  };
+
+  const handleParentLocalNumberChange = (value: string) => {
+    setParentLocalNumber(value);
+    const composedPhone = buildE164Phone(parentCountryCode, value);
+    setFormData(prev => ({ ...prev, parentPhone: composedPhone ?? '' }));
+    if (errors.parentPhone) {
+      setErrors(prev => ({ ...prev, parentPhone: '' }));
+    }
+  };
+
   const handleSubmit = async () => {
     try {
-      studentSchema.parse(formData);
-      const student = await createStudent(formData);
+      const normalizedParentPhone = buildE164Phone(parentCountryCode, parentLocalNumber);
+      if (!parentLocalNumber.trim()) {
+        setErrors({ parentPhone: t('teacher.students.form.validation.parentPhoneRequired') });
+        return;
+      }
+      if (!normalizedParentPhone) {
+        setErrors({ parentPhone: t(getPhoneValidationErrorKey(parentCountryCode)) });
+        return;
+      }
+
+      const payload = {
+        ...formData,
+        parentPhone: normalizedParentPhone,
+      };
+
+      createStudentSchema.parse(payload);
+      const student = await createStudent(payload);
       setCreatedStudentId(student.id);
       Burnt.toast({ title: t('teacher.students.createdFlowTitle'), preset: 'done', haptic: 'success' });
       nextStepModal.present();
@@ -149,7 +211,7 @@ export function StudentCreateScreen() {
         const validationErrors: Record<string, string> = {};
         (error as { issues: { path: string[]; message: string }[] }).issues.forEach((issue) => {
           if (issue.path[0]) {
-            validationErrors[issue.path[0]] = issue.message;
+            validationErrors[issue.path[0]] = t(issue.message);
           }
         });
         setErrors(validationErrors);
@@ -199,6 +261,10 @@ export function StudentCreateScreen() {
             errors={errors}
             isSubmitting={isSubmitting}
             onFieldChange={handleFieldChange}
+            parentCountryCode={parentCountryCode}
+            parentLocalNumber={parentLocalNumber}
+            onParentCountryCodeChange={handleParentCountryCodeChange}
+            onParentLocalNumberChange={handleParentLocalNumberChange}
             onSubmit={handleSubmit}
           />
         </ScrollView>

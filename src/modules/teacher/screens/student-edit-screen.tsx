@@ -27,13 +27,14 @@ import { getStudent } from '../services';
 import { studentSchema } from '../validators';
 
 type FormErrors = Record<string, string>;
+type Translator = (key: string) => string;
 
-function parseZodErrors(error: unknown): FormErrors {
+function parseZodErrors(error: unknown, t: Translator): FormErrors {
   if (error && typeof error === 'object' && 'issues' in error) {
     const ve: FormErrors = {};
     (error as { issues: { path: string[]; message: string }[] }).issues.forEach((issue) => {
       if (issue.path[0]) {
-        ve[issue.path[0]] = issue.message;
+        ve[issue.path[0]] = t(issue.message);
       }
     });
     return ve;
@@ -96,7 +97,7 @@ function useStudentEditState(id: string) {
       router.back();
     }
     catch (error) {
-      const ve = parseZodErrors(error);
+      const ve = parseZodErrors(error, t);
       setErrors(Object.keys(ve).length
         ? ve
         : { form: error instanceof Error ? error.message : t('teacher.common.genericError') });

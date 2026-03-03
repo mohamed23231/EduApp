@@ -75,6 +75,7 @@ export type CreateStudentInput = {
   name: string;
   gradeLevel?: string;
   notes?: string;
+  parentPhone: string;
 };
 
 export type UpdateStudentInput = {

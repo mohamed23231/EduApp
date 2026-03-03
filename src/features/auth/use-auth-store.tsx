@@ -18,6 +18,7 @@ export type OnboardingContext = {
   role?: 'TEACHER' | 'PARENT';
   email: string;
   fullName?: string;
+  phone?: string;
 };
 
 export type DraftData = {

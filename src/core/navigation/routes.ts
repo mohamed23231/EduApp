@@ -3,6 +3,7 @@ export const AppRoute = {
     login: '/login',
     signup: '/signup',
     onboarding: '/onboarding',
+    resetPassword: '/reset-password',
   },
   parent: {
     dashboard: '/(parent)/(tabs)/dashboard',

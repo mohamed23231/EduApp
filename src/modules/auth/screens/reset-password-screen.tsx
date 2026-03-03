@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PhoneResetPasswordForm } from '../components/phone-reset-password-form';
+import { usePhoneResetPasswordConfirm, usePhoneResetPasswordRequest } from '../hooks/use-phone-reset-password';
 import { googleAuthService } from '../services/google-auth.service';
 
 export type ResetTokenData
@@ -46,6 +48,10 @@ export function ResetPasswordScreen({ tokenData }: ResetPasswordScreenProps) {
   const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [resetMode, setResetMode] = useState<'email' | 'phone'>(tokenData ? 'email' : 'phone');
+  const { mutateAsync: requestReset, isPending: isRequestPending } = usePhoneResetPasswordRequest();
+  const { mutateAsync: confirmReset, isPending: isConfirmPending } = usePhoneResetPasswordConfirm();
+  const [phoneResetSuccess, setPhoneResetSuccess] = useState(false);
 
   const handleReset = async () => {
     setError(null);
@@ -82,6 +88,19 @@ export function ResetPasswordScreen({ tokenData }: ResetPasswordScreenProps) {
     }
   };
 
+  if (phoneResetSuccess) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centered}>
+          <Text style={styles.successText}>{t('auth.reset_password.success')}</Text>
+          <Pressable style={styles.button} onPress={() => router.replace('/login' as any)}>
+            <Text style={styles.buttonText}>{t('auth.login.submit')}</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (success) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -95,15 +114,44 @@ export function ResetPasswordScreen({ tokenData }: ResetPasswordScreenProps) {
     );
   }
 
-  if (!tokenData) {
+  if (!tokenData || resetMode === 'phone') {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.centered}>
-          <Text style={styles.errorText}>{t('auth.reset_password.expiredToken')}</Text>
-          <Pressable style={styles.button} onPress={() => router.replace('/login' as any)}>
-            <Text style={styles.buttonText}>{t('auth.login.submit')}</Text>
-          </Pressable>
-        </View>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.content}>
+              <Text style={styles.title}>{t('auth.reset_password.title')}</Text>
+              <Text style={styles.subtitle}>{t('auth.phone.resetSubtitle')}</Text>
+
+              {tokenData
+                ? (
+                    <Pressable onPress={() => setResetMode('email')} style={styles.switchModeLink}>
+                      <Text style={styles.switchModeLinkText}>{t('auth.reset_password.useEmailLink')}</Text>
+                    </Pressable>
+                  )
+                : null}
+
+              <PhoneResetPasswordForm
+                onRequest={async (data) => {
+                  await requestReset(data);
+                }}
+                onConfirm={async (data) => {
+                  await confirmReset(data);
+                  setPhoneResetSuccess(true);
+                }}
+                isSubmitting={isRequestPending || isConfirmPending}
+                error={error}
+              />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   }
@@ -180,5 +228,7 @@ const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1 },
   subtitle: { color: '#6B7280', fontSize: 14, marginBottom: 32, marginTop: 8 },
   successText: { color: '#16A34A', fontSize: 16, marginBottom: 24, textAlign: 'center' },
+  switchModeLink: { alignItems: 'center', marginBottom: 16 },
+  switchModeLinkText: { color: '#2563EB', fontSize: 14, fontWeight: '600' },
   title: { color: '#0F172A', fontSize: 24, fontWeight: '700', marginTop: 24 },
 });

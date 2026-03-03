@@ -7,6 +7,17 @@ export type PhoneOtpRequestParams = {
   purpose: PhoneOtpPurpose;
 };
 
+export type PhoneSignupVerifyParams = {
+  phone: string;
+  otp: string;
+};
+
+export type PhoneSignupVerifyResponse = {
+  canContinue: boolean;
+  accountExists: boolean;
+  existingRole?: UserRole;
+};
+
 export type PhoneSignupParams = {
   phone: string;
   otp: string;
@@ -46,11 +57,18 @@ export type ParentInviteAcceptParams = {
 export type PhoneAuthResponse = {
   accessToken: string;
   refreshToken: string;
+  userId?: string;
+  email?: string | null;
+  role?: UserRole;
+  fullName?: string;
+  authProviderId?: string;
+  phoneE164?: string | null;
   user?: {
     id: string;
     email: string | null;
     role: UserRole;
     fullName?: string;
+    phoneE164?: string | null;
   };
   onboardingRequired?: boolean;
   onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
@@ -64,6 +82,7 @@ export type PhoneLoginResponse = {
     email: string | null;
     role: UserRole;
     fullName?: string;
+    phoneE164?: string | null;
   };
   onboardingRequired: false;
 };
@@ -76,6 +95,7 @@ export type PhoneLoginResponseOnboarding = {
     email: string | null;
     role: UserRole;
     fullName?: string;
+    phoneE164?: string | null;
   } | null;
   onboardingRequired: true;
   onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';

@@ -31,17 +31,37 @@ export function isApiError(error: unknown): error is AxiosError<ApiErrorEnvelope
 /**
  * Extract a user-friendly error message from an API error.
  * Falls back to the provided default message.
+ *
+ * @param codeTranslator - Optional function to translate `AUTH_*` error codes.
+ *   Pass `(code) => t(\`auth.errors.${code}\`, { defaultValue: '' })` at call sites.
  */
-export function getApiErrorMessage(error: unknown, fallback = 'Something went wrong'): string {
+export function getApiErrorMessage(
+  error: unknown,
+  fallback = 'Something went wrong',
+  codeTranslator?: (code: string) => string,
+): string {
   if (!isApiError(error)) {
     return error instanceof Error ? error.message : fallback;
   }
 
   const data = error.response?.data;
 
-  // Backend envelope format
-  if (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string' && data.message.trim().length > 0) {
-    return data.message;
+  if (data && typeof data === 'object') {
+    // Translate known backend error codes (AUTH_* codes → i18n keys)
+    if (codeTranslator && 'code' in data && typeof (data as Record<string, unknown>).code === 'string') {
+      const translated = codeTranslator((data as Record<string, unknown>).code as string);
+      if (translated && translated.trim().length > 0) {
+        return translated;
+      }
+    }
+
+    // Backend envelope format: use message field
+    if ('message' in data && typeof (data as Record<string, unknown>).message === 'string') {
+      const msg = ((data as Record<string, unknown>).message as string).trim();
+      if (msg.length > 0) {
+        return msg;
+      }
+    }
   }
 
   // No response = network error

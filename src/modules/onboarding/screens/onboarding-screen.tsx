@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { PhoneField } from '@/components/ui';
 
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
@@ -21,13 +22,25 @@ import {
   clearDraftData,
   clearOnboardingContext,
   getDraftData,
+  setOnboardingContext as persistOnboardingContext,
   setDraftData,
   signIn,
   useAuthStore,
 } from '@/features/auth/use-auth-store';
 import { getToken } from '@/lib/auth/utils';
-import { createProfile, refreshToken, validateToken } from '@/modules/auth/services';
+import {
+  createProfile,
+  getOnboardingContext as fetchOnboardingContext,
+  refreshToken,
+  validateToken,
+} from '@/modules/auth/services';
 import { getApiErrorMessage, isApiError } from '@/shared/services/api-utils';
+import {
+  buildE164Phone,
+  DEFAULT_COUNTRY_CODE,
+  getPhoneValidationErrorKey,
+  splitE164Phone,
+} from '@/shared/utils/phone';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -102,20 +115,82 @@ export function OnboardingScreen() {
   const isRTL = i18n.language === 'ar';
 
   const onboardingContext = useAuthStore.use.onboardingContext();
+  const knownPhone = React.useMemo(() => {
+    const value = onboardingContext?.phone?.trim();
+    return value && value.length > 0 ? value : null;
+  }, [onboardingContext?.phone]);
 
   // ─── Form state ─────────────────────────────────────────────────────────────
 
   const [fullName, setFullName] = React.useState(onboardingContext?.fullName ?? '');
-  const initialDraft = React.useMemo(() => getDraftData(), []);
-  const [phone, setPhone] = React.useState(initialDraft?.phone ?? '');
+  const initialDraft = React.useMemo(() => (knownPhone ? null : getDraftData()), [knownPhone]);
+  const initialPhone = React.useMemo(
+    () => splitE164Phone(initialDraft?.phone),
+    [initialDraft?.phone],
+  );
+  const [phoneCountryCode, setPhoneCountryCode] = React.useState(initialPhone.countryCode ?? DEFAULT_COUNTRY_CODE);
+  const [phoneLocalNumber, setPhoneLocalNumber] = React.useState(initialPhone.localNumber);
   const [selectedRole, setSelectedRole] = React.useState<Role | null>(
     (onboardingContext?.role as Role | undefined) ?? null,
   );
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isResolvingKnownPhone, setIsResolvingKnownPhone] = React.useState(!knownPhone);
 
   // Show role selector only when role is missing from onboardingContext
   const showRoleSelector = !onboardingContext?.role;
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateKnownPhone() {
+      if (knownPhone || !onboardingContext) {
+        if (!cancelled) {
+          setIsResolvingKnownPhone(false);
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setIsResolvingKnownPhone(true);
+      }
+
+      try {
+        const remoteContext = await fetchOnboardingContext();
+        const remotePhone = remoteContext.phoneE164?.trim();
+        if (!remotePhone) {
+          return;
+        }
+
+        persistOnboardingContext({
+          email: onboardingContext.email || remoteContext.email || '',
+          role: onboardingContext.role ?? (remoteContext.role as 'TEACHER' | 'PARENT' | undefined),
+          fullName: onboardingContext.fullName ?? remoteContext.fullName,
+          phone: remotePhone,
+        });
+      }
+      catch {
+        // Best-effort hydration for stale onboarding_context entries.
+      }
+      finally {
+        if (!cancelled) {
+          setIsResolvingKnownPhone(false);
+        }
+      }
+    }
+
+    void hydrateKnownPhone();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    knownPhone,
+    onboardingContext?.email,
+    onboardingContext?.fullName,
+    onboardingContext?.phone,
+    onboardingContext?.role,
+  ]);
 
   // ─── Token expiry check + refresh ────────────────────────────────────────────
 
@@ -152,6 +227,9 @@ export function OnboardingScreen() {
     setErrorMsg(null);
 
     const role: Role | null = (onboardingContext?.role as Role | undefined) ?? selectedRole;
+    const enteredPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
+    const normalizedPhone = knownPhone ?? enteredPhone;
+    const hasPhoneInput = !knownPhone && phoneLocalNumber.trim().length > 0;
 
     if (!role) {
       setErrorMsg(t('auth.onboarding.genericError'));
@@ -163,6 +241,11 @@ export function OnboardingScreen() {
       return;
     }
 
+    if (hasPhoneInput && !enteredPhone) {
+      setErrorMsg(t(getPhoneValidationErrorKey(phoneCountryCode)));
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -171,7 +254,7 @@ export function OnboardingScreen() {
 
       // 2. Call profile endpoint
       try {
-        await createProfile(role, { name: fullName.trim(), phone: phone.trim() || undefined });
+        await createProfile(role, { name: fullName.trim(), phone: normalizedPhone ?? undefined });
       }
       catch (error) {
         // If profile already exists, treat onboarding as already completed and continue.
@@ -197,7 +280,9 @@ export function OnboardingScreen() {
     }
     catch (error) {
       // Save draft data on failure
-      setDraftData({ phone: phone.trim() || undefined });
+      if (!knownPhone) {
+        setDraftData({ phone: enteredPhone ?? undefined });
+      }
 
       const msg = getApiErrorMessage(error, t('auth.onboarding.genericError'));
       setErrorMsg(msg);
@@ -283,20 +368,18 @@ export function OnboardingScreen() {
             </View>
 
             {/* Phone Number */}
-            <View style={styles.formBlock}>
-              <Text style={styles.label}>{t('auth.onboarding.phoneLabel')}</Text>
-              <TextInput
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-                autoCorrect={false}
-                placeholder={t('auth.onboarding.phonePlaceholder')}
-                placeholderTextColor="#94A3B8"
-                testID="phone-input"
-                textAlign={isRTL ? 'right' : 'left'}
-                style={[styles.input, isRTL && styles.inputRTL]}
-              />
-            </View>
+            {!knownPhone && !isResolvingKnownPhone && (
+              <View style={styles.formBlock}>
+                <PhoneField
+                  label={t('auth.onboarding.phoneLabel')}
+                  countryCode={phoneCountryCode}
+                  localNumber={phoneLocalNumber}
+                  onCountryCodeChange={setPhoneCountryCode}
+                  onLocalNumberChange={setPhoneLocalNumber}
+                  testIDPrefix="onboarding-phone"
+                />
+              </View>
+            )}
 
             {/* Submit Button */}
             <Pressable

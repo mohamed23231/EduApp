@@ -1,13 +1,37 @@
 {
   "auth": {
+    "common": {
+      "optional": "اختياري"
+    },
+    "errors": {
+      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "بريدك الإلكتروني في جوجل غير مُتحقق منه. يرجى التحقق منه والمحاولة مرة أخرى.",
+      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى."
+    },
+    "invite": {
+      "acceptButton": "تفعيل الحساب",
+      "acceptError": "تعذر تفعيل الحساب. يرجى المحاولة مرة أخرى.",
+      "alreadyOnboarded": "تم استخدام هذه الدعوة مسبقًا. يرجى تسجيل الدخول.",
+      "errorTitle": "خطأ في الدعوة",
+      "expired": "انتهت صلاحية هذه الدعوة.",
+      "fullNameLabel": "الاسم الكامل (اختياري)",
+      "invalid": "هذه الدعوة غير صالحة.",
+      "invalidToken": "رمز الدعوة مفقود أو غير صالح.",
+      "passwordLabel": "كلمة المرور",
+      "subtitle": "أنشئ كلمة المرور لتفعيل حسابك.",
+      "title": "دعوة ولي الأمر",
+      "validating": "جارٍ التحقق من الدعوة...",
+      "validationError": "تعذر التحقق من الدعوة الآن."
+    },
     "login": {
       "createAccount": "إنشاء حساب",
       "dontHaveAccount": "ليس لديك حساب؟",
       "emailLabel": "البريد الإلكتروني",
+      "emailTab": "البريد الإلكتروني",
       "forgotPassword": "نسيت كلمة المرور؟",
       "genericError": "تعذر تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقاً.",
       "orConnectWith": "أو الاتصال عبر",
       "passwordLabel": "كلمة المرور",
+      "phoneTab": "الهاتف",
       "protectedBy": "محمي بواسطة أمان Privat Edu",
       "signInWithGoogle": "تسجيل الدخول عبر Google",
       "submit": "تسجيل الدخول",
@@ -28,30 +52,56 @@
       "submit": "إكمال الإعداد",
       "title": "أكمل ملفك الشخصي"
     },
-    "reset_password": {
-      "title": "إعادة تعيين كلمة المرور",
-      "subtitle": "أنشئ كلمة مرور جديدة لتأمين حسابك.",
-      "passwordRequired": "يرجى إدخال كلمة المرور الجديدة وتأكيدها.",
-      "passwordMismatch": "كلمتا المرور غير متطابقتين.",
-      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+    "phone": {
+      "countries": {
+        "eg": "مصر ({{dialCode}})",
+        "sa": "السعودية ({{dialCode}})"
+      },
+      "countryCodeLabel": "الدولة",
+      "emailLabel": "البريد الإلكتروني",
+      "fullNameLabel": "الاسم الكامل",
+      "loginButton": "تسجيل الدخول بالهاتف",
       "newPasswordLabel": "كلمة المرور الجديدة",
-      "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
+      "otpLabel": "رمز التحقق",
+      "otpSentHint": "تم إرسال رمز التحقق إلى {{phone}}",
+      "passwordLabel": "كلمة المرور",
+      "phoneLabel": "رقم الهاتف",
+      "requestOtp": "إرسال رمز التحقق",
+      "resendOtp": "إعادة إرسال الرمز",
+      "resetPasswordButton": "إعادة تعيين كلمة المرور",
+      "resetSubtitle": "أعد تعيين كلمة المرور باستخدام رقم الهاتف ورمز التحقق.",
+      "signupButton": "إنشاء حساب",
+      "signupExistingAccount": "رقم الهاتف هذا لديه حساب بالفعل. يرجى تسجيل الدخول بدلاً من ذلك.",
+      "signupFlowHint": "أولاً تحقق من رقم الهاتف، ثم اختر الدور وأكمل بيانات الملف الشخصي.",
+      "validation": {
+        "egyptInvalid": "أدخل رقم هاتف مصري صحيح",
+        "saudiInvalid": "أدخل رقم جوال سعودي صحيح"
+      },
+      "verifyOtp": "تأكيد الرمز"
+    },
+    "reset_password": {
       "confirmPasswordLabel": "تأكيد كلمة المرور",
       "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور الجديدة",
-      "submit": "تحديث كلمة المرور",
-      "success": "تم تحديث كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.",
       "error": "تعذر إعادة تعيين كلمة المرور. يرجى طلب بريد إعادة تعيين جديد.",
       "expiredToken": "انتهت صلاحية رابط إعادة التعيين. يرجى طلب رابط جديد.",
-      "resendEmail": "طلب بريد إعادة تعيين جديد"
-    },
-    "errors": {
-      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى.",
-      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "بريدك الإلكتروني في جوجل غير مُتحقق منه. يرجى التحقق منه والمحاولة مرة أخرى."
+      "newPasswordLabel": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+      "passwordRequired": "يرجى إدخال كلمة المرور الجديدة وتأكيدها.",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      "resendEmail": "طلب بريد إعادة تعيين جديد",
+      "submit": "تحديث كلمة المرور",
+      "subtitle": "أنشئ كلمة مرور جديدة لتأمين حسابك.",
+      "success": "تم تحديث كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.",
+      "title": "إعادة تعيين كلمة المرور",
+      "useEmailLink": "استخدام رابط البريد الإلكتروني بدلًا من ذلك"
     },
     "signup": {
       "alreadyHaveAccount": "لديك حساب بالفعل؟",
       "consent": "بالنقر على إنشاء حساب، فإنك توافق على {{terms}} و{{privacy}}",
+      "continueWithGoogle": "المتابعة عبر Google",
       "emailLabel": "البريد الإلكتروني",
+      "emailTab": "البريد الإلكتروني",
       "fullNameLabel": "الاسم الكامل",
       "fullNamePlaceholder": "أدخل اسمك الكامل",
       "genericError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
@@ -59,8 +109,8 @@
       "orConnectWith": "أو الاتصال عبر",
       "parentLabel": "ولي أمر",
       "passwordLabel": "كلمة المرور",
+      "phoneTab": "الهاتف",
       "roleLabel": "أنا...",
-      "continueWithGoogle": "المتابعة عبر Google",
       "signUpWithGoogle": "إنشاء حساب عبر Google",
       "submit": "إنشاء حساب",
       "teacherLabel": "معلم",
@@ -174,6 +224,8 @@
       "languageLabel": "اللغة",
       "logoutButton": "تسجيل الخروج",
       "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "phoneAccount": "حساب هاتف",
+      "phoneLabel": "الهاتف",
       "roleLabel": "الدور",
       "roleParent": "ولي أمر",
       "title": "الملف الشخصي"
@@ -341,6 +393,8 @@
       "languageLabel": "اللغة",
       "logoutButton": "تسجيل الخروج",
       "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "phoneAccount": "حساب هاتف",
+      "phoneLabel": "الهاتف",
       "roleLabel": "الدور",
       "roleTeacher": "معلم",
       "status": {
@@ -523,8 +577,12 @@
         "namePlaceholder": "أدخل اسم الطالب",
         "notesLabel": "ملاحظات (اختيارية)",
         "notesPlaceholder": "أضف أي ملاحظات إضافية",
+        "parentPhoneLabel": "رقم هاتف ولي الأمر",
+        "parentPhonePlaceholder": "أدخل رقم هاتف ولي الأمر",
         "validation": {
-          "nameRequired": "اسم الطالب مطلوب"
+          "nameRequired": "اسم الطالب مطلوب",
+          "parentPhoneInvalid": "يرجى إدخال رقم هاتف صحيح مع مفتاح الدولة",
+          "parentPhoneRequired": "رقم هاتف ولي الأمر مطلوب"
         }
       },
       "noConnectionCode": "لم يتم إنشاء رمز وصول حتى الآن",
@@ -543,7 +601,12 @@
       "totalCount_one": "طالب واحد",
       "totalCount_other": "{{count}} طالب",
       "totalCount_two": "طالبان",
-      "updating": "جاري التحديث..."
+      "updating": "جاري التحديث...",
+      "validation": {
+        "nameRequired": "اسم الطالب مطلوب",
+        "parentPhoneInvalid": "يرجى إدخال رقم هاتف صحيح مع مفتاح الدولة",
+        "parentPhoneRequired": "رقم هاتف ولي الأمر مطلوب"
+      }
     },
     "tabs": {
       "dashboard": "الرئيسية",

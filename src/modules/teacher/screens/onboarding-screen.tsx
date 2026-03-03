@@ -9,17 +9,17 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, {
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, Text } from '@/components/ui';
+import { Button, Input, PhoneField, Text } from '@/components/ui';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { getToken, isTokenExpiringWithin } from '@/lib/auth/utils';
 import { refreshToken } from '@/modules/auth/services';
+import {
+  buildE164Phone,
+  DEFAULT_COUNTRY_CODE,
+  getPhoneValidationErrorKey,
+} from '@/shared/utils/phone';
 import { createTeacherProfile, getTeacherIdHash, trackOnboardingCompleted } from '../services';
 import { getErrorDetails, logError } from '../services/logger';
 import { teacherOnboardingSchema } from '../validators';
@@ -43,12 +43,20 @@ function OnboardingForm({
   errors,
   isSubmitting,
   onFieldChange,
+  phoneCountryCode,
+  phoneLocalNumber,
+  onPhoneCountryCodeChange,
+  onPhoneLocalNumberChange,
   onSubmit,
 }: {
   formData: TeacherOnboardingFormValues;
   errors: Record<string, string>;
   isSubmitting: boolean;
   onFieldChange: (field: keyof TeacherOnboardingFormValues) => (value: any) => void;
+  phoneCountryCode: string;
+  phoneLocalNumber: string;
+  onPhoneCountryCodeChange: (value: string) => void;
+  onPhoneLocalNumberChange: (value: string) => void;
   onSubmit: () => void;
 }) {
   const { t } = useTranslation();
@@ -66,13 +74,14 @@ function OnboardingForm({
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(300).duration(400)} style={styles.formGroup}>
-        <Text style={styles.label}>{t('teacher.onboarding.phoneLabel')}</Text>
-        <Input
-          placeholder={t('teacher.onboarding.phonePlaceholder')}
-          value={formData.phone}
-          onChangeText={onFieldChange('phone')}
+        <PhoneField
+          label={t('teacher.onboarding.phoneLabel')}
+          countryCode={phoneCountryCode}
+          localNumber={phoneLocalNumber}
+          onCountryCodeChange={onPhoneCountryCodeChange}
+          onLocalNumberChange={onPhoneLocalNumberChange}
           error={errors.phone}
-          keyboardType="phone-pad"
+          testIDPrefix="teacher-onboarding-phone"
         />
       </Animated.View>
 
@@ -91,6 +100,7 @@ function OnboardingForm({
   );
 }
 
+// eslint-disable-next-line max-lines-per-function
 export function OnboardingScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -101,6 +111,8 @@ export function OnboardingScreen() {
     name: onboardingContext?.fullName || '',
     phone: '',
   });
+  const [phoneCountryCode, setPhoneCountryCode] = useState(DEFAULT_COUNTRY_CODE);
+  const [phoneLocalNumber, setPhoneLocalNumber] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -111,10 +123,43 @@ export function OnboardingScreen() {
     }
   };
 
+  const handlePhoneCountryCodeChange = (value: string) => {
+    setPhoneCountryCode(value);
+    const composedPhone = buildE164Phone(value, phoneLocalNumber);
+    setFormData(prev => ({ ...prev, phone: composedPhone ?? '' }));
+    if (errors.phone) {
+      setErrors(prev => ({ ...prev, phone: '' }));
+    }
+  };
+
+  const handlePhoneLocalNumberChange = (value: string) => {
+    setPhoneLocalNumber(value);
+    const composedPhone = buildE164Phone(phoneCountryCode, value);
+    setFormData(prev => ({ ...prev, phone: composedPhone ?? '' }));
+    if (errors.phone) {
+      setErrors(prev => ({ ...prev, phone: '' }));
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      teacherOnboardingSchema.parse(formData);
+      const normalizedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
+      const hasPhoneInput = phoneLocalNumber.trim().length > 0;
+      if (hasPhoneInput && !normalizedPhone) {
+        setErrors(prev => ({
+          ...prev,
+          phone: getPhoneValidationErrorKey(phoneCountryCode),
+        }));
+        return;
+      }
+
+      const payload = {
+        ...formData,
+        phone: normalizedPhone ?? '',
+      };
+
+      teacherOnboardingSchema.parse(payload);
 
       // Preemptive token refresh
       const token = getToken();
@@ -129,7 +174,10 @@ export function OnboardingScreen() {
         }
       }
 
-      await createTeacherProfile({ name: formData.name, phone: formData.phone });
+      await createTeacherProfile({
+        name: payload.name,
+        phone: payload.phone || undefined,
+      });
       if (user?.id)
         trackOnboardingCompleted(getTeacherIdHash(user.id));
       router.replace('/(teacher)/dashboard' as any);
@@ -173,6 +221,10 @@ export function OnboardingScreen() {
             errors={errors}
             isSubmitting={isSubmitting}
             onFieldChange={handleFieldChange}
+            phoneCountryCode={phoneCountryCode}
+            phoneLocalNumber={phoneLocalNumber}
+            onPhoneCountryCodeChange={handlePhoneCountryCodeChange}
+            onPhoneLocalNumberChange={handlePhoneLocalNumberChange}
             onSubmit={handleSubmit}
           />
         </ScrollView>

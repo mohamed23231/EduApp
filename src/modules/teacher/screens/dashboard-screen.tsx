@@ -8,7 +8,7 @@ import type { SessionInstance } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MotiView } from 'moti';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -21,10 +21,37 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore } from '@/features/auth/use-auth-store';
+import { validateToken } from '@/modules/auth/services';
 import { ConfirmSheet, DashboardSkeleton, EmptyState, SessionCard } from '../components';
 import { useTodaySessions } from '../hooks';
 import { useSessionActions } from '../hooks/use-session-actions';
 import { useTeacherStore } from '../store/use-teacher-store';
+
+const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';
+
+function isGeneratedPhoneEmail(email: string | undefined): boolean {
+  return !!email && email.toLowerCase().endsWith(GENERATED_PHONE_EMAIL_DOMAIN);
+}
+
+function getDashboardFirstName(
+  fullName: string | undefined,
+  email: string | undefined,
+  t: (key: string) => string,
+): string {
+  if (fullName?.trim()) {
+    const [firstPart] = fullName.trim().split(/\s+/);
+    return firstPart || fullName.trim();
+  }
+
+  if (email && !isGeneratedPhoneEmail(email)) {
+    const [localPart] = email.split('@');
+    if (localPart) {
+      return localPart;
+    }
+  }
+
+  return t('teacher.profile.roleTeacher');
+}
 
 function getGreeting(t: (key: string) => string) {
   const hour = new Date().getHours();
@@ -33,6 +60,57 @@ function getGreeting(t: (key: string) => string) {
   if (hour < 17)
     return t('teacher.dashboard.goodAfternoon');
   return t('teacher.dashboard.goodEvening');
+}
+
+function useHydrateTeacherName(user: ReturnType<typeof useAuthStore.use.user>) {
+  const token = useAuthStore.use.token();
+  const signIn = useAuthStore.use.signIn();
+  const hasAttemptedHydrationRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateMissingName() {
+      if (!user || !token) {
+        hasAttemptedHydrationRef.current = false;
+        return;
+      }
+
+      if (user.fullName?.trim()) {
+        hasAttemptedHydrationRef.current = false;
+        return;
+      }
+
+      if (hasAttemptedHydrationRef.current) {
+        return;
+      }
+      hasAttemptedHydrationRef.current = true;
+
+      try {
+        const validatedUser = await validateToken();
+        if (cancelled || !validatedUser.fullName?.trim()) {
+          return;
+        }
+
+        signIn({
+          token,
+          user: {
+            ...user,
+            ...validatedUser,
+          },
+        });
+      }
+      catch {
+        // Best-effort hydration for sessions created before fullName was persisted.
+      }
+    }
+
+    void hydrateMissingName();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [signIn, token, user]);
 }
 
 function DashboardHero({
@@ -228,6 +306,8 @@ export function DashboardScreen() {
     }, [refetchSessions]),
   );
 
+  useHydrateTeacherName(user);
+
   const renderItem = useCallback(
     ({ item, index }: { item: SessionInstance; index: number }) => (
       <MotiView
@@ -248,7 +328,7 @@ export function DashboardScreen() {
     [handleStartSession, handleMarkAttendance, handleEndSessionRequest, isStartingId, isEndingId],
   );
 
-  const firstName = user?.email?.split('@')[0] ?? t('teacher.dashboard.title');
+  const firstName = getDashboardFirstName(user?.fullName, user?.email, t);
   const activeCount = todaySessions.filter(s => s.state === 'ACTIVE').length;
   const isInitialLoad = isLoadingSessions && !hasLoaded;
 

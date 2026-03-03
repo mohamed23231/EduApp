@@ -14,12 +14,15 @@ export type AuthUserType = {
   id: string;
   email: string;
   role: UserRole;
+  fullName?: string;
+  phoneE164?: string | null;
 };
 
 export type OnboardingContext = {
   role?: 'TEACHER' | 'PARENT';
   email: string;
   fullName?: string;
+  phone?: string;
 };
 
 export const getToken = () => getItem<TokenType>(TOKEN);
