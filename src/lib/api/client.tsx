@@ -115,6 +115,13 @@ const AUTH_SKIP_REFRESH_URLS = [
   '/auth/google/signup',
   '/auth/forgot-password',
   '/auth/reset-password/complete',
+  '/auth/phone/otp/request',
+  '/auth/phone/signup',
+  '/auth/phone/login',
+  '/auth/phone/reset-password/request',
+  '/auth/phone/reset-password/confirm',
+  '/auth/parent-invite/validate',
+  '/auth/parent-invite/accept',
 ];
 
 function processQueue(error: unknown, token: string | null = null) {
