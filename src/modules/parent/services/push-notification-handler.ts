@@ -11,7 +11,7 @@ import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
-import { getToken } from '@/lib/auth/utils';
+import { getAuthUser, getToken } from '@/lib/auth/utils';
 import {
   getPushDeviceRegistration,
   PUSH_DEVICE_REFRESH_INTERVAL_MS,
@@ -180,10 +180,13 @@ export async function registerPushToken(): Promise<string | null> {
         })
       ).data;
 
+      const currentParentId = getAuthUser()?.id;
       const existingRegistration = getPushDeviceRegistration();
       const isFreshRegistration
         = existingRegistration?.token === token
           && !!existingRegistration.id
+          && !!currentParentId
+          && existingRegistration.parentId === currentParentId
           && Date.now() - existingRegistration.registeredAt
           < PUSH_DEVICE_REFRESH_INTERVAL_MS;
       if (isFreshRegistration) {
@@ -196,7 +199,7 @@ export async function registerPushToken(): Promise<string | null> {
       for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
         try {
           const device = await notificationsService.registerDevice(token);
-          setPushDeviceRegistration({ id: device.id, token: device.token });
+          setPushDeviceRegistration({ id: device.id, token: device.token, parentId: currentParentId });
           if (__DEV__) {
             console.log('Push token registered:', device.token);
           }

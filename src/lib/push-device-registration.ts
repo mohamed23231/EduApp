@@ -6,6 +6,7 @@ export const PUSH_DEVICE_REFRESH_INTERVAL_MS = 30 * 24 * 60 * 60 * 1000;
 export type PushDeviceRegistration = {
   id: string;
   token: string;
+  parentId?: string;
   registeredAt: number;
 };
 
@@ -23,6 +24,9 @@ export function getPushDeviceRegistration(): PushDeviceRegistration | null {
   return {
     id: raw.id,
     token: raw.token,
+    parentId: typeof (raw as PushDeviceRegistration).parentId === 'string'
+      ? (raw as PushDeviceRegistration).parentId
+      : undefined,
     registeredAt:
       typeof raw.registeredAt === 'number' ? raw.registeredAt : 0,
   };
