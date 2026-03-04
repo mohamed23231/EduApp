@@ -43,6 +43,7 @@ export type DeviceTokenResponse = {
 
 export type RegisterDeviceRequest = {
   token: string;
+  locale?: string;
 };
 
 // ─── API Service ─────────────────────────────────────────────────────────────
@@ -90,10 +91,10 @@ export const notificationsService = {
   /**
    * Register a device token for push notifications
    */
-  registerDevice: async (token: string): Promise<DeviceTokenResponse> => {
+  registerDevice: async (token: string, locale?: string): Promise<DeviceTokenResponse> => {
     const response = await client.post<
             ApiSuccess<DeviceTokenResponse> | DeviceTokenResponse
-    >('/parents/devices', { token } satisfies RegisterDeviceRequest);
+    >('/parents/devices', { token, locale } satisfies RegisterDeviceRequest);
     return unwrapData(response.data);
   },
 

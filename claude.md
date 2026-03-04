@@ -105,16 +105,25 @@ Backend (Railway) → Expo Push Service → FCM (Android) / APNs (iOS) → Devic
 ### Key files
 | File | Purpose |
 |---|---|
-| `modules/parent/services/push-notification-handler.ts` | Token registration, notification listeners, deep link navigation |
+| `modules/parent/services/push-notification-handler.ts` | Token registration (with locale), notification listeners, deep link navigation |
 | `modules/parent/services/notification-deep-link.ts` | Deep link validation (only allows safe `/parent/students/:uuid/attendance` pattern) |
 | `modules/parent/store/use-notification-store.ts` | Notification state, pagination, badge count |
 | `modules/parent/services/notifications.service.ts` | API calls for notifications and device tokens |
 | `modules/parent/components/notification-item.tsx` | Notification card component |
 | `modules/parent/screens/notification-center-screen.tsx` | Notification list screen |
+| `lib/push-device-registration.ts` | MMKV persistence for device token registration (id, token, parentId, locale) |
 
 ### Notification types
 1. **Absence Alert** — student marked absent by teacher
 2. **Low Performance Alert** — student received a low rating
+
+### Locale-aware push notifications
+Push notifications are delivered in the **device's language**, not the account language:
+- `locale` (`'en'` | `'ar'`) is sent with every `POST /parents/devices` call
+- Stored in `device_tokens.locale` on the backend
+- Backend `push.worker.ts` reads `deviceToken.locale` to pick the right title/body from `messages.ts`
+- Locale is also stored in MMKV — if it changes (user switches language → app restarts), the next launch re-registers with the new locale
+- **Do NOT read locale from the parent's User record** — `device_tokens.locale` is the source of truth
 
 ### Firebase setup
 - `google-services.json` lives at the **project root** (NOT in `android/app/`) — Expo copies it during prebuild
@@ -126,9 +135,20 @@ Backend (Railway) → Expo Push Service → FCM (Android) / APNs (iOS) → Devic
 The backend is a **NestJS** app deployed on **Railway** (`tutoring-backend/`).
 
 Key push-related modules:
-- `tutoring-backend/src/modules/push/push.service.ts` — Device token storage, Expo Push API calls
-- `tutoring-backend/src/modules/push/push.worker.ts` — Background job processor with circuit breaker
+- `tutoring-backend/src/modules/push/push.service.ts` — Device token storage (token + locale), Expo Push API calls
+- `tutoring-backend/src/modules/push/push.worker.ts` — Background job processor with circuit breaker; reads `deviceToken.locale` for message language
+- `tutoring-backend/src/modules/push/dto/register-device.dto.ts` — Validates `token` (Expo format) + optional `locale` (`'en'` | `'ar'`)
+- `tutoring-backend/src/common/localization/messages.ts` — EN/AR message strings for push notification content
+- `tutoring-backend/src/database/migrations/` — TypeORM migration files; always create a new migration for schema changes
 - `tutoring-backend/src/modules/parents/parents.service.ts` — Attendance timeline/statistics queries
+
+## Gotchas
+
+- **`AttendanceStats.attendanceRate` is 0–100**, not 0–1. Do NOT multiply by 100.
+- **Dynamic border styles**: mixing NativeWind `border-l-4` with inline `borderLeftColor` breaks on RTL. Use pure inline `style` for all border properties when they depend on runtime values.
+- **Translation keys**: every new user-facing string must be added to **both** `src/translations/en.json` and `src/translations/ar.json`. Always provide a fallback string as the second arg to `t()`.
+- **`Animated.loop`**: always capture the return value and call `.stop()` in the `useEffect` cleanup to prevent memory leaks.
+- **Backend schema changes**: always write a TypeORM migration in `tutoring-backend/src/database/migrations/` — the project does **not** use `synchronize: true`.
 
 ## Essential Rules
 

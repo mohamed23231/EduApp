@@ -141,7 +141,9 @@
   "parent": {
     "attendance": {
       "absent": "غائب",
+      "absentCount": "الغيابات",
       "emptyMessage": "لا توجد سجلات حضور متاحة.",
+      "emptyTitle": "لا توجد سجلات بعد",
       "excused": "معذور",
       "notMarked": "لم يُحدَّد",
       "present": "حاضر",
@@ -150,7 +152,9 @@
       "statusExcused": "معذور",
       "statusNotMarked": "لم يتم تحديده",
       "statusPresent": "حاضر",
-      "title": "الحضور"
+      "studentName": "الطالب",
+      "title": "الحضور",
+      "unknownDate": "تاريخ غير معروف"
     },
     "common": {
       "back": "رجوع",
@@ -194,9 +198,11 @@
         "body": "تم تحديد {{studentName}} كغائب في {{sessionDate}}",
         "title": "تنبيه غياب"
       },
+      "earlier": "سابقاً",
       "empty": "ليس لديك أي إشعارات حتى الآن.",
       "emptyTitle": "لا توجد إشعارات",
       "error": "فشل تحميل الإشعارات. يرجى المحاولة مرة أخرى.",
+      "errorTitle": "عذراً! حدث خطأ ما",
       "lowScore": {
         "body": "حصل {{studentName}} على تقييم {{rating}} من {{teacherName}} بتاريخ {{sessionDate}}",
         "title": "تنبيه أداء منخفض"
@@ -205,7 +211,10 @@
       "openSettings": "فتح الإعدادات",
       "pushDisabled": "الإشعارات الفورية معطلة. الإشعارات داخل التطبيق لا تزال نشطة.",
       "pushUnsupported": "الإشعارات الفورية غير متاحة على المحاكي.",
-      "title": "الإشعارات"
+      "thisWeek": "هذا الأسبوع",
+      "title": "الإشعارات",
+      "today": "اليوم",
+      "yesterday": "أمس"
     },
     "performance": {
       "average": "المتوسط",

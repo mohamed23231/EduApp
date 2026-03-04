@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { I18nManager, Animated, Pressable, View } from 'react-native';
+import { useRef } from 'react';
 import { Text } from '@/components/ui';
+import { Ionicons } from '@expo/vector-icons';
 
 type Notification = {
   id: string;
@@ -100,6 +102,9 @@ function formatDate(dateString: string): string {
 
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
   const { t, i18n } = useTranslation();
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+
   const isUnread = notification.status === 'UNREAD';
 
   // Resolve title and body from localization keys
@@ -123,89 +128,94 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
   const accessibilityLabel = `${body}, ${isUnread ? 'unread' : 'read'}`;
   const isRTL = I18nManager.isRTL;
 
-  return (
-    <TouchableOpacity
-      style={[
-        styles.container,
-        isUnread && styles.containerUnread,
-        isRTL && styles.containerRTL,
-      ]}
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      testID={`notification-item-${notification.id}`}
-    >
-      <View style={styles.content}>
-        <Text
-          style={[styles.title, isUnread && styles.titleUnread]}
-          numberOfLines={1}
-        >
-          {title}
-        </Text>
-        <Text
-          style={[styles.body, isUnread && styles.bodyUnread]}
-          numberOfLines={2}
-        >
-          {body}
-        </Text>
-        <Text style={styles.timestamp}>{formatDate(notification.createdAt)}</Text>
-      </View>
+  const handlePressIn = () => {
+    Animated.parallel([
+      Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 0.8, duration: 150, useNativeDriver: true })
+    ]).start();
+  };
+  
+  const handlePressOut = () => {
+    Animated.parallel([
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 1, duration: 150, useNativeDriver: true })
+    ]).start();
+  };
 
-      {isUnread && <View style={styles.unreadIndicator} />}
-    </TouchableOpacity>
+  const normalizedTitleKey = notification.titleKey.toLowerCase();
+  const isAbsence = normalizedTitleKey.includes('absence');
+  const isLowScore = 
+    normalizedTitleKey.includes('lowscore') || 
+    normalizedTitleKey.includes('low_score') || 
+    normalizedTitleKey.includes('low-score');
+
+  const getIconConfig = () => {
+    if (isAbsence) return { name: 'alert-circle' as const, color: '#EF4444', bgClass: 'bg-red-50' };
+    if (isLowScore) return { name: 'trending-down' as const, color: '#F59E0B', bgClass: 'bg-orange-50' };
+    return { name: 'notifications' as const, color: '#6366F1', bgClass: 'bg-indigo-50' };
+  };
+
+  const iconConfig = getIconConfig();
+
+  const containerClasses = [
+    'rounded-2xl p-4 mb-3 min-h-[44px] w-full',
+    isUnread ? 'bg-white shadow-sm border border-gray-100' : 'bg-[#F9FAFB] border border-transparent',
+    isRTL ? 'flex-row-reverse' : 'flex-row',
+    'items-start'
+  ].filter(Boolean).join(' ');
+
+  const rowClasses = [
+    'items-center justify-between mb-1',
+    isRTL ? 'flex-row-reverse' : 'flex-row'
+  ].filter(Boolean).join(' ');
+
+  const alignment = isRTL ? 'right' : 'left';
+
+  return (
+    <Animated.View style={{ transform: [{ scale }], opacity }}>
+      <Pressable
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        testID={`notification-item-${notification.id}`}
+        className={containerClasses}
+      >
+        <View className={`w-12 h-12 rounded-full items-center justify-center ${iconConfig.bgClass} ${isRTL ? 'ml-3' : 'mr-3'}`}>
+          <Ionicons name={iconConfig.name} size={24} color={iconConfig.color} />
+        </View>
+
+        <View className="flex-1">
+          <View className={rowClasses}>
+            <Text 
+              className={`flex-1 text-sm ${isUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}
+              numberOfLines={1}
+              style={{ textAlign: alignment }}
+            >
+              {title}
+            </Text>
+            {isUnread && (
+              <View className="w-2 h-2 rounded-full bg-indigo-500 mx-2" />
+            )}
+          </View>
+          
+          <Text 
+            className={`text-sm ${isUnread ? 'font-medium text-gray-800' : 'font-normal text-gray-500'}`}
+            numberOfLines={2}
+            style={{ textAlign: alignment, lineHeight: 20 }}
+          >
+            {body}
+          </Text>
+          
+          <Text 
+            className={`mt-2 text-xs font-medium ${isUnread ? 'text-indigo-500' : 'text-gray-400'}`}
+            style={{ textAlign: alignment }}
+          >
+            {formatDate(notification.createdAt)}
+          </Text>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    minHeight: 44,
-  },
-  containerUnread: {
-    backgroundColor: '#F0F4FF',
-  },
-  containerRTL: {
-    flexDirection: 'row-reverse',
-  },
-  content: {
-    flex: 1,
-    marginEnd: 12,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 4,
-  },
-  titleUnread: {
-    color: '#111827',
-    fontWeight: '700',
-  },
-  body: {
-    fontSize: 13,
-    color: '#6B7280',
-    lineHeight: 18,
-    marginBottom: 4,
-  },
-  bodyUnread: {
-    color: '#374151',
-    fontWeight: '500',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#9CA3AF',
-  },
-  unreadIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#6366F1',
-    marginStart: 12,
-  },
-});

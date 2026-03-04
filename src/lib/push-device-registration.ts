@@ -7,6 +7,7 @@ export type PushDeviceRegistration = {
   id: string;
   token: string;
   parentId?: string;
+  locale?: string;
   registeredAt: number;
 };
 
@@ -26,6 +27,9 @@ export function getPushDeviceRegistration(): PushDeviceRegistration | null {
     token: raw.token,
     parentId: typeof (raw as PushDeviceRegistration).parentId === 'string'
       ? (raw as PushDeviceRegistration).parentId
+      : undefined,
+    locale: typeof (raw as PushDeviceRegistration).locale === 'string'
+      ? (raw as PushDeviceRegistration).locale
       : undefined,
     registeredAt:
       typeof raw.registeredAt === 'number' ? raw.registeredAt : 0,

@@ -22,6 +22,7 @@ export type AttendanceRecord = {
   sessionDate: string;
   sessionName: string;
   status: AttendanceStatus;
+  teacherName?: string;
 };
 
 export type LinkStudentRequest = {
