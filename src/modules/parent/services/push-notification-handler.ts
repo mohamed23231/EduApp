@@ -18,6 +18,7 @@ import {
   setPushDeviceRegistration,
 } from '@/lib/push-device-registration';
 import { fetchNotifications } from '../store/use-notification-store';
+import { isSafeParentNotificationDeepLink } from './notification-deep-link';
 import { notificationsService } from './notifications.service';
 import { bestEffortUnregisterPushToken } from './push-device-unregister';
 
@@ -36,8 +37,6 @@ let notificationsSyncInFlight: Promise<void> | null = null;
 let lastNotificationsSyncAt = 0;
 
 const MIN_NOTIFICATION_SYNC_INTERVAL_MS = 1500;
-
-const PARENT_ATTENDANCE_DEEP_LINK_PATTERN = /^\/\(parent\)\/students\/[0-9a-f-]{36}\/attendance$/i;
 
 function getNotificationsModule(): ExpoNotificationsModule | null {
   if (notificationsModuleCache !== undefined) {
@@ -108,16 +107,12 @@ function configureNotificationPresentation(
   notificationPresentationConfigured = true;
 }
 
-function isSafeDeepLink(deepLink: string): boolean {
-  return PARENT_ATTENDANCE_DEEP_LINK_PATTERN.test(deepLink);
-}
-
 function handleNotificationResponse(
   response: ExpoNotificationResponse,
   router: ReturnType<typeof useRouter>,
 ) {
   const deepLink = response.notification.request.content.data.deepLink as string | undefined;
-  if (deepLink && isSafeDeepLink(deepLink)) {
+  if (deepLink && isSafeParentNotificationDeepLink(deepLink)) {
     if (__DEV__) {
       console.log('Navigating to deep link:', deepLink);
     }

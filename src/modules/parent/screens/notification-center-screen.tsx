@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
-  I18nManager,
   Pressable,
   StyleSheet,
   TouchableOpacity,
@@ -17,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
 import { NotificationItem } from '../components/notification-item';
 import { PushDisabledBanner } from '../components/push-disabled-banner';
+import { isSafeParentNotificationDeepLink } from '../services/notification-deep-link';
 import { useNotificationStore } from '../store/use-notification-store';
 
 function SkeletonLoader() {
@@ -107,6 +107,7 @@ function MarkAllButton({
   );
 }
 
+// eslint-disable-next-line max-lines-per-function
 export function NotificationCenterScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -125,12 +126,19 @@ export function NotificationCenterScreen() {
 
   useEffect(() => {
     void fetchNotifications(true);
-  }, []);
+  }, [fetchNotifications]);
 
   const handleNotificationPress = useCallback(
     async (notification: Notification) => {
       try {
         await markAsRead(notification.id);
+        if (!isSafeParentNotificationDeepLink(notification.deepLink)) {
+          console.warn(
+            '[Notifications] Ignoring unsafe deep link from notification card',
+            notification.deepLink,
+          );
+          return;
+        }
         router.push(notification.deepLink as Href);
       }
       catch (err) {
