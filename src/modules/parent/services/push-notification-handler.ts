@@ -176,11 +176,25 @@ export async function registerPushToken(): Promise<string | null> {
         return null;
       }
 
-      const token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
+      let token: string;
+      try {
+        token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId,
+          })
+        ).data;
+      }
+      catch (fcmError) {
+        if (__DEV__) {
+          console.warn(
+            '[Push] getExpoPushTokenAsync failed on emulator (FCM not configured). '
+            + 'Push notifications require a Google Play emulator image with FCM credentials. '
+            + 'Use a physical device or a Google Play emulator for full push testing.',
+            fcmError,
+          );
+        }
+        return null;
+      }
 
       const currentParentId = getAuthUser()?.id;
       const existingRegistration = getPushDeviceRegistration();

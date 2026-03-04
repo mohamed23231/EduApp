@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "333167589231",
+    "project_id": "articles-bdc0c",
+    "storage_bucket": "articles-bdc0c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333167589231:android:0d574117dbc64b9501da9a",
+        "android_client_info": {
+          "package_name": "com.privatedu.mobile.preview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBr30GOK3_bR8z917wyaDWlcrcINrzef8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

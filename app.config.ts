@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
 import type { ConfigContext, ExpoConfig } from '@expo/config';
 
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
@@ -61,6 +64,11 @@ const iosGoogleUrlScheme
   = Env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME
     ?? deriveIosUrlScheme(Env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
 
+const androidGoogleServicesPath = './google-services.json';
+const hasAndroidGoogleServicesFile = existsSync(
+  join(__dirname, androidGoogleServicesPath),
+);
+
 // eslint-disable-next-line max-lines-per-function
 export default ({ config }: ConfigContext): ExpoConfig => {
   const googleSignInPlugin: [string, Record<string, string | undefined>] | null
@@ -114,6 +122,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: '#2E3C4B',
       },
       package: Env.EXPO_PUBLIC_PACKAGE,
+      ...(hasAndroidGoogleServicesFile
+        ? { googleServicesFile: androidGoogleServicesPath }
+        : {}),
       intentFilters: [
         {
           action: 'android.intent.action.VIEW',
