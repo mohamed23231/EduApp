@@ -32,7 +32,7 @@ export type PushPermissionStatus
 
 let notificationsModuleCache: ExpoNotificationsModule | null | undefined;
 let registerInFlightPromise: Promise<string | null> | null = null;
-let androidChannelConfigured = false;
+let androidChannelsConfigured = false;
 let notificationPresentationConfigured = false;
 let notificationsSyncInFlight: Promise<void> | null = null;
 let lastNotificationsSyncAt = 0;
@@ -64,27 +64,57 @@ function delay(ms: number) {
 async function ensureAndroidNotificationChannel(
   Notifications: ExpoNotificationsModule,
 ): Promise<void> {
-  if (androidChannelConfigured) {
+  if (androidChannelsConfigured) {
     return;
   }
 
   if (Device.osName !== 'Android') {
-    androidChannelConfigured = true;
+    androidChannelsConfigured = true;
     return;
   }
 
   try {
+    // Absence alert — urgent red channel, triple-beep sound
+    await Notifications.setNotificationChannelAsync('absence_alert', {
+      name: 'Absence Alerts',
+      description: 'Notifies when a student is marked absent',
+      importance: Notifications.AndroidImportance.MAX,
+      sound: 'absence_alert.wav',
+      vibrationPattern: [0, 400, 100, 400, 100, 400],
+      lightColor: '#EF4444',
+      enableLights: true,
+      enableVibrate: true,
+      showBadge: true,
+    });
+
+    // Low performance alert — amber channel, soft descending chime
+    await Notifications.setNotificationChannelAsync('low_performance_alert', {
+      name: 'Performance Alerts',
+      description: 'Notifies when a student receives a low rating',
+      importance: Notifications.AndroidImportance.HIGH,
+      sound: 'low_performance_alert.wav',
+      vibrationPattern: [0, 300, 150, 300],
+      lightColor: '#F59E0B',
+      enableLights: true,
+      enableVibrate: true,
+      showBadge: true,
+    });
+
+    // Fallback default channel
     await Notifications.setNotificationChannelAsync('default', {
-      name: 'Default',
+      name: 'General Notifications',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#2563EB',
-      sound: 'default',
+      lightColor: '#6366F1',
+      enableLights: true,
+      enableVibrate: true,
+      showBadge: true,
     });
-    androidChannelConfigured = true;
+
+    androidChannelsConfigured = true;
   }
   catch (error) {
-    console.error('Failed to configure Android notification channel:', error);
+    console.error('Failed to configure Android notification channels:', error);
   }
 }
 
@@ -198,7 +228,7 @@ export async function registerPushToken(): Promise<string | null> {
       }
 
       const currentParentId = getAuthUser()?.id;
-      const currentLocale = i18n.language ?? 'en';
+      const currentLocale = i18n.language?.startsWith('ar') ? 'ar' : 'en';
       const existingRegistration = getPushDeviceRegistration();
       const isFreshRegistration
         = existingRegistration?.token === token

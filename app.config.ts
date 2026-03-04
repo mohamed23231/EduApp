@@ -116,6 +116,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     experiments: {
       typedRoutes: true,
     },
+    notification: {
+      icon: './assets/notification-icon.png',
+      color: '#6366F1',
+      androidMode: 'default',
+    },
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
@@ -201,6 +206,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ['app-icon-badge', appIconBadgeConfig],
       ['react-native-edge-to-edge'],
       './plugins/with-quoted-react-native-xcode-script',
+      './plugins/with-notification-sounds',
     ],
   };
 
