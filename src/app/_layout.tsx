@@ -1,12 +1,13 @@
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import type * as ExpoNotifications from 'expo-notifications';
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider } from '@react-navigation/native';
 import * as Linking from 'expo-linking';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -27,6 +28,8 @@ void SplashScreen.preventAutoHideAsync().catch(() => { });
 export const unstable_settings = {
   initialRouteName: 'login',
 };
+
+type ExpoNotificationsModule = typeof ExpoNotifications;
 
 /**
  * Deep-link handler for password reset URLs.
@@ -64,14 +67,47 @@ function useDeepLinkHandler() {
 
     // Handle URLs received while app is running (warm start)
     const onUrl = ({ url }: { url: string }) => handleUrl(url);
+    // eslint-disable-next-line react-web-api/no-leaked-event-listener
     const subscription = Linking.addEventListener('url', onUrl);
     return () => subscription.remove();
   }, [router]);
 }
 
+function useGlobalNotificationPresentation() {
+  useEffect(() => {
+    try {
+      const Notifications = require('expo-notifications') as ExpoNotificationsModule;
+
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+        }),
+      });
+
+      if (Platform.OS === 'android') {
+        void Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#2563EB',
+          sound: 'default',
+        });
+      }
+    }
+    catch {
+      // expo-notifications may be unavailable in some development binaries.
+    }
+  }, []);
+}
+
 export default function RootLayout() {
   const [isAppReady, setIsAppReady] = React.useState(false);
   useDeepLinkHandler();
+  useGlobalNotificationPresentation();
 
   useEffect(() => {
     let isMounted = true;

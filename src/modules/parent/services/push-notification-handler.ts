@@ -5,13 +5,21 @@ import type {
 import type * as ExpoNotifications from 'expo-notifications';
 import type { Href } from 'expo-router';
 import type { AppStateStatus } from 'react-native';
+import { isAxiosError } from 'axios';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { AppState, Linking } from 'react-native';
+import { AppState, Linking, Platform } from 'react-native';
+import { getToken } from '@/lib/auth/utils';
+import {
+  getPushDeviceRegistration,
+  PUSH_DEVICE_REFRESH_INTERVAL_MS,
+  setPushDeviceRegistration,
+} from '@/lib/push-device-registration';
 import { fetchNotifications } from '../store/use-notification-store';
 import { notificationsService } from './notifications.service';
+import { bestEffortUnregisterPushToken } from './push-device-unregister';
 
 type ExpoNotificationsModule = typeof ExpoNotifications;
 export type PushPermissionStatus
@@ -21,6 +29,15 @@ export type PushPermissionStatus
     | 'unsupported';
 
 let notificationsModuleCache: ExpoNotificationsModule | null | undefined;
+let registerInFlightPromise: Promise<string | null> | null = null;
+let androidChannelConfigured = false;
+let notificationPresentationConfigured = false;
+let notificationsSyncInFlight: Promise<void> | null = null;
+let lastNotificationsSyncAt = 0;
+
+const MIN_NOTIFICATION_SYNC_INTERVAL_MS = 1500;
+
+const PARENT_ATTENDANCE_DEEP_LINK_PATTERN = /^\/\(parent\)\/students\/[0-9a-f-]{36}\/attendance$/i;
 
 function getNotificationsModule(): ExpoNotificationsModule | null {
   if (notificationsModuleCache !== undefined) {
@@ -40,74 +57,232 @@ function getNotificationsModule(): ExpoNotificationsModule | null {
   return notificationsModuleCache;
 }
 
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function ensureAndroidNotificationChannel(
+  Notifications: ExpoNotificationsModule,
+): Promise<void> {
+  if (androidChannelConfigured) {
+    return;
+  }
+
+  if (Device.osName !== 'Android') {
+    androidChannelConfigured = true;
+    return;
+  }
+
+  try {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'Default',
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#2563EB',
+      sound: 'default',
+    });
+    androidChannelConfigured = true;
+  }
+  catch (error) {
+    console.error('Failed to configure Android notification channel:', error);
+  }
+}
+
+function configureNotificationPresentation(
+  Notifications: ExpoNotificationsModule,
+): void {
+  if (notificationPresentationConfigured) {
+    return;
+  }
+
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+
+  notificationPresentationConfigured = true;
+}
+
+function isSafeDeepLink(deepLink: string): boolean {
+  return PARENT_ATTENDANCE_DEEP_LINK_PATTERN.test(deepLink);
+}
+
+function handleNotificationResponse(
+  response: ExpoNotificationResponse,
+  router: ReturnType<typeof useRouter>,
+) {
+  const deepLink = response.notification.request.content.data.deepLink as string | undefined;
+  if (deepLink && isSafeDeepLink(deepLink)) {
+    if (__DEV__) {
+      console.log('Navigating to deep link:', deepLink);
+    }
+    router.push(deepLink as Href);
+  }
+  else if (deepLink) {
+    console.warn('[Push] Ignoring unsafe deep link payload', deepLink);
+  }
+  void syncNotifications(true);
+}
+
 /**
  * Register Expo push token after authenticated parent session is ready
  * This ensures the JWT token is available for the authenticated API call
  */
 export async function registerPushToken(): Promise<string | null> {
-  try {
-    const Notifications = getNotificationsModule();
-    if (!Notifications) {
-      return null;
-    }
-
-    // Check if device is physical (push tokens only work on physical devices)
-    if (!Device.isDevice) {
-      console.log('Push notifications only work on physical devices');
-      return null;
-    }
-
-    // Request push permissions
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== 'granted') {
-      console.log('Push notification permissions not granted');
-      return null;
-    }
-
-    // Get Expo push token
-    const projectId
-      = Constants.easConfig?.projectId
-        ?? Constants.expoConfig?.extra?.eas?.projectId;
-    if (!projectId) {
-      console.error('Project ID not found in Expo config');
-      return null;
-    }
-
-    const token = (
-      await Notifications.getExpoPushTokenAsync({
-        projectId,
-      })
-    ).data;
-
-    // Register token with backend
-    await notificationsService.registerDevice(token);
-    console.log('Push token registered:', token);
-
-    return token;
+  if (registerInFlightPromise) {
+    return registerInFlightPromise;
   }
-  catch (error) {
-    console.error('Failed to register push token:', error);
-    return null;
+
+  registerInFlightPromise = (async () => {
+    try {
+      const Notifications = getNotificationsModule();
+      if (!Notifications) {
+        return null;
+      }
+
+      // Check if device is physical (push tokens only work on physical devices)
+      if (!Device.isDevice) {
+        if (__DEV__) {
+          console.log('Push notifications only work on physical devices');
+        }
+        return null;
+      }
+
+      // Request push permissions
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== 'granted') {
+        if (__DEV__) {
+          console.log('Push notification permissions not granted');
+        }
+        return null;
+      }
+
+      await ensureAndroidNotificationChannel(Notifications);
+      configureNotificationPresentation(Notifications);
+
+      // Get Expo push token
+      const projectId = Constants.easConfig?.projectId ?? Constants.expoConfig?.extra?.eas?.projectId;
+      if (!projectId) {
+        console.error('Project ID not found in Expo config');
+        return null;
+      }
+
+      const token = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+
+      const existingRegistration = getPushDeviceRegistration();
+      const isFreshRegistration
+        = existingRegistration?.token === token
+          && !!existingRegistration.id
+          && Date.now() - existingRegistration.registeredAt
+          < PUSH_DEVICE_REFRESH_INTERVAL_MS;
+      if (isFreshRegistration) {
+        return token;
+      }
+
+      // Register token with backend with short retry window. This covers app-start
+      // races where auth headers might not be fully hydrated yet.
+      const maxAttempts = 3;
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+          const device = await notificationsService.registerDevice(token);
+          setPushDeviceRegistration({ id: device.id, token: device.token });
+          if (__DEV__) {
+            console.log('Push token registered:', device.token);
+          }
+          return device.token;
+        }
+        catch (error) {
+          if (isAxiosError(error)) {
+            const status = error.response?.status;
+            const data = error.response?.data;
+            console.error(
+              `[Push] registerDevice failed (attempt ${attempt}/${maxAttempts})`,
+              { status, data },
+            );
+          }
+          else {
+            console.error(
+              `[Push] registerDevice failed (attempt ${attempt}/${maxAttempts})`,
+              error,
+            );
+          }
+
+          if (attempt < maxAttempts) {
+            await delay(500 * attempt);
+          }
+        }
+      }
+
+      return null;
+    }
+    catch (error) {
+      console.error('Failed to register push token:', error);
+      return null;
+    }
+    finally {
+      registerInFlightPromise = null;
+    }
+  })();
+
+  return registerInFlightPromise;
+}
+
+/**
+ * Best-effort realtime sync for unread badge / list after notification events
+ */
+async function syncNotifications(force = false) {
+  const now = Date.now();
+  if (!force && now - lastNotificationsSyncAt < MIN_NOTIFICATION_SYNC_INTERVAL_MS) {
+    return;
   }
+
+  if (notificationsSyncInFlight) {
+    await notificationsSyncInFlight;
+    return;
+  }
+
+  notificationsSyncInFlight = (async () => {
+    try {
+      await fetchNotifications(true);
+      lastNotificationsSyncAt = Date.now();
+    }
+    catch (error) {
+      console.error('[Push] Failed to sync notifications:', error);
+    }
+    finally {
+      notificationsSyncInFlight = null;
+    }
+  })();
+
+  await notificationsSyncInFlight;
 }
 
 /**
  * Unregister device token on logout
  */
 export async function unregisterPushToken(tokenId: string): Promise<void> {
-  try {
-    await notificationsService.unregisterDevice(tokenId);
+  await bestEffortUnregisterPushToken({
+    tokenId,
+    accessToken: getToken()?.access ?? null,
+  });
+  if (__DEV__) {
     console.log('Push token unregistered:', tokenId);
-  }
-  catch (error) {
-    console.error('Failed to unregister push token:', error);
   }
 }
 
@@ -126,19 +301,28 @@ export function usePushNotificationHandler() {
       return;
     }
 
+    void ensureAndroidNotificationChannel(Notifications);
+
+    // Handle notification interaction that launched the app from a terminated state.
+    void Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        handleNotificationResponse(response, router);
+      }
+    }).catch((error) => {
+      console.error('Failed to read last notification response:', error);
+    });
+
     // Handle notification received while app is in foreground
     const foregroundSubscription = Notifications.addNotificationReceivedListener((notification: ExpoNotification) => {
-      console.log('Notification received in foreground:', notification);
-      // Notification is displayed automatically in foreground
+      if (__DEV__) {
+        console.log('Notification received in foreground:', notification);
+      }
+      void syncNotifications();
     });
 
     // Handle notification tap (foreground, background, or killed state)
     const responseSubscription = Notifications.addNotificationResponseReceivedListener((response: ExpoNotificationResponse) => {
-      const deepLink = response.notification.request.content.data.deepLink as string | undefined;
-      if (deepLink) {
-        console.log('Navigating to deep link:', deepLink);
-        router.push(deepLink as Href);
-      }
+      handleNotificationResponse(response, router);
     });
 
     return () => {
@@ -167,8 +351,10 @@ export function usePushPermissionDetection() {
         // fully ready during initial app mount.
         await registerPushToken();
         // App came to foreground - refresh notifications
-        console.log('App came to foreground, refreshing notifications');
-        await fetchNotifications(true);
+        if (__DEV__) {
+          console.log('App came to foreground, refreshing notifications');
+        }
+        await syncNotifications(true);
       }
     }
   }, []);
@@ -202,6 +388,14 @@ export async function getPushPermissionStatus(): Promise<PushPermissionStatus> {
  */
 export async function openNotificationSettings(): Promise<void> {
   try {
+    if (Platform.OS === 'ios') {
+      const iosSettingsUrl = 'app-settings:';
+      const canOpen = await Linking.canOpenURL(iosSettingsUrl);
+      if (canOpen) {
+        await Linking.openURL(iosSettingsUrl);
+        return;
+      }
+    }
     await Linking.openSettings();
   }
   catch (error) {

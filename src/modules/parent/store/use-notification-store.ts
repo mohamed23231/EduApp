@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { getItem, setItem } from '@/lib/storage';
 import { createSelectors } from '@/lib/utils';
 import { notificationsService } from '../services/notifications.service';
+import { setNotificationBadgeCount } from '../services/push-notification-badge';
 
 // ─── MMKV Keys ───────────────────────────────────────────────────────────────
 
@@ -35,6 +36,7 @@ export type NotificationState = {
 async function persistNotificationMeta(unreadCount: number) {
   await setItem(UNREAD_COUNT_KEY, unreadCount);
   await setItem(LAST_SYNCED_AT_KEY, Date.now());
+  await setNotificationBadgeCount(unreadCount);
 }
 
 /** Mark a single notification as read in state */
@@ -108,6 +110,7 @@ const _useNotificationStore = create<NotificationState>((set, get) => ({
         return { notifications: markNotificationRead(state.notifications, id), unreadCount: newCount };
       });
       await setItem(UNREAD_COUNT_KEY, newCount);
+      await setNotificationBadgeCount(newCount);
     }
     catch (err) {
       set({ error: getErrorMsg(err, 'Failed to mark notification as read') });
@@ -119,6 +122,7 @@ const _useNotificationStore = create<NotificationState>((set, get) => ({
       await notificationsService.markAllAsRead();
       set(state => ({ notifications: markAllNotificationsRead(state.notifications), unreadCount: 0 }));
       await setItem(UNREAD_COUNT_KEY, 0);
+      await setNotificationBadgeCount(0);
     }
     catch (err) {
       set({ error: getErrorMsg(err, 'Failed to mark all notifications as read') });
@@ -128,11 +132,14 @@ const _useNotificationStore = create<NotificationState>((set, get) => ({
   setUnreadCount: (count: number) => {
     set({ unreadCount: count });
     setItem(UNREAD_COUNT_KEY, count);
+    void setNotificationBadgeCount(count);
   },
 
   hydrate: () => {
     try {
-      set({ unreadCount: getItem<number>(UNREAD_COUNT_KEY) ?? 0, lastSyncedAt: getItem<number>(LAST_SYNCED_AT_KEY) ?? null });
+      const unreadCount = getItem<number>(UNREAD_COUNT_KEY) ?? 0;
+      set({ unreadCount, lastSyncedAt: getItem<number>(LAST_SYNCED_AT_KEY) ?? null });
+      void setNotificationBadgeCount(unreadCount);
     }
     catch (err) {
       console.error('[NotificationStore] Hydration failed:', err);

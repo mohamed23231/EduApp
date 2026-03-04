@@ -11,6 +11,9 @@ import {
 } from '@/lib/auth/utils';
 import { getItem, removeItem, setItem } from '@/lib/storage';
 import { createSelectors } from '@/lib/utils';
+import {
+  bestEffortUnregisterPushToken,
+} from '@/modules/parent/services/push-device-unregister';
 
 // ─── Onboarding types ────────────────────────────────────────────────────────
 
@@ -71,6 +74,9 @@ const _useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: () => {
+    const currentAccessToken = get().token?.access ?? getToken()?.access ?? null;
+    void bestEffortUnregisterPushToken({ accessToken: currentAccessToken });
+
     removeToken();
     removeAuthUser();
     removeItem(ONBOARDING_CONTEXT);
