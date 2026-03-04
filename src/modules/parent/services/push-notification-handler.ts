@@ -142,11 +142,12 @@ export async function registerPushToken(): Promise<string | null> {
       }
 
       // Check if device is physical (push tokens only work on physical devices)
-      if (!Device.isDevice) {
-        if (__DEV__) {
-          console.log('Push notifications only work on physical devices');
-        }
+      // In dev mode we allow emulators so the full notification flow can be tested
+      if (!Device.isDevice && !__DEV__) {
         return null;
+      }
+      if (!Device.isDevice && __DEV__) {
+        console.log('[Push] Running on emulator — token registration allowed in dev mode');
       }
 
       // Request push permissions
@@ -364,7 +365,7 @@ export function usePushPermissionDetection() {
  */
 export async function getPushPermissionStatus(): Promise<PushPermissionStatus> {
   try {
-    if (!Device.isDevice) {
+    if (!Device.isDevice && !__DEV__) {
       return 'unsupported';
     }
 
