@@ -128,6 +128,7 @@ function handleNotificationResponse(
  * Register Expo push token after authenticated parent session is ready
  * This ensures the JWT token is available for the authenticated API call
  */
+// eslint-disable-next-line max-lines-per-function
 export async function registerPushToken(): Promise<string | null> {
   if (registerInFlightPromise) {
     return registerInFlightPromise;
