@@ -6,7 +6,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import Env from 'env';
 import { authClient } from '@/lib/api/client';
 
 type FeatureFlags = Record<string, boolean>;
@@ -45,7 +44,8 @@ async function fetchFeatureFlags(): Promise<FeatureFlags> {
 
 /**
  * Returns feature flag states.
- * If the endpoint is unavailable, all flags default to true (show entry points).
+ * If the endpoint is unavailable, Google auth defaults to false (hidden).
+ * Backend remains the source of truth for enabled features.
  * The backend 403 with FEATURE_DISABLED is the authoritative gate.
  */
 export function useFeatureFlags(): FeatureFlagState {
@@ -56,14 +56,12 @@ export function useFeatureFlags(): FeatureFlagState {
     retry: false,
   });
 
-  const isNonProduction = Env.EXPO_PUBLIC_APP_ENV !== 'production';
-
   return {
     isTeacherPerformanceEnabled: data['teacher.performance.enabled'] ?? true,
     isParentPerformanceEnabled: data['parent.performance.enabled'] ?? true,
     isLowScoreNotificationsEnabled: data['notifications.low_score.enabled'] ?? true,
-    isGoogleSigninMobileEnabled: data.google_signin_mobile ?? isNonProduction,
-    isGoogleSigninWebEnabled: data.google_signin_web ?? isNonProduction,
+    isGoogleSigninMobileEnabled: data.google_signin_mobile ?? false,
+    isGoogleSigninWebEnabled: data.google_signin_web ?? false,
     isForgotPasswordEnabled: data.forgot_password_enabled ?? true,
   } satisfies FeatureFlagState;
 }

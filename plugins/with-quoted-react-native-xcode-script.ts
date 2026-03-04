@@ -1,5 +1,5 @@
-import type { ConfigPlugin } from '@expo/config-plugins';
-import { withXcodeProject } from '@expo/config-plugins';
+import type { ConfigPlugin } from 'expo/config-plugins';
+import { withXcodeProject } from 'expo/config-plugins';
 
 const SCRIPT_PHASE_NAME = 'Bundle React Native code and images';
 const NEEDLE = '`\\"$NODE_BINARY\\" --print \\"require(\'path\').dirname(require.resolve(\'react-native/package.json\')) + \'/scripts/react-native-xcode.sh\'\\"`';
