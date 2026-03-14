@@ -1,9 +1,9 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-
 import type { ConfigContext, ExpoConfig } from '@expo/config';
-
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
+
+import { existsSync } from 'node:fs';
+
+import { join } from 'node:path';
 
 import 'tsx/cjs';
 
@@ -139,6 +139,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               scheme: 'https',
               host: associatedDomainHost,
               pathPrefix: '/reset-password',
+            },
+            {
+              scheme: 'https',
+              host: associatedDomainHost,
+              pathPrefix: '/org-invite',
             },
           ],
           category: [
