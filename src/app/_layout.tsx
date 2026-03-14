@@ -15,6 +15,7 @@ import { useThemeConfig } from '@/components/ui/use-theme-config';
 import { hydrateAuth } from '@/features/auth/use-auth-store';
 import { APIProvider } from '@/lib/api';
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
+import { setItem } from '@/lib/storage';
 import '@/lib/i18n';
 // Import  global CSS file
 import '../global.css';
@@ -54,6 +55,15 @@ function useDeepLinkHandler() {
         }
         else if (accessToken && refreshToken) {
           router.push({ pathname: '/reset-password' as any, params: { access_token: accessToken, refresh_token: refreshToken } });
+        }
+        return;
+      }
+
+      if (parsed.path === '/org-invite' || parsed.path === 'org-invite') {
+        const token = parsed.queryParams?.token;
+        if (typeof token === 'string' && token.length > 0) {
+          void setItem('pendingOrgInviteToken', token);
+          router.push({ pathname: '/org-invite' as any, params: { token } });
         }
       }
     };

@@ -22,6 +22,9 @@ import { Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { validateToken } from '@/modules/auth/services';
+import { ContextSwitcher } from '@/modules/organization/shared/components/context-switcher';
+import { useContexts } from '@/modules/organization/shared/hooks/use-contexts';
+import { useOrgContextStore } from '@/modules/organization/shared/store/org-context-store';
 import { ConfirmSheet, DashboardSkeleton, EmptyState, SessionCard } from '../components';
 import { useTodaySessions } from '../hooks';
 import { useSessionActions } from '../hooks/use-session-actions';
@@ -274,6 +277,53 @@ function SessionsBody({
   );
 }
 
+type ContextPillProps = {
+  onPress: () => void;
+  label: string;
+};
+
+function ContextPill({ onPress, label }: ContextPillProps) {
+  return (
+    <View style={styles.contextPillRow}>
+      <Pressable onPress={onPress} style={styles.contextPill}>
+        <Text style={styles.contextPillText}>
+          {label}
+          {' \u25BE'}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+type DashboardSessionItemProps = {
+  item: SessionInstance;
+  index: number;
+  onStart: (id: string) => void;
+  onMarkAttendance: (id: string) => void;
+  onEnd: (id: string) => void;
+  isStartingId: string | null;
+  isEndingId: string | null;
+};
+
+function DashboardSessionItem({ item, index, onStart, onMarkAttendance, onEnd, isStartingId, isEndingId }: DashboardSessionItemProps) {
+  return (
+    <MotiView
+      from={{ opacity: 0, translateY: 8 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ type: 'timing', duration: 220, delay: Math.min(index * 50, 200) }}
+    >
+      <SessionCard
+        instance={item}
+        onStartSession={onStart}
+        onMarkAttendance={onMarkAttendance}
+        onEndSession={onEnd}
+        isStarting={isStartingId === item.id}
+        isEnding={isEndingId === item.id}
+      />
+    </MotiView>
+  );
+}
+
 export function DashboardScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -284,17 +334,11 @@ export function DashboardScreen() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const lastFetchRef = useRef(0);
   const { refetch: refetchSessions } = useTodaySessions();
-
-  const {
-    isStartingId,
-    isEndingId,
-    confirmEndModal,
-    handleStartSession,
-    handleEndSessionRequest,
-    handleEndSessionConfirm,
-    handleMarkAttendance,
-    handleCancelEnd,
-  } = useSessionActions(refetchSessions);
+  const [switcherVisible, setSwitcherVisible] = useState(false);
+  const { data: contextsData } = useContexts();
+  const activeContext = useOrgContextStore.use.activeContext();
+  const activeOrgId = useOrgContextStore.use.activeOrgId();
+  const { isStartingId, isEndingId, confirmEndModal, handleStartSession, handleEndSessionRequest, handleEndSessionConfirm, handleMarkAttendance, handleCancelEnd } = useSessionActions(refetchSessions);
 
   useFocusEffect(
     useCallback(() => {
@@ -310,20 +354,7 @@ export function DashboardScreen() {
 
   const renderItem = useCallback(
     ({ item, index }: { item: SessionInstance; index: number }) => (
-      <MotiView
-        from={{ opacity: 0, translateY: 8 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'timing', duration: 220, delay: Math.min(index * 50, 200) }}
-      >
-        <SessionCard
-          instance={item}
-          onStartSession={handleStartSession}
-          onMarkAttendance={handleMarkAttendance}
-          onEndSession={handleEndSessionRequest}
-          isStarting={isStartingId === item.id}
-          isEnding={isEndingId === item.id}
-        />
-      </MotiView>
+      <DashboardSessionItem item={item} index={index} onStart={handleStartSession} onMarkAttendance={handleMarkAttendance} onEnd={handleEndSessionRequest} isStartingId={isStartingId} isEndingId={isEndingId} />
     ),
     [handleStartSession, handleMarkAttendance, handleEndSessionRequest, isStartingId, isEndingId],
   );
@@ -331,23 +362,24 @@ export function DashboardScreen() {
   const firstName = getDashboardFirstName(user?.fullName, user?.email, t);
   const activeCount = todaySessions.filter(s => s.state === 'ACTIVE').length;
   const isInitialLoad = isLoadingSessions && !hasLoaded;
+  const activeOrgName = contextsData?.organizations.find(o => o.organizationId === activeOrgId)?.name;
+  const pillLabel = activeContext === 'personal' ? t('contextSwitcher.personal') : (activeOrgName ?? t('contextSwitcher.orgContext'));
+
+  const handleSelectOrg = useCallback((orgId: string) => {
+    const org = contextsData?.organizations.find(o => o.organizationId === orgId);
+    router.push({ pathname: '/(teacher)/org-sessions' as any, params: { orgId, orgName: org?.name ?? '' } });
+  }, [contextsData, router]);
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
       <Animated.View entering={FadeInDown.delay(0).duration(350)}>
-        <DashboardHero
-          firstName={firstName}
-          sessionCount={todaySessions.length}
-          activeCount={activeCount}
-          t={t}
-        />
+        <DashboardHero firstName={firstName} sessionCount={todaySessions.length} activeCount={activeCount} t={t} />
       </Animated.View>
       <Animated.View entering={FadeInDown.delay(100).duration(350)}>
-        <QuickActions
-          onCreateStudent={() => router.push(AppRoute.teacher.studentCreate as any)}
-          onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)}
-          t={t}
-        />
+        <QuickActions onCreateStudent={() => router.push(AppRoute.teacher.studentCreate as any)} onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)} t={t} />
+      </Animated.View>
+      <Animated.View entering={FadeInDown.delay(140).duration(350)}>
+        <ContextPill onPress={() => setSwitcherVisible(true)} label={pillLabel} />
       </Animated.View>
       <Animated.View entering={FadeInDown.delay(180).duration(350)}>
         <View style={styles.sectionHeader}>
@@ -355,26 +387,9 @@ export function DashboardScreen() {
           <Text style={styles.sectionTitle}>{t('teacher.dashboard.sessionsTitle')}</Text>
         </View>
       </Animated.View>
-      <SessionsBody
-        isInitialLoad={isInitialLoad}
-        sessionsError={sessionsError}
-        todaySessions={todaySessions}
-        isLoadingSessions={isLoadingSessions}
-        renderItem={renderItem}
-        onRefetch={refetchSessions}
-        onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)}
-        t={t}
-      />
-      <ConfirmSheet
-        ref={confirmEndModal.ref}
-        title={t('teacher.sessions.endSession')}
-        message={t('teacher.sessions.endSessionConfirm')}
-        confirmLabel={t('teacher.sessions.endSession')}
-        cancelLabel={t('teacher.common.cancel')}
-        onConfirm={handleEndSessionConfirm}
-        onCancel={handleCancelEnd}
-        variant="destructive"
-      />
+      <SessionsBody isInitialLoad={isInitialLoad} sessionsError={sessionsError} todaySessions={todaySessions} isLoadingSessions={isLoadingSessions} renderItem={renderItem} onRefetch={refetchSessions} onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)} t={t} />
+      <ConfirmSheet ref={confirmEndModal.ref} title={t('teacher.sessions.endSession')} message={t('teacher.sessions.endSessionConfirm')} confirmLabel={t('teacher.sessions.endSession')} cancelLabel={t('teacher.common.cancel')} onConfirm={handleEndSessionConfirm} onCancel={handleCancelEnd} variant="destructive" />
+      <ContextSwitcher visible={switcherVisible} userRole={user?.role ?? null} orgs={contextsData?.organizations ?? []} onClose={() => setSwitcherVisible(false)} onSelectOrg={handleSelectOrg} onSelectPersonal={() => setSwitcherVisible(false)} />
     </SafeAreaView>
   );
 }
@@ -472,6 +487,15 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
+  contextPillRow: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 0 },
+  contextPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#EEF2FF',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+  },
+  contextPillText: { fontSize: 13, fontWeight: '600', color: '#4338CA' },
   list: { paddingHorizontal: 16, paddingBottom: 32, gap: 10 },
   listEmpty: { flexGrow: 1 },
   errorBox: {

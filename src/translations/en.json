@@ -125,6 +125,14 @@
       }
     }
   },
+  "contextSwitcher": {
+    "orgContext": "Organization",
+    "personal": "Personal (Independent)",
+    "personalDesc": "Your own students and sessions",
+    "roleManager": "Manager",
+    "roleTeacher": "Teacher",
+    "title": "Switch context"
+  },
   "manager": {
     "common": {
       "cancel": "Cancel",
@@ -447,6 +455,17 @@
   },
   "onboarding": {
     "message": "Welcome to Taba3ny"
+  },
+  "orgInvitation": {
+    "accept": "Accept invitation",
+    "acceptError": "Unable to accept invitation.",
+    "badge": "Organization Invite",
+    "body": "You have been invited to join {{org}} as a teacher. Accept to gain access to the organization's sessions.",
+    "decline": "Decline",
+    "declineError": "Unable to decline invitation.",
+    "invalidToken": "This invitation link is invalid or has expired.",
+    "invitedBy": "Invited by {{name}}",
+    "unknownOrg": "an organization"
   },
   "parent": {
     "attendance": {
@@ -943,6 +962,15 @@
       "error": "Error",
       "success": "Success"
     }
+  },
+  "teacherOrg": {
+    "closeSession": "Close session",
+    "duration": "{{min}} min · {{n}} students",
+    "empty": "No sessions assigned for today.",
+    "startSession": "Start session",
+    "subtitle": "Your assigned sessions",
+    "today": "Today",
+    "upcoming": "Upcoming"
   },
   "welcome": "Welcome to Taba3ny"
 }

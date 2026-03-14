@@ -125,6 +125,14 @@
       }
     }
   },
+  "contextSwitcher": {
+    "orgContext": "المؤسسة",
+    "personal": "شخصي (مستقل)",
+    "personalDesc": "طلابك وجلساتك الخاصة",
+    "roleManager": "مدير",
+    "roleTeacher": "معلم",
+    "title": "تبديل السياق"
+  },
   "manager": {
     "common": {
       "cancel": "إلغاء",
@@ -447,6 +455,17 @@
   },
   "onboarding": {
     "message": "مرحبا بك في تابعني"
+  },
+  "orgInvitation": {
+    "accept": "قبول الدعوة",
+    "acceptError": "تعذّر قبول الدعوة.",
+    "badge": "دعوة مؤسسية",
+    "body": "تمت دعوتك للانضمام إلى {{org}} كمعلم. اقبل للوصول إلى جلسات المؤسسة.",
+    "decline": "رفض",
+    "declineError": "تعذّر رفض الدعوة.",
+    "invalidToken": "رابط الدعوة غير صالح أو منتهي الصلاحية.",
+    "invitedBy": "دعوة من {{name}}",
+    "unknownOrg": "مؤسسة"
   },
   "parent": {
     "attendance": {
@@ -943,6 +962,15 @@
       "error": "خطأ",
       "success": "نجاح"
     }
+  },
+  "teacherOrg": {
+    "closeSession": "إغلاق الجلسة",
+    "duration": "{{min}} دقيقة · {{n}} طالب",
+    "empty": "لا توجد جلسات معيّنة لليوم.",
+    "startSession": "بدء الجلسة",
+    "subtitle": "جلساتك المعيّنة",
+    "today": "اليوم",
+    "upcoming": "القادمة"
   },
   "welcome": "مرحبا بك في تابعني"
 }
