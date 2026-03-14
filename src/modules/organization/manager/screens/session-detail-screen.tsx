@@ -2,10 +2,11 @@ import type { MarkAttendanceInput, OrgSessionInstance } from '../types/manager.t
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, TextInput as RNTextInput } from 'react-native';
+import { Alert } from 'react-native';
 import {
   ActivityIndicator,
   Button,
+  Input,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -547,12 +548,13 @@ function StudentAttendanceCard({
       {/* Excuse note input -- only shown for EXCUSED */}
       {currentStatus === 'EXCUSED'
         ? (
-            <RNTextInput
-              className="font-inter mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900"
+            <Input
+              label={t('manager.sessionDetail.excuseNoteLabel', {
+                defaultValue: 'Excuse note',
+              })}
               placeholder={t('manager.sessionDetail.excuseNotePlaceholder', {
                 defaultValue: 'Reason for excuse...',
               })}
-              placeholderTextColor="#94a3b8"
               value={draft?.excuseNote ?? ''}
               onChangeText={onExcuseNoteChange}
               multiline

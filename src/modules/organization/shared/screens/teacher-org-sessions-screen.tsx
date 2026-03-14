@@ -1,8 +1,8 @@
 import type { TeacherOrgInstance } from '../services/teacher-org-api.service';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView } from 'react-native';
-import { ActivityIndicator, Button, SafeAreaView, Text, View } from '@/components/ui';
+import { RefreshControl } from 'react-native';
+import { ActivityIndicator, Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
 import { useCloseOrgInstance, useMyOrgInstances, useStartOrgInstance } from '../hooks/use-teacher-org-sessions';
 
 type InstanceCardProps = {

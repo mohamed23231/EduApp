@@ -1,5 +1,6 @@
 import type { OrganizationDetails } from '../types/manager.types';
-import { useMemo, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Button, Input, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
@@ -90,12 +91,29 @@ export function SettingsScreen() {
   const organizationsQuery = useOrganizations();
   const organizationQuery = useOrganization(activeOrgId);
 
-  if (!activeOrgId && organizationsQuery.data?.data[0]) {
-    setActiveOrgId(organizationsQuery.data.data[0].id);
-  }
+  useEffect(() => {
+    if (!activeOrgId && organizationsQuery.data?.data[0]) {
+      setActiveOrgId(organizationsQuery.data.data[0].id);
+    }
+  }, [activeOrgId, organizationsQuery.data, setActiveOrgId]);
 
   if (organizationQuery.isLoading) {
     return <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8]"><ActivityIndicator size="large" /></SafeAreaView>;
+  }
+
+  if (organizationQuery.isError) {
+    return (
+      <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+        <ScrollView contentContainerClassName="px-6 py-6">
+          <Text className="font-inter text-3xl font-semibold text-slate-900">{t('manager.settings.title', { defaultValue: 'Settings' })}</Text>
+          <View className="mt-5 items-center gap-3 py-6">
+            <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
+            <Text className="font-inter text-sm text-red-600">{t('manager.settings.errorLoading', { defaultValue: 'Failed to load organization settings.' })}</Text>
+            <Button variant="outline" size="sm" label={t('manager.settings.errorRetry', { defaultValue: 'Retry' })} fullWidth={false} onPress={() => organizationQuery.refetch()} />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
   }
 
   return (

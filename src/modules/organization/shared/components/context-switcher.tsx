@@ -1,8 +1,8 @@
 import type { OrgContextEntry } from '../services/contexts-api.service';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, View } from 'react-native';
-import { Text } from '@/components/ui';
+import { Modal } from 'react-native';
+import { Pressable, Text, View } from '@/components/ui';
 import { useOrgContextStore } from '../store/org-context-store';
 
 type Props = {

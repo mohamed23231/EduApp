@@ -33,6 +33,7 @@ export function WhatsAppShareButton({
     <Button
       variant="outline"
       label={t('manager.whatsapp.share', { defaultValue: 'Share via WhatsApp' })}
+      fullWidth={false}
       onPress={handlePress}
     />
   );

@@ -16,7 +16,7 @@ export function InviteTeacherModal() {
     const phone = values.inviteePhone.trim();
     const email = values.inviteeEmail.trim();
     if (!phone && !email) {
-      setMessage(t('manager.teachers.inviteValidation', 'Phone or email is required'));
+      setMessage(t('manager.teachers.inviteValidation', { defaultValue: 'Phone or email is required' }));
       return;
     }
     try {
@@ -25,25 +25,25 @@ export function InviteTeacherModal() {
         inviteeEmail: email || undefined,
       });
       setValues({ inviteePhone: '', inviteeEmail: '' });
-      setMessage(t('manager.teachers.inviteSent', 'Invitation sent'));
+      setMessage(t('manager.teachers.inviteSent', { defaultValue: 'Invitation sent' }));
     }
     catch (error) {
-      setMessage(getApiErrorMessage(error, t('manager.teachers.inviteError', 'Failed to send invitation')));
+      setMessage(getApiErrorMessage(error, t('manager.teachers.inviteError', { defaultValue: 'Failed to send invitation' })));
     }
   };
 
   return (
     <View className="mt-5 rounded-[28px] bg-white p-5">
       <Text className="font-inter text-lg font-semibold text-slate-900">
-        {t('manager.teachers.inviteTitle', 'Invite Teacher')}
+        {t('manager.teachers.inviteTitle', { defaultValue: 'Invite Teacher' })}
       </Text>
       <Input
-        label={t('manager.teachers.phone', 'Phone')}
+        label={t('manager.teachers.phone', { defaultValue: 'Phone' })}
         value={values.inviteePhone}
         onChangeText={inviteePhone => setValues(c => ({ ...c, inviteePhone }))}
       />
       <Input
-        label={t('manager.teachers.email', 'Email')}
+        label={t('manager.teachers.email', { defaultValue: 'Email' })}
         value={values.inviteeEmail}
         onChangeText={inviteeEmail => setValues(c => ({ ...c, inviteeEmail }))}
       />
@@ -52,7 +52,7 @@ export function InviteTeacherModal() {
         : null}
       <Button
         className="mt-3"
-        label={t('manager.teachers.sendInvite', 'Send Invitation')}
+        label={t('manager.teachers.sendInvite', { defaultValue: 'Send Invitation' })}
         onPress={submit}
         loading={inviteMutation.isPending}
       />

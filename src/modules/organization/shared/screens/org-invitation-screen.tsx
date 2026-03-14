@@ -1,8 +1,7 @@
 import type { PendingInvitation } from '../services/contexts-api.service';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, SafeAreaView, View } from 'react-native';
-import { Button, Text } from '@/components/ui';
+import { ActivityIndicator, Button, SafeAreaView, Text, View } from '@/components/ui';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { useAcceptInvitationById, useAcceptInvitationByToken, useDeclineInvitationById } from '../hooks/use-contexts';
 

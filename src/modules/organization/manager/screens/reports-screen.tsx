@@ -1,8 +1,8 @@
 import type { OrgTeacherStatsItem } from '../types/manager.types';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, RefreshControl } from 'react-native';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
+import { RefreshControl } from 'react-native';
+import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
 import { useOrganizations, useOrgStats } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
 
