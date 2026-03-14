@@ -125,6 +125,316 @@
       }
     }
   },
+  "manager": {
+    "common": {
+      "cancel": "Cancel",
+      "errorTitle": "Something went wrong",
+      "loading": "Loading..."
+    },
+    "dashboard": {
+      "cards": {
+        "absentToday": "Absent today",
+        "activeTeachers": "Active teachers",
+        "runningNow": "Running now",
+        "students": "Students",
+        "todaySessions": "Today"
+      },
+      "emptyCopy": "Create your first organization to unlock the manager dashboard.",
+      "emptyTitle": "No organization yet",
+      "noSessions": "No sessions scheduled for today yet.",
+      "openSession": "Open session",
+      "sessionDuration": "{{minutes}} min",
+      "sessionStudents": "{{count}} students",
+      "subtitle": "Keep today moving, track usage, and unblock your team before sessions start.",
+      "title": "Manager dashboard",
+      "todayTitle": "Today's sessions",
+      "viewAll": "View all"
+    },
+    "days": {
+      "fri": "Fri",
+      "mon": "Mon",
+      "sat": "Sat",
+      "sun": "Sun",
+      "thu": "Thu",
+      "tue": "Tue",
+      "wed": "Wed"
+    },
+    "limits": {
+      "sessions": "Session limit reached ({{current}}/{{limit}}).",
+      "students": "Student limit reached ({{current}}/{{limit}})."
+    },
+    "more": {
+      "orgName": "Organization: {{name}}",
+      "reports": {
+        "body": "Review attendance, engagement, and teacher performance trends.",
+        "cta": "Open reports",
+        "title": "Reports"
+      },
+      "settings": {
+        "body": "Update contact information and monitor limit usage.",
+        "cta": "Open settings",
+        "title": "Settings"
+      },
+      "subtitle": "Settings, reports, and higher-level organization controls live here.",
+      "title": "More"
+    },
+    "reports": {
+      "cards": {
+        "absentCount": "Absent",
+        "attendanceRate": "Attendance rate",
+        "averageRating": "Average rating",
+        "completed": "Completed",
+        "excusedCount": "Excused",
+        "totalSessions": "Total sessions"
+      },
+      "range": {
+        "month": "Month",
+        "term": "Term",
+        "week": "Week"
+      },
+      "subtitle": "Attendance, completion, and teacher performance trends for your organization.",
+      "teacherLastSession": "Last session: {{date}}",
+      "teacherPerformance": "Teacher performance",
+      "teacherRating": "Rating: {{rating}}",
+      "teacherSummary": "{{completed}} completed • {{attendance}}% attendance",
+      "title": "Reports"
+    },
+    "sessionDetail": {
+      "attendanceError": "Could not save attendance right now.",
+      "attendanceTitle": "Attendance",
+      "close": "Close session",
+      "closeConfirm": "Confirm",
+      "closeWarning": "{{count}} unmarked students will be auto-marked as absent. Continue?",
+      "closeWarningTitle": "Close session",
+      "daysLabel": "Days",
+      "durationLabel": "Duration",
+      "durationValue": "{{minutes}} min",
+      "excuseNotePlaceholder": "Reason for excuse...",
+      "instanceState": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "closed": "Closed",
+        "draft": "Draft"
+      },
+      "loadError": "Failed to load session data.",
+      "markedCount": "Marked: {{marked}}/{{total}}",
+      "noInstances": "No instances found for the last 7 days.",
+      "paused": "Paused",
+      "ratingLabel": "Rating",
+      "recentInstances": "Recent instances",
+      "retry": "Retry",
+      "saveAttendance": "Save attendance",
+      "start": "Start session",
+      "status": {
+        "absent": "Absent",
+        "excused": "Excused",
+        "present": "Present"
+      },
+      "studentCount": "{{count}} students",
+      "title": "Session detail"
+    },
+    "sessions": {
+      "actions": {
+        "create": "Create session",
+        "delete": "Delete",
+        "details": "Details",
+        "pause": "Pause",
+        "resume": "Resume"
+      },
+      "createTitle": "Create session template",
+      "deleteConfirm": "Delete",
+      "deleteMessage": "This will soft-delete the session template. Existing records are preserved.",
+      "deleteTitle": "Delete session?",
+      "empty": "No sessions yet.",
+      "errorLoading": "Could not load sessions.",
+      "errorRetry": "Retry",
+      "fields": {
+        "days": "Days of week",
+        "duration": "Duration in minutes",
+        "students": "Assigned students",
+        "subject": "Subject",
+        "teacher": "Assigned teacher",
+        "time": "Time (HH:MM)"
+      },
+      "listTitle": "Existing templates",
+      "myselfSuffix": "(Myself)",
+      "paused": "Paused",
+      "studentCount": "{{count}} students",
+      "submitError": "Unable to save the session right now.",
+      "subtitle": "Build recurring session templates and keep teacher assignments visible.",
+      "title": "Sessions",
+      "validation": {
+        "daysRequired": "Choose at least one day",
+        "subjectRequired": "Subject is required",
+        "teacherRequired": "Choose a teacher",
+        "timeInvalid": "Enter a valid time in HH:MM format"
+      }
+    },
+    "settings": {
+      "fields": {
+        "address": "Address",
+        "email": "Email",
+        "name": "Organization name",
+        "phone": "Phone"
+      },
+      "save": "Save settings",
+      "subscriptionDates": "Subscription: {{start}} — {{end}}",
+      "subtitle": "Keep organization details current and watch entitlement usage at a glance.",
+      "title": "Settings",
+      "trialEndDate": "Trial ends: {{date}}",
+      "updateError": "Unable to update organization settings.",
+      "updated": "Organization settings updated.",
+      "usage": {
+        "minutes": "Session minutes",
+        "source": "Source: {{source}}",
+        "students": "Students",
+        "teachers": "Teachers",
+        "templates": "Session templates",
+        "title": "Usage"
+      }
+    },
+    "setup": {
+      "address": "Address (optional)",
+      "email": "Email (optional)",
+      "heroCopy": "Set up the basics once, then start adding students, inviting teachers, and running sessions.",
+      "heroTitle": "Create your organization",
+      "name": "Organization name",
+      "phone": "Phone (optional)",
+      "submit": "Create organization",
+      "submitError": "We could not create your organization right now.",
+      "validation": {
+        "emailInvalid": "Please enter a valid email address",
+        "nameRequired": "Organization name is required"
+      }
+    },
+    "students": {
+      "actions": {
+        "copy": "Copy code",
+        "create": "Create student",
+        "delete": "Delete",
+        "edit": "Edit",
+        "regenerate": "Regenerate code",
+        "save": "Save changes"
+      },
+      "connectionCode": "Connection code",
+      "copiedBody": "The connection code is ready to paste.",
+      "copiedTitle": "Copied",
+      "createTitle": "Add student",
+      "deleteConfirm": "Delete",
+      "deleteMessage": "This will remove the student from future sessions. Historical data is preserved.",
+      "deleteTitle": "Delete student?",
+      "editTitle": "Edit student",
+      "empty": "No students yet.",
+      "errorLoading": "Could not load students.",
+      "errorRetry": "Retry",
+      "fields": {
+        "gradeLevel": "Grade level",
+        "name": "Student name",
+        "notes": "Notes",
+        "parentPhone": "Parent phone"
+      },
+      "gradeFilter": "Filter by grade",
+      "grades": {
+        "all": "All grades",
+        "grade1": "Grade 1",
+        "grade10": "Grade 10",
+        "grade11": "Grade 11",
+        "grade12": "Grade 12",
+        "grade2": "Grade 2",
+        "grade3": "Grade 3",
+        "grade4": "Grade 4",
+        "grade5": "Grade 5",
+        "grade6": "Grade 6",
+        "grade7": "Grade 7",
+        "grade8": "Grade 8",
+        "grade9": "Grade 9",
+        "label": "Select grade",
+        "other": "Other",
+        "university": "University"
+      },
+      "nextPage": "Next",
+      "noGrade": "No grade level",
+      "pageInfo": "Page {{page}} of {{total}}",
+      "parentLinked": "Parent linked",
+      "prevPage": "Previous",
+      "search": "Search students",
+      "sessionsCount": "{{count}} sessions",
+      "submitError": "Unable to save the student right now.",
+      "subtitle": "Search the roster, share connection codes, and keep parent contact details fresh.",
+      "title": "Students",
+      "validation": {
+        "nameRequired": "Student name is required"
+      }
+    },
+    "tabs": {
+      "home": "Home",
+      "homeAccessibility": "Manager dashboard",
+      "more": "More",
+      "sessions": "Sessions",
+      "students": "Students",
+      "teachers": "Teachers"
+    },
+    "teachers": {
+      "activeSessions": "{{count}} active sessions",
+      "email": "Email",
+      "errorLoading": "Could not load members.",
+      "errorRetry": "Retry",
+      "inviteError": "Unable to send the invitation right now.",
+      "inviteSent": "Invitation sent successfully.",
+      "inviteTitle": "Invite teacher",
+      "inviteValidation": "Please provide at least a phone number or email address.",
+      "listTitle": "Current members",
+      "pendingCancel": "Cancel",
+      "pendingEmpty": "No pending invitations.",
+      "pendingExpires": "Expires {{date}}",
+      "pendingResend": "Resend",
+      "pendingTitle": "Pending invitations",
+      "phone": "Phone",
+      "remove": "Remove",
+      "removeConfirm": "Remove",
+      "removeMessage": "Their assigned sessions will be paused and future instances cancelled.",
+      "removeTitle": "Remove teacher?",
+      "sendInvite": "Send invitation",
+      "subtitle": "Invite teachers by phone or email, then remove them cleanly when responsibilities change.",
+      "title": "Teachers"
+    },
+    "trialBanner": {
+      "body": "This organization is now read-only until a subscription is activated.",
+      "contactSupport": "Contact support",
+      "createNew": "Create new org",
+      "supportEmail": "support@privatedulink.com",
+      "title": "Trial expired"
+    },
+    "whatsapp": {
+      "copiedBody": "WhatsApp is unavailable, so the message was copied.",
+      "copiedTitle": "Copied",
+      "share": "Share via WhatsApp"
+    },
+    "wizard": {
+      "completed": "Completed",
+      "progress": "{{done}}/{{total}} complete",
+      "stepLabel": "Step {{count}}",
+      "steps": {
+        "sessions": {
+          "copy": "Once students and a teacher are ready, schedule the recurring session template.",
+          "cta": "Open sessions",
+          "title": "Create the first session"
+        },
+        "students": {
+          "copy": "Create at least one student so sessions and attendance have real rosters.",
+          "cta": "Open students",
+          "title": "Add your first student"
+        },
+        "teachers": {
+          "copy": "Invite teachers now, or assign sessions to yourself as the owner to get started quickly.",
+          "cta": "Open teachers",
+          "title": "Invite or assign a teacher"
+        }
+      },
+      "subtitle": "Complete these three steps to get your organization live.",
+      "title": "Launch checklist"
+    }
+  },
   "notification": {
     "absence": {
       "body": "{{studentName}} was marked absent on {{sessionDate}}",

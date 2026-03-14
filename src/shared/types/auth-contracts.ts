@@ -37,7 +37,7 @@ export type LoginSuccessData = {
     fullName?: string;
   };
   onboardingRequired?: boolean;
-  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
 };
 
 /**
@@ -63,7 +63,7 @@ export type SignupSuccessData = {
     fullName?: string;
   };
   onboardingRequired: boolean;
-  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
 };
 
 /**

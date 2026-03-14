@@ -71,7 +71,7 @@ export type PhoneAuthResponse = {
     phoneE164?: string | null;
   };
   onboardingRequired?: boolean;
-  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
 };
 
 export type PhoneLoginResponse = {
@@ -98,7 +98,7 @@ export type PhoneLoginResponseOnboarding = {
     phoneE164?: string | null;
   } | null;
   onboardingRequired: true;
-  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
 };
 
 export type PhoneLoginResponseUnion = PhoneLoginResponse | PhoneLoginResponseOnboarding;

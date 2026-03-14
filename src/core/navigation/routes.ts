@@ -32,6 +32,13 @@ export const AppRoute = {
   manager: {
     setup: '/(manager)/setup',
     dashboard: '/(manager)/(tabs)/dashboard',
+    students: '/(manager)/(tabs)/students',
+    sessions: '/(manager)/(tabs)/sessions',
+    teachers: '/(manager)/(tabs)/teachers',
+    more: '/(manager)/(tabs)/more',
+    sessionDetail: (id: string) => `/(manager)/sessions/${id}` as const,
+    settings: '/(manager)/settings',
+    reports: '/(manager)/reports',
   },
   admin: {
     dashboard: '/(admin)/dashboard',

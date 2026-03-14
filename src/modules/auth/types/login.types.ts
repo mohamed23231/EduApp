@@ -12,7 +12,7 @@ export type LoginUser = {
   role: UserRole;
   fullName?: string;
   phoneE164?: string | null;
-  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
 };
 
 export type LoginResponseSuccess = {
@@ -27,7 +27,7 @@ export type LoginResponseOnboarding = {
   refresh: string;
   user: LoginUser | null;
   onboardingRequired: true;
-  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND';
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
 };
 
 export type LoginResponse = LoginResponseSuccess | LoginResponseOnboarding;

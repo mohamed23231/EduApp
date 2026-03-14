@@ -63,10 +63,14 @@ export function LoginScreen() {
       if (response.onboardingRequired) {
         // Persist onboarding context before signing in
         if (response.onboardingReason === 'PROFILE_NOT_FOUND' && response.user) {
+          const onboardingRole
+            = response.user.role === UserRole.TEACHER || response.user.role === UserRole.PARENT
+              ? (response.user.role as 'TEACHER' | 'PARENT')
+              : undefined;
           // User exists in DB — we have role and fullName
           setOnboardingContext({
             email: response.user.email,
-            role: response.user.role as 'TEACHER' | 'PARENT',
+            ...(onboardingRole ? { role: onboardingRole } : {}),
             fullName: response.user.fullName,
             phone: response.user.phoneE164 ?? undefined,
           });
@@ -179,9 +183,13 @@ export function LoginScreen() {
 
       if (response.onboardingRequired) {
         if (response.onboardingReason === 'PROFILE_NOT_FOUND' && response.user) {
+          const onboardingRole
+            = response.user.role === UserRole.TEACHER || response.user.role === UserRole.PARENT
+              ? (response.user.role as 'TEACHER' | 'PARENT')
+              : undefined;
           setOnboardingContext({
             email: response.user.email ?? '',
-            role: response.user.role as 'TEACHER' | 'PARENT',
+            ...(onboardingRole ? { role: onboardingRole } : {}),
             fullName: response.user.fullName,
             phone: response.user.phoneE164 ?? values.phone,
           });

@@ -16,7 +16,11 @@ export async function loginService(data: LoginRequestParams): Promise<LoginRespo
   const onboardingRequired = payload.onboardingRequired ?? false;
 
   if (onboardingRequired) {
-    const reason = payload.onboardingReason as 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | undefined;
+    const reason = payload.onboardingReason as
+      | 'USER_NOT_FOUND'
+      | 'PROFILE_NOT_FOUND'
+      | 'ORG_SETUP_REQUIRED'
+      | undefined;
     return {
       access: payload.accessToken,
       refresh: payload.refreshToken,

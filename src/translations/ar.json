@@ -125,6 +125,316 @@
       }
     }
   },
+  "manager": {
+    "common": {
+      "cancel": "إلغاء",
+      "errorTitle": "حدث خطأ ما",
+      "loading": "جارٍ التحميل..."
+    },
+    "dashboard": {
+      "cards": {
+        "absentToday": "غياب اليوم",
+        "activeTeachers": "المعلمون النشطون",
+        "runningNow": "جارية الآن",
+        "students": "الطلاب",
+        "todaySessions": "اليوم"
+      },
+      "emptyCopy": "أنشئ أول مؤسسة لفتح لوحة المدير.",
+      "emptyTitle": "لا توجد مؤسسة بعد",
+      "noSessions": "لا توجد حصص مجدولة لليوم حتى الآن.",
+      "openSession": "فتح الحصة",
+      "sessionDuration": "{{minutes}} دقيقة",
+      "sessionStudents": "{{count}} طالب",
+      "subtitle": "تابع يومك، وراقب الاستهلاك، وأزل العوائق قبل بدء الحصص.",
+      "title": "لوحة المدير",
+      "todayTitle": "حصص اليوم",
+      "viewAll": "عرض الكل"
+    },
+    "days": {
+      "fri": "الجمعة",
+      "mon": "الإثنين",
+      "sat": "السبت",
+      "sun": "الأحد",
+      "thu": "الخميس",
+      "tue": "الثلاثاء",
+      "wed": "الأربعاء"
+    },
+    "limits": {
+      "sessions": "تم الوصول إلى حد الحصص ({{current}}/{{limit}}).",
+      "students": "تم الوصول إلى حد الطلاب ({{current}}/{{limit}})."
+    },
+    "more": {
+      "orgName": "المؤسسة: {{name}}",
+      "reports": {
+        "body": "راجع اتجاهات الحضور والتفاعل وأداء المعلمين.",
+        "cta": "افتح التقارير",
+        "title": "التقارير"
+      },
+      "settings": {
+        "body": "حدّث معلومات التواصل وراقب استخدام الحدود.",
+        "cta": "افتح الإعدادات",
+        "title": "الإعدادات"
+      },
+      "subtitle": "الإعدادات والتقارير والتحكمات الأعلى مستوى موجودة هنا.",
+      "title": "المزيد"
+    },
+    "reports": {
+      "cards": {
+        "absentCount": "الغياب",
+        "attendanceRate": "معدل الحضور",
+        "averageRating": "متوسط التقييم",
+        "completed": "المكتملة",
+        "excusedCount": "بعذر",
+        "totalSessions": "إجمالي الحصص"
+      },
+      "range": {
+        "month": "شهر",
+        "term": "فصل",
+        "week": "أسبوع"
+      },
+      "subtitle": "اتجاهات الحضور والإنجاز وأداء المعلمين داخل المؤسسة.",
+      "teacherLastSession": "آخر حصة: {{date}}",
+      "teacherPerformance": "أداء المعلمين",
+      "teacherRating": "التقييم: {{rating}}",
+      "teacherSummary": "{{completed}} مكتملة • {{attendance}}% حضور",
+      "title": "التقارير"
+    },
+    "sessionDetail": {
+      "attendanceError": "تعذر حفظ الحضور الآن.",
+      "attendanceTitle": "الحضور",
+      "close": "أغلق الحصة",
+      "closeConfirm": "تأكيد",
+      "closeWarning": "سيتم تسجيل {{count}} طالب غير محدد كغائبين تلقائياً. هل تريد المتابعة؟",
+      "closeWarningTitle": "إغلاق الحصة",
+      "daysLabel": "الأيام",
+      "durationLabel": "المدة",
+      "durationValue": "{{minutes}} دقيقة",
+      "excuseNotePlaceholder": "سبب العذر...",
+      "instanceState": {
+        "active": "نشطة",
+        "cancelled": "ملغاة",
+        "closed": "مغلقة",
+        "draft": "مسودة"
+      },
+      "loadError": "فشل تحميل بيانات الحصة.",
+      "markedCount": "تم التسجيل: {{marked}}/{{total}}",
+      "noInstances": "لا توجد حصص في آخر 7 أيام.",
+      "paused": "متوقفة",
+      "ratingLabel": "التقييم",
+      "recentInstances": "الحصص الأخيرة",
+      "retry": "إعادة المحاولة",
+      "saveAttendance": "حفظ الحضور",
+      "start": "ابدأ الحصة",
+      "status": {
+        "absent": "غائب",
+        "excused": "بعذر",
+        "present": "حاضر"
+      },
+      "studentCount": "{{count}} طالب",
+      "title": "تفاصيل الحصة"
+    },
+    "sessions": {
+      "actions": {
+        "create": "إنشاء الحصة",
+        "delete": "حذف",
+        "details": "التفاصيل",
+        "pause": "إيقاف",
+        "resume": "استئناف"
+      },
+      "createTitle": "إنشاء قالب حصة",
+      "deleteConfirm": "حذف",
+      "deleteMessage": "سيتم حذف قالب الحصة. السجلات الحالية محفوظة.",
+      "deleteTitle": "حذف الحصة؟",
+      "empty": "لا توجد حصص بعد.",
+      "errorLoading": "تعذر تحميل الحصص.",
+      "errorRetry": "إعادة المحاولة",
+      "fields": {
+        "days": "أيام الأسبوع",
+        "duration": "المدة بالدقائق",
+        "students": "الطلاب المسندون",
+        "subject": "المادة",
+        "teacher": "المعلم المسؤول",
+        "time": "الوقت (HH:MM)"
+      },
+      "listTitle": "القوالب الحالية",
+      "myselfSuffix": "(أنا)",
+      "paused": "متوقفة",
+      "studentCount": "{{count}} طلاب",
+      "submitError": "تعذر حفظ الحصة الآن.",
+      "subtitle": "أنشئ قوالب حصص متكررة مع ظهور واضح لإسناد المعلمين.",
+      "title": "الحصص",
+      "validation": {
+        "daysRequired": "اختر يوماً واحداً على الأقل",
+        "subjectRequired": "المادة مطلوبة",
+        "teacherRequired": "اختر معلماً",
+        "timeInvalid": "أدخل وقتاً صحيحاً بصيغة HH:MM"
+      }
+    },
+    "settings": {
+      "fields": {
+        "address": "العنوان",
+        "email": "البريد الإلكتروني",
+        "name": "اسم المؤسسة",
+        "phone": "الهاتف"
+      },
+      "save": "حفظ الإعدادات",
+      "subscriptionDates": "الاشتراك: {{start}} — {{end}}",
+      "subtitle": "حدّث تفاصيل المؤسسة وراقب استهلاك الحدود بسهولة.",
+      "title": "الإعدادات",
+      "trialEndDate": "تنتهي التجربة: {{date}}",
+      "updateError": "تعذر تحديث إعدادات المؤسسة.",
+      "updated": "تم تحديث إعدادات المؤسسة.",
+      "usage": {
+        "minutes": "دقائق الحصص",
+        "source": "المصدر: {{source}}",
+        "students": "الطلاب",
+        "teachers": "المعلمون",
+        "templates": "قوالب الحصص",
+        "title": "الاستخدام"
+      }
+    },
+    "setup": {
+      "address": "العنوان (اختياري)",
+      "email": "البريد الإلكتروني (اختياري)",
+      "heroCopy": "اضبط الأساسيات مرة واحدة ثم ابدأ بإضافة الطلاب ودعوة المعلمين وتشغيل الحصص.",
+      "heroTitle": "أنشئ مؤسستك",
+      "name": "اسم المؤسسة",
+      "phone": "الهاتف (اختياري)",
+      "submit": "إنشاء المؤسسة",
+      "submitError": "تعذر إنشاء المؤسسة الآن.",
+      "validation": {
+        "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+        "nameRequired": "اسم المؤسسة مطلوب"
+      }
+    },
+    "students": {
+      "actions": {
+        "copy": "نسخ الرمز",
+        "create": "إنشاء الطالب",
+        "delete": "حذف",
+        "edit": "تعديل",
+        "regenerate": "إعادة إنشاء الرمز",
+        "save": "حفظ التغييرات"
+      },
+      "connectionCode": "رمز الربط",
+      "copiedBody": "رمز الربط جاهز للصق.",
+      "copiedTitle": "تم النسخ",
+      "createTitle": "إضافة طالب",
+      "deleteConfirm": "حذف",
+      "deleteMessage": "سيتم إزالة الطالب من الحصص المستقبلية. البيانات التاريخية محفوظة.",
+      "deleteTitle": "حذف الطالب؟",
+      "editTitle": "تعديل الطالب",
+      "empty": "لا يوجد طلاب بعد.",
+      "errorLoading": "تعذر تحميل الطلاب.",
+      "errorRetry": "إعادة المحاولة",
+      "fields": {
+        "gradeLevel": "المرحلة الدراسية",
+        "name": "اسم الطالب",
+        "notes": "ملاحظات",
+        "parentPhone": "هاتف ولي الأمر"
+      },
+      "gradeFilter": "تصفية حسب المرحلة",
+      "grades": {
+        "all": "جميع المراحل",
+        "grade1": "الصف الأول",
+        "grade10": "الصف العاشر",
+        "grade11": "الصف الحادي عشر",
+        "grade12": "الصف الثاني عشر",
+        "grade2": "الصف الثاني",
+        "grade3": "الصف الثالث",
+        "grade4": "الصف الرابع",
+        "grade5": "الصف الخامس",
+        "grade6": "الصف السادس",
+        "grade7": "الصف السابع",
+        "grade8": "الصف الثامن",
+        "grade9": "الصف التاسع",
+        "label": "اختر المرحلة",
+        "other": "أخرى",
+        "university": "جامعة"
+      },
+      "nextPage": "التالي",
+      "noGrade": "بدون مرحلة دراسية",
+      "pageInfo": "صفحة {{page}} من {{total}}",
+      "parentLinked": "ولي الأمر مرتبط",
+      "prevPage": "السابق",
+      "search": "ابحث عن الطلاب",
+      "sessionsCount": "{{count}} حصص",
+      "submitError": "تعذر حفظ الطالب الآن.",
+      "subtitle": "ابحث في القائمة، وشارك أكواد الربط، وحدّث بيانات أولياء الأمور بسهولة.",
+      "title": "الطلاب",
+      "validation": {
+        "nameRequired": "اسم الطالب مطلوب"
+      }
+    },
+    "tabs": {
+      "home": "الرئيسية",
+      "homeAccessibility": "لوحة المدير",
+      "more": "المزيد",
+      "sessions": "الحصص",
+      "students": "الطلاب",
+      "teachers": "المعلمون"
+    },
+    "teachers": {
+      "activeSessions": "{{count}} حصص نشطة",
+      "email": "البريد الإلكتروني",
+      "errorLoading": "تعذر تحميل الأعضاء.",
+      "errorRetry": "إعادة المحاولة",
+      "inviteError": "تعذر إرسال الدعوة الآن.",
+      "inviteSent": "تم إرسال الدعوة بنجاح.",
+      "inviteTitle": "دعوة معلم",
+      "inviteValidation": "يرجى تقديم رقم هاتف أو بريد إلكتروني على الأقل.",
+      "listTitle": "الأعضاء الحاليون",
+      "pendingCancel": "إلغاء",
+      "pendingEmpty": "لا توجد دعوات معلقة.",
+      "pendingExpires": "تنتهي {{date}}",
+      "pendingResend": "إعادة الإرسال",
+      "pendingTitle": "الدعوات المعلقة",
+      "phone": "الهاتف",
+      "remove": "إزالة",
+      "removeConfirm": "إزالة",
+      "removeMessage": "سيتم إيقاف الحصص المسندة إليه وإلغاء الجلسات المستقبلية.",
+      "removeTitle": "إزالة المعلم؟",
+      "sendInvite": "إرسال الدعوة",
+      "subtitle": "ادعُ المعلمين عبر الهاتف أو البريد الإلكتروني، ثم أزلهم بشكل منظم عند تغير المسؤوليات.",
+      "title": "المعلمون"
+    },
+    "trialBanner": {
+      "body": "أصبحت هذه المؤسسة للقراءة فقط حتى يتم تفعيل الاشتراك.",
+      "contactSupport": "تواصل مع الدعم",
+      "createNew": "أنشئ مؤسسة جديدة",
+      "supportEmail": "support@privatedulink.com",
+      "title": "انتهت الفترة التجريبية"
+    },
+    "whatsapp": {
+      "copiedBody": "واتساب غير متاح حالياً، لذلك تم نسخ الرسالة.",
+      "copiedTitle": "تم النسخ",
+      "share": "شارك عبر واتساب"
+    },
+    "wizard": {
+      "completed": "مكتمل",
+      "progress": "{{done}}/{{total}} مكتمل",
+      "stepLabel": "الخطوة {{count}}",
+      "steps": {
+        "sessions": {
+          "copy": "بعد تجهيز الطلاب والمعلم، أنشئ قالب الحصة المتكررة.",
+          "cta": "افتح الحصص",
+          "title": "أنشئ أول حصة"
+        },
+        "students": {
+          "copy": "أنشئ طالباً واحداً على الأقل حتى تصبح الحصص والحضور مرتبطة بقوائم حقيقية.",
+          "cta": "افتح الطلاب",
+          "title": "أضف أول طالب"
+        },
+        "teachers": {
+          "copy": "يمكنك دعوة المعلمين الآن أو إسناد الحصص لنفسك بصفتك المالك للبدء بسرعة.",
+          "cta": "افتح المعلمين",
+          "title": "ادعُ معلماً أو أسند الحصة لنفسك"
+        }
+      },
+      "subtitle": "أكمل هذه الخطوات الثلاث لتصبح المؤسسة جاهزة للعمل.",
+      "title": "قائمة الإطلاق"
+    }
+  },
   "notification": {
     "absence": {
       "body": "تم تحديد {{studentName}} كغائب في {{sessionDate}}",
