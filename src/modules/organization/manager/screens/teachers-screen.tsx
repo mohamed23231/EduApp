@@ -1,8 +1,8 @@
 import type { OrgInvitation } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
 import {
   ActivityIndicator,
   Button,
@@ -165,6 +165,8 @@ export function TeachersScreen() {
   const activeOrgId = useManagerStore.use.activeOrgId();
   const setActiveOrgId = useManagerStore.use.setActiveOrgId();
   const organizationsQuery = useOrganizations();
+  const membersQuery = useOrgMembers(activeOrgId);
+  const invitationsQuery = useOrgInvitations(activeOrgId);
 
   useEffect(() => {
     if (!activeOrgId && organizationsQuery.data?.data[0]) {
@@ -172,19 +174,34 @@ export function TeachersScreen() {
     }
   }, [activeOrgId, organizationsQuery.data, setActiveOrgId]);
 
+  const onRefresh = useCallback(() => {
+    membersQuery.refetch();
+    invitationsQuery.refetch();
+  }, [membersQuery, invitationsQuery]);
+
+  const isRefreshing = membersQuery.isRefetching || invitationsQuery.isRefetching;
+
   return (
     <SafeAreaView className="flex-1 bg-[#f5f1e8]">
-      <ScrollView contentContainerClassName="px-6 py-6">
-        <Text className="font-inter text-3xl font-semibold text-slate-900">
-          {t('manager.teachers.title')}
-        </Text>
-        <Text className="font-inter mt-2 text-base text-slate-500">
-          {t('manager.teachers.subtitle')}
-        </Text>
-        <InviteTeacherModal />
-        <MembersList />
-        <PendingInvitationsList />
-      </ScrollView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        <ScrollView
+          contentContainerClassName="px-6 py-6"
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        >
+          <Text className="font-inter text-3xl font-semibold text-slate-900">
+            {t('manager.teachers.title')}
+          </Text>
+          <Text className="font-inter mt-2 text-base text-slate-500">
+            {t('manager.teachers.subtitle')}
+          </Text>
+          <InviteTeacherModal />
+          <MembersList />
+          <PendingInvitationsList />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { I18nManager, Animated, Pressable, View } from 'react-native';
-import { useRef } from 'react';
-import { Text } from '@/components/ui';
 import { Ionicons } from '@expo/vector-icons';
+import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Animated, I18nManager, Pressable, View } from 'react-native';
+import { Text } from '@/components/ui';
 
 type Notification = {
   id: string;
@@ -131,27 +131,29 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
   const handlePressIn = () => {
     Animated.parallel([
       Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }),
-      Animated.timing(opacity, { toValue: 0.8, duration: 150, useNativeDriver: true })
+      Animated.timing(opacity, { toValue: 0.8, duration: 150, useNativeDriver: true }),
     ]).start();
   };
-  
+
   const handlePressOut = () => {
     Animated.parallel([
       Animated.spring(scale, { toValue: 1, useNativeDriver: true }),
-      Animated.timing(opacity, { toValue: 1, duration: 150, useNativeDriver: true })
+      Animated.timing(opacity, { toValue: 1, duration: 150, useNativeDriver: true }),
     ]).start();
   };
 
   const normalizedTitleKey = notification.titleKey.toLowerCase();
   const isAbsence = normalizedTitleKey.includes('absence');
-  const isLowScore = 
-    normalizedTitleKey.includes('lowscore') || 
-    normalizedTitleKey.includes('low_score') || 
-    normalizedTitleKey.includes('low-score');
+  const isLowScore
+    = normalizedTitleKey.includes('lowscore')
+      || normalizedTitleKey.includes('low_score')
+      || normalizedTitleKey.includes('low-score');
 
   const getIconConfig = () => {
-    if (isAbsence) return { name: 'alert-circle' as const, color: '#EF4444', bgClass: 'bg-red-50' };
-    if (isLowScore) return { name: 'trending-down' as const, color: '#F59E0B', bgClass: 'bg-orange-50' };
+    if (isAbsence)
+      return { name: 'alert-circle' as const, color: '#EF4444', bgClass: 'bg-red-50' };
+    if (isLowScore)
+      return { name: 'trending-down' as const, color: '#F59E0B', bgClass: 'bg-orange-50' };
     return { name: 'notifications' as const, color: '#6366F1', bgClass: 'bg-indigo-50' };
   };
 
@@ -161,12 +163,12 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
     'rounded-2xl p-4 mb-3 min-h-[44px] w-full',
     isUnread ? 'bg-white shadow-sm border border-gray-100' : 'bg-[#F9FAFB] border border-transparent',
     isRTL ? 'flex-row-reverse' : 'flex-row',
-    'items-start'
+    'items-start',
   ].filter(Boolean).join(' ');
 
   const rowClasses = [
     'items-center justify-between mb-1',
-    isRTL ? 'flex-row-reverse' : 'flex-row'
+    isRTL ? 'flex-row-reverse' : 'flex-row',
   ].filter(Boolean).join(' ');
 
   const alignment = isRTL ? 'right' : 'left';
@@ -182,13 +184,13 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
         testID={`notification-item-${notification.id}`}
         className={containerClasses}
       >
-        <View className={`w-12 h-12 rounded-full items-center justify-center ${iconConfig.bgClass} ${isRTL ? 'ml-3' : 'mr-3'}`}>
+        <View className={`size-12 items-center justify-center rounded-full ${iconConfig.bgClass} ${isRTL ? 'ml-3' : 'mr-3'}`}>
           <Ionicons name={iconConfig.name} size={24} color={iconConfig.color} />
         </View>
 
         <View className="flex-1">
           <View className={rowClasses}>
-            <Text 
+            <Text
               className={`flex-1 text-sm ${isUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}
               numberOfLines={1}
               style={{ textAlign: alignment }}
@@ -196,19 +198,19 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
               {title}
             </Text>
             {isUnread && (
-              <View className="w-2 h-2 rounded-full bg-indigo-500 mx-2" />
+              <View className="mx-2 size-2 rounded-full bg-indigo-500" />
             )}
           </View>
-          
-          <Text 
+
+          <Text
             className={`text-sm ${isUnread ? 'font-medium text-gray-800' : 'font-normal text-gray-500'}`}
             numberOfLines={2}
             style={{ textAlign: alignment, lineHeight: 20 }}
           >
             {body}
           </Text>
-          
-          <Text 
+
+          <Text
             className={`mt-2 text-xs font-medium ${isUnread ? 'text-indigo-500' : 'text-gray-400'}`}
             style={{ textAlign: alignment }}
           >

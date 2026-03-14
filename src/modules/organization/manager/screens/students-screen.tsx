@@ -1,9 +1,9 @@
 import type { OrgStudent } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
 import {
   ActivityIndicator,
   Button,
@@ -188,15 +188,28 @@ function StudentCreateForm({
   );
 }
 
+const DEBOUNCE_MS = 300;
+
 function StudentListSection() {
   const { t } = useTranslation();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const deleteMutation = useDeleteStudent(activeOrgId);
   const regenerateMutation = useRegenerateStudentCode(activeOrgId);
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
   const [page, setPage] = useState(1);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studentsQuery = useOrgStudents(activeOrgId, { search, gradeLevel, page, limit: PAGE_LIMIT });
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   const gradeOptions = useMemo(
     () => GRADE_KEYS.map(key => ({
@@ -230,13 +243,19 @@ function StudentListSection() {
   };
 
   const handleSearchChange = (text: string) => {
-    setSearch(text);
-    setPage(1);
+    setSearchInput(text);
+    if (debounceRef.current !== null) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      setSearch(text);
+      setPage(1);
+    }, DEBOUNCE_MS);
   };
 
   return (
     <View className="mt-5 rounded-[28px] bg-white p-5">
-      <Input label={t('manager.students.search')} value={search} onChangeText={handleSearchChange} />
+      <Input label={t('manager.students.search')} value={searchInput} onChangeText={handleSearchChange} />
       <Select label={t('manager.students.gradeFilter')} placeholder={t('manager.students.grades.label')} value={gradeLevel} options={gradeOptions} onSelect={handleGradeChange} />
 
       {studentsQuery.isLoading
@@ -293,6 +312,7 @@ export function StudentsScreen() {
   const { t } = useTranslation();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const organizationQuery = useOrganization(activeOrgId);
+  const studentsListQuery = useOrgStudents(activeOrgId);
 
   const limitMessage = useMemo(() => {
     const organization = organizationQuery.data;
@@ -304,18 +324,33 @@ export function StudentsScreen() {
     return t('manager.limits.students', { current: organization.currentStudents, limit });
   }, [organizationQuery.data, t]);
 
+  const onRefresh = useCallback(() => {
+    organizationQuery.refetch();
+    studentsListQuery.refetch();
+  }, [organizationQuery, studentsListQuery]);
+
+  const isRefreshing = organizationQuery.isRefetching || studentsListQuery.isRefetching;
+
   return (
     <SafeAreaView className="flex-1 bg-[#f5f1e8]">
-      <ScrollView contentContainerClassName="px-6 py-6">
-        <Text className="font-inter text-3xl font-semibold text-slate-900">
-          {t('manager.students.title')}
-        </Text>
-        <Text className="font-inter mt-2 text-base text-slate-500">
-          {t('manager.students.subtitle')}
-        </Text>
-        <StudentCreateForm limitMessage={limitMessage} />
-        <StudentListSection />
-      </ScrollView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        <ScrollView
+          contentContainerClassName="px-6 py-6"
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        >
+          <Text className="font-inter text-3xl font-semibold text-slate-900">
+            {t('manager.students.title')}
+          </Text>
+          <Text className="font-inter mt-2 text-base text-slate-500">
+            {t('manager.students.subtitle')}
+          </Text>
+          <StudentCreateForm limitMessage={limitMessage} />
+          <StudentListSection />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

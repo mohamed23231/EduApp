@@ -404,6 +404,7 @@ function AttendanceSection({ activeInstance, activeOrgId }: AttendanceSectionPro
   const markMutation = useMarkAttendance(activeOrgId, activeInstance.id);
   const [draftAttendance, setDraftAttendance] = useState<Record<string, DraftRecord>>({});
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const students = useMemo(() => activeInstance.students ?? [], [activeInstance.students]);
   const markedCount = students.filter(s => draftAttendance[s.id]?.status != null).length;
@@ -438,6 +439,9 @@ function AttendanceSection({ activeInstance, activeOrgId }: AttendanceSectionPro
     try {
       await markMutation.mutateAsync({ records });
       setError(null);
+      setSuccessMessage(t('manager.sessionDetail.saveAttendanceSuccess', {
+        defaultValue: 'Attendance saved successfully.',
+      }));
     }
     catch (cause) {
       setError(
@@ -480,6 +484,11 @@ function AttendanceSection({ activeInstance, activeOrgId }: AttendanceSectionPro
         ))}
       </View>
 
+      {successMessage && !error
+        ? (
+            <Text className="font-inter mt-3 text-sm text-emerald-700">{successMessage}</Text>
+          )
+        : null}
       {error
         ? (
             <Text className="font-inter mt-3 text-sm text-rose-600">{error}</Text>
@@ -530,6 +539,13 @@ function StudentAttendanceCard({
           <Pressable
             key={status}
             onPress={() => onStatusChange(status)}
+            accessibilityLabel={t('manager.sessionDetail.accessibility.statusChip', {
+              name: studentName,
+              status: statusLabel(status),
+              defaultValue: `Mark ${studentName} as ${statusLabel(status)}`,
+            })}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: currentStatus === status }}
             className={`rounded-full px-4 py-2 ${
               currentStatus === status ? 'bg-slate-900' : 'bg-slate-100'
             }`}
@@ -596,9 +612,16 @@ function StudentAttendanceCard({
 // ---------------------------------------------------------------------------
 
 function RatingChip({ score, selected, onPress }: { score: number; selected: boolean; onPress: () => void }) {
+  const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
+      accessibilityLabel={t('manager.sessions.accessibility.ratingChip', {
+        score,
+        defaultValue: `Set rating ${score}`,
+      })}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
       className={`rounded-full px-3 py-2 ${selected ? 'bg-emerald-600' : 'bg-emerald-50'}`}
     >
       <Text className={`font-inter text-sm ${selected ? 'text-white' : 'text-emerald-700'}`}>

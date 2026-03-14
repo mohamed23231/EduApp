@@ -82,10 +82,18 @@ export function ReportsScreen() {
         <View className="mt-5 flex-row gap-2">
           {RANGE_OPTIONS.map((option) => {
             const selected = range === option;
+            const label = t(`manager.reports.range.${option}`, { defaultValue: option });
             return (
-              <Pressable key={option} onPress={() => setRange(option)} className={`rounded-full px-4 py-2 ${selected ? 'bg-slate-900' : 'bg-white'}`}>
+              <Pressable
+                key={option}
+                onPress={() => setRange(option)}
+                accessibilityLabel={label}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                className={`rounded-full px-4 py-2 ${selected ? 'bg-slate-900' : 'bg-white'}`}
+              >
                 <Text className={`font-inter text-sm capitalize ${selected ? 'text-white' : 'text-slate-700'}`}>
-                  {t(`manager.reports.range.${option}`, { defaultValue: option })}
+                  {label}
                 </Text>
               </Pressable>
             );

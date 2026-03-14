@@ -131,6 +131,8 @@
     "personalDesc": "Your own students and sessions",
     "roleManager": "Manager",
     "roleTeacher": "Teacher",
+    "selectOrg": "Switch to {{name}} organization",
+    "selectPersonal": "Switch to personal context",
     "title": "Switch context"
   },
   "manager": {
@@ -208,6 +210,10 @@
       "title": "Reports"
     },
     "sessionDetail": {
+      "accessibility": {
+        "ratingChip": "Rate {{name}} with score {{score}}",
+        "statusChip": "Mark {{name}} as {{status}}"
+      },
       "attendanceError": "Could not save attendance right now.",
       "attendanceTitle": "Attendance",
       "close": "Close session",
@@ -217,6 +223,7 @@
       "daysLabel": "Days",
       "durationLabel": "Duration",
       "durationValue": "{{minutes}} min",
+      "excuseNoteLabel": "Excuse note",
       "excuseNotePlaceholder": "Reason for excuse...",
       "instanceState": {
         "active": "Active",
@@ -232,6 +239,7 @@
       "recentInstances": "Recent instances",
       "retry": "Retry",
       "saveAttendance": "Save attendance",
+      "saveAttendanceSuccess": "Attendance saved successfully.",
       "start": "Start session",
       "status": {
         "absent": "Absent",
@@ -242,6 +250,12 @@
       "title": "Session detail"
     },
     "sessions": {
+      "accessibility": {
+        "dayChip": "Toggle {{day}}",
+        "memberChip": "Select {{name}}",
+        "ratingChip": "Set rating {{score}}",
+        "studentChip": "Toggle {{name}}"
+      },
       "actions": {
         "create": "Create session",
         "delete": "Delete",

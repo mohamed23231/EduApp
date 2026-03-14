@@ -2,6 +2,7 @@ import type { OrganizationDetails } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { ActivityIndicator, Button, Input, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { useOrganization, useOrganizations, useUpdateOrg } from '../hooks';
@@ -118,11 +119,16 @@ export function SettingsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#f5f1e8]">
-      <ScrollView contentContainerClassName="px-6 py-6">
-        <Text className="font-inter text-3xl font-semibold text-slate-900">{t('manager.settings.title', { defaultValue: 'Settings' })}</Text>
-        <Text className="font-inter mt-2 text-base text-slate-500">{t('manager.settings.subtitle', { defaultValue: 'Keep organization details current and watch entitlement usage at a glance.' })}</Text>
-        {organizationQuery.data && <OrgEditForm org={organizationQuery.data} />}
-      </ScrollView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        <ScrollView contentContainerClassName="px-6 py-6">
+          <Text className="font-inter text-3xl font-semibold text-slate-900">{t('manager.settings.title', { defaultValue: 'Settings' })}</Text>
+          <Text className="font-inter mt-2 text-base text-slate-500">{t('manager.settings.subtitle', { defaultValue: 'Keep organization details current and watch entitlement usage at a glance.' })}</Text>
+          {organizationQuery.data && <OrgEditForm org={organizationQuery.data} />}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

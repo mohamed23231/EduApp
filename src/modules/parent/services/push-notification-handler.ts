@@ -11,8 +11,8 @@ import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
-import i18n from '@/lib/i18n';
 import { getAuthUser, getToken } from '@/lib/auth/utils';
+import i18n from '@/lib/i18n';
 import {
   getPushDeviceRegistration,
   PUSH_DEVICE_REFRESH_INTERVAL_MS,

@@ -1,9 +1,9 @@
 import type { OrgMember, OrgSessionTemplate, OrgStudent } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
 import {
   ActivityIndicator,
   Button,
@@ -244,10 +244,17 @@ function CreateSessionForm({
 
 function DayChip({ dayKey, selected, onToggle }: { dayKey: string; selected: boolean; onToggle: () => void }) {
   const { t } = useTranslation();
+  const dayLabel = t(`manager.days.${dayKey}`);
   return (
-    <Pressable onPress={onToggle} className={`rounded-full px-4 py-2 ${selected ? 'bg-slate-900' : 'bg-slate-100'}`}>
+    <Pressable
+      onPress={onToggle}
+      accessibilityLabel={t('manager.sessions.accessibility.dayChip', { day: dayLabel })}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected }}
+      className={`rounded-full px-4 py-2 ${selected ? 'bg-slate-900' : 'bg-slate-100'}`}
+    >
       <Text className={`font-inter text-sm ${selected ? 'text-white' : 'text-slate-700'}`}>
-        {t(`manager.days.${dayKey}`)}
+        {dayLabel}
       </Text>
     </Pressable>
   );
@@ -256,7 +263,13 @@ function DayChip({ dayKey, selected, onToggle }: { dayKey: string; selected: boo
 function MemberChip({ member, selected, onPress }: { member: OrgMember; selected: boolean; onPress: () => void }) {
   const { t } = useTranslation();
   return (
-    <Pressable onPress={onPress} className={`rounded-2xl border px-4 py-3 ${selected ? 'border-slate-900 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+    <Pressable
+      onPress={onPress}
+      accessibilityLabel={t('manager.sessions.accessibility.memberChip', { name: member.name })}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      className={`rounded-2xl border px-4 py-3 ${selected ? 'border-slate-900 bg-slate-900' : 'border-slate-200 bg-white'}`}
+    >
       <Text className={`font-inter text-sm ${selected ? 'text-white' : 'text-slate-700'}`}>
         {member.name}
         {' '}
@@ -267,8 +280,15 @@ function MemberChip({ member, selected, onPress }: { member: OrgMember; selected
 }
 
 function StudentChip({ name, selected, onPress }: { name: string; selected: boolean; onPress: () => void }) {
+  const { t } = useTranslation();
   return (
-    <Pressable onPress={onPress} className={`rounded-2xl border px-4 py-3 ${selected ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
+    <Pressable
+      onPress={onPress}
+      accessibilityLabel={t('manager.sessions.accessibility.studentChip', { name })}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected }}
+      className={`rounded-2xl border px-4 py-3 ${selected ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200 bg-white'}`}
+    >
       <Text className="font-inter text-sm text-slate-700">{name}</Text>
     </Pressable>
   );
@@ -360,6 +380,7 @@ export function SessionsScreen() {
   const membersQuery = useOrgMembers(activeOrgId);
   const studentsQuery = useOrgStudents(activeOrgId);
   const organizationQuery = useOrganization(activeOrgId);
+  const sessionsRefetchQuery = useOrgSessions(activeOrgId);
 
   useEffect(() => {
     if (!activeOrgId && organizationsQuery.data?.data[0]) {
@@ -385,23 +406,43 @@ export function SessionsScreen() {
     });
   }, [organizationQuery.data, t]);
 
+  const onRefresh = useCallback(() => {
+    membersQuery.refetch();
+    studentsQuery.refetch();
+    sessionsRefetchQuery.refetch();
+    organizationQuery.refetch();
+  }, [membersQuery, studentsQuery, sessionsRefetchQuery, organizationQuery]);
+
+  const isRefreshing
+    = membersQuery.isRefetching
+      || studentsQuery.isRefetching
+      || sessionsRefetchQuery.isRefetching;
+
   return (
     <SafeAreaView className="flex-1 bg-[#f5f1e8]">
-      <ScrollView contentContainerClassName="px-6 py-6">
-        <Text className="font-inter text-3xl font-semibold text-slate-900">
-          {t('manager.sessions.title')}
-        </Text>
-        <Text className="font-inter mt-2 text-base text-slate-500">
-          {t('manager.sessions.subtitle')}
-        </Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        <ScrollView
+          contentContainerClassName="px-6 py-6"
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        >
+          <Text className="font-inter text-3xl font-semibold text-slate-900">
+            {t('manager.sessions.title')}
+          </Text>
+          <Text className="font-inter mt-2 text-base text-slate-500">
+            {t('manager.sessions.subtitle')}
+          </Text>
 
-        <CreateSessionForm
-          members={orderedMembers}
-          students={studentsQuery.data?.data ?? []}
-          limitMessage={limitMessage}
-        />
-        <SessionTemplatesList />
-      </ScrollView>
+          <CreateSessionForm
+            members={orderedMembers}
+            students={studentsQuery.data?.data ?? []}
+            limitMessage={limitMessage}
+          />
+          <SessionTemplatesList />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

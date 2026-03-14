@@ -8,9 +8,9 @@
  * The channel setup in push-notification-handler.ts references these filenames.
  */
 
+const fs = require('node:fs');
+const path = require('node:path');
 const { withDangerousMod } = require('@expo/config-plugins');
-const fs   = require('fs');
-const path = require('path');
 
 const SOUNDS = [
   'absence_alert.wav',
@@ -23,12 +23,16 @@ module.exports = function withNotificationSounds(config) {
     (dangerousConfig) => {
       const rawDir = path.join(
         dangerousConfig.modRequest.platformProjectRoot,
-        'app', 'src', 'main', 'res', 'raw',
+        'app',
+        'src',
+        'main',
+        'res',
+        'raw',
       );
       fs.mkdirSync(rawDir, { recursive: true });
 
       for (const sound of SOUNDS) {
-        const src  = path.join(dangerousConfig.modRequest.projectRoot, 'assets', 'sounds', sound);
+        const src = path.join(dangerousConfig.modRequest.projectRoot, 'assets', 'sounds', sound);
         const dest = path.join(rawDir, sound);
 
         if (!fs.existsSync(src)) {

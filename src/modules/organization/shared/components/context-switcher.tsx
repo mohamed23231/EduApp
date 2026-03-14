@@ -48,6 +48,9 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
           <Pressable
             className={`mb-2 rounded-2xl p-4 ${activeContext === 'personal' ? 'bg-indigo-50' : 'bg-slate-50'}`}
             onPress={handlePersonal}
+            accessibilityLabel={t('contextSwitcher.selectPersonal')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: activeContext === 'personal' }}
           >
             <Text className={`font-inter text-base font-semibold ${activeContext === 'personal' ? 'text-indigo-700' : 'text-slate-800'}`}>
               {t('contextSwitcher.personal')}
@@ -62,6 +65,9 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
             key={org.organizationId}
             className={`mb-2 rounded-2xl p-4 ${activeContext === 'org' && activeOrgId === org.organizationId ? 'bg-emerald-50' : 'bg-slate-50'}`}
             onPress={() => handleOrg(org.organizationId)}
+            accessibilityLabel={t('contextSwitcher.selectOrg', { name: org.name })}
+            accessibilityRole="button"
+            accessibilityState={{ selected: activeContext === 'org' && activeOrgId === org.organizationId }}
           >
             <Text className={`font-inter text-base font-semibold ${activeContext === 'org' && activeOrgId === org.organizationId ? 'text-emerald-700' : 'text-slate-800'}`}>
               {org.name}

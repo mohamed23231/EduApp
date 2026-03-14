@@ -131,6 +131,8 @@
     "personalDesc": "طلابك وجلساتك الخاصة",
     "roleManager": "مدير",
     "roleTeacher": "معلم",
+    "selectOrg": "التبديل إلى مؤسسة {{name}}",
+    "selectPersonal": "التبديل إلى السياق الشخصي",
     "title": "تبديل السياق"
   },
   "manager": {
@@ -208,6 +210,10 @@
       "title": "التقارير"
     },
     "sessionDetail": {
+      "accessibility": {
+        "ratingChip": "تقييم {{name}} بدرجة {{score}}",
+        "statusChip": "تسجيل {{name}} كـ {{status}}"
+      },
       "attendanceError": "تعذر حفظ الحضور الآن.",
       "attendanceTitle": "الحضور",
       "close": "أغلق الحصة",
@@ -217,6 +223,7 @@
       "daysLabel": "الأيام",
       "durationLabel": "المدة",
       "durationValue": "{{minutes}} دقيقة",
+      "excuseNoteLabel": "ملاحظة العذر",
       "excuseNotePlaceholder": "سبب العذر...",
       "instanceState": {
         "active": "نشطة",
@@ -232,6 +239,7 @@
       "recentInstances": "الحصص الأخيرة",
       "retry": "إعادة المحاولة",
       "saveAttendance": "حفظ الحضور",
+      "saveAttendanceSuccess": "تم حفظ الحضور بنجاح.",
       "start": "ابدأ الحصة",
       "status": {
         "absent": "غائب",
@@ -242,6 +250,12 @@
       "title": "تفاصيل الحصة"
     },
     "sessions": {
+      "accessibility": {
+        "dayChip": "تبديل {{day}}",
+        "memberChip": "اختيار {{name}}",
+        "ratingChip": "تعيين التقييم {{score}}",
+        "studentChip": "تبديل {{name}}"
+      },
       "actions": {
         "create": "إنشاء الحصة",
         "delete": "حذف",

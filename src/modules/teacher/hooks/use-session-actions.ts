@@ -10,7 +10,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
-import { endSession, extractErrorMessage, startSession } from '../services';
+import { endSession, startSession } from '../services';
 import { updateSessionState } from '../store/use-teacher-store';
 
 export function useSessionActions(refetchSessions: () => Promise<void>) {

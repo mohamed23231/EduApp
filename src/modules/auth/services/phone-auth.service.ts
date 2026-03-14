@@ -5,11 +5,11 @@ import type {
   PhoneLoginParams,
   PhoneLoginResponseUnion,
   PhoneOtpRequestParams,
-  PhoneSignupVerifyParams,
-  PhoneSignupVerifyResponse,
   PhoneResetPasswordConfirmParams,
   PhoneResetPasswordRequestParams,
   PhoneSignupParams,
+  PhoneSignupVerifyParams,
+  PhoneSignupVerifyResponse,
 } from '../types';
 import type { ApiSuccess } from '@/shared/types/api';
 import { authClient } from '@/lib/api/client';

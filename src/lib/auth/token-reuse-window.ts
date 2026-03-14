@@ -7,10 +7,10 @@
  * Requirements: 10.4, 10.7, 10.8
  */
 
-export interface TokenWithTimestamp {
-    idToken: string;
-    iat: number; // Issued-at timestamp in milliseconds
-}
+export type TokenWithTimestamp = {
+  idToken: string;
+  iat: number; // Issued-at timestamp in milliseconds
+};
 
 /**
  * Token reuse window duration in milliseconds (120 seconds)
@@ -24,9 +24,9 @@ const TOKEN_REUSE_WINDOW_MS = 120 * 1000;
  * @returns true if token is within the reuse window, false otherwise
  */
 export function isTokenWithinReuseWindow(token: TokenWithTimestamp): boolean {
-    const now = Date.now();
-    const elapsed = now - token.iat;
-    return elapsed < TOKEN_REUSE_WINDOW_MS;
+  const now = Date.now();
+  const elapsed = now - token.iat;
+  return elapsed < TOKEN_REUSE_WINDOW_MS;
 }
 
 /**
@@ -36,10 +36,10 @@ export function isTokenWithinReuseWindow(token: TokenWithTimestamp): boolean {
  * @returns Remaining time in milliseconds, or 0 if expired
  */
 export function getTokenRemainingTime(token: TokenWithTimestamp): number {
-    const now = Date.now();
-    const elapsed = now - token.iat;
-    const remaining = TOKEN_REUSE_WINDOW_MS - elapsed;
-    return Math.max(0, remaining);
+  const now = Date.now();
+  const elapsed = now - token.iat;
+  const remaining = TOKEN_REUSE_WINDOW_MS - elapsed;
+  return Math.max(0, remaining);
 }
 
 /**
@@ -49,8 +49,8 @@ export function getTokenRemainingTime(token: TokenWithTimestamp): number {
  * @returns Token with current timestamp
  */
 export function createTokenWithTimestamp(idToken: string): TokenWithTimestamp {
-    return {
-        idToken,
-        iat: Date.now(),
-    };
+  return {
+    idToken,
+    iat: Date.now(),
+  };
 }

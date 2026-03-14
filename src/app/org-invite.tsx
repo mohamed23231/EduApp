@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView, View } from 'react-native';
 import { Text } from '@/components/ui';
@@ -11,10 +11,6 @@ export default function OrgInviteRoute() {
   const router = useRouter();
   const { token } = useLocalSearchParams<{ token?: string }>();
   const [resolvedToken] = useState<string | undefined>(typeof token === 'string' ? token : undefined);
-
-  useEffect(() => {
-    // intentionally empty — resolvedToken is derived from params on mount
-  }, [resolvedToken]);
 
   if (!resolvedToken) {
     return (
