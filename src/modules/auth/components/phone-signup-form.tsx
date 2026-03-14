@@ -27,6 +27,12 @@ import {
 
 type SignupStep = 'phone' | 'otp' | 'details';
 
+const ROLE_OPTIONS = [
+  { value: UserRole.TEACHER, labelKey: 'auth.signup.teacherLabel', emoji: '👩‍🏫' },
+  { value: UserRole.PARENT, labelKey: 'auth.signup.parentLabel', emoji: '👨‍👩‍👧' },
+  { value: UserRole.MANAGER, labelKey: 'auth.signup.managerLabel', emoji: '🏢' },
+] as const;
+
 export type PhoneSignupFormProps = {
   onSubmit: (data: PhoneSignupParams) => void;
   onOtpRequest: (phone: string, purpose: PhoneOtpPurpose) => Promise<void>;
@@ -243,27 +249,23 @@ export function PhoneSignupForm({
       <View style={styles.formBlock}>
         <Text style={styles.roleLabel}>{t('auth.signup.roleLabel')}</Text>
         <View style={styles.roleCardsRow}>
-          {([UserRole.TEACHER, UserRole.PARENT] as UserRole[]).map((optionRole) => {
-            const isSelected = role === optionRole;
+          {ROLE_OPTIONS.map((option) => {
+            const isSelected = role === option.value;
             return (
               <Pressable
-                key={optionRole}
+                key={option.value}
                 style={[styles.roleCard, isSelected && styles.roleCardSelected]}
                 onPress={() => {
-                  setRole(optionRole);
+                  setRole(option.value);
                   setClientError(null);
                 }}
-                testID={`phone-signup-role-${optionRole.toLowerCase()}`}
+                testID={`phone-signup-role-${option.value.toLowerCase()}`}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: isSelected }}
               >
-                <Text style={styles.roleAvatar}>
-                  {optionRole === UserRole.TEACHER ? '👩‍🏫' : '👨‍👩‍👧'}
-                </Text>
+                <Text style={styles.roleAvatar}>{option.emoji}</Text>
                 <Text style={[styles.roleCardLabel, isSelected && styles.roleCardLabelSelected]}>
-                  {optionRole === UserRole.TEACHER
-                    ? t('auth.signup.teacherLabel')
-                    : t('auth.signup.parentLabel')}
+                  {t(option.labelKey)}
                 </Text>
                 <View
                   style={[
@@ -489,6 +491,7 @@ const styles = StyleSheet.create({
   },
   roleCardsRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   roleLabel: {
@@ -528,7 +531,8 @@ const styles = StyleSheet.create({
     borderColor: '#CBD5E1',
     borderRadius: 16,
     borderWidth: 2,
-    flex: 1,
+    flexBasis: '30%',
+    flexGrow: 1,
     paddingVertical: 18,
   },
   roleCardSelected: {

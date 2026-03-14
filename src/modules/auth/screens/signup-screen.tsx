@@ -37,6 +37,16 @@ import {
 import { useSignup } from '../hooks/use-signup';
 import { googleAuthService } from '../services';
 
+type SignupRole = 'TEACHER' | 'PARENT' | 'MANAGER';
+
+function getSignupRole(role: UserRole | string | undefined): SignupRole | undefined {
+  if (role === UserRole.TEACHER || role === UserRole.PARENT || role === UserRole.MANAGER) {
+    return role;
+  }
+
+  return undefined;
+}
+
 function ChevronLeft({ color = '#0F172A' }: { color?: string }) {
   return (
     <Svg width={10} height={18} viewBox="0 0 10 18" fill="none">
@@ -61,6 +71,7 @@ export function SignupScreen() {
   const { t } = useTranslation();
   const status = useAuthStore.use.status();
   const user = useAuthStore.use.user();
+  const onboardingContext = useAuthStore.use.onboardingContext();
   const { mutateAsync: signup, isPending } = useSignup();
   const { mutateAsync: phoneSignupMutate, isPending: isPhoneSignupPending } = usePhoneSignup();
   const { mutateAsync: requestOtp, isPending: isOtpPending } = usePhoneOtpRequest();
@@ -84,6 +95,9 @@ export function SignupScreen() {
 
   // Redirect if already authenticated
   if (status === 'signIn' && !user) {
+    if (onboardingContext?.role === UserRole.MANAGER) {
+      return <Redirect href={AppRoute.manager.setup} />;
+    }
     return <Redirect href={AppRoute.auth.onboarding} />;
   }
 
@@ -95,9 +109,26 @@ export function SignupScreen() {
     setErrorMsg(null);
     try {
       const data = await signup(values);
+      const signupRole = getSignupRole(data.user.role as UserRole);
+
+      if (signupRole === UserRole.MANAGER) {
+        setOnboardingContext({
+          role: signupRole,
+          email: data.user.email,
+          fullName: data.user.fullName,
+        });
+
+        signIn({
+          token: { access: data.accessToken, refresh: data.refreshToken },
+          user: null,
+        });
+
+        router.replace(AppRoute.manager.setup);
+        return;
+      }
 
       setOnboardingContext({
-        role: data.user.role as 'TEACHER' | 'PARENT',
+        role: signupRole,
         email: data.user.email,
         fullName: data.user.fullName,
       });
@@ -119,9 +150,27 @@ export function SignupScreen() {
     setErrorMsg(null);
     try {
       const data = await phoneSignupMutate(values);
+      const signupRole = getSignupRole(data.user?.role);
+
+      if (signupRole === UserRole.MANAGER) {
+        setOnboardingContext({
+          role: signupRole,
+          email: data.user?.email ?? '',
+          fullName: data.user?.fullName ?? data.fullName,
+          phone: data.user?.phoneE164 ?? data.phoneE164 ?? undefined,
+        });
+
+        signIn({
+          token: { access: data.accessToken, refresh: data.refreshToken },
+          user: null,
+        });
+
+        router.replace(AppRoute.manager.setup);
+        return;
+      }
 
       setOnboardingContext({
-        role: data.user?.role as 'TEACHER' | 'PARENT' ?? 'PARENT',
+        role: signupRole ?? 'PARENT',
         email: data.user?.email ?? '',
         fullName: data.user?.fullName ?? data.fullName,
         phone: data.user?.phoneE164 ?? data.phoneE164 ?? undefined,
@@ -188,7 +237,7 @@ export function SignupScreen() {
 
   const handleGoogleSignup = async (
     idToken: string,
-    role: 'TEACHER' | 'PARENT',
+    role: SignupRole,
   ) => {
     setErrorMsg(null);
     setIsGoogleSigningIn(true);
@@ -233,10 +282,25 @@ export function SignupScreen() {
       };
 
       if (response.data.onboardingRequired) {
-        const onboardingRole
-          = authUser.role === UserRole.TEACHER || authUser.role === UserRole.PARENT
-            ? (authUser.role as 'TEACHER' | 'PARENT')
-            : undefined;
+        const onboardingRole = getSignupRole(authUser.role);
+
+        if (onboardingRole === UserRole.MANAGER) {
+          setOnboardingContext({
+            email: authUser.email,
+            fullName: response.data.user.fullName,
+            role: onboardingRole,
+          });
+          signIn({
+            token: {
+              access: response.data.accessToken,
+              refresh: response.data.refreshToken,
+            },
+            user: null,
+          });
+          router.replace(AppRoute.manager.setup);
+          return;
+        }
+
         setOnboardingContext({
           email: authUser.email,
           fullName: response.data.user.fullName,

@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Button, Input, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
+import { clearOnboardingContext, signIn } from '@/features/auth/use-auth-store';
+import { getToken } from '@/lib/auth/utils';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
+import { validateToken } from '@/modules/auth/services';
 import { useCreateOrg } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
 import { createOrgSchema } from '../validators';
@@ -47,6 +50,19 @@ export function OrgSetupScreen() {
 
     try {
       const organization = await createMutation.mutateAsync(parsed.data);
+      try {
+        const token = getToken();
+        const validatedUser = await validateToken();
+
+        if (token) {
+          signIn({ token, user: validatedUser });
+          clearOnboardingContext();
+        }
+      }
+      catch {
+        // If the auth context refresh lags behind org creation, keep the
+        // onboarding state and let the dashboard continue with the new org.
+      }
       setActiveOrgId(organization.id);
       setOrgDetails(organization);
       router.replace(AppRoute.manager.dashboard);

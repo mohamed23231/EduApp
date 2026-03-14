@@ -47,7 +47,7 @@ export type SignupRequest = {
   email: string;
   password: string;
   fullName: string;
-  role: 'TEACHER' | 'PARENT';
+  role: 'TEACHER' | 'PARENT' | 'MANAGER';
 };
 
 /**

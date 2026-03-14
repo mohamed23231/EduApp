@@ -18,7 +18,7 @@ import {
 // ─── Onboarding types ────────────────────────────────────────────────────────
 
 export type OnboardingContext = {
-  role?: 'TEACHER' | 'PARENT';
+  role?: 'TEACHER' | 'PARENT' | 'MANAGER';
   email: string;
   fullName?: string;
   phone?: string;

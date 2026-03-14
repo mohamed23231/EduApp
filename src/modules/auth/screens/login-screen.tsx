@@ -25,6 +25,14 @@ import { useLogin } from '../hooks/use-login';
 import { usePhoneLogin } from '../hooks/use-phone-login';
 import { googleAuthService } from '../services';
 
+function getSignupRole(role: UserRole | undefined): 'TEACHER' | 'PARENT' | 'MANAGER' | undefined {
+  if (role === UserRole.TEACHER || role === UserRole.PARENT || role === UserRole.MANAGER) {
+    return role;
+  }
+
+  return undefined;
+}
+
 // eslint-disable-next-line max-lines-per-function
 export function LoginScreen() {
   const router = useRouter();
@@ -36,6 +44,7 @@ export function LoginScreen() {
   const signIn = useAuthStore.use.signIn();
   const status = useAuthStore.use.status();
   const user = useAuthStore.use.user();
+  const onboardingContext = useAuthStore.use.onboardingContext();
   const { mutateAsync: login, isPending } = useLogin();
   const { mutateAsync: phoneLogin, isPending: isPhoneLoginPending } = usePhoneLogin();
   const { isGoogleSigninMobileEnabled, isForgotPasswordEnabled } = useFeatureFlags();
@@ -48,6 +57,9 @@ export function LoginScreen() {
 
   // Onboarding cold-start: token exists but user is null → resume onboarding
   if (status === 'signIn' && !user) {
+    if (onboardingContext?.role === UserRole.MANAGER) {
+      return <Redirect href={AppRoute.manager.setup} />;
+    }
     return <Redirect href={AppRoute.auth.onboarding} />;
   }
 
@@ -61,12 +73,25 @@ export function LoginScreen() {
       const response = await login(values);
 
       if (response.onboardingRequired) {
+        if (response.user?.role === UserRole.MANAGER) {
+          setOnboardingContext({
+            email: response.user.email,
+            role: UserRole.MANAGER,
+            fullName: response.user.fullName,
+            phone: response.user.phoneE164 ?? undefined,
+          });
+
+          signIn({
+            token: { access: response.access, refresh: response.refresh },
+            user: null,
+          });
+          router.replace(AppRoute.manager.setup);
+          return;
+        }
+
         // Persist onboarding context before signing in
         if (response.onboardingReason === 'PROFILE_NOT_FOUND' && response.user) {
-          const onboardingRole
-            = response.user.role === UserRole.TEACHER || response.user.role === UserRole.PARENT
-              ? (response.user.role as 'TEACHER' | 'PARENT')
-              : undefined;
+          const onboardingRole = getSignupRole(response.user.role);
           // User exists in DB — we have role and fullName
           setOnboardingContext({
             email: response.user.email,
@@ -134,10 +159,23 @@ export function LoginScreen() {
       };
 
       if (response.data.onboardingRequired) {
-        const onboardingRole
-          = authUser.role === UserRole.TEACHER || authUser.role === UserRole.PARENT
-            ? (authUser.role as 'TEACHER' | 'PARENT')
-            : undefined;
+        const onboardingRole = getSignupRole(authUser.role);
+        if (onboardingRole === UserRole.MANAGER) {
+          setOnboardingContext({
+            email: authUser.email,
+            role: onboardingRole,
+            fullName: response.data.user.fullName,
+          });
+          signIn({
+            token: {
+              access: response.data.accessToken,
+              refresh: response.data.refreshToken,
+            },
+            user: null,
+          });
+          router.replace(AppRoute.manager.setup);
+          return;
+        }
         setOnboardingContext({
           email: authUser.email,
           ...(onboardingRole ? { role: onboardingRole } : {}),
@@ -182,11 +220,23 @@ export function LoginScreen() {
       const response = await phoneLogin(values);
 
       if (response.onboardingRequired) {
+        if (response.user?.role === UserRole.MANAGER) {
+          setOnboardingContext({
+            email: response.user.email ?? '',
+            role: UserRole.MANAGER,
+            fullName: response.user.fullName,
+            phone: response.user.phoneE164 ?? values.phone,
+          });
+          signIn({
+            token: { access: response.access, refresh: response.refresh },
+            user: null,
+          });
+          router.replace(AppRoute.manager.setup);
+          return;
+        }
+
         if (response.onboardingReason === 'PROFILE_NOT_FOUND' && response.user) {
-          const onboardingRole
-            = response.user.role === UserRole.TEACHER || response.user.role === UserRole.PARENT
-              ? (response.user.role as 'TEACHER' | 'PARENT')
-              : undefined;
+          const onboardingRole = getSignupRole(response.user.role);
           setOnboardingContext({
             email: response.user.email ?? '',
             ...(onboardingRole ? { role: onboardingRole } : {}),

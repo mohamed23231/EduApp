@@ -44,14 +44,14 @@ export const googleAuthService = {
    * 120 seconds, caller must re-acquire a fresh token before calling this.
    *
    * @param idToken - Google ID token from Google Sign-In
-   * @param role - User role (TEACHER or PARENT)
+   * @param role - User role (TEACHER, PARENT, or MANAGER)
    * @param iat - Optional timestamp (ms) when the token was obtained
    * @returns Signup response with tokens and user info
    * @throws Error if token is expired (older than TOKEN_REUSE_WINDOW_MS)
    */
   async googleSignup(
     idToken: string,
-    role: 'TEACHER' | 'PARENT',
+    role: 'TEACHER' | 'PARENT' | 'MANAGER',
     iat?: number,
   ): Promise<GoogleSignupResponse> {
     // Enforce token reuse window (Requirement 10.7)

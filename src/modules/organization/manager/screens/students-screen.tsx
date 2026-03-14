@@ -190,6 +190,27 @@ function StudentCreateForm({
 
 const DEBOUNCE_MS = 300;
 
+type PaginationControlsProps = {
+  page: number;
+  totalPages: number;
+  onPrev: () => void;
+  onNext: () => void;
+};
+
+function PaginationControls({ page, totalPages, onPrev, onNext }: PaginationControlsProps) {
+  const { t } = useTranslation();
+  if (totalPages <= 1)
+    return null;
+
+  return (
+    <View className="mt-4 flex-row items-center justify-between">
+      <Button variant="outline" size="sm" label={t('manager.students.prevPage')} fullWidth={false} disabled={page <= 1} onPress={onPrev} />
+      <Text className="font-inter text-sm text-slate-500">{t('manager.students.pageInfo', { page, total: totalPages })}</Text>
+      <Button variant="outline" size="sm" label={t('manager.students.nextPage')} fullWidth={false} disabled={page >= totalPages} onPress={onNext} />
+    </View>
+  );
+}
+
 function StudentListSection() {
   const { t } = useTranslation();
   const activeOrgId = useManagerStore.use.activeOrgId();
@@ -292,15 +313,12 @@ function StudentListSection() {
                 ? <Text className="font-inter text-sm text-slate-500">{t('manager.students.empty')}</Text>
                 : null}
 
-              {totalPages > 1
-                ? (
-                    <View className="mt-4 flex-row items-center justify-between">
-                      <Button variant="outline" size="sm" label={t('manager.students.prevPage')} fullWidth={false} disabled={page <= 1} onPress={() => setPage(p => Math.max(1, p - 1))} />
-                      <Text className="font-inter text-sm text-slate-500">{t('manager.students.pageInfo', { page, total: totalPages })}</Text>
-                      <Button variant="outline" size="sm" label={t('manager.students.nextPage')} fullWidth={false} disabled={page >= totalPages} onPress={() => setPage(p => Math.min(totalPages, p + 1))} />
-                    </View>
-                  )
-                : null}
+              <PaginationControls
+                page={page}
+                totalPages={totalPages}
+                onPrev={() => setPage(p => Math.max(1, p - 1))}
+                onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+              />
             </View>
           )
         : null}

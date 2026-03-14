@@ -7,6 +7,7 @@ import { useAuthStore as useAuth } from '@/features/auth/use-auth-store';
 export default function ManagerLayout() {
   const status = useAuth.use.status();
   const user = useAuth.use.user();
+  const onboardingContext = useAuth.use.onboardingContext();
 
   if (status === 'idle') {
     return null;
@@ -17,6 +18,17 @@ export default function ManagerLayout() {
   }
 
   if (!user) {
+    if (onboardingContext?.role === UserRole.MANAGER) {
+      return (
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 250,
+          }}
+        />
+      );
+    }
     return <Redirect href={AppRoute.auth.onboarding} />;
   }
 

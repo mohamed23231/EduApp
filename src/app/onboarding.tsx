@@ -7,6 +7,7 @@ import { OnboardingScreen } from '@/modules/onboarding/screens/onboarding-screen
 export default function OnboardingRoute() {
   const status = useAuth.use.status();
   const user = useAuth.use.user();
+  const onboardingContext = useAuth.use.onboardingContext();
 
   // Wait for hydration to complete before evaluating guards
   if (status === 'idle') {
@@ -21,6 +22,10 @@ export default function OnboardingRoute() {
   // Fully authenticated user → redirect to their role dashboard
   if (status === 'signIn' && user) {
     return <Redirect href={getHomeRouteForRole(user.role)} />;
+  }
+
+  if (onboardingContext?.role === 'MANAGER') {
+    return <Redirect href={AppRoute.manager.setup} />;
   }
 
   // signIn + user null (onboarding pending) → show onboarding screen

@@ -7,7 +7,7 @@ export const SignupSchema = z.object({
     .max(100, 'auth.signup.validation.fullNameTooLong'),
   email: z.string().email('auth.signup.validation.emailInvalid'),
   password: z.string().min(8, 'auth.signup.validation.passwordTooShort'),
-  role: z.enum(['TEACHER', 'PARENT'], {
+  role: z.enum(['TEACHER', 'PARENT', 'MANAGER'], {
     error: 'auth.signup.validation.roleRequired',
   }),
 });

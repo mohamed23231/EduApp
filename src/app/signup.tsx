@@ -7,6 +7,7 @@ import { SignupScreen } from '@/modules/auth/screens/signup-screen';
 export default function SignupRoute() {
   const status = useAuth.use.status();
   const user = useAuth.use.user();
+  const onboardingContext = useAuth.use.onboardingContext();
 
   // Wait for hydration to complete before evaluating guards
   if (status === 'idle') {
@@ -20,6 +21,9 @@ export default function SignupRoute() {
 
   // Signed in but onboarding pending → redirect to onboarding
   if (status === 'signIn' && !user) {
+    if (onboardingContext?.role === 'MANAGER') {
+      return <Redirect href={AppRoute.manager.setup} />;
+    }
     return <Redirect href={AppRoute.auth.onboarding} />;
   }
 

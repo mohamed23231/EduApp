@@ -41,6 +41,39 @@ function getCategory(dateString: string, t: TFunction): string {
   return t('parent.notifications.earlier', 'Earlier');
 }
 
+function buildNotificationSections(
+  notifications: Notification[],
+  t: TFunction,
+): { title: string; data: Notification[] }[] {
+  if (!notifications)
+    return [];
+
+  const groups = new Map<string, Notification[]>();
+  notifications.forEach((n) => {
+    const category = getCategory(n.createdAt, t);
+    if (!groups.has(category)) {
+      groups.set(category, []);
+    }
+    groups.get(category)!.push(n);
+  });
+
+  const categories = [
+    t('parent.notifications.today', 'Today'),
+    t('parent.notifications.yesterday', 'Yesterday'),
+    t('parent.notifications.thisWeek', 'This Week'),
+    t('parent.notifications.earlier', 'Earlier'),
+  ];
+
+  const result: { title: string; data: Notification[] }[] = [];
+  categories.forEach((cat) => {
+    if (groups.has(cat)) {
+      result.push({ title: cat, data: groups.get(cat)! });
+    }
+  });
+
+  return result;
+}
+
 function SkeletonLoader() {
   const anim = useRef(new Animated.Value(0)).current;
   const isRTL = I18nManager.isRTL;
@@ -169,8 +202,92 @@ function MarkAllButton({
   );
 }
 
+type NotificationListViewProps = {
+  sections: { title: string; data: Notification[] }[];
+  isRTL: boolean;
+  isLoading: boolean;
+  notifications: Notification[];
+  unreadCount: number;
+  isMarkingAll: boolean;
+  refreshing: boolean;
+  onMarkAllAsRead: () => void;
+  onNotificationPress: (notification: Notification) => void;
+  onLoadMore: () => void;
+  onRefresh: () => void;
+  onBack: () => void;
+};
+
+function NotificationListView({
+  sections,
+  isRTL,
+  isLoading,
+  notifications,
+  unreadCount,
+  isMarkingAll,
+  refreshing,
+  onMarkAllAsRead,
+  onNotificationPress,
+  onLoadMore,
+  onRefresh,
+  onBack,
+}: NotificationListViewProps) {
+  const { t } = useTranslation();
+  return (
+    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+      <PushDisabledBanner />
+      <View className={`flex-row items-center border-b border-gray-200 bg-white px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <Pressable
+          onPress={onBack}
+          className={`p-2 ${isRTL ? 'ml-2' : 'mr-2'}`}
+          accessibilityRole="button"
+          accessibilityLabel={t('parent.common.back', 'Back')}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#111827" />
+        </Pressable>
+        <Text className="flex-1 text-xl font-bold text-gray-900" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+          {t('parent.notifications.title')}
+        </Text>
+        <MarkAllButton unreadCount={unreadCount} isMarkingAll={isMarkingAll} onPress={onMarkAllAsRead} />
+      </View>
+
+      <SectionList
+        sections={sections}
+        keyExtractor={item => item.id}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text className="mx-4 mt-4 mb-2 text-sm font-bold tracking-wider text-gray-500 uppercase" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {title}
+          </Text>
+        )}
+        renderItem={({ item }) => (
+          <View className="px-4">
+            <NotificationItem
+              notification={item}
+              onPress={() => onNotificationPress(item)}
+            />
+          </View>
+        )}
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={0.5}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        ListFooterComponent={
+          isLoading && notifications.length > 0
+            ? (
+                <View className="items-center py-4">
+                  <ActivityIndicator size="small" color="#6366F1" />
+                </View>
+              )
+            : null
+        }
+        contentContainerStyle={{ paddingBottom: 24 }}
+      />
+    </SafeAreaView>
+  );
+}
+
 export function NotificationCenterScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -239,35 +356,10 @@ export function NotificationCenterScreen() {
     setRefreshing(false);
   }, [fetchNotifications]);
 
-  const groupedNotifications = useMemo(() => {
-    if (!notifications)
-      return [];
-
-    const groups = new Map<string, Notification[]>();
-    notifications.forEach((n) => {
-      const category = getCategory(n.createdAt, t);
-      if (!groups.has(category)) {
-        groups.set(category, []);
-      }
-      groups.get(category)!.push(n);
-    });
-
-    const categories = [
-      t('parent.notifications.today', 'Today'),
-      t('parent.notifications.yesterday', 'Yesterday'),
-      t('parent.notifications.thisWeek', 'This Week'),
-      t('parent.notifications.earlier', 'Earlier'),
-    ];
-
-    const result: { title: string; data: Notification[] }[] = [];
-    categories.forEach((cat) => {
-      if (groups.has(cat)) {
-        result.push({ title: cat, data: groups.get(cat)! });
-      }
-    });
-
-    return result;
-  }, [notifications, t]);
+  const groupedNotifications = useMemo(
+    () => buildNotificationSections(notifications, t),
+    [notifications, t],
+  );
 
   if (isLoading && notifications.length === 0) {
     return (
@@ -288,55 +380,19 @@ export function NotificationCenterScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
-      <PushDisabledBanner />
-      <View className={`flex-row items-center border-b border-gray-200 bg-white px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-        <Pressable
-          onPress={() => router.back()}
-          className={`p-2 ${isRTL ? 'ml-2' : 'mr-2'}`}
-          accessibilityRole="button"
-          accessibilityLabel={t('parent.common.back', 'Back')}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-        >
-          <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#111827" />
-        </Pressable>
-        <Text className="flex-1 text-xl font-bold text-gray-900" style={{ textAlign: isRTL ? 'right' : 'left' }}>
-          {t('parent.notifications.title')}
-        </Text>
-        <MarkAllButton unreadCount={unreadCount} isMarkingAll={isMarkingAll} onPress={handleMarkAllAsRead} />
-      </View>
-
-      <SectionList
-        sections={groupedNotifications}
-        keyExtractor={item => item.id}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text className="mx-4 mt-4 mb-2 text-sm font-bold tracking-wider text-gray-500 uppercase" style={{ textAlign: isRTL ? 'right' : 'left' }}>
-            {title}
-          </Text>
-        )}
-        renderItem={({ item }) => (
-          <View className="px-4">
-            <NotificationItem
-              notification={item}
-              onPress={() => handleNotificationPress(item)}
-            />
-          </View>
-        )}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-        ListFooterComponent={
-          isLoading && notifications.length > 0
-            ? (
-                <View className="items-center py-4">
-                  <ActivityIndicator size="small" color="#6366F1" />
-                </View>
-              )
-            : null
-        }
-        contentContainerStyle={{ paddingBottom: 24 }}
-      />
-    </SafeAreaView>
+    <NotificationListView
+      sections={groupedNotifications}
+      isRTL={isRTL}
+      isLoading={isLoading}
+      notifications={notifications}
+      unreadCount={unreadCount}
+      isMarkingAll={isMarkingAll}
+      refreshing={refreshing}
+      onMarkAllAsRead={handleMarkAllAsRead}
+      onNotificationPress={handleNotificationPress}
+      onLoadMore={handleLoadMore}
+      onRefresh={onRefresh}
+      onBack={() => router.back()}
+    />
   );
 }

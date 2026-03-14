@@ -12,10 +12,19 @@ import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
-import { hydrateAuth } from '@/features/auth/use-auth-store';
+import { UserRole } from '@/core/auth/roles';
+import { getHomeRouteForRole } from '@/core/auth/routing';
+import { AppRoute } from '@/core/navigation/routes';
+import {
+  clearOnboardingContext,
+  hydrateAuth,
+  setOnboardingContext,
+  signIn,
+} from '@/features/auth/use-auth-store';
 import { APIProvider } from '@/lib/api';
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
 import { setItem } from '@/lib/storage';
+import { getOnboardingContext, validateToken } from '@/modules/auth/services';
 import '@/lib/i18n';
 // Import  global CSS file
 import '../global.css';
@@ -32,6 +41,89 @@ export const unstable_settings = {
 
 type ExpoNotificationsModule = typeof ExpoNotifications;
 
+function normalizePath(path?: string | null): string {
+  return (path ?? '').replace(/^\/+|\/+$/g, '').toLowerCase();
+}
+
+function extractLinkParams(url: string, queryParams?: Linking.QueryParams): Record<string, string> {
+  const params: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(queryParams ?? {})) {
+    if (typeof value === 'string') {
+      params[key] = value;
+    }
+  }
+
+  const hashIndex = url.indexOf('#');
+  if (hashIndex >= 0) {
+    const hash = url.slice(hashIndex + 1);
+    const hashParams = new URLSearchParams(hash);
+
+    hashParams.forEach((value, key) => {
+      params[key] = value;
+    });
+  }
+
+  return params;
+}
+
+function toOnboardingRole(role?: UserRole): 'TEACHER' | 'PARENT' | 'MANAGER' | undefined {
+  if (role === UserRole.TEACHER || role === UserRole.PARENT || role === UserRole.MANAGER) {
+    return role;
+  }
+
+  return undefined;
+}
+
+async function completeAuthCallback(
+  params: Record<string, string>,
+  router: ReturnType<typeof useRouter>,
+): Promise<boolean> {
+  const accessToken = params.access_token;
+  const refreshToken = params.refresh_token;
+
+  if (!accessToken || !refreshToken) {
+    return false;
+  }
+
+  const token = { access: accessToken, refresh: refreshToken };
+  signIn({ token, user: null });
+
+  try {
+    const validatedUser = await validateToken();
+    clearOnboardingContext();
+    signIn({ token, user: validatedUser });
+    router.replace(getHomeRouteForRole(validatedUser.role));
+    return true;
+  }
+  catch {
+    try {
+      const onboarding = await getOnboardingContext();
+      const onboardingRole = toOnboardingRole(onboarding.role);
+
+      setOnboardingContext({
+        email: onboarding.email ?? '',
+        ...(onboarding.fullName ? { fullName: onboarding.fullName } : {}),
+        ...(onboarding.phoneE164 ? { phone: onboarding.phoneE164 } : {}),
+        ...(onboardingRole ? { role: onboardingRole } : {}),
+      });
+
+      if (onboardingRole === UserRole.MANAGER) {
+        router.replace(AppRoute.manager.setup);
+      }
+      else {
+        router.replace(AppRoute.auth.onboarding);
+      }
+
+      return true;
+    }
+    catch {
+      router.replace(AppRoute.auth.login);
+      return true;
+    }
+  }
+}
+
 /**
  * Deep-link handler for password reset URLs.
  * Listens for Universal Links (iOS) and App Links (Android) matching /reset-password.
@@ -42,13 +134,22 @@ function useDeepLinkHandler() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleUrl = (url: string) => {
+    const handledUrls = new Set<string>();
+
+    const handleUrl = async (url: string) => {
+      if (handledUrls.has(url)) {
+        return;
+      }
+      handledUrls.add(url);
+
       const parsed = Linking.parse(url);
-      if (parsed.path === 'reset-password' || parsed.path === '/reset-password') {
-        const params = parsed.queryParams ?? {};
-        const code = typeof params.code === 'string' ? params.code : undefined;
-        const accessToken = typeof params.access_token === 'string' ? params.access_token : undefined;
-        const refreshToken = typeof params.refresh_token === 'string' ? params.refresh_token : undefined;
+      const normalizedPath = normalizePath(parsed.path);
+      const params = extractLinkParams(url, parsed.queryParams ?? undefined);
+
+      if (normalizedPath === 'reset-password') {
+        const code = params.code;
+        const accessToken = params.access_token;
+        const refreshToken = params.refresh_token;
 
         if (code) {
           router.push({ pathname: '/reset-password' as any, params: { code } });
@@ -59,24 +160,40 @@ function useDeepLinkHandler() {
         return;
       }
 
-      if (parsed.path === '/org-invite' || parsed.path === 'org-invite') {
-        const token = parsed.queryParams?.token;
-        if (typeof token === 'string' && token.length > 0) {
+      if (normalizedPath === 'org-invite') {
+        const token = params.token;
+        if (token && token.length > 0) {
           void setItem('pendingOrgInviteToken', token);
           router.push({ pathname: '/org-invite' as any, params: { token } });
         }
+        return;
+      }
+
+      if (await completeAuthCallback(params, router)) {
+        return;
+      }
+
+      if (normalizedPath === 'manager' || normalizedPath === 'manager/setup') {
+        router.replace(AppRoute.manager.setup);
+        return;
+      }
+
+      if (normalizedPath === 'manager/dashboard') {
+        router.replace(AppRoute.manager.dashboard);
       }
     };
 
     // Handle URL that launched the app (cold start)
     void Linking.getInitialURL().then((url) => {
       if (url) {
-        handleUrl(url);
+        void handleUrl(url);
       }
     });
 
     // Handle URLs received while app is running (warm start)
-    const onUrl = ({ url }: { url: string }) => handleUrl(url);
+    const onUrl = ({ url }: { url: string }) => {
+      void handleUrl(url);
+    };
     // eslint-disable-next-line react-web-api/no-leaked-event-listener
     const subscription = Linking.addEventListener('url', onUrl);
     return () => subscription.remove();

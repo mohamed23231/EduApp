@@ -100,6 +100,24 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString();
 }
 
+function getNotificationIconConfig(normalizedTitleKey: string): {
+  name: 'alert-circle' | 'trending-down' | 'notifications';
+  color: string;
+  bgClass: string;
+} {
+  const isAbsence = normalizedTitleKey.includes('absence');
+  const isLowScore
+    = normalizedTitleKey.includes('lowscore')
+      || normalizedTitleKey.includes('low_score')
+      || normalizedTitleKey.includes('low-score');
+
+  if (isAbsence)
+    return { name: 'alert-circle', color: '#EF4444', bgClass: 'bg-red-50' };
+  if (isLowScore)
+    return { name: 'trending-down', color: '#F59E0B', bgClass: 'bg-orange-50' };
+  return { name: 'notifications', color: '#6366F1', bgClass: 'bg-indigo-50' };
+}
+
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
   const { t, i18n } = useTranslation();
   const scale = useRef(new Animated.Value(1)).current;
@@ -143,21 +161,8 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
   };
 
   const normalizedTitleKey = notification.titleKey.toLowerCase();
-  const isAbsence = normalizedTitleKey.includes('absence');
-  const isLowScore
-    = normalizedTitleKey.includes('lowscore')
-      || normalizedTitleKey.includes('low_score')
-      || normalizedTitleKey.includes('low-score');
 
-  const getIconConfig = () => {
-    if (isAbsence)
-      return { name: 'alert-circle' as const, color: '#EF4444', bgClass: 'bg-red-50' };
-    if (isLowScore)
-      return { name: 'trending-down' as const, color: '#F59E0B', bgClass: 'bg-orange-50' };
-    return { name: 'notifications' as const, color: '#6366F1', bgClass: 'bg-indigo-50' };
-  };
-
-  const iconConfig = getIconConfig();
+  const iconConfig = getNotificationIconConfig(normalizedTitleKey);
 
   const containerClasses = [
     'rounded-2xl p-4 mb-3 min-h-[44px] w-full',

@@ -27,7 +27,17 @@ export type SignupFormProps = {
   useExistingGoogleToken?: boolean;
 };
 
-type Role = 'TEACHER' | 'PARENT';
+type Role = 'TEACHER' | 'PARENT' | 'MANAGER';
+
+const ROLE_OPTIONS: Array<{
+  emoji: string;
+  labelKey: 'auth.signup.teacherLabel' | 'auth.signup.parentLabel' | 'auth.signup.managerLabel';
+  value: Role;
+}> = [
+  { value: 'TEACHER', labelKey: 'auth.signup.teacherLabel', emoji: '👩‍🏫' },
+  { value: 'PARENT', labelKey: 'auth.signup.parentLabel', emoji: '👨‍👩‍👧' },
+  { value: 'MANAGER', labelKey: 'auth.signup.managerLabel', emoji: '🏢' },
+];
 
 // eslint-disable-next-line max-lines-per-function
 export function SignupForm({
@@ -104,25 +114,25 @@ export function SignupForm({
                   {t('auth.signup.roleLabel')}
                 </Text>
                 <View style={styles.roleCardsRow}>
-                  {(['TEACHER', 'PARENT'] as Role[]).map((role) => {
-                    const isSelected = selectedRole === role;
+                  {ROLE_OPTIONS.map((roleOption) => {
+                    const isSelected = selectedRole === roleOption.value;
                     return (
                       <Pressable
-                        key={role}
+                        key={roleOption.value}
                         style={[
                           styles.roleCard,
                           isSelected && styles.roleCardSelected,
                         ]}
                         onPress={() => {
-                          field.handleChange(role);
+                          field.handleChange(roleOption.value);
                           setGoogleRoleError(null);
                         }}
-                        testID={`role-card-${role.toLowerCase()}`}
+                        testID={`role-card-${roleOption.value.toLowerCase()}`}
                         accessibilityRole="radio"
                         accessibilityState={{ checked: isSelected }}
                       >
                         <Text style={styles.roleAvatar}>
-                          {role === 'TEACHER' ? '👩‍🏫' : '👨‍👩‍👧'}
+                          {roleOption.emoji}
                         </Text>
                         <Text
                           style={[
@@ -130,9 +140,7 @@ export function SignupForm({
                             isSelected && styles.roleCardLabelSelected,
                           ]}
                         >
-                          {role === 'TEACHER'
-                            ? t('auth.signup.teacherLabel')
-                            : t('auth.signup.parentLabel')}
+                          {t(roleOption.labelKey)}
                         </Text>
                         <View
                           style={[
@@ -468,7 +476,8 @@ const styles = StyleSheet.create({
     borderColor: '#CBD5E1',
     borderRadius: 16,
     borderWidth: 2,
-    flex: 1,
+    flexBasis: '30%',
+    flexGrow: 1,
     paddingVertical: 18,
   },
   roleCardLabel: {
@@ -485,6 +494,7 @@ const styles = StyleSheet.create({
   },
   roleCardsRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   roleLabel: {
