@@ -29,6 +29,10 @@ export const AppRoute = {
     sessionRankings: (templateId: string) => `/(teacher)/sessions/${templateId}/rankings` as const,
     studentPerformance: (studentId: string) => `/(teacher)/students/${studentId}/performance` as const,
   },
+  manager: {
+    setup: '/(manager)/setup',
+    dashboard: '/(manager)/(tabs)/dashboard',
+  },
   admin: {
     dashboard: '/(admin)/dashboard',
     teachers: '/(admin)/teachers',
