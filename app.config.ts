@@ -93,7 +93,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: Env.EXPO_PUBLIC_VERSION.toString(),
     orientation: 'portrait',
     icon: './assets/icon.png',
-    userInterfaceStyle: 'automatic',
+    userInterfaceStyle: 'light',
     newArchEnabled: true,
     updates: {
       url: 'https://u.expo.dev/a78173db-7bed-463b-9616-9a3ff01e3dc2',

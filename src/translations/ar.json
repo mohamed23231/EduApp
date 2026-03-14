@@ -32,12 +32,12 @@
       "orConnectWith": "أو الاتصال عبر",
       "passwordLabel": "كلمة المرور",
       "phoneTab": "الهاتف",
-      "protectedBy": "محمي بواسطة أمان Privat Edu",
+      "protectedBy": "محمي بواسطة أمان تابعني",
       "signInWithGoogle": "تسجيل الدخول عبر Google",
       "submit": "تسجيل الدخول",
       "submitting": "جاري تسجيل الدخول...",
       "subtitle": "مرحباً بعودتك! يرجى تسجيل الدخول إلى بوابة إدارة المدرسة.",
-      "title": "Privat Edu",
+      "title": "تابعني",
       "validation": {
         "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
         "emailRequired": "البريد الإلكتروني مطلوب",
@@ -136,7 +136,7 @@
     }
   },
   "onboarding": {
-    "message": "مرحبا بك في Privat Edu"
+    "message": "مرحبا بك في تابعني"
   },
   "parent": {
     "attendance": {
@@ -158,7 +158,7 @@
     },
     "common": {
       "back": "رجوع",
-      "brandName": "برايفت إديو",
+      "brandName": "تابعني",
       "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
       "loading": "جاري التحميل...",
       "offlineError": "لا توجد اتصال بالإنترنت. يرجى التحقق من شبكتك والمحاولة مرة أخرى.",
@@ -634,5 +634,5 @@
       "success": "نجاح"
     }
   },
-  "welcome": "مرحبا بك في Privat Edu"
+  "welcome": "مرحبا بك في تابعني"
 }

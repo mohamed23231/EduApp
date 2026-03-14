@@ -32,12 +32,12 @@
       "orConnectWith": "OR CONNECT WITH",
       "passwordLabel": "Password",
       "phoneTab": "Phone",
-      "protectedBy": "PROTECTED BY PRIVAT EDU SECURITY",
+      "protectedBy": "PROTECTED BY TABA3NY SECURITY",
       "signInWithGoogle": "Sign in with Google",
       "submit": "Sign In",
       "submitting": "Signing In...",
       "subtitle": "Welcome back! Please login to your school management portal.",
-      "title": "Privat Edu",
+      "title": "Taba3ny",
       "validation": {
         "emailInvalid": "Please enter a valid email",
         "emailRequired": "Email is required",
@@ -136,7 +136,7 @@
     }
   },
   "onboarding": {
-    "message": "Welcome to Privat Edu"
+    "message": "Welcome to Taba3ny"
   },
   "parent": {
     "attendance": {
@@ -158,7 +158,7 @@
     },
     "common": {
       "back": "Back",
-      "brandName": "Privat Edu",
+      "brandName": "Taba3ny",
       "genericError": "Something went wrong. Please try again.",
       "loading": "Loading...",
       "offlineError": "No internet connection. Please check your network and try again.",
@@ -634,5 +634,5 @@
       "success": "Success"
     }
   },
-  "welcome": "Welcome to Privat Edu"
+  "welcome": "Welcome to Taba3ny"
 }

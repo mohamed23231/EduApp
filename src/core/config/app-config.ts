@@ -2,7 +2,7 @@ import Env from 'env';
 
 import { UserRole } from '@/core/auth/roles';
 
-export const APP_NAME = 'Privat Edu';
+export const APP_NAME = 'Taba3ny';
 export const API_BASE_URL = Env.EXPO_PUBLIC_API_URL;
 
 export const SUPPORTED_LOCALES = ['en', 'ar'] as const;

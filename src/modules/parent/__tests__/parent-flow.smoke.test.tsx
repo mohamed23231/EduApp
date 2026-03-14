@@ -18,7 +18,7 @@ jest.mock('react-i18next', () => ({
       const translations: Record<string, string> = {
         'parent.common.retry': 'Retry',
         'parent.common.genericError': 'Something went wrong',
-        'parent.common.brandName': 'Privat Edu',
+        'parent.common.brandName': 'Taba3ny',
         'parent.common.back': 'Back',
         'parent.dashboard.title': 'My Students',
         'parent.dashboard.emptyTitle': 'No Students Linked',
