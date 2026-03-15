@@ -142,9 +142,9 @@ function QuickActionCard({
         accessibilityRole="button"
       >
         <View style={[styles.actionIcon, { backgroundColor: iconBg }]}>
-          <Ionicons name={icon} size={20} color={iconColor} />
+          <Ionicons name={icon} size={22} color={iconColor} />
         </View>
-        <Text style={styles.actionLabel} numberOfLines={1}>{label}</Text>
+        <Text style={styles.actionLabel} numberOfLines={2}>{label}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -544,11 +544,11 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   actionCard: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
+    gap: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
     borderWidth: 1,
@@ -561,14 +561,13 @@ const styles = StyleSheet.create({
   },
   actionCardPressed: { backgroundColor: '#F0F7FF', borderColor: '#BFDBFE' },
   actionIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,
   },
-  actionLabel: { flex: 1, fontSize: 13, fontWeight: '600', color: '#374151' },
+  actionLabel: { fontSize: 12, fontWeight: '600', color: '#374151', textAlign: 'center' },
 
   // Info bar
   infoBar: {
