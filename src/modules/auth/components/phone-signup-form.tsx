@@ -243,7 +243,6 @@ export function PhoneSignupForm({
     </View>
   );
 
-  // eslint-disable-next-line max-lines-per-function
   const renderDetailsStep = () => (
     <>
       <View style={styles.formBlock}>

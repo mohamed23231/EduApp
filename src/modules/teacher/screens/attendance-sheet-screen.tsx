@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, I18nManager, Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, ConfirmModal, Text, useModal } from '@/components/ui';
 import { AttendanceStatusControl } from '../components';
@@ -197,7 +197,7 @@ export function AttendanceSheetScreen() {
                   <Text style={styles.batchRatingText}>
                     {t('teacher.attendance.batchRatingButton', { count: unratedCount })}
                   </Text>
-                  <Ionicons name="chevron-forward" size={16} color="#6B7280" />
+                  <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color="#6B7280" />
                 </Pressable>
               )}
 
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   backButton: {
     fontSize: 16,
     color: '#3B82F6',
-    marginRight: 12,
+    marginEnd: 12,
   },
   title: {
     flex: 1,

@@ -1,17 +1,22 @@
-import type { OrgInvitation } from '../types/manager.types';
+import type { OrgInvitation, OrgMember } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
+import { Alert, I18nManager, RefreshControl, StyleSheet } from 'react-native';
 import {
   ActivityIndicator,
   Button,
+  Modal,
+  Pressable,
   SafeAreaView,
   ScrollView,
   Text,
   View,
 } from '@/components/ui';
-import { InviteTeacherModal } from '../components';
+import { useModal } from '@/components/ui/modal';
+import { AppRoute } from '@/core/navigation/routes';
+import { NoOrgEmptyState } from '../components';
 import {
   useCancelInvitation,
   useOrganizations,
@@ -31,148 +36,193 @@ function formatExpiryDate(iso: string): string {
   });
 }
 
-function InvitationCard({
-  invitation,
-  onResend,
-  onCancel,
-  resendLoading,
-  cancelLoading,
-}: {
-  invitation: OrgInvitation;
-  onResend: () => void;
-  onCancel: () => void;
-  resendLoading: boolean;
-  cancelLoading: boolean;
-}) {
+function MemberCard({ member, onPress }: { member: OrgMember; onPress: () => void }) {
   const { t } = useTranslation();
-  const contact = invitation.inviteeEmail ?? invitation.inviteePhone ?? '';
+  const isTeacher = member.role === 'TEACHER';
   return (
-    <View className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4">
-      <Text className="font-inter text-base font-semibold text-slate-900">{contact}</Text>
-      <Text className="font-inter mt-1 text-sm text-slate-500">
-        {t('manager.teachers.pendingExpires', { date: formatExpiryDate(invitation.expiresAt) })}
-      </Text>
-      <View className="mt-3 flex-row gap-3">
-        <Button variant="outline" size="sm" label={t('manager.teachers.pendingResend')} fullWidth={false} loading={resendLoading} onPress={onResend} />
-        <Button variant="destructive" size="sm" label={t('manager.teachers.pendingCancel')} fullWidth={false} loading={cancelLoading} onPress={onCancel} />
+    <Pressable
+      onPress={isTeacher ? onPress : undefined}
+      style={({ pressed }) => [
+        styles.card,
+        isTeacher && pressed && styles.cardPressed,
+      ]}
+      accessibilityRole={isTeacher ? 'button' : undefined}
+      accessibilityLabel={member.name}
+    >
+      <View style={styles.memberAvatar}>
+        <Ionicons name="person" size={18} color="#64748B" />
       </View>
-    </View>
+      <View style={styles.cardBody}>
+        <Text style={styles.cardName} numberOfLines={1}>{member.name}</Text>
+        <Text style={styles.cardMeta}>
+          {member.role === 'OWNER'
+            ? t('manager.teachers.roleOwner', { defaultValue: 'Owner' })
+            : t('manager.teachers.roleTeacher', { defaultValue: 'Teacher' })}
+          {' \u00B7 '}
+          {t('manager.teachers.activeSessions', {
+            defaultValue: '{{count}} active sessions',
+            count: member.activeSessionsCount,
+          })}
+        </Text>
+      </View>
+      {isTeacher
+        ? (
+            <Ionicons
+              name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
+              size={18}
+              color="#D1D5DB"
+              style={styles.chevron}
+            />
+          )
+        : null}
+    </Pressable>
   );
 }
 
-function MembersList() {
+function InvitationCard({ invitation, onPress }: { invitation: OrgInvitation; onPress: () => void }) {
+  const { t } = useTranslation();
+  const contact = invitation.inviteeEmail ?? invitation.inviteePhone ?? '';
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.card, styles.cardPending, pressed && styles.cardPressed]}
+      accessibilityRole="button"
+      accessibilityLabel={contact}
+    >
+      <View style={styles.pendingAvatar}>
+        <Ionicons name="time-outline" size={18} color="#B45309" />
+      </View>
+      <View style={styles.cardBody}>
+        <Text style={styles.cardName} numberOfLines={1}>{contact}</Text>
+        <Text style={styles.cardMeta}>
+          {t('manager.teachers.pendingExpires', {
+            defaultValue: 'Expires {{date}}',
+            date: formatExpiryDate(invitation.expiresAt),
+          })}
+        </Text>
+      </View>
+      <Ionicons
+        name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
+        size={18}
+        color="#D1D5DB"
+        style={styles.chevron}
+      />
+    </Pressable>
+  );
+}
+
+function ActionRow({
+  icon,
+  label,
+  onPress,
+  color = '#374151',
+  danger = false,
+  loading = false,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  color?: string;
+  danger?: boolean;
+  loading?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={loading}
+      style={({ pressed }) => [
+        styles.actionRow,
+        danger && styles.actionRowDanger,
+        pressed && { backgroundColor: danger ? '#FEF2F2' : '#F9FAFB' },
+        loading && { opacity: 0.6 },
+      ]}
+      accessibilityRole="button"
+    >
+      <View style={[styles.actionIcon, { backgroundColor: danger ? '#FEF2F2' : '#F3F4F6' }]}>
+        <Ionicons name={icon} size={18} color={color} />
+      </View>
+      <Text style={[styles.actionRowLabel, { color }]}>{label}</Text>
+      <Ionicons
+        name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
+        size={16}
+        color="#D1D5DB"
+      />
+    </Pressable>
+  );
+}
+
+// eslint-disable-next-line max-lines-per-function
+function TeachersList() {
   const { t } = useTranslation();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const membersQuery = useOrgMembers(activeOrgId);
+  const invitationsQuery = useOrgInvitations(activeOrgId);
   const removeMutation = useRemoveMember(activeOrgId);
+  const cancelMutation = useCancelInvitation(activeOrgId);
+  const resendMutation = useResendInvitation(activeOrgId);
 
-  const confirmRemove = (memberId: string) => {
+  const [selectedMember, setSelectedMember] = useState<OrgMember | null>(null);
+  const [selectedInvitation, setSelectedInvitation] = useState<OrgInvitation | null>(null);
+  const memberSheet = useModal();
+  const invitationSheet = useModal();
+
+  const handleMemberPress = (member: OrgMember) => {
+    setSelectedMember(member);
+    memberSheet.present();
+  };
+
+  const handleInvitationPress = (invitation: OrgInvitation) => {
+    setSelectedInvitation(invitation);
+    invitationSheet.present();
+  };
+
+  const handleRemoveMember = () => {
+    if (!selectedMember)
+      return;
     Alert.alert(
-      t('manager.teachers.removeTitle'),
-      t('manager.teachers.removeMessage'),
+      t('manager.teachers.removeTitle', { defaultValue: 'Remove teacher?' }),
+      t('manager.teachers.removeMessage', {
+        defaultValue: 'Their assigned sessions will be paused and future instances cancelled.',
+      }),
       [
-        { text: t('manager.common.cancel'), style: 'cancel' },
-        { text: t('manager.teachers.removeConfirm'), style: 'destructive', onPress: () => removeMutation.mutate(memberId) },
+        { text: t('manager.common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
+        {
+          text: t('manager.teachers.removeConfirm', { defaultValue: 'Remove' }),
+          style: 'destructive',
+          onPress: () => {
+            memberSheet.dismiss();
+            removeMutation.mutate(selectedMember.id);
+          },
+        },
       ],
     );
   };
 
-  if (membersQuery.isLoading) {
-    return (
-      <View className="mt-5 items-center py-10">
-        <ActivityIndicator size="large" color="#6366F1" />
-      </View>
+  const handleResend = () => {
+    if (!selectedInvitation)
+      return;
+    resendMutation.mutate(selectedInvitation.id);
+  };
+
+  const handleCancel = () => {
+    if (!selectedInvitation)
+      return;
+    Alert.alert(
+      t('manager.teachers.pendingCancel', { defaultValue: 'Cancel invitation?' }),
+      t('manager.teachers.cancelMessage', { defaultValue: 'This invitation will be cancelled immediately.' }),
+      [
+        { text: t('manager.common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
+        {
+          text: t('manager.teachers.pendingCancel', { defaultValue: 'Cancel invite' }),
+          style: 'destructive',
+          onPress: () => {
+            invitationSheet.dismiss();
+            cancelMutation.mutate(selectedInvitation.id);
+          },
+        },
+      ],
     );
-  }
-
-  if (membersQuery.isError) {
-    return (
-      <View className="mt-5 items-center gap-3 py-6">
-        <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
-        <Text className="font-inter text-sm text-red-600">{t('manager.teachers.errorLoading')}</Text>
-        <Button variant="outline" size="sm" label={t('manager.teachers.errorRetry')} fullWidth={false} onPress={() => membersQuery.refetch()} />
-      </View>
-    );
-  }
-
-  return (
-    <View className="mt-5 rounded-[28px] bg-white p-5">
-      <Text className="font-inter text-lg font-semibold text-slate-900">
-        {t('manager.teachers.listTitle')}
-      </Text>
-      <View className="mt-4 gap-3">
-        {(membersQuery.data?.data ?? []).map(member => (
-          <View key={member.id} className="rounded-2xl border border-slate-200 p-4">
-            <Text className="font-inter text-base font-semibold text-slate-900">{member.name}</Text>
-            <Text className="font-inter mt-1 text-sm text-slate-500">
-              {member.role}
-              {' \u00B7 '}
-              {t('manager.teachers.activeSessions', { count: member.activeSessionsCount })}
-            </Text>
-            {member.role === 'TEACHER'
-              ? (
-                  <Button className="mt-3" variant="destructive" size="sm" label={t('manager.teachers.remove')} fullWidth={false} loading={removeMutation.isPending} onPress={() => confirmRemove(member.id)} />
-                )
-              : null}
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-function PendingInvitationsList() {
-  const { t } = useTranslation();
-  const activeOrgId = useManagerStore.use.activeOrgId();
-  const invitationsQuery = useOrgInvitations(activeOrgId);
-  const cancelMutation = useCancelInvitation(activeOrgId);
-  const resendMutation = useResendInvitation(activeOrgId);
-
-  return (
-    <View className="mt-5 rounded-[28px] bg-white p-5">
-      <Text className="font-inter text-lg font-semibold text-slate-900">
-        {t('manager.teachers.pendingTitle')}
-      </Text>
-      {invitationsQuery.isLoading
-        ? (
-            <View className="mt-4 items-center py-6">
-              <ActivityIndicator size="small" color="#6366F1" />
-            </View>
-          )
-        : (
-            <View className="mt-4 gap-3">
-              {(invitationsQuery.data?.data ?? []).map(invitation => (
-                <InvitationCard
-                  key={invitation.id}
-                  invitation={invitation}
-                  onResend={() => resendMutation.mutate(invitation.id)}
-                  onCancel={() => cancelMutation.mutate(invitation.id)}
-                  resendLoading={resendMutation.isPending}
-                  cancelLoading={cancelMutation.isPending}
-                />
-              ))}
-              {invitationsQuery.data && invitationsQuery.data.data.length === 0
-                ? <Text className="font-inter text-sm text-slate-500">{t('manager.teachers.pendingEmpty')}</Text>
-                : null}
-            </View>
-          )}
-    </View>
-  );
-}
-
-export function TeachersScreen() {
-  const { t } = useTranslation();
-  const activeOrgId = useManagerStore.use.activeOrgId();
-  const setActiveOrgId = useManagerStore.use.setActiveOrgId();
-  const organizationsQuery = useOrganizations();
-  const membersQuery = useOrgMembers(activeOrgId);
-  const invitationsQuery = useOrgInvitations(activeOrgId);
-
-  useEffect(() => {
-    if (!activeOrgId && organizationsQuery.data?.data[0]) {
-      setActiveOrgId(organizationsQuery.data.data[0].id);
-    }
-  }, [activeOrgId, organizationsQuery.data, setActiveOrgId]);
+  };
 
   const onRefresh = useCallback(() => {
     membersQuery.refetch();
@@ -181,27 +231,231 @@ export function TeachersScreen() {
 
   const isRefreshing = membersQuery.isRefetching || invitationsQuery.isRefetching;
 
+  if (membersQuery.isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center py-10">
+        <ActivityIndicator size="large" color="#3B82F6" />
+      </View>
+    );
+  }
+
+  if (membersQuery.isError) {
+    return (
+      <View className="flex-1 items-center gap-3 py-10">
+        <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
+        <Text className="font-inter text-sm text-red-600">
+          {t('manager.teachers.errorLoading', { defaultValue: 'Could not load members.' })}
+        </Text>
+        <Button
+          variant="outline"
+          size="sm"
+          label={t('manager.teachers.errorRetry', { defaultValue: 'Retry' })}
+          fullWidth={false}
+          onPress={() => membersQuery.refetch()}
+        />
+      </View>
+    );
+  }
+
+  const members = membersQuery.data?.data ?? [];
+  const invitations = invitationsQuery.data?.data ?? [];
+
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
+    <>
+      <ScrollView
+        contentContainerClassName="px-6 pb-8 pt-2"
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
       >
-        <ScrollView
-          contentContainerClassName="px-6 py-6"
-          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
-        >
+        {members.length === 0 && invitations.length === 0
+          ? (
+              <View className="items-center py-16">
+                <Ionicons name="people-outline" size={40} color="#9CA3AF" />
+                <Text className="font-inter mt-3 text-sm text-slate-500">
+                  {t('manager.teachers.empty', { defaultValue: 'No teachers yet.' })}
+                </Text>
+              </View>
+            )
+          : null}
+
+        {members.length > 0 && (
+          <>
+            <Text className="font-inter mb-3 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+              {t('manager.teachers.listTitle', { defaultValue: 'Current members' })}
+            </Text>
+            <View className="gap-3">
+              {members.map(member => (
+                <MemberCard
+                  key={member.id}
+                  member={member}
+                  onPress={() => handleMemberPress(member)}
+                />
+              ))}
+            </View>
+          </>
+        )}
+
+        {invitations.length > 0 && (
+          <>
+            <Text className={`font-inter mb-3 text-xs font-semibold tracking-wider text-slate-400 uppercase ${members.length > 0 ? 'mt-6' : ''}`}>
+              {t('manager.teachers.pendingTitle', { defaultValue: 'Pending invitations' })}
+            </Text>
+            <View className="gap-3">
+              {invitations.map(invitation => (
+                <InvitationCard
+                  key={invitation.id}
+                  invitation={invitation}
+                  onPress={() => handleInvitationPress(invitation)}
+                />
+              ))}
+            </View>
+          </>
+        )}
+      </ScrollView>
+
+      {/* Member actions sheet */}
+      <Modal
+        ref={memberSheet.ref}
+        snapPoints={[140]}
+        title={selectedMember?.name ?? ''}
+      >
+        <View style={styles.sheetContent}>
+          <ActionRow
+            icon="person-remove-outline"
+            label={t('manager.teachers.remove', { defaultValue: 'Remove from organization' })}
+            onPress={handleRemoveMember}
+            color="#DC2626"
+            danger
+          />
+        </View>
+      </Modal>
+
+      {/* Invitation actions sheet */}
+      <Modal
+        ref={invitationSheet.ref}
+        snapPoints={[180]}
+        title={selectedInvitation?.inviteeEmail ?? selectedInvitation?.inviteePhone ?? ''}
+      >
+        <View style={styles.sheetContent}>
+          <ActionRow
+            icon="send-outline"
+            label={t('manager.teachers.pendingResend', { defaultValue: 'Resend invitation' })}
+            onPress={handleResend}
+            loading={resendMutation.isPending}
+          />
+          <ActionRow
+            icon="close-circle-outline"
+            label={t('manager.teachers.pendingCancel', { defaultValue: 'Cancel invitation' })}
+            onPress={handleCancel}
+            color="#DC2626"
+            danger
+          />
+        </View>
+      </Modal>
+    </>
+  );
+}
+
+export function TeachersScreen() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const activeOrgId = useManagerStore.use.activeOrgId();
+  const setActiveOrgId = useManagerStore.use.setActiveOrgId();
+  const organizationsQuery = useOrganizations();
+
+  useEffect(() => {
+    if (!activeOrgId && organizationsQuery.data?.data[0]) {
+      setActiveOrgId(organizationsQuery.data.data[0].id);
+    }
+  }, [activeOrgId, organizationsQuery.data, setActiveOrgId]);
+
+  if (!activeOrgId) {
+    return <NoOrgEmptyState />;
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
+      <View className="flex-row items-center justify-between px-6 pt-6 pb-2">
+        <View className="flex-1">
           <Text className="font-inter text-3xl font-semibold text-slate-900">
-            {t('manager.teachers.title')}
+            {t('manager.teachers.title', { defaultValue: 'Teachers' })}
           </Text>
-          <Text className="font-inter mt-2 text-base text-slate-500">
-            {t('manager.teachers.subtitle')}
+          <Text className="font-inter mt-1 text-base text-slate-500">
+            {t('manager.teachers.subtitle', {
+              defaultValue: 'Invite teachers by phone or email, then remove them cleanly when responsibilities change.',
+            })}
           </Text>
-          <InviteTeacherModal />
-          <MembersList />
-          <PendingInvitationsList />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+        <Pressable
+          onPress={() => router.push(AppRoute.manager.teacherInvite)}
+          className="ms-3 size-10 items-center justify-center rounded-full bg-[#3B82F6]"
+          accessibilityLabel={t('manager.teachers.inviteTitle', { defaultValue: 'Invite teacher' })}
+          accessibilityRole="button"
+        >
+          <Ionicons name="add" size={24} color="white" />
+        </Pressable>
+      </View>
+
+      <TeachersList />
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  // Card
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E2E8F0',
+    padding: 14,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  cardPending: { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' },
+  cardPressed: { opacity: 0.85 },
+  memberAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pendingAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardBody: { flex: 1, gap: 3 },
+  cardName: { fontSize: 16, fontWeight: '600', color: '#0F172A' },
+  cardMeta: { fontSize: 13, color: '#64748B' },
+  chevron: { flexShrink: 0 },
+  // Actions sheet
+  sheetContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 4 },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+  },
+  actionRowDanger: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#F3F4F6' },
+  actionRowLabel: { flex: 1, fontSize: 15, fontWeight: '500' },
+  actionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

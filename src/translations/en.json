@@ -106,8 +106,8 @@
       "fullNamePlaceholder": "Enter your full name",
       "genericError": "Something went wrong. Please try again.",
       "loginLink": "Log In",
-      "orConnectWith": "OR CONNECT WITH",
       "managerLabel": "Manager",
+      "orConnectWith": "OR CONNECT WITH",
       "parentLabel": "Parent",
       "passwordLabel": "Password",
       "phoneTab": "Phone",
@@ -140,7 +140,9 @@
     "common": {
       "cancel": "Cancel",
       "errorTitle": "Something went wrong",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "noOrgCopy": "Create your first organization to get started.",
+      "noOrgTitle": "No organization yet"
     },
     "dashboard": {
       "cards": {
@@ -152,8 +154,16 @@
       },
       "emptyCopy": "Create your first organization to unlock the manager dashboard.",
       "emptyTitle": "No organization yet",
+      "goodAfternoon": "Good afternoon",
+      "goodEvening": "Good evening",
+      "goodMorning": "Good morning",
+      "infoAbsent": "{{count}} absent today",
+      "infoTeachers": "{{count}} teachers",
       "noSessions": "No sessions scheduled for today yet.",
       "openSession": "Open session",
+      "quickAddStudent": "Add student",
+      "quickInvite": "Invite",
+      "quickNewSession": "New session",
       "sessionDuration": "{{minutes}} min",
       "sessionStudents": "{{count}} students",
       "subtitle": "Keep today moving, track usage, and unblock your team before sessions start.",
@@ -175,19 +185,44 @@
       "students": "Student limit reached ({{current}}/{{limit}})."
     },
     "more": {
+      "accountSection": "Account",
+      "emailLabel": "Email",
+      "entitlementSection": "Subscription",
+      "languageLabel": "Language",
+      "logout": "Log Out",
       "orgName": "Organization: {{name}}",
+      "phoneAccount": "Phone Account",
+      "phoneLabel": "Phone",
+      "planLabel": "Plan",
+      "planStatus": {
+        "expired": "Expired",
+        "subscription": "Active",
+        "trial": "Trial"
+      },
+      "quickLinksSection": "Quick links",
       "reports": {
         "body": "Review attendance, engagement, and teacher performance trends.",
         "cta": "Open reports",
         "title": "Reports"
       },
+      "roleManager": "Manager",
       "settings": {
         "body": "Update contact information and monitor limit usage.",
         "cta": "Open settings",
         "title": "Settings"
       },
+      "subscriptionEnds": "Ends",
       "subtitle": "Settings, reports, and higher-level organization controls live here.",
-      "title": "More"
+      "title": "More",
+      "trialEnds": "Trial ends",
+      "usage": {
+        "minutes": "Minutes",
+        "sessions": "Sessions",
+        "students": "Students",
+        "teachers": "Teachers",
+        "title": "Usage",
+        "unlimited": "∞"
+      }
     },
     "reports": {
       "cards": {
@@ -264,6 +299,10 @@
         "pause": "Pause",
         "resume": "Resume"
       },
+      "clearAll": "Clear all",
+      "confirmStudents": "Confirm ({{count}})",
+      "createScreenTitle": "Create Session",
+      "createSuccess": "Session created successfully.",
       "createTitle": "Create session template",
       "deleteConfirm": "Delete",
       "deleteMessage": "This will soft-delete the session template. Existing records are preserved.",
@@ -281,7 +320,13 @@
       },
       "listTitle": "Existing templates",
       "myselfSuffix": "(Myself)",
+      "noOrgCopy": "Create an organization first to start adding sessions.",
+      "noOrgTitle": "No organization yet",
       "paused": "Paused",
+      "selectAll": "Select all",
+      "selectStudentsPlaceholder": "Select students",
+      "selectTeacher": "Select teacher",
+      "selectedCount": "{{count}} selected",
       "studentCount": "{{count}} students",
       "submitError": "Unable to save the session right now.",
       "subtitle": "Build recurring session templates and keep teacher assignments visible.",
@@ -342,6 +387,8 @@
       "connectionCode": "Connection code",
       "copiedBody": "The connection code is ready to paste.",
       "copiedTitle": "Copied",
+      "createScreenTitle": "Add Student",
+      "createSuccess": "Student added successfully",
       "createTitle": "Add student",
       "deleteConfirm": "Delete",
       "deleteMessage": "This will remove the student from future sessions. Historical data is preserved.",
@@ -380,6 +427,8 @@
       "pageInfo": "Page {{page}} of {{total}}",
       "parentLinked": "Parent linked",
       "prevPage": "Previous",
+      "regenerateMessage": "The old code will stop working immediately.",
+      "regenerateTitle": "Regenerate code?",
       "search": "Search students",
       "sessionsCount": "{{count}} sessions",
       "submitError": "Unable to save the student right now.",
@@ -399,10 +448,13 @@
     },
     "teachers": {
       "activeSessions": "{{count}} active sessions",
+      "cancelMessage": "This invitation will be cancelled immediately.",
       "email": "Email",
+      "empty": "No teachers yet.",
       "errorLoading": "Could not load members.",
       "errorRetry": "Retry",
       "inviteError": "Unable to send the invitation right now.",
+      "inviteHint": "Enter a phone number, email address, or both. The teacher will receive an invitation to join your organization.",
       "inviteSent": "Invitation sent successfully.",
       "inviteTitle": "Invite teacher",
       "inviteValidation": "Please provide at least a phone number or email address.",
@@ -417,6 +469,8 @@
       "removeConfirm": "Remove",
       "removeMessage": "Their assigned sessions will be paused and future instances cancelled.",
       "removeTitle": "Remove teacher?",
+      "roleOwner": "Owner",
+      "roleTeacher": "Teacher",
       "sendInvite": "Send invitation",
       "subtitle": "Invite teachers by phone or email, then remove them cleanly when responsibilities change.",
       "title": "Teachers"

@@ -1,91 +1,376 @@
-import type { OrgSessionInstance, OrgStatsOverview, OrgTeacherStatsItem } from '../types/manager.types';
+/**
+ * DashboardScreen — Manager
+ * Blue hero with greeting + org stats, animated quick actions,
+ * info bar, today's sessions, onboarding wizard, and trial banner.
+ */
+
+import type { OrgSessionInstance, OrgTeacherStatsItem } from '../types/manager.types';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl } from 'react-native';
-import { ActivityIndicator, Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
+import { I18nManager, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, ScrollView, Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
+import { useAuthStore } from '@/features/auth/use-auth-store';
 import { OnboardingWizard, TrialExpiredBanner } from '../components';
 import { useOrganization, useOrganizations, useOrgInstances, useOrgStats } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
 
-function StatCards({ overview, teacherCount }: { overview: OrgStatsOverview | undefined; teacherCount: number }) {
-  const { t } = useTranslation();
-  const cards = [
-    { label: t('manager.dashboard.cards.students', { defaultValue: 'Students' }), value: overview?.activeStudents ?? 0 },
-    { label: t('manager.dashboard.cards.todaySessions', { defaultValue: 'Today' }), value: overview?.todaySessions ?? 0 },
-    { label: t('manager.dashboard.cards.runningNow', { defaultValue: 'Running now' }), value: overview?.runningNow ?? 0 },
-    { label: t('manager.dashboard.cards.absentToday', { defaultValue: 'Absent today' }), value: overview?.absentToday ?? 0 },
-    { label: t('manager.dashboard.cards.activeTeachers', { defaultValue: 'Active teachers' }), value: teacherCount },
-  ];
+const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';
+
+function isGeneratedPhoneEmail(email: string | undefined): boolean {
+  return !!email && email.toLowerCase().endsWith(GENERATED_PHONE_EMAIL_DOMAIN);
+}
+
+function getFirstName(
+  fullName: string | undefined,
+  email: string | undefined,
+  fallback: string,
+): string {
+  if (fullName?.trim()) {
+    const [firstPart] = fullName.trim().split(/\s+/);
+    return firstPart || fullName.trim();
+  }
+  if (email && !isGeneratedPhoneEmail(email)) {
+    const [localPart] = email.split('@');
+    if (localPart)
+      return localPart;
+  }
+  return fallback;
+}
+
+function getGreeting(t: (key: string, opts?: Record<string, unknown>) => string) {
+  const hour = new Date().getHours();
+  if (hour < 12)
+    return t('manager.dashboard.goodMorning', { defaultValue: 'Good morning' });
+  if (hour < 17)
+    return t('manager.dashboard.goodAfternoon', { defaultValue: 'Good afternoon' });
+  return t('manager.dashboard.goodEvening', { defaultValue: 'Good evening' });
+}
+
+function DashboardHero({
+  firstName,
+  orgName,
+  students,
+  todayCount,
+  runningCount,
+  t,
+}: {
+  firstName: string;
+  orgName: string;
+  students: number;
+  todayCount: number;
+  runningCount: number;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}) {
   return (
-    <View className="mt-2 flex-row flex-wrap gap-3">
-      {cards.map(card => (
-        <View key={card.label} className="min-w-[47%] flex-1 rounded-[24px] bg-white p-4">
-          <Text className="font-inter text-sm text-slate-500">{card.label}</Text>
-          <Text className="font-inter mt-2 text-3xl font-semibold text-slate-900">{card.value}</Text>
+    <View style={styles.hero}>
+      <View style={styles.heroTop}>
+        <View style={styles.heroLeft}>
+          <Text style={styles.greetingText}>{getGreeting(t)}</Text>
+          <Text style={styles.heroName} numberOfLines={1}>{firstName}</Text>
+          {orgName
+            ? <Text style={styles.orgNameText} numberOfLines={1}>{orgName}</Text>
+            : null}
         </View>
-      ))}
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{firstName[0]?.toUpperCase() ?? '?'}</Text>
+        </View>
+      </View>
+      <View style={styles.statsRow}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{students}</Text>
+          <Text style={styles.statLabel}>{t('manager.dashboard.cards.students', { defaultValue: 'Students' })}</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{todayCount}</Text>
+          <Text style={styles.statLabel}>{t('manager.dashboard.cards.todaySessions', { defaultValue: 'Today' })}</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{runningCount}</Text>
+          <Text style={styles.statLabel}>{t('manager.dashboard.cards.runningNow', { defaultValue: 'Running now' })}</Text>
+        </View>
+      </View>
     </View>
   );
 }
 
-function TodaySessionsList({ instances, today }: { instances: OrgSessionInstance[]; today: string }) {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const todayInstances = instances.filter(i => i.date === today);
-  const stateColors: Record<string, string> = {
-    draft: 'bg-slate-100 text-slate-600',
-    active: 'bg-emerald-100 text-emerald-700',
-    closed: 'bg-red-100 text-red-700',
-    cancelled: 'bg-amber-100 text-amber-700',
+function QuickActionCard({
+  icon,
+  label,
+  onPress,
+  iconBg,
+  iconColor,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  iconBg: string;
+  iconColor: string;
+}) {
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    // eslint-disable-next-line react-hooks/immutability
+    scale.value = withSpring(0.95, { damping: 15 });
   };
+  const handlePressOut = () => {
+    // eslint-disable-next-line react-hooks/immutability
+    scale.value = withSpring(1, { damping: 15 });
+  };
+
   return (
-    <View className="mt-5 rounded-[28px] bg-white p-5">
-      <View className="flex-row items-center justify-between">
-        <Text className="font-inter text-xl font-semibold text-slate-900">
+    <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
+        accessibilityRole="button"
+      >
+        <View style={[styles.actionIcon, { backgroundColor: iconBg }]}>
+          <Ionicons name={icon} size={20} color={iconColor} />
+        </View>
+        <Text style={styles.actionLabel} numberOfLines={1}>{label}</Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+function QuickActions({
+  onAddStudent,
+  onCreateSession,
+  onInviteTeacher,
+  t,
+}: {
+  onAddStudent: () => void;
+  onCreateSession: () => void;
+  onInviteTeacher: () => void;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}) {
+  return (
+    <View style={styles.actionsGrid}>
+      <QuickActionCard
+        icon="person-add-outline"
+        label={t('manager.dashboard.quickAddStudent', { defaultValue: 'Add student' })}
+        onPress={onAddStudent}
+        iconBg="#EDE9FE"
+        iconColor="#7C3AED"
+      />
+      <QuickActionCard
+        icon="calendar-outline"
+        label={t('manager.dashboard.quickNewSession', { defaultValue: 'New session' })}
+        onPress={onCreateSession}
+        iconBg="#DBEAFE"
+        iconColor="#2563EB"
+      />
+      <QuickActionCard
+        icon="mail-outline"
+        label={t('manager.dashboard.quickInvite', { defaultValue: 'Invite' })}
+        onPress={onInviteTeacher}
+        iconBg="#FEF3C7"
+        iconColor="#D97706"
+      />
+    </View>
+  );
+}
+
+function InfoBar({
+  absentCount,
+  teacherCount,
+  t,
+}: {
+  absentCount: number;
+  teacherCount: number;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}) {
+  return (
+    <View style={styles.infoBar}>
+      <View style={styles.infoItem}>
+        <Ionicons name="alert-circle" size={14} color={absentCount > 0 ? '#DC2626' : '#9CA3AF'} />
+        <Text style={[styles.infoText, absentCount > 0 && styles.infoTextAlert]}>
+          {t('manager.dashboard.infoAbsent', { defaultValue: '{{count}} absent today', count: absentCount })}
+        </Text>
+      </View>
+      <View style={styles.infoDot} />
+      <View style={styles.infoItem}>
+        <Ionicons name="people" size={14} color="#6B7280" />
+        <Text style={styles.infoText}>
+          {t('manager.dashboard.infoTeachers', { defaultValue: '{{count}} teachers', count: teacherCount })}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+const SESSION_STATE_STYLES: Record<string, { bg: string; text: string }> = {
+  draft: { bg: '#F1F5F9', text: '#475569' },
+  active: { bg: '#DCFCE7', text: '#166534' },
+  closed: { bg: '#FEE2E2', text: '#991B1B' },
+  cancelled: { bg: '#FEF3C7', text: '#92400E' },
+};
+
+function TodaySessionCard({
+  instance,
+  onPress,
+  t,
+}: {
+  instance: OrgSessionInstance;
+  onPress: () => void;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}) {
+  const stateKey = instance.state.toLowerCase();
+  const stateStyle = SESSION_STATE_STYLES[stateKey] ?? SESSION_STATE_STYLES.draft;
+  const studentCount = instance.studentCount ?? instance.students?.length ?? 0;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.sessionCard, pressed && styles.sessionCardPressed]}
+      accessibilityRole="button"
+      accessibilityLabel={instance.subject}
+    >
+      <View style={styles.sessionAccent} />
+      <View style={styles.sessionBody}>
+        <View style={styles.sessionTopRow}>
+          <Text style={styles.sessionSubject} numberOfLines={1}>{instance.subject}</Text>
+          <View style={[styles.stateBadge, { backgroundColor: stateStyle.bg }]}>
+            <Text style={[styles.stateBadgeText, { color: stateStyle.text }]}>
+              {t(`manager.sessionDetail.instanceState.${stateKey}`, { defaultValue: instance.state })}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.sessionMeta}>
+          <Ionicons name="time-outline" size={13} color="#6B7280" />
+          <Text style={styles.sessionMetaText}>
+            {instance.time}
+            {' \u00B7 '}
+            {t('manager.dashboard.sessionDuration', { defaultValue: '{{minutes}} min', minutes: instance.durationMinutes })}
+          </Text>
+        </View>
+        <View style={styles.sessionMeta}>
+          <Ionicons name="person-outline" size={13} color="#9CA3AF" />
+          <Text style={styles.sessionMetaText}>{instance.assignedTeacher.name}</Text>
+          <Text style={styles.sessionDot}>{'\u00B7'}</Text>
+          <Ionicons name="people-outline" size={13} color="#9CA3AF" />
+          <Text style={styles.sessionMetaText}>
+            {t('manager.dashboard.sessionStudents', { defaultValue: '{{count}} students', count: studentCount })}
+          </Text>
+        </View>
+      </View>
+      <Ionicons
+        name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
+        size={18}
+        color="#D1D5DB"
+        style={styles.sessionChevron}
+      />
+    </Pressable>
+  );
+}
+
+function TodaySessions({
+  instances,
+  today,
+  t,
+  onOpenSession,
+  onViewAll,
+}: {
+  instances: OrgSessionInstance[];
+  today: string;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+  onOpenSession: (templateId: string) => void;
+  onViewAll: () => void;
+}) {
+  const todayInstances = instances.filter(i => i.date === today);
+
+  return (
+    <>
+      <View style={styles.sectionHeader}>
+        <Ionicons name="today-outline" size={14} color="#6B7280" />
+        <Text style={styles.sectionTitle}>
           {t('manager.dashboard.todayTitle', { defaultValue: 'Today\'s sessions' })}
         </Text>
-        <Button variant="ghost" label={t('manager.dashboard.viewAll', { defaultValue: 'View all' })} fullWidth={false} onPress={() => router.push('/(manager)/(tabs)/sessions')} />
+        <Pressable onPress={onViewAll} style={styles.viewAllBtn} accessibilityRole="button">
+          <Text style={styles.viewAllText}>
+            {t('manager.dashboard.viewAll', { defaultValue: 'View all' })}
+          </Text>
+        </Pressable>
       </View>
       {todayInstances.length === 0
-        ? <Text className="font-inter mt-3 text-sm text-slate-500">{t('manager.dashboard.noSessions', { defaultValue: 'No sessions scheduled for today yet.' })}</Text>
+        ? (
+            <View style={styles.emptyBox}>
+              <Ionicons name="calendar-outline" size={32} color="#D1D5DB" />
+              <Text style={styles.emptyText}>
+                {t('manager.dashboard.noSessions', { defaultValue: 'No sessions scheduled for today yet.' })}
+              </Text>
+            </View>
+          )
         : (
-            <View className="mt-4 gap-3">
-              {todayInstances.map((instance) => {
-                const stateKey = instance.state.toLowerCase() as keyof typeof stateColors;
-                const [badgeBg, badgeText] = (stateColors[stateKey] ?? 'bg-slate-100 text-slate-600').split(' ');
-                return (
-                  <View key={instance.id} className="rounded-2xl border border-slate-200 p-4">
-                    <View className="flex-row items-center justify-between">
-                      <Text className="font-inter text-base font-semibold text-slate-900">{instance.subject}</Text>
-                      <View className={`rounded-full px-2 py-0.5 ${badgeBg}`}>
-                        <Text className={`font-inter text-xs font-medium ${badgeText}`}>{t(`manager.sessionDetail.instanceState.${stateKey}`, { defaultValue: instance.state })}</Text>
-                      </View>
-                    </View>
-                    <Text className="font-inter mt-1 text-sm text-slate-500">
-                      {instance.time}
-                      {' • '}
-                      {instance.assignedTeacher.name}
-                    </Text>
-                    <Text className="font-inter mt-1 text-sm text-slate-500">
-                      {t('manager.dashboard.sessionDuration', { defaultValue: '{{minutes}} min', minutes: instance.durationMinutes })}
-                      {' • '}
-                      {t('manager.dashboard.sessionStudents', { defaultValue: '{{count}} students', count: instance.studentCount ?? instance.students?.length ?? 0 })}
-                    </Text>
-                    <Button className="mt-3" variant="outline" label={t('manager.dashboard.openSession', { defaultValue: 'Open session' })} onPress={() => router.push(`/(manager)/sessions/${instance.templateId}`)} />
-                  </View>
-                );
-              })}
+            <View style={styles.sessionsList}>
+              {todayInstances.map(instance => (
+                <TodaySessionCard
+                  key={instance.id}
+                  instance={instance}
+                  onPress={() => onOpenSession(instance.templateId)}
+                  t={t}
+                />
+              ))}
             </View>
           )}
-    </View>
+    </>
   );
 }
 
+function EmptyOrgState({
+  t,
+  onSetup,
+}: {
+  t: (key: string, opts?: Record<string, unknown>) => string;
+  onSetup: () => void;
+}) {
+  return (
+    <SafeAreaView edges={['top']} style={styles.container}>
+      <View style={styles.emptyOrgHero}>
+        <Ionicons name="business-outline" size={48} color="rgba(255,255,255,0.6)" />
+        <Text style={styles.emptyOrgTitle}>
+          {t('manager.dashboard.emptyTitle', { defaultValue: 'No organization yet' })}
+        </Text>
+        <Text style={styles.emptyOrgBody}>
+          {t('manager.dashboard.emptyCopy', { defaultValue: 'Create your first organization to unlock the manager dashboard.' })}
+        </Text>
+        <Pressable
+          onPress={onSetup}
+          style={({ pressed }) => [styles.emptyOrgBtn, pressed && styles.emptyOrgBtnPressed]}
+          accessibilityRole="button"
+        >
+          <Ionicons name="add-circle-outline" size={20} color="#2563EB" />
+          <Text style={styles.emptyOrgBtnText}>
+            {t('manager.setup.submit', { defaultValue: 'Create organization' })}
+          </Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+// eslint-disable-next-line max-lines-per-function
 export function DashboardScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const user = useAuthStore.use.user();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const setActiveOrgId = useManagerStore.use.setActiveOrgId();
   const setOrgDetails = useManagerStore.use.setOrgDetails();
@@ -95,7 +380,6 @@ export function DashboardScreen() {
   const today = new Date().toISOString().slice(0, 10);
   const instancesQuery = useOrgInstances(activeOrgId, { date: today });
 
-  // All hooks before any early returns
   const onRefresh = useCallback(() => {
     organizationQuery.refetch();
     stats.overview.refetch();
@@ -116,49 +400,285 @@ export function DashboardScreen() {
   }, [organizationQuery.data, setOrgDetails]);
 
   if (organizationsQuery.data && organizationsQuery.data.data.length === 0) {
+    return <EmptyOrgState t={t} onSetup={() => router.push(AppRoute.manager.setup)} />;
+  }
+
+  if (organizationQuery.isLoading || stats.overview.isLoading || instancesQuery.isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-[#f5f1e8] px-6 py-8">
-        <View className="rounded-[28px] bg-[#102820] p-6">
-          <Text className="font-inter text-3xl font-semibold text-[#f6efe2]">{t('manager.dashboard.emptyTitle', { defaultValue: 'No organization yet' })}</Text>
-          <Text className="font-inter mt-2 text-base text-[#dbe7df]">{t('manager.dashboard.emptyCopy', { defaultValue: 'Create your first organization to unlock the manager dashboard.' })}</Text>
-          <Button className="mt-4" label={t('manager.setup.submit', { defaultValue: 'Create organization' })} onPress={() => router.push(AppRoute.manager.setup)} />
-        </View>
+      <SafeAreaView edges={['top']} style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3B82F6" />
       </SafeAreaView>
     );
   }
 
-  if (organizationQuery.isLoading || stats.overview.isLoading || instancesQuery.isLoading) {
-    return <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8]"><ActivityIndicator size="large" /></SafeAreaView>;
-  }
-
   const organization = organizationQuery.data;
+  const overview = stats.overview.data;
   const teacherStats = stats.teachers.data?.data ?? [] as OrgTeacherStatsItem[];
   const isRefreshing = organizationQuery.isRefetching || stats.overview.isRefetching || instancesQuery.isRefetching;
+  const firstName = getFirstName(user?.fullName, user?.email, t('manager.more.roleManager', { defaultValue: 'Manager' }));
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
-      <ScrollView contentContainerClassName="px-6 py-6" refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}>
-        <View className="rounded-[32px] bg-[#102820] p-6">
-          <Text className="font-inter text-sm tracking-[1.6px] text-[#95d5b2] uppercase">{organization?.name ?? t('manager.common.loading', { defaultValue: 'Loading...' })}</Text>
-          <Text className="font-inter mt-2 text-3xl font-semibold text-[#f6efe2]">{t('manager.dashboard.title', { defaultValue: 'Manager dashboard' })}</Text>
-          <Text className="font-inter mt-3 text-base/6 text-[#dbe7df]">{t('manager.dashboard.subtitle', { defaultValue: 'Keep today moving, track usage, and unblock your team before sessions start.' })}</Text>
-        </View>
-        <View className="mt-5">
-          <TrialExpiredBanner visible={organization?.entitlementSource === 'expired'} onCreateNewOrg={() => router.push(AppRoute.manager.setup)} />
-        </View>
-        <StatCards overview={stats.overview.data} teacherCount={teacherStats.length} />
+    <SafeAreaView edges={['top']} style={styles.container}>
+      <Animated.View entering={FadeInDown.delay(0).duration(350)}>
+        <DashboardHero
+          firstName={firstName}
+          orgName={organization?.name ?? ''}
+          students={overview?.activeStudents ?? 0}
+          todayCount={overview?.todaySessions ?? 0}
+          runningCount={overview?.runningNow ?? 0}
+          t={t}
+        />
+      </Animated.View>
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+      >
+        <Animated.View entering={FadeInDown.delay(100).duration(350)}>
+          <QuickActions
+            onAddStudent={() => router.push(AppRoute.manager.studentCreate)}
+            onCreateSession={() => router.push(AppRoute.manager.sessionCreate)}
+            onInviteTeacher={() => router.push(AppRoute.manager.teacherInvite)}
+            t={t}
+          />
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.delay(160).duration(350)}>
+          <InfoBar
+            absentCount={overview?.absentToday ?? 0}
+            teacherCount={teacherStats.length}
+            t={t}
+          />
+        </Animated.View>
+
+        {organization?.entitlementSource === 'expired' && (
+          <Animated.View entering={FadeInDown.delay(200).duration(350)} style={styles.bannerWrap}>
+            <TrialExpiredBanner visible onCreateNewOrg={() => router.push(AppRoute.manager.setup)} />
+          </Animated.View>
+        )}
+
         {organization && (organization.currentStudents === 0 || organization.currentSessions === 0) && (
-          <View className="mt-5">
+          <Animated.View entering={FadeInDown.delay(240).duration(350)} style={styles.wizardWrap}>
             <OnboardingWizard steps={[
-              { title: t('manager.wizard.steps.students.title', { defaultValue: 'Add your first student' }), description: t('manager.wizard.steps.students.copy', { defaultValue: 'Create at least one student so sessions and attendance have real rosters.' }), ctaLabel: t('manager.wizard.steps.students.cta', { defaultValue: 'Open students' }), onPress: () => router.push('/(manager)/(tabs)/students'), done: organization.currentStudents > 0 },
-              { title: t('manager.wizard.steps.teachers.title', { defaultValue: 'Invite or assign a teacher' }), description: t('manager.wizard.steps.teachers.copy', { defaultValue: 'Invite teachers now, or assign sessions to yourself as the owner to get started quickly.' }), ctaLabel: t('manager.wizard.steps.teachers.cta', { defaultValue: 'Open teachers' }), onPress: () => router.push('/(manager)/(tabs)/teachers'), done: teacherStats.length > 0 },
-              { title: t('manager.wizard.steps.sessions.title', { defaultValue: 'Create the first session' }), description: t('manager.wizard.steps.sessions.copy', { defaultValue: 'Once students and a teacher are ready, schedule the recurring session template.' }), ctaLabel: t('manager.wizard.steps.sessions.cta', { defaultValue: 'Open sessions' }), onPress: () => router.push('/(manager)/(tabs)/sessions'), done: organization.currentSessions > 0 },
+              { title: t('manager.wizard.steps.students.title', { defaultValue: 'Add your first student' }), description: t('manager.wizard.steps.students.copy', { defaultValue: 'Create at least one student so sessions and attendance have real rosters.' }), ctaLabel: t('manager.wizard.steps.students.cta', { defaultValue: 'Open students' }), onPress: () => router.push(AppRoute.manager.students), done: organization.currentStudents > 0 },
+              { title: t('manager.wizard.steps.teachers.title', { defaultValue: 'Invite or assign a teacher' }), description: t('manager.wizard.steps.teachers.copy', { defaultValue: 'Invite teachers now, or assign sessions to yourself as the owner to get started quickly.' }), ctaLabel: t('manager.wizard.steps.teachers.cta', { defaultValue: 'Open teachers' }), onPress: () => router.push(AppRoute.manager.teachers), done: teacherStats.length > 0 },
+              { title: t('manager.wizard.steps.sessions.title', { defaultValue: 'Create the first session' }), description: t('manager.wizard.steps.sessions.copy', { defaultValue: 'Once students and a teacher are ready, schedule the recurring session template.' }), ctaLabel: t('manager.wizard.steps.sessions.cta', { defaultValue: 'Open sessions' }), onPress: () => router.push(AppRoute.manager.sessions), done: organization.currentSessions > 0 },
             ]}
             />
-          </View>
+          </Animated.View>
         )}
-        <TodaySessionsList instances={instancesQuery.data?.data ?? []} today={today} />
+
+        <Animated.View entering={FadeInDown.delay(280).duration(350)}>
+          <TodaySessions
+            instances={instancesQuery.data?.data ?? []}
+            today={today}
+            t={t}
+            onOpenSession={templateId => router.push(AppRoute.manager.sessionDetail(templateId))}
+            onViewAll={() => router.push(AppRoute.manager.sessions)}
+          />
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  // Layout
+  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  loadingContainer: { flex: 1, backgroundColor: '#F9FAFB', alignItems: 'center', justifyContent: 'center' },
+  scrollContent: { paddingBottom: 32 },
+
+  // Hero
+  hero: {
+    backgroundColor: '#2563EB',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    borderBottomStartRadius: 20,
+    borderBottomEndRadius: 20,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 18,
+  },
+  heroLeft: { flex: 1, marginEnd: 12 },
+  greetingText: { fontSize: 14, color: '#BFDBFE', fontWeight: '500', marginBottom: 2 },
+  heroName: { fontSize: 20, fontWeight: '800', color: '#FFFFFF' },
+  orgNameText: { fontSize: 13, color: '#93C5FD', fontWeight: '500', marginTop: 2 },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  avatarText: { fontSize: 17, fontWeight: '700', color: '#FFFFFF' },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+  },
+  statItem: { flex: 1, alignItems: 'center' },
+  statNumber: { fontSize: 24, fontWeight: '800', color: '#FFFFFF' },
+  statLabel: { fontSize: 12, color: '#BFDBFE', fontWeight: '500', marginTop: 2 },
+  statDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    marginVertical: 4,
+  },
+
+  // Quick actions
+  actionsGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 4,
+  },
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  actionCardPressed: { backgroundColor: '#F0F7FF', borderColor: '#BFDBFE' },
+  actionIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  actionLabel: { flex: 1, fontSize: 13, fontWeight: '600', color: '#374151' },
+
+  // Info bar
+  infoBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 6,
+  },
+  infoItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  infoText: { fontSize: 13, color: '#6B7280', fontWeight: '500' },
+  infoTextAlert: { color: '#DC2626' },
+  infoDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#D1D5DB',
+    marginHorizontal: 4,
+  },
+
+  // Banners & wizard
+  bannerWrap: { paddingHorizontal: 16, paddingTop: 4 },
+  wizardWrap: { paddingHorizontal: 16, paddingTop: 8 },
+
+  // Section header
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  sectionTitle: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  viewAllBtn: { paddingVertical: 4, paddingHorizontal: 8 },
+  viewAllText: { fontSize: 13, fontWeight: '600', color: '#3B82F6' },
+
+  // Session cards
+  sessionsList: { paddingHorizontal: 16, gap: 10 },
+  sessionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  sessionCardPressed: { backgroundColor: '#F0F7FF', borderColor: '#BFDBFE' },
+  sessionAccent: {
+    width: 4,
+    alignSelf: 'stretch',
+    backgroundColor: '#3B82F6',
+  },
+  sessionBody: { flex: 1, paddingVertical: 14, paddingHorizontal: 14, gap: 6 },
+  sessionTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  sessionSubject: { flex: 1, fontSize: 16, fontWeight: '700', color: '#111827' },
+  stateBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  stateBadgeText: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.3 },
+  sessionMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  sessionMetaText: { fontSize: 13, color: '#6B7280' },
+  sessionDot: { fontSize: 13, color: '#D1D5DB', marginHorizontal: 2 },
+  sessionChevron: { flexShrink: 0, marginEnd: 12 },
+
+  // Empty state
+  emptyBox: {
+    alignItems: 'center',
+    paddingVertical: 36,
+    paddingHorizontal: 32,
+    gap: 8,
+  },
+  emptyText: { fontSize: 14, color: '#9CA3AF', textAlign: 'center' },
+
+  // Empty org
+  emptyOrgHero: {
+    flex: 1,
+    backgroundColor: '#2563EB',
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    gap: 12,
+  },
+  emptyOrgTitle: { fontSize: 24, fontWeight: '800', color: '#FFFFFF', textAlign: 'center' },
+  emptyOrgBody: { fontSize: 15, color: '#BFDBFE', textAlign: 'center', lineHeight: 22 },
+  emptyOrgBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginTop: 8,
+  },
+  emptyOrgBtnPressed: { opacity: 0.85 },
+  emptyOrgBtnText: { fontSize: 15, fontWeight: '700', color: '#2563EB' },
+});

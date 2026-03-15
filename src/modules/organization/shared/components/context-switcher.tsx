@@ -63,13 +63,13 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
         {orgs.map(org => (
           <Pressable
             key={org.organizationId}
-            className={`mb-2 rounded-2xl p-4 ${activeContext === 'org' && activeOrgId === org.organizationId ? 'bg-emerald-50' : 'bg-slate-50'}`}
+            className={`mb-2 rounded-2xl p-4 ${activeContext === 'org' && activeOrgId === org.organizationId ? 'bg-[#EEF2FF]' : 'bg-slate-50'}`}
             onPress={() => handleOrg(org.organizationId)}
             accessibilityLabel={t('contextSwitcher.selectOrg', { name: org.name })}
             accessibilityRole="button"
             accessibilityState={{ selected: activeContext === 'org' && activeOrgId === org.organizationId }}
           >
-            <Text className={`font-inter text-base font-semibold ${activeContext === 'org' && activeOrgId === org.organizationId ? 'text-emerald-700' : 'text-slate-800'}`}>
+            <Text className={`font-inter text-base font-semibold ${activeContext === 'org' && activeOrgId === org.organizationId ? 'text-[#4338CA]' : 'text-slate-800'}`}>
               {org.name}
             </Text>
             <Text className="font-inter mt-0.5 text-sm text-slate-500">

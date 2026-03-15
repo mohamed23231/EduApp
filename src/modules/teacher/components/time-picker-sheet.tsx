@@ -7,7 +7,8 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Button, Modal, Text } from '@/components/ui';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
@@ -33,16 +34,16 @@ function Column({
   return (
     <View style={styles.column}>
       <Text style={styles.columnLabel}>{label}</Text>
-      <FlatList
-        data={items}
-        keyExtractor={item => item}
+      <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.columnList}
         contentContainerStyle={styles.columnContent}
-        renderItem={({ item }) => {
+      >
+        {items.map((item) => {
           const active = item === selected;
           return (
             <Pressable
+              key={item}
               onPress={() => onSelect(item)}
               style={[styles.columnItem, active && styles.columnItemActive]}
             >
@@ -51,8 +52,8 @@ function Column({
               </Text>
             </Pressable>
           );
-        }}
-      />
+        })}
+      </ScrollView>
     </View>
   );
 }

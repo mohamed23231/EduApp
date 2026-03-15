@@ -106,8 +106,8 @@
       "fullNamePlaceholder": "أدخل اسمك الكامل",
       "genericError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
       "loginLink": "تسجيل الدخول",
-      "orConnectWith": "أو الاتصال عبر",
       "managerLabel": "مدير",
+      "orConnectWith": "أو الاتصال عبر",
       "parentLabel": "ولي أمر",
       "passwordLabel": "كلمة المرور",
       "phoneTab": "الهاتف",
@@ -140,7 +140,9 @@
     "common": {
       "cancel": "إلغاء",
       "errorTitle": "حدث خطأ ما",
-      "loading": "جارٍ التحميل..."
+      "loading": "جارٍ التحميل...",
+      "noOrgCopy": "أنشئ مؤسستك الأولى للبدء.",
+      "noOrgTitle": "لا توجد مؤسسة بعد"
     },
     "dashboard": {
       "cards": {
@@ -152,8 +154,16 @@
       },
       "emptyCopy": "أنشئ أول مؤسسة لفتح لوحة المدير.",
       "emptyTitle": "لا توجد مؤسسة بعد",
+      "goodAfternoon": "مساء الخير",
+      "goodEvening": "مساء الخير",
+      "goodMorning": "صباح الخير",
+      "infoAbsent": "{{count}} غائبون اليوم",
+      "infoTeachers": "{{count}} معلمين",
       "noSessions": "لا توجد حصص مجدولة لليوم حتى الآن.",
       "openSession": "فتح الحصة",
+      "quickAddStudent": "إضافة طالب",
+      "quickInvite": "دعوة",
+      "quickNewSession": "حصة جديدة",
       "sessionDuration": "{{minutes}} دقيقة",
       "sessionStudents": "{{count}} طالب",
       "subtitle": "تابع يومك، وراقب الاستهلاك، وأزل العوائق قبل بدء الحصص.",
@@ -175,19 +185,44 @@
       "students": "تم الوصول إلى حد الطلاب ({{current}}/{{limit}})."
     },
     "more": {
+      "accountSection": "الحساب",
+      "emailLabel": "البريد الإلكتروني",
+      "entitlementSection": "الاشتراك",
+      "languageLabel": "اللغة",
+      "logout": "تسجيل الخروج",
       "orgName": "المؤسسة: {{name}}",
+      "phoneAccount": "حساب الهاتف",
+      "phoneLabel": "الهاتف",
+      "planLabel": "الخطة",
+      "planStatus": {
+        "expired": "منتهية",
+        "subscription": "نشطة",
+        "trial": "تجريبية"
+      },
+      "quickLinksSection": "روابط سريعة",
       "reports": {
         "body": "راجع اتجاهات الحضور والتفاعل وأداء المعلمين.",
         "cta": "افتح التقارير",
         "title": "التقارير"
       },
+      "roleManager": "مدير",
       "settings": {
         "body": "حدّث معلومات التواصل وراقب استخدام الحدود.",
         "cta": "افتح الإعدادات",
         "title": "الإعدادات"
       },
+      "subscriptionEnds": "تنتهي في",
       "subtitle": "الإعدادات والتقارير والتحكمات الأعلى مستوى موجودة هنا.",
-      "title": "المزيد"
+      "title": "المزيد",
+      "trialEnds": "تنتهي التجربة في",
+      "usage": {
+        "minutes": "الدقائق",
+        "sessions": "الحصص",
+        "students": "الطلاب",
+        "teachers": "المعلمون",
+        "title": "الاستخدام",
+        "unlimited": "∞"
+      }
     },
     "reports": {
       "cards": {
@@ -264,6 +299,10 @@
         "pause": "إيقاف",
         "resume": "استئناف"
       },
+      "clearAll": "مسح الكل",
+      "confirmStudents": "تأكيد ({{count}})",
+      "createScreenTitle": "إنشاء حصة",
+      "createSuccess": "تم إنشاء الحصة بنجاح.",
       "createTitle": "إنشاء قالب حصة",
       "deleteConfirm": "حذف",
       "deleteMessage": "سيتم حذف قالب الحصة. السجلات الحالية محفوظة.",
@@ -281,7 +320,13 @@
       },
       "listTitle": "القوالب الحالية",
       "myselfSuffix": "(أنا)",
+      "noOrgCopy": "أنشئ مؤسسة أولاً لبدء إضافة الحصص.",
+      "noOrgTitle": "لا توجد مؤسسة بعد",
       "paused": "متوقفة",
+      "selectAll": "تحديد الكل",
+      "selectStudentsPlaceholder": "اختر الطلاب",
+      "selectTeacher": "اختر معلماً",
+      "selectedCount": "{{count}} محدد",
       "studentCount": "{{count}} طلاب",
       "submitError": "تعذر حفظ الحصة الآن.",
       "subtitle": "أنشئ قوالب حصص متكررة مع ظهور واضح لإسناد المعلمين.",
@@ -342,6 +387,8 @@
       "connectionCode": "رمز الربط",
       "copiedBody": "رمز الربط جاهز للصق.",
       "copiedTitle": "تم النسخ",
+      "createScreenTitle": "إضافة طالب",
+      "createSuccess": "تمت إضافة الطالب بنجاح",
       "createTitle": "إضافة طالب",
       "deleteConfirm": "حذف",
       "deleteMessage": "سيتم إزالة الطالب من الحصص المستقبلية. البيانات التاريخية محفوظة.",
@@ -380,6 +427,8 @@
       "pageInfo": "صفحة {{page}} من {{total}}",
       "parentLinked": "ولي الأمر مرتبط",
       "prevPage": "السابق",
+      "regenerateMessage": "الكود القديم سيتوقف عن العمل فوراً.",
+      "regenerateTitle": "تجديد الكود؟",
       "search": "ابحث عن الطلاب",
       "sessionsCount": "{{count}} حصص",
       "submitError": "تعذر حفظ الطالب الآن.",
@@ -399,10 +448,13 @@
     },
     "teachers": {
       "activeSessions": "{{count}} حصص نشطة",
+      "cancelMessage": "سيتم إلغاء هذه الدعوة فوراً.",
       "email": "البريد الإلكتروني",
+      "empty": "لا يوجد معلمون بعد.",
       "errorLoading": "تعذر تحميل الأعضاء.",
       "errorRetry": "إعادة المحاولة",
       "inviteError": "تعذر إرسال الدعوة الآن.",
+      "inviteHint": "أدخل رقم هاتف أو بريداً إلكترونياً أو كليهما. سيتلقى المعلم دعوة للانضمام إلى مؤسستك.",
       "inviteSent": "تم إرسال الدعوة بنجاح.",
       "inviteTitle": "دعوة معلم",
       "inviteValidation": "يرجى تقديم رقم هاتف أو بريد إلكتروني على الأقل.",
@@ -417,6 +469,8 @@
       "removeConfirm": "إزالة",
       "removeMessage": "سيتم إيقاف الحصص المسندة إليه وإلغاء الجلسات المستقبلية.",
       "removeTitle": "إزالة المعلم؟",
+      "roleOwner": "مالك",
+      "roleTeacher": "معلم",
       "sendInvite": "إرسال الدعوة",
       "subtitle": "ادعُ المعلمين عبر الهاتف أو البريد الإلكتروني، ثم أزلهم بشكل منظم عند تغير المسؤوليات.",
       "title": "المعلمون"

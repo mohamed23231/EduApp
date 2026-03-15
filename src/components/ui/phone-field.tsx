@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  I18nManager,
   Pressable,
   StyleSheet,
   TextInput,
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
     borderColor: '#CBD5E1',
     borderRadius: 14,
     borderWidth: 1,
-    flexDirection: 'row',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     gap: 6,
     justifyContent: 'center',
     minHeight: 56,
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     marginBottom: 2,
-    textAlign: 'left',
+    textAlign: I18nManager.isRTL ? 'right' : 'left',
   },
   labelError: {
     color: '#DC2626',
@@ -207,7 +208,7 @@ const styles = StyleSheet.create({
   },
   row: {
     alignItems: 'center',
-    flexDirection: 'row',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     gap: 8,
     width: '100%',
   },

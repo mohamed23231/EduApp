@@ -161,7 +161,7 @@ function SessionDetailContent({ templateId, sessionQuery, instancesQuery, active
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
       <ScrollView contentContainerClassName="px-6 py-6">
         <TemplateHeader template={template} daysOfWeekLabel={daysOfWeekLabel} />
 
@@ -191,7 +191,7 @@ function SessionDetailContent({ templateId, sessionQuery, instancesQuery, active
 function LoadingView() {
   const { t } = useTranslation();
   return (
-    <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8]">
+    <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAFB]">
       <ActivityIndicator size="large" />
       <Text className="font-inter mt-3 text-base text-slate-500">
         {t('manager.common.loading', { defaultValue: 'Loading...' })}
@@ -203,7 +203,7 @@ function LoadingView() {
 function ErrorView({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslation();
   return (
-    <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8] px-6">
+    <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAFB] px-6">
       <Text className="font-inter text-center text-base text-rose-600">
         {t('manager.sessionDetail.loadError', { defaultValue: 'Failed to load session data.' })}
       </Text>
@@ -486,7 +486,7 @@ function AttendanceSection({ activeInstance, activeOrgId }: AttendanceSectionPro
 
       {successMessage && !error
         ? (
-            <Text className="font-inter mt-3 text-sm text-emerald-700">{successMessage}</Text>
+            <Text className="font-inter mt-3 text-sm text-[#3B82F6]">{successMessage}</Text>
           )
         : null}
       {error
@@ -622,9 +622,9 @@ function RatingChip({ score, selected, onPress }: { score: number; selected: boo
       })}
       accessibilityRole="radio"
       accessibilityState={{ selected }}
-      className={`rounded-full px-3 py-2 ${selected ? 'bg-emerald-600' : 'bg-emerald-50'}`}
+      className={`rounded-full px-3 py-2 ${selected ? 'bg-[#2563EB]' : 'bg-[#EFF6FF]'}`}
     >
-      <Text className={`font-inter text-sm ${selected ? 'text-white' : 'text-emerald-700'}`}>
+      <Text className={`font-inter text-sm ${selected ? 'text-white' : 'text-[#3B82F6]'}`}>
         {score}
       </Text>
     </Pressable>

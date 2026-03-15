@@ -79,7 +79,7 @@ function ScreenHeader({
         testID="back-button"
       >
         <Ionicons
-          name="arrow-back"
+          name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'}
           size={24}
           color="#111827"
         />
@@ -395,7 +395,7 @@ const s = StyleSheet.create({
   illustrationBadge: {
     position: 'absolute',
     bottom: 4,
-    right: 4,
+    end: 4,
     width: 32,
     height: 32,
     borderRadius: 16,

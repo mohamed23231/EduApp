@@ -37,7 +37,7 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
         accessibilityLabel="Go back"
       >
         <Ionicons
-          name="chevron-back"
+          name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'}
           size={24}
           color="#3B82F6"
         />

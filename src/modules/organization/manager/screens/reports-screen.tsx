@@ -61,14 +61,14 @@ export function ReportsScreen() {
 
   if (overview.isLoading || teachers.isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8]">
+      <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAFB]">
         <ActivityIndicator size="large" />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
       <ScrollView
         contentContainerClassName="px-6 py-6"
         refreshControl={<RefreshControl refreshing={overview.isRefetching || teachers.isRefetching} onRefresh={onRefresh} />}

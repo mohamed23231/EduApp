@@ -6,8 +6,8 @@ import { Button, Input, SafeAreaView, ScrollView, Text, View } from '@/component
 import { AppRoute } from '@/core/navigation/routes';
 import { clearOnboardingContext, signIn } from '@/features/auth/use-auth-store';
 import { getToken } from '@/lib/auth/utils';
-import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { validateToken } from '@/modules/auth/services';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { useCreateOrg } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
 import { createOrgSchema } from '../validators';
@@ -78,17 +78,17 @@ export function OrgSetupScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
         <ScrollView contentContainerClassName="px-6 py-8">
-          <View className="rounded-[32px] bg-[#102820] p-6">
-            <Text className="font-inter text-3xl font-semibold text-[#f6efe2]">
+          <View className="rounded-[32px] bg-[#2563EB] p-6">
+            <Text className="font-inter text-3xl font-semibold text-[#FFFFFF]">
               {heroLines[0]}
             </Text>
-            <Text className="font-inter mt-3 text-base/6 text-[#dbe7df]">
+            <Text className="font-inter mt-3 text-base/6 text-[#BFDBFE]">
               {heroLines[1]}
             </Text>
           </View>

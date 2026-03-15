@@ -52,18 +52,18 @@ export function OrgInvitationScreen({ token, invitation, onAccepted, onDeclined 
   const isPending = acceptByToken.isPending || acceptById.isPending || declineById.isPending;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
       <View className="flex-1 px-6 py-8">
-        <View className="rounded-[32px] bg-[#102820] p-6">
-          <Text className="font-inter text-sm tracking-[1.6px] text-[#95d5b2] uppercase">
+        <View className="rounded-[32px] bg-[#2563EB] p-6">
+          <Text className="font-inter text-sm tracking-[1.6px] text-[#BFDBFE] uppercase">
             {t('orgInvitation.badge')}
           </Text>
-          <Text className="font-inter mt-2 text-3xl font-semibold text-[#f6efe2]">
+          <Text className="font-inter mt-2 text-3xl font-semibold text-[#FFFFFF]">
             {orgName}
           </Text>
           {managerName
             ? (
-                <Text className="font-inter mt-2 text-base text-[#dbe7df]">
+                <Text className="font-inter mt-2 text-base text-[#BFDBFE]">
                   {t('orgInvitation.invitedBy', { name: managerName })}
                 </Text>
               )

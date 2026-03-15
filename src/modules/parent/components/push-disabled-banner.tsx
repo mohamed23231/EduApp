@@ -2,7 +2,7 @@ import type { PushPermissionStatus } from '../services/push-notification-handler
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AppState, I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { Color } from '@/components/ui/color-utils';
 import {
@@ -77,7 +77,7 @@ export function PushDisabledBanner() {
           accessibilityLabel={t('parent.notifications.openSettings')}
           testID="open-settings-button"
         >
-          <Ionicons name="chevron-forward" size={20} color={Color.blue(500)} />
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={Color.blue(500)} />
         </TouchableOpacity>
       )}
     </View>
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    marginRight: 12,
+    marginEnd: 12,
   },
   message: {
     flex: 1,

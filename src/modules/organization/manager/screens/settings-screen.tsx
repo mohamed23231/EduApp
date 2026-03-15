@@ -21,7 +21,7 @@ function UsageBar({ label, current, limit }: { label: string; current: number; l
         </Text>
       </View>
       <View className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-        <View className="h-2 rounded-full bg-emerald-600" style={{ width: `${percent}%` }} />
+        <View className="h-2 rounded-full bg-[#3B82F6]" style={{ width: `${percent}%` }} />
       </View>
     </View>
   );
@@ -99,12 +99,12 @@ export function SettingsScreen() {
   }, [activeOrgId, organizationsQuery.data, setActiveOrgId]);
 
   if (organizationQuery.isLoading) {
-    return <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8]"><ActivityIndicator size="large" /></SafeAreaView>;
+    return <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAFB]"><ActivityIndicator size="large" /></SafeAreaView>;
   }
 
   if (organizationQuery.isError) {
     return (
-      <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+      <SafeAreaView className="flex-1 bg-[#F9FAFB]">
         <ScrollView contentContainerClassName="px-6 py-6">
           <Text className="font-inter text-3xl font-semibold text-slate-900">{t('manager.settings.title', { defaultValue: 'Settings' })}</Text>
           <View className="mt-5 items-center gap-3 py-6">
@@ -118,7 +118,7 @@ export function SettingsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"

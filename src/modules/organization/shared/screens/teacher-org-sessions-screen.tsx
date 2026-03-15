@@ -34,7 +34,7 @@ function InstanceCard({ instance, orgName, onStart, onClose, isStarting, isClosi
           <Text className={`font-inter text-xs font-medium ${badgeText}`}>{instance.state}</Text>
         </View>
       </View>
-      <Text className="font-inter mt-1 text-xs font-medium text-emerald-700">{orgName}</Text>
+      <Text className="font-inter mt-1 text-xs font-medium text-[#4338CA]">{orgName}</Text>
       <Text className="font-inter mt-1 text-sm text-slate-500">
         {instance.date}
         {' · '}
@@ -80,7 +80,7 @@ export function TeacherOrgSessionsScreen({ orgId, orgName }: Props) {
 
   if (instancesQuery.isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8]">
+      <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAFB]">
         <ActivityIndicator size="large" />
       </SafeAreaView>
     );
@@ -91,7 +91,7 @@ export function TeacherOrgSessionsScreen({ orgId, orgName }: Props) {
   const upcomingInstances = instances.filter(i => i.date > today);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f1e8]">
+    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
       <ScrollView
         contentContainerClassName="px-6 py-6"
         refreshControl={<RefreshControl refreshing={instancesQuery.isRefetching} onRefresh={onRefresh} />}

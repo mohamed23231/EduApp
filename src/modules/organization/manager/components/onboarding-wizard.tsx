@@ -15,7 +15,7 @@ export function OnboardingWizard({ steps }: { steps: WizardStep[] }) {
 
   return (
     <View className="rounded-[28px] bg-slate-950 p-5">
-      <Text className="font-inter text-xs tracking-[1.4px] text-emerald-300 uppercase">
+      <Text className="font-inter text-xs tracking-[1.4px] text-blue-200 uppercase">
         {t('manager.wizard.progress', {
           defaultValue: '{{done}}/{{total}} complete',
           done: doneCount,
@@ -36,7 +36,7 @@ export function OnboardingWizard({ steps }: { steps: WizardStep[] }) {
             key={step.title}
             className="rounded-2xl border border-white/10 bg-white/5 p-4"
           >
-            <Text className="font-inter text-xs tracking-[1.4px] text-emerald-300 uppercase">
+            <Text className="font-inter text-xs tracking-[1.4px] text-blue-200 uppercase">
               {t('manager.wizard.stepLabel', {
                 defaultValue: 'Step {{count}}',
                 count: index + 1,

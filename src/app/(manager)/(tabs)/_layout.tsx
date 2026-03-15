@@ -9,8 +9,8 @@ export default function ManagerTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0F766E',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: '#3B82F6',
+        tabBarInactiveTintColor: '#9CA3AF',
       }}
     >
       <Tabs.Screen

@@ -113,7 +113,7 @@ export function SessionRankingsScreen() {
     <SafeAreaView edges={['top']} style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="button">
-          <Ionicons name="arrow-back" size={24} color="#111827" />
+          <Ionicons name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#111827" />
         </Pressable>
         <Text style={styles.title}>{t('teacher.rankings.topStudents')}</Text>
       </View>

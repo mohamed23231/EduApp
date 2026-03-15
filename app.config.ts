@@ -32,13 +32,13 @@ const appIconBadgeConfig: AppIconBadgeConfig = {
 
 const associatedDomainHost = (() => {
   if (!Env.EXPO_PUBLIC_ASSOCIATED_DOMAIN) {
-    return 'yourdomain.com';
+    return undefined;
   }
   try {
     return new URL(Env.EXPO_PUBLIC_ASSOCIATED_DOMAIN).host;
   }
   catch {
-    return 'yourdomain.com';
+    return undefined;
   }
 })();
 
@@ -109,9 +109,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
       },
-      associatedDomains: [
-        `applinks:${associatedDomainHost}`,
-      ],
+      ...(associatedDomainHost
+        ? {
+            associatedDomains: [
+              `applinks:${associatedDomainHost}`,
+            ],
+          }
+        : {}),
     },
     experiments: {
       typedRoutes: true,
@@ -130,28 +134,32 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ...(hasAndroidGoogleServicesFile
         ? { googleServicesFile: androidGoogleServicesPath }
         : {}),
-      intentFilters: [
-        {
-          action: 'android.intent.action.VIEW',
-          autoVerify: true,
-          data: [
-            {
-              scheme: 'https',
-              host: associatedDomainHost,
-              pathPrefix: '/reset-password',
-            },
-            {
-              scheme: 'https',
-              host: associatedDomainHost,
-              pathPrefix: '/org-invite',
-            },
-          ],
-          category: [
-            'android.intent.category.DEFAULT',
-            'android.intent.category.BROWSABLE',
-          ],
-        },
-      ],
+      ...(associatedDomainHost
+        ? {
+            intentFilters: [
+              {
+                action: 'android.intent.action.VIEW',
+                autoVerify: true,
+                data: [
+                  {
+                    scheme: 'https',
+                    host: associatedDomainHost,
+                    pathPrefix: '/reset-password',
+                  },
+                  {
+                    scheme: 'https',
+                    host: associatedDomainHost,
+                    pathPrefix: '/org-invite',
+                  },
+                ],
+                category: [
+                  'android.intent.category.DEFAULT',
+                  'android.intent.category.BROWSABLE',
+                ],
+              },
+            ],
+          }
+        : {}),
     },
     web: {
       favicon: './assets/favicon.png',
