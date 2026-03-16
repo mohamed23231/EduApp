@@ -1,17 +1,13 @@
-import type { PhoneLoginParams } from '../types';
+import type { PhoneLoginParams } from '@modules/auth/types';
+import { AuthButton, AuthInput } from '@modules/auth/components/ui';
 import { useForm } from '@tanstack/react-form';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { PhoneField } from '@/components/ui';
-import { Eye, EyeOff } from '@/components/ui/icons';
 import {
   buildE164Phone,
   DEFAULT_COUNTRY_CODE,
@@ -32,7 +28,6 @@ export function PhoneLoginForm({
   loginModeToggle,
 }: PhoneLoginFormProps) {
   const { t } = useTranslation();
-  const [showPassword, setShowPassword] = React.useState(false);
   const [countryCode, setCountryCode] = React.useState(DEFAULT_COUNTRY_CODE);
   const [localNumber, setLocalNumber] = React.useState('');
   const [clientError, setClientError] = React.useState<string | null>(null);
@@ -55,11 +50,17 @@ export function PhoneLoginForm({
   const normalizedPhone = buildE164Phone(countryCode, localNumber);
 
   return (
-    <View style={styles.container}>
+    <View className="gap-3.5">
       {loginModeToggle ?? null}
-      {error || clientError ? <Text style={styles.apiError}>{t(clientError || error || '', { defaultValue: clientError || error || '' })}</Text> : null}
+      {error || clientError
+        ? (
+            <Text className="mb-3 text-center text-sm font-medium text-red-600">
+              {t(clientError || error || '', { defaultValue: clientError || error || '' })}
+            </Text>
+          )
+        : null}
 
-      <View style={styles.formBlock}>
+      <View className="w-full">
         <PhoneField
           label={t('auth.phone.phoneLabel')}
           countryCode={countryCode}
@@ -70,119 +71,35 @@ export function PhoneLoginForm({
         />
       </View>
 
-      <View style={styles.formBlock}>
-        <Text style={styles.label}>{t('auth.phone.passwordLabel')}</Text>
-        <View style={styles.passwordInputWrapper}>
-          <form.Field
-            name="password"
-            children={field => (
-              <TextInput
-                value={field.state.value}
-                onChangeText={field.handleChange}
-                onBlur={field.handleBlur}
-                secureTextEntry={!showPassword}
-                autoCorrect={false}
-                testID="phone-password-input"
-                style={[
-                  styles.input,
-                  styles.passwordInput,
-                ]}
-              />
-            )}
-          />
-          <Pressable
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            {showPassword
-              ? <EyeOff width={20} height={20} color="#94A3B8" />
-              : <Eye width={20} height={20} color="#94A3B8" />}
-          </Pressable>
-        </View>
+      <View className="w-full">
+        <form.Field
+          name="password"
+          children={field => (
+            <AuthInput
+              label={t('auth.phone.passwordLabel')}
+              isPassword
+              value={field.state.value}
+              onChangeText={field.handleChange}
+              onBlur={field.handleBlur}
+              autoCorrect={false}
+              testID="phone-password-input"
+            />
+          )}
+        />
       </View>
 
       <form.Subscribe
-        selector={state => [state.canSubmit, state.isSubmitting]}
+        selector={state => [state.canSubmit, state.isSubmitting] as const}
         children={([canSubmit, validating]) => (
-          <Pressable
-            style={[
-              styles.submitButton,
-              (!canSubmit || isSubmitting || validating || !normalizedPhone) && styles.submitButtonDisabled,
-            ]}
+          <AuthButton
+            title={t('auth.phone.loginButton')}
+            variant="black"
             onPress={() => void form.handleSubmit()}
             disabled={!canSubmit || isSubmitting || validating || !normalizedPhone}
-            testID="phone-login-submit-button"
-          >
-            {isSubmitting || validating
-              ? <ActivityIndicator color="#FFFFFF" />
-              : (
-                  <Text style={styles.submitButtonLabel}>
-                    {t('auth.phone.loginButton')}
-                  </Text>
-                )}
-          </Pressable>
+            loading={isSubmitting || validating}
+          />
         )}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  apiError: {
-    color: '#DC2626',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  container: {
-    gap: 14,
-  },
-  formBlock: {
-    width: '100%',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
-    borderRadius: 14,
-    borderWidth: 1,
-    color: '#0F172A',
-    fontSize: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 15,
-  },
-  label: {
-    color: '#334155',
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  passwordInput: {
-    paddingRight: 48,
-  },
-  passwordInputWrapper: {
-    position: 'relative',
-  },
-  eyeButton: {
-    padding: 4,
-    position: 'absolute',
-    right: 14,
-    top: 14,
-  },
-  submitButton: {
-    alignItems: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 16,
-    justifyContent: 'center',
-    paddingVertical: 16,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#94A3B8',
-  },
-  submitButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '700',
-  },
-});
