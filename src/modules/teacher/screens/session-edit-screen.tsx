@@ -23,7 +23,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Input, Text, useModal } from '@/components/ui';
-import { getApiErrorMessage } from '@/shared/services/api-utils';
+import { getApiErrorMessage, isApiError } from '@/shared/services/api-utils';
 import {
   ConfirmSheet,
   DayOfWeekPicker,
@@ -228,12 +228,10 @@ function useSessionEditState(id: string) {
         setErrors(ve);
       }
       else {
-        const msg = getApiErrorMessage(error, t('teacher.common.genericError'));
-        const isExpired = msg === 'ACCOUNT_EXPIRED_ACTION_BLOCKED' || msg === 'account.expired.action.blocked';
         setErrors({
-          form: isExpired
+          form: isApiError(error) && error.response?.status === 403
             ? t('teacher.common.accountExpired', { defaultValue: 'Your account has expired. Please contact support to renew.' })
-            : msg,
+            : getApiErrorMessage(error, t('teacher.common.genericError')),
         });
       }
     }
