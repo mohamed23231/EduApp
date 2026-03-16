@@ -10,7 +10,7 @@ type OtpInputProps = {
 
 export function OtpInput({ length = 6, value, onChange }: OtpInputProps) {
   const inputRefs = useRef<(TextInput | null)[]>([]);
-  const digits = value.split('').concat(Array.from({ length: length - value.length }).fill(''));
+  const digits = value.split('').concat(Array.from<string>({ length: length - value.length }).fill(''));
 
   const handleChange = (text: string, index: number) => {
     const sanitized = text.replace(/\D/g, '').slice(0, 1);
