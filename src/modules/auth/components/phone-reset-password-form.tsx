@@ -134,7 +134,7 @@ export function PhoneResetPasswordForm({
           )}
         />
         <Pressable
-          className={`h-[44px] items-center justify-center rounded-xl border border-blue-500 bg-white${isSubmitting ? 'opacity-50' : ''}`}
+          className={`h-[44px] items-center justify-center rounded-xl border border-blue-500 bg-white ${isSubmitting ? 'opacity-50' : ''}`}
           onPress={() => void handleResendOtp()}
           disabled={isSubmitting}
         >

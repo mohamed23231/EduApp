@@ -91,7 +91,7 @@ export function GoogleSignInButton({
 
   return (
     <Pressable
-      className={`h-[52px] flex-row items-center justify-center rounded-xl border border-gray-300 bg-white${isProcessing ? 'opacity-60' : ''}`}
+      className={`h-[52px] flex-row items-center justify-center rounded-xl border border-gray-300 bg-white ${isProcessing ? 'opacity-60' : ''}`}
       onPress={handleGoogleSignIn}
       disabled={isProcessing}
     >
