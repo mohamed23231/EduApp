@@ -50,6 +50,7 @@
       "phoneLabel": "Phone Number",
       "phonePlaceholder": "+1 (555) 000-0000",
       "submit": "Complete Setup",
+      "subtitle": "One more step before you start.",
       "title": "Complete Your Profile"
     },
     "phone": {
@@ -64,6 +65,7 @@
       "newPasswordLabel": "New Password",
       "otpLabel": "Verification Code",
       "otpSentHint": "A verification code was sent to {{phone}}",
+      "otpTitle": "Verify Your Phone",
       "passwordLabel": "Password",
       "phoneLabel": "Phone Number",
       "requestOtp": "Send OTP",
@@ -84,6 +86,7 @@
       "confirmPasswordPlaceholder": "Confirm new password",
       "error": "Unable to reset password. Please request a new reset email.",
       "expiredToken": "Reset link has expired. Please request a new one.",
+      "loginButton": "Log In",
       "newPasswordLabel": "New Password",
       "newPasswordPlaceholder": "Enter new password",
       "passwordMismatch": "Passwords do not match.",
@@ -93,6 +96,8 @@
       "submit": "Update Password",
       "subtitle": "Create a new password to secure your account.",
       "success": "Password updated successfully. You can now sign in.",
+      "successSubtitle": "You can now sign in with your new password.",
+      "successTitle": "Password Updated",
       "title": "Reset Your Password",
       "useEmailLink": "Use email reset link instead"
     },
@@ -114,6 +119,7 @@
       "roleLabel": "I AM A...",
       "signUpWithGoogle": "Sign up with Google",
       "submit": "Create Account",
+      "subtitle": "Join Taba3ny to manage your classes.",
       "teacherLabel": "Teacher",
       "termsLink": "Terms of Service",
       "title": "Create Your Account",
