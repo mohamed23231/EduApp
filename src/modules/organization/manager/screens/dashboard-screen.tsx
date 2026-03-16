@@ -7,9 +7,9 @@
 import type { OrgSessionInstance, OrgTeacherStatsItem } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -17,11 +17,11 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, ScrollView, Text } from '@/components/ui';
+import { ActivityIndicator, Button, ScrollView, Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { OnboardingWizard, TrialExpiredBanner } from '../components';
-import { useOrganization, useOrganizations, useOrgInstances, useOrgStats } from '../hooks';
+import { useCloseSession, useOrganization, useOrganizations, useOrgInstances, useOrgStats, useStartSession } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
 
 const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';
@@ -216,24 +216,44 @@ function InfoBar({
   );
 }
 
-const SESSION_STATE_STYLES: Record<string, { bg: string; text: string }> = {
-  draft: { bg: '#F1F5F9', text: '#475569' },
-  active: { bg: '#DCFCE7', text: '#166534' },
-  closed: { bg: '#FEE2E2', text: '#991B1B' },
-  cancelled: { bg: '#FEF3C7', text: '#92400E' },
+/** Stripe color per session state — matches teacher card pattern. */
+const STATE_STRIPE: Record<string, string> = {
+  DRAFT: '#F59E0B',
+  ACTIVE: '#10B981',
+  CLOSED: '#9CA3AF',
+  CANCELLED: '#9CA3AF',
+};
+
+/** Badge style per session state. */
+const STATE_BADGE: Record<string, { bg: string; text: string; dot: string }> = {
+  DRAFT: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
+  ACTIVE: { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
+  CLOSED: { bg: '#F3F4F6', text: '#374151', dot: '#9CA3AF' },
+  CANCELLED: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
 };
 
 function TodaySessionCard({
   instance,
   onPress,
+  onStart,
+  onMarkAttendance,
+  onClose,
+  isStarting,
+  isClosing,
   t,
 }: {
   instance: OrgSessionInstance;
   onPress: () => void;
+  onStart: (id: string) => void;
+  onMarkAttendance: (id: string) => void;
+  onClose: (id: string) => void;
+  isStarting: boolean;
+  isClosing: boolean;
   t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
-  const stateKey = instance.state.toLowerCase();
-  const stateStyle = SESSION_STATE_STYLES[stateKey] ?? SESSION_STATE_STYLES.draft;
+  const stateKey = instance.state;
+  const stripeColor = STATE_STRIPE[stateKey] ?? '#9CA3AF';
+  const badge = STATE_BADGE[stateKey] ?? STATE_BADGE.CLOSED;
   const studentCount = instance.studentCount ?? instance.students?.length ?? 0;
 
   return (
@@ -243,24 +263,31 @@ function TodaySessionCard({
       accessibilityRole="button"
       accessibilityLabel={instance.subject}
     >
-      <View style={styles.sessionAccent} />
+      {/* Colored left stripe */}
+      <View style={[styles.sessionStripe, { backgroundColor: stripeColor }]} />
       <View style={styles.sessionBody}>
+        {/* Top row: subject + badge */}
         <View style={styles.sessionTopRow}>
           <Text style={styles.sessionSubject} numberOfLines={1}>{instance.subject}</Text>
-          <View style={[styles.stateBadge, { backgroundColor: stateStyle.bg }]}>
-            <Text style={[styles.stateBadgeText, { color: stateStyle.text }]}>
-              {t(`manager.sessionDetail.instanceState.${stateKey}`, { defaultValue: instance.state })}
+          <View style={[styles.stateBadge, { backgroundColor: badge.bg }]}>
+            <View style={[styles.stateBadgeDot, { backgroundColor: badge.dot }]} />
+            <Text style={[styles.stateBadgeText, { color: badge.text }]}>
+              {t(`manager.sessionDetail.instanceState.${stateKey.toLowerCase()}`, { defaultValue: instance.state })}
             </Text>
           </View>
         </View>
+
+        {/* Meta: time + duration */}
         <View style={styles.sessionMeta}>
-          <Ionicons name="time-outline" size={13} color="#6B7280" />
+          <Ionicons name="time-outline" size={13} color="#9CA3AF" />
           <Text style={styles.sessionMetaText}>
             {instance.time}
             {' \u00B7 '}
             {t('manager.dashboard.sessionDuration', { defaultValue: '{{minutes}} min', minutes: instance.durationMinutes })}
           </Text>
         </View>
+
+        {/* Meta: teacher + students */}
         <View style={styles.sessionMeta}>
           <Ionicons name="person-outline" size={13} color="#9CA3AF" />
           <Text style={styles.sessionMetaText}>{instance.assignedTeacher.name}</Text>
@@ -270,13 +297,47 @@ function TodaySessionCard({
             {t('manager.dashboard.sessionStudents', { defaultValue: '{{count}} students', count: studentCount })}
           </Text>
         </View>
+
+        {/* Action buttons — DRAFT: start session */}
+        {stateKey === 'DRAFT' && (
+          <View style={styles.actionRow}>
+            <Button
+              label={t('manager.dashboard.startSession', { defaultValue: 'Start Session' })}
+              onPress={() => onStart(instance.id)}
+              loading={isStarting}
+              size="sm"
+              variant="default"
+            />
+          </View>
+        )}
+
+        {/* Action buttons — ACTIVE: mark attendance + end session */}
+        {stateKey === 'ACTIVE' && (
+          <View style={styles.activeActionsRow}>
+            <Pressable
+              onPress={() => onMarkAttendance(instance.id)}
+              style={({ pressed }) => [styles.attendanceBtn, pressed && styles.attendanceBtnPressed]}
+              accessibilityRole="button"
+            >
+              <Ionicons name="checkmark-done-outline" size={16} color="#FFFFFF" />
+              <Text style={styles.attendanceBtnText}>
+                {t('manager.dashboard.markAttendance', { defaultValue: 'Mark Attendance' })}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => onClose(instance.id)}
+              disabled={isClosing}
+              style={({ pressed }) => [styles.endBtn, pressed && styles.endBtnPressed, isClosing && styles.endBtnDisabled]}
+              accessibilityRole="button"
+            >
+              <Ionicons name="stop-circle-outline" size={16} color="#DC2626" />
+              <Text style={styles.endBtnText}>
+                {isClosing ? '...' : t('manager.dashboard.endSession', { defaultValue: 'End Session' })}
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </View>
-      <Ionicons
-        name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
-        size={18}
-        color="#D1D5DB"
-        style={styles.sessionChevron}
-      />
     </Pressable>
   );
 }
@@ -287,12 +348,22 @@ function TodaySessions({
   t,
   onOpenSession,
   onViewAll,
+  onStart,
+  onMarkAttendance,
+  onClose,
+  startingId,
+  closingId,
 }: {
   instances: OrgSessionInstance[];
   today: string;
   t: (key: string, opts?: Record<string, unknown>) => string;
   onOpenSession: (templateId: string) => void;
   onViewAll: () => void;
+  onStart: (id: string) => void;
+  onMarkAttendance: (id: string) => void;
+  onClose: (id: string) => void;
+  startingId: string | null;
+  closingId: string | null;
 }) {
   const todayInstances = instances.filter(i => i.date === today);
 
@@ -325,6 +396,11 @@ function TodaySessions({
                   key={instance.id}
                   instance={instance}
                   onPress={() => onOpenSession(instance.templateId)}
+                  onStart={onStart}
+                  onMarkAttendance={onMarkAttendance}
+                  onClose={onClose}
+                  isStarting={startingId === instance.id}
+                  isClosing={closingId === instance.id}
                   t={t}
                 />
               ))}
@@ -379,6 +455,10 @@ export function DashboardScreen() {
   const stats = useOrgStats(activeOrgId, 'month');
   const today = new Date().toISOString().slice(0, 10);
   const instancesQuery = useOrgInstances(activeOrgId, { date: today });
+  const startMutation = useStartSession(activeOrgId);
+  const closeMutation = useCloseSession(activeOrgId);
+  const [startingId, setStartingId] = useState<string | null>(null);
+  const [closingId, setClosingId] = useState<string | null>(null);
 
   const onRefresh = useCallback(() => {
     organizationQuery.refetch();
@@ -386,6 +466,52 @@ export function DashboardScreen() {
     stats.teachers.refetch();
     instancesQuery.refetch();
   }, [organizationQuery, stats.overview, stats.teachers, instancesQuery]);
+
+  const handleStartSession = useCallback(
+    (instanceId: string) => {
+      setStartingId(instanceId);
+      startMutation.mutate(instanceId, {
+        onSettled: () => setStartingId(null),
+      });
+    },
+    [startMutation],
+  );
+
+  const handleMarkAttendance = useCallback(
+    (instanceId: string) => {
+      router.push(AppRoute.manager.attendance(instanceId));
+    },
+    [router],
+  );
+
+  const handleCloseSession = useCallback(
+    (instanceId: string) => {
+      const inst = instancesQuery.data?.data.find(i => i.id === instanceId);
+      const studentCount = inst?.studentCount ?? inst?.students?.length ?? 0;
+
+      Alert.alert(
+        t('manager.sessionDetail.closeWarningTitle', { defaultValue: 'Close session' }),
+        t('manager.sessionDetail.closeWarning', {
+          count: studentCount,
+          defaultValue: '{{count}} unmarked students will be auto-marked as absent. Continue?',
+        }),
+        [
+          { text: t('manager.common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
+          {
+            text: t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' }),
+            style: 'destructive',
+            onPress: () => {
+              setClosingId(instanceId);
+              closeMutation.mutate(instanceId, {
+                onSettled: () => setClosingId(null),
+              });
+            },
+          },
+        ],
+      );
+    },
+    [closeMutation, instancesQuery.data, t],
+  );
 
   useEffect(() => {
     if (!activeOrgId && organizationsQuery.data?.data[0]) {
@@ -476,6 +602,11 @@ export function DashboardScreen() {
             t={t}
             onOpenSession={templateId => router.push(AppRoute.manager.sessionDetail(templateId))}
             onViewAll={() => router.push(AppRoute.manager.sessions)}
+            onStart={handleStartSession}
+            onMarkAttendance={handleMarkAttendance}
+            onClose={handleCloseSession}
+            startingId={startingId}
+            closingId={closingId}
           />
         </Animated.View>
       </ScrollView>
@@ -613,37 +744,73 @@ const styles = StyleSheet.create({
   viewAllBtn: { paddingVertical: 4, paddingHorizontal: 8 },
   viewAllText: { fontSize: 13, fontWeight: '600', color: '#3B82F6' },
 
-  // Session cards
+  // Session cards — teacher card pattern
   sessionsList: { paddingHorizontal: 16, gap: 10 },
   sessionCard: {
     flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderRadius: 14,
     overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E5E7EB',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
   sessionCardPressed: { backgroundColor: '#F0F7FF', borderColor: '#BFDBFE' },
-  sessionAccent: {
+  sessionStripe: {
     width: 4,
-    alignSelf: 'stretch',
-    backgroundColor: '#3B82F6',
+    borderTopStartRadius: 14,
+    borderBottomStartRadius: 14,
   },
-  sessionBody: { flex: 1, paddingVertical: 14, paddingHorizontal: 14, gap: 6 },
+  sessionBody: { flex: 1, padding: 14, gap: 6 },
   sessionTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   sessionSubject: { flex: 1, fontSize: 16, fontWeight: '700', color: '#111827' },
-  stateBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-  stateBadgeText: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.3 },
+  stateBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    gap: 5,
+  },
+  stateBadgeDot: { width: 6, height: 6, borderRadius: 3 },
+  stateBadgeText: { fontSize: 12, fontWeight: '600', letterSpacing: 0.2 },
   sessionMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   sessionMetaText: { fontSize: 13, color: '#6B7280' },
   sessionDot: { fontSize: 13, color: '#D1D5DB', marginHorizontal: 2 },
-  sessionChevron: { flexShrink: 0, marginEnd: 12 },
+  actionRow: { marginTop: 8, alignSelf: 'flex-start' },
+  activeActionsRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  attendanceBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: '#10B981',
+    borderRadius: 10,
+  },
+  attendanceBtnPressed: { backgroundColor: '#059669' },
+  attendanceBtnText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
+  endBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: '#FEF2F2',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  endBtnPressed: { backgroundColor: '#FEE2E2' },
+  endBtnDisabled: { opacity: 0.5 },
+  endBtnText: { fontSize: 13, fontWeight: '600', color: '#DC2626' },
 
   // Empty state
   emptyBox: {

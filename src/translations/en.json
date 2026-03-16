@@ -137,12 +137,37 @@
     "title": "Switch context"
   },
   "manager": {
+    "attendance": {
+      "absent": "Absent",
+      "back": "Back",
+      "clearRating": "Clear",
+      "emptyStudents": "No students assigned to this session.",
+      "enterRating": "Enter rating",
+      "excuseNote": "Excuse note...",
+      "excused": "Excused",
+      "markedCount": "Marked: {{marked}}/{{total}}",
+      "noRating": "Not rated",
+      "noSearchResults": "No students match your search.",
+      "present": "Present",
+      "rating": "Rating",
+      "ratingLabel": "{{value}}/10",
+      "searchStudent": "Search students...",
+      "sessionClosed": "Session is closed — attendance is read-only.",
+      "sessionNotActive": "Start the session first to mark attendance.",
+      "submitButton": "Save Attendance",
+      "submitError": "Failed to save attendance. Please try again.",
+      "submitSuccess": "Attendance saved successfully!",
+      "submitting": "Saving...",
+      "title": "Attendance"
+    },
     "common": {
       "cancel": "Cancel",
+      "confirm": "Confirm",
       "errorTitle": "Something went wrong",
       "loading": "Loading...",
       "noOrgCopy": "Create your first organization to get started.",
-      "noOrgTitle": "No organization yet"
+      "noOrgTitle": "No organization yet",
+      "ok": "OK"
     },
     "dashboard": {
       "cards": {
@@ -154,11 +179,13 @@
       },
       "emptyCopy": "Create your first organization to unlock the manager dashboard.",
       "emptyTitle": "No organization yet",
+      "endSession": "End Session",
       "goodAfternoon": "Good afternoon",
       "goodEvening": "Good evening",
       "goodMorning": "Good morning",
       "infoAbsent": "{{count}} absent today",
       "infoTeachers": "{{count}} teachers",
+      "markAttendance": "Mark Attendance",
       "noSessions": "No sessions scheduled for today yet.",
       "openSession": "Open session",
       "quickAddStudent": "Add student",
@@ -166,6 +193,7 @@
       "quickNewSession": "New session",
       "sessionDuration": "{{minutes}} min",
       "sessionStudents": "{{count}} students",
+      "startSession": "Start Session",
       "subtitle": "Keep today moving, track usage, and unblock your team before sessions start.",
       "title": "Manager dashboard",
       "todayTitle": "Today's sessions",
@@ -265,11 +293,12 @@
         "active": "Active",
         "cancelled": "Cancelled",
         "closed": "Closed",
-        "draft": "Draft"
+        "draft": "Upcoming"
       },
       "loadError": "Failed to load session data.",
       "markedCount": "Marked: {{marked}}/{{total}}",
       "noInstances": "No instances found for the last 7 days.",
+      "noStudents": "No students assigned to this session.",
       "paused": "Paused",
       "ratingLabel": "Rating",
       "recentInstances": "Recent instances",
@@ -277,13 +306,19 @@
       "saveAttendance": "Save attendance",
       "saveAttendanceSuccess": "Attendance saved successfully.",
       "start": "Start session",
+      "statsActive": "Active",
+      "statsCompleted": "Completed",
+      "statsTitle": "Statistics (30 days)",
+      "statsTotal": "Total",
+      "statsUpcoming": "Upcoming",
       "status": {
         "absent": "Absent",
         "excused": "Excused",
         "present": "Present"
       },
       "studentCount": "{{count}} students",
-      "title": "Session detail"
+      "title": "Session detail",
+      "viewAttendance": "View Attendance"
     },
     "sessions": {
       "accessibility": {
@@ -374,6 +409,23 @@
         "emailInvalid": "Please enter a valid email address",
         "nameRequired": "Organization name is required"
       }
+    },
+    "studentDetail": {
+      "absent": "Absent",
+      "assignedSessions": "Assigned sessions",
+      "attendanceRate": "Attendance",
+      "attended": "{{count}} attended",
+      "avgRating": "Avg. rating",
+      "bySubject": "By subject",
+      "excused": "Excused",
+      "loadError": "Failed to load student.",
+      "noSessions": "Not assigned to any sessions yet.",
+      "performance": "Performance",
+      "present": "Present",
+      "ratingTrend": "Rating trend (last 10)",
+      "retry": "Retry",
+      "statsError": "Could not load stats.",
+      "totalSessions": "Sessions"
     },
     "students": {
       "actions": {

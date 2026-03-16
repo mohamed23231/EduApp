@@ -48,11 +48,12 @@ const GRADE_KEYS = [
   'other',
 ] as const;
 
-function StudentCard({ student, onPress }: { student: OrgStudent; onPress: () => void }) {
+function StudentCard({ student, onPress, onLongPress }: { student: OrgStudent; onPress: () => void; onLongPress: () => void }) {
   const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       accessibilityRole="button"
       accessibilityLabel={student.name}
@@ -177,6 +178,7 @@ const DEBOUNCE_MS = 300;
 // eslint-disable-next-line max-lines-per-function
 function StudentListSection() {
   const { t } = useTranslation();
+  const router = useRouter();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const deleteMutation = useDeleteStudent(activeOrgId);
   const regenerateMutation = useRegenerateStudentCode(activeOrgId);
@@ -225,6 +227,10 @@ function StudentListSection() {
   };
 
   const handleStudentPress = (student: OrgStudent) => {
+    router.push(AppRoute.manager.studentDetail(student.id));
+  };
+
+  const handleStudentLongPress = (student: OrgStudent) => {
     setSelectedStudent(student);
     actionsSheet.present();
   };
@@ -318,6 +324,7 @@ function StudentListSection() {
             key={student.id}
             student={student}
             onPress={() => handleStudentPress(student)}
+            onLongPress={() => handleStudentLongPress(student)}
           />
         ))}
         {students.length === 0

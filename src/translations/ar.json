@@ -137,12 +137,37 @@
     "title": "تبديل السياق"
   },
   "manager": {
+    "attendance": {
+      "absent": "غائب",
+      "back": "رجوع",
+      "clearRating": "مسح",
+      "emptyStudents": "لا يوجد طلاب مسجلين في هذه الحصة.",
+      "enterRating": "أدخل التقييم",
+      "excuseNote": "ملاحظة العذر...",
+      "excused": "بعذر",
+      "markedCount": "تم التسجيل: {{marked}}/{{total}}",
+      "noRating": "بدون تقييم",
+      "noSearchResults": "لا يوجد طلاب يطابقون بحثك.",
+      "present": "حاضر",
+      "rating": "التقييم",
+      "ratingLabel": "{{value}}/10",
+      "searchStudent": "البحث عن طلاب...",
+      "sessionClosed": "الحصة مغلقة — الحضور للقراءة فقط.",
+      "sessionNotActive": "ابدأ الحصة أولاً لتسجيل الحضور.",
+      "submitButton": "حفظ الحضور",
+      "submitError": "فشل حفظ الحضور. حاول مرة أخرى.",
+      "submitSuccess": "تم حفظ الحضور بنجاح!",
+      "submitting": "جارٍ الحفظ...",
+      "title": "الحضور"
+    },
     "common": {
       "cancel": "إلغاء",
+      "confirm": "تأكيد",
       "errorTitle": "حدث خطأ ما",
       "loading": "جارٍ التحميل...",
       "noOrgCopy": "أنشئ مؤسستك الأولى للبدء.",
-      "noOrgTitle": "لا توجد مؤسسة بعد"
+      "noOrgTitle": "لا توجد مؤسسة بعد",
+      "ok": "حسنًا"
     },
     "dashboard": {
       "cards": {
@@ -154,11 +179,13 @@
       },
       "emptyCopy": "أنشئ أول مؤسسة لفتح لوحة المدير.",
       "emptyTitle": "لا توجد مؤسسة بعد",
+      "endSession": "إنهاء الحصة",
       "goodAfternoon": "مساء الخير",
       "goodEvening": "مساء الخير",
       "goodMorning": "صباح الخير",
       "infoAbsent": "{{count}} غائبون اليوم",
       "infoTeachers": "{{count}} معلمين",
+      "markAttendance": "تسجيل الحضور",
       "noSessions": "لا توجد حصص مجدولة لليوم حتى الآن.",
       "openSession": "فتح الحصة",
       "quickAddStudent": "إضافة طالب",
@@ -166,6 +193,7 @@
       "quickNewSession": "حصة جديدة",
       "sessionDuration": "{{minutes}} دقيقة",
       "sessionStudents": "{{count}} طالب",
+      "startSession": "ابدأ الحصة",
       "subtitle": "تابع يومك، وراقب الاستهلاك، وأزل العوائق قبل بدء الحصص.",
       "title": "لوحة المدير",
       "todayTitle": "حصص اليوم",
@@ -265,11 +293,12 @@
         "active": "نشطة",
         "cancelled": "ملغاة",
         "closed": "مغلقة",
-        "draft": "مسودة"
+        "draft": "قادمة"
       },
       "loadError": "فشل تحميل بيانات الحصة.",
       "markedCount": "تم التسجيل: {{marked}}/{{total}}",
       "noInstances": "لا توجد حصص في آخر 7 أيام.",
+      "noStudents": "لا يوجد طلاب مسجلين في هذه الحصة.",
       "paused": "متوقفة",
       "ratingLabel": "التقييم",
       "recentInstances": "الحصص الأخيرة",
@@ -277,13 +306,19 @@
       "saveAttendance": "حفظ الحضور",
       "saveAttendanceSuccess": "تم حفظ الحضور بنجاح.",
       "start": "ابدأ الحصة",
+      "statsActive": "نشطة",
+      "statsCompleted": "مكتملة",
+      "statsTitle": "الإحصائيات (30 يوم)",
+      "statsTotal": "الإجمالي",
+      "statsUpcoming": "قادمة",
       "status": {
         "absent": "غائب",
         "excused": "بعذر",
         "present": "حاضر"
       },
       "studentCount": "{{count}} طالب",
-      "title": "تفاصيل الحصة"
+      "title": "تفاصيل الحصة",
+      "viewAttendance": "عرض الحضور"
     },
     "sessions": {
       "accessibility": {
@@ -374,6 +409,23 @@
         "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
         "nameRequired": "اسم المؤسسة مطلوب"
       }
+    },
+    "studentDetail": {
+      "absent": "غائب",
+      "assignedSessions": "الحصص المسجّل بها",
+      "attendanceRate": "الحضور",
+      "attended": "{{count}} حضور",
+      "avgRating": "متوسط التقييم",
+      "bySubject": "حسب المادة",
+      "excused": "معذور",
+      "loadError": "تعذّر تحميل بيانات الطالب.",
+      "noSessions": "لم يُسجَّل في أي حصة بعد.",
+      "performance": "الأداء",
+      "present": "حاضر",
+      "ratingTrend": "اتجاه التقييم (آخر 10)",
+      "retry": "إعادة المحاولة",
+      "statsError": "تعذّر تحميل الإحصائيات.",
+      "totalSessions": "الحصص"
     },
     "students": {
       "actions": {

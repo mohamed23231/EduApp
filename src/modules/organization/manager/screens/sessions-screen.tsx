@@ -272,7 +272,7 @@ function SessionsList() {
 
       <Modal
         ref={actionsSheet.ref}
-        snapPoints={[200]}
+        snapPoints={[280]}
         title={selectedSession?.subject ?? ''}
       >
         <View style={styles.sheetContent}>

@@ -16,8 +16,11 @@ import {
   deleteOrgSession,
   deleteOrgStudent,
   getOrganization,
+  getOrgInstance,
   getOrgSession,
   getOrgStatsOverview,
+  getOrgStudent,
+  getOrgStudentStats,
   getOrgTeacherStats,
   inviteTeacher,
   listOrganizations,
@@ -50,8 +53,14 @@ export const ManagerQueryKey = {
     ['manager', 'session', orgId, sessionId] as const,
   instances: (orgId: string, params?: { date?: string; from?: string; to?: string }) =>
     ['manager', 'instances', orgId, params?.date ?? '', params?.from ?? '', params?.to ?? ''] as const,
+  instance: (orgId: string, instanceId: string) =>
+    ['manager', 'instance', orgId, instanceId] as const,
   statsOverview: (orgId: string, range?: string) =>
     ['manager', 'stats-overview', orgId, range ?? 'month'] as const,
+  student: (orgId: string, studentId: string) =>
+    ['manager', 'student', orgId, studentId] as const,
+  studentStats: (orgId: string, studentId: string, range?: string) =>
+    ['manager', 'student-stats', orgId, studentId, range ?? 'month'] as const,
   statsTeachers: (orgId: string, range?: string) =>
     ['manager', 'stats-teachers', orgId, range ?? 'month'] as const,
 } as const;
@@ -316,12 +325,24 @@ export function useOrgInstances(
   });
 }
 
+export function useOrgInstance(orgId?: string | null, instanceId?: string | null) {
+  return useQuery({
+    queryKey:
+      orgId && instanceId
+        ? ManagerQueryKey.instance(orgId, instanceId)
+        : ['manager', 'instance', 'empty'],
+    queryFn: () => getOrgInstance(orgId!, instanceId!),
+    enabled: Boolean(orgId && instanceId),
+  });
+}
+
 export function useStartSession(orgId?: string | null) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (instanceId: string) => startOrgInstance(orgId!, instanceId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ManagerQueryKey.instances(orgId!) });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'instances', orgId!] });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'instance', orgId!] });
       queryClient.invalidateQueries({ queryKey: ManagerQueryKey.statsOverview(orgId!) });
     },
   });
@@ -332,7 +353,8 @@ export function useCloseSession(orgId?: string | null) {
   return useMutation({
     mutationFn: (instanceId: string) => closeOrgInstance(orgId!, instanceId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ManagerQueryKey.instances(orgId!) });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'instances', orgId!] });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'instance', orgId!] });
       queryClient.invalidateQueries({ queryKey: ManagerQueryKey.statsOverview(orgId!) });
       queryClient.invalidateQueries({ queryKey: ManagerQueryKey.statsTeachers(orgId!) });
     },
@@ -344,9 +366,36 @@ export function useMarkAttendance(orgId?: string | null, instanceId?: string | n
   return useMutation({
     mutationFn: (input: MarkAttendanceInput) => markOrgAttendance(orgId!, instanceId!, input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ManagerQueryKey.instances(orgId!) });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'instances', orgId!] });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'instance', orgId!] });
       queryClient.invalidateQueries({ queryKey: ManagerQueryKey.statsOverview(orgId!) });
     },
+  });
+}
+
+export function useOrgStudent(orgId?: string | null, studentId?: string | null) {
+  return useQuery({
+    queryKey:
+      orgId && studentId
+        ? ManagerQueryKey.student(orgId, studentId)
+        : ['manager', 'student', 'empty'],
+    queryFn: () => getOrgStudent(orgId!, studentId!),
+    enabled: Boolean(orgId && studentId),
+  });
+}
+
+export function useOrgStudentStats(
+  orgId?: string | null,
+  studentId?: string | null,
+  range = 'month',
+) {
+  return useQuery({
+    queryKey:
+      orgId && studentId
+        ? ManagerQueryKey.studentStats(orgId, studentId, range)
+        : ['manager', 'student-stats', 'empty'],
+    queryFn: () => getOrgStudentStats(orgId!, studentId!, { range }),
+    enabled: Boolean(orgId && studentId),
   });
 }
 

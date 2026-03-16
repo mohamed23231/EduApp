@@ -1,6 +1,8 @@
 node_modules/
 .git/
-.expo/
+.expo/*
+!.expo/app-icon-badge/
+!.expo/app-icon-badge/**
 .env
 dist/
 npm-debug.*

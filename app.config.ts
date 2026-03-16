@@ -1,7 +1,7 @@
 import type { ConfigContext, ExpoConfig } from '@expo/config';
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 import { join } from 'node:path';
 
@@ -68,6 +68,34 @@ const androidGoogleServicesPath = './google-services.json';
 const hasAndroidGoogleServicesFile = existsSync(
   join(__dirname, androidGoogleServicesPath),
 );
+const androidGoogleServicesPackageNames = (() => {
+  if (!hasAndroidGoogleServicesFile) {
+    return new Set<string>();
+  }
+
+  try {
+    const googleServicesConfig = JSON.parse(
+      readFileSync(join(__dirname, androidGoogleServicesPath), 'utf8'),
+    ) as {
+      client?: Array<{
+        client_info?: {
+          android_client_info?: {
+            package_name?: string;
+          };
+        };
+      }>;
+    };
+
+    return new Set(
+      googleServicesConfig.client
+        ?.map(client => client.client_info?.android_client_info?.package_name)
+        .filter((packageName): packageName is string => Boolean(packageName)),
+    );
+  }
+  catch {
+    return new Set<string>();
+  }
+})();
 
 // eslint-disable-next-line max-lines-per-function
 export default ({ config }: ConfigContext): ExpoConfig => {
@@ -83,6 +111,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           },
         ]
       : null;
+  const hasMatchingAndroidGoogleServices = androidGoogleServicesPackageNames.has(
+    Env.EXPO_PUBLIC_PACKAGE,
+  );
+
+  if (hasAndroidGoogleServicesFile && !hasMatchingAndroidGoogleServices) {
+    console.warn(
+      `Skipping Android google-services.json for package "${Env.EXPO_PUBLIC_PACKAGE}" because no matching client was found.`,
+    );
+  }
 
   const appConfig: ExpoConfig = {
     ...config,
@@ -131,7 +168,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: '#2E3C4B',
       },
       package: Env.EXPO_PUBLIC_PACKAGE,
-      ...(hasAndroidGoogleServicesFile
+      ...(hasMatchingAndroidGoogleServices
         ? { googleServicesFile: androidGoogleServicesPath }
         : {}),
       ...(associatedDomainHost
