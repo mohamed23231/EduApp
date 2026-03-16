@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Input, Text, useModal } from '@/components/ui';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 import {
   ConfirmSheet,
   DayOfWeekPicker,
@@ -32,7 +33,6 @@ import {
 } from '../components';
 import { useSessionCrud } from '../hooks';
 import { getAvailableStudents, getTemplate } from '../services';
-
 import { sessionSchema } from '../validators';
 
 type FormErrors = Record<string, string>;
@@ -154,6 +154,7 @@ function EditFormBody({
   );
 }
 
+// eslint-disable-next-line max-lines-per-function
 function useSessionEditState(id: string) {
   const router = useRouter();
   const { t } = useTranslation();
@@ -222,9 +223,18 @@ function useSessionEditState(id: string) {
       router.back();
     }
     catch (error) {
-      const ve = parseZodErrors(error, t); setErrors(Object.keys(ve).length
-        ? ve
-        : { form: error instanceof Error ? error.message : t('teacher.common.genericError') });
+      const ve = parseZodErrors(error, t);
+      if (Object.keys(ve).length) {
+        setErrors(ve);
+      }
+      else {
+        const msg = getApiErrorMessage(error, t('teacher.common.genericError'));
+        setErrors({
+          form: msg === 'ACCOUNT_EXPIRED_ACTION_BLOCKED'
+            ? t('teacher.common.accountExpired', { defaultValue: 'Your account has expired. Please contact support to renew.' })
+            : msg,
+        });
+      }
     }
   };
 
@@ -262,7 +272,6 @@ function useSessionEditState(id: string) {
 
 export function SessionEditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
   const state = useSessionEditState(id ?? '');
   const {
     t,

@@ -28,7 +28,7 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}>
       <Pressable
         onPress={handleBack}
         style={({ pressed }) => [styles.backBtn, pressed && styles.backBtnPressed]}
@@ -56,7 +56,6 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,

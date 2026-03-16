@@ -778,6 +778,7 @@
       "title": "Mark Attendance"
     },
     "common": {
+      "accountExpired": "Your account has expired. Please contact support to renew.",
       "back": "Back",
       "cancel": "Cancel",
       "confirm": "Confirm",
