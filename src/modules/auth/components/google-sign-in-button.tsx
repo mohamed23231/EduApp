@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
@@ -92,10 +91,7 @@ export function GoogleSignInButton({
 
   return (
     <Pressable
-      style={[
-        styles.button,
-        isProcessing && styles.buttonDisabled,
-      ]}
+      className={`h-[52px] flex-row items-center justify-center rounded-xl border border-gray-300 bg-white${isProcessing ? 'opacity-60' : ''}`}
       onPress={handleGoogleSignIn}
       disabled={isProcessing}
     >
@@ -104,41 +100,11 @@ export function GoogleSignInButton({
             <ActivityIndicator color="#1F2937" size="small" />
           )
         : (
-            <View style={styles.buttonContent}>
-              <Text style={styles.googleIcon}>G</Text>
-              <Text style={styles.buttonLabel}>{buttonLabel}</Text>
+            <View className="flex-row items-center justify-center gap-3">
+              <Text className="text-xl">G</Text>
+              <Text className="ms-3 text-base font-semibold text-gray-900">{buttonLabel}</Text>
             </View>
           )}
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
-    borderRadius: 16,
-    borderWidth: 1,
-    justifyContent: 'center',
-    minHeight: 58,
-    width: '100%',
-  },
-  buttonContent: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'center',
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonLabel: {
-    color: '#1F2937',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  googleIcon: {
-    fontSize: 20,
-  },
-});
