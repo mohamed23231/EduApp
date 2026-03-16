@@ -229,8 +229,9 @@ function useSessionEditState(id: string) {
       }
       else {
         const msg = getApiErrorMessage(error, t('teacher.common.genericError'));
+        const isExpired = msg === 'ACCOUNT_EXPIRED_ACTION_BLOCKED' || msg === 'account.expired.action.blocked';
         setErrors({
-          form: msg === 'ACCOUNT_EXPIRED_ACTION_BLOCKED'
+          form: isExpired
             ? t('teacher.common.accountExpired', { defaultValue: 'Your account has expired. Please contact support to renew.' })
             : msg,
         });
