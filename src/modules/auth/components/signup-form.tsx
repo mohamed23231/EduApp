@@ -1,19 +1,23 @@
-import type { SignupPayload } from '../types';
+import type { SignupPayload } from '@modules/auth/types';
+import { GoogleSignInButton } from '@modules/auth/components/google-sign-in-button';
+import {
+  AuthButton,
+  AuthInput,
+  DividerWithText,
+  ROLE_OPTIONS,
+  RoleCards,
+} from '@modules/auth/components/ui';
+import { SignupSchema } from '@modules/auth/types';
 import { useForm } from '@tanstack/react-form';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
-  StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
-import { Eye, EyeOff } from '@/components/ui/icons';
 import { useSelectedLanguage } from '@/lib/i18n';
-import { SignupSchema } from '../types';
-import { GoogleSignInButton } from './google-sign-in-button';
 
 export type SignupFormProps = {
   onSubmit: (values: SignupPayload) => void;
@@ -29,16 +33,6 @@ export type SignupFormProps = {
 
 type Role = 'TEACHER' | 'PARENT' | 'MANAGER';
 
-const ROLE_OPTIONS: Array<{
-  emoji: string;
-  labelKey: 'auth.signup.teacherLabel' | 'auth.signup.parentLabel' | 'auth.signup.managerLabel';
-  value: Role;
-}> = [
-  { value: 'TEACHER', labelKey: 'auth.signup.teacherLabel', emoji: '👩‍🏫' },
-  { value: 'PARENT', labelKey: 'auth.signup.parentLabel', emoji: '👨‍👩‍👧' },
-  { value: 'MANAGER', labelKey: 'auth.signup.managerLabel', emoji: '🏢' },
-];
-
 // eslint-disable-next-line max-lines-per-function
 export function SignupForm({
   onSubmit,
@@ -53,7 +47,6 @@ export function SignupForm({
 }: SignupFormProps) {
   const { t, i18n } = useTranslation();
   const { language } = useSelectedLanguage();
-  const [showPassword, setShowPassword] = React.useState(false);
   const [googleRoleError, setGoogleRoleError] = React.useState<string | null>(null);
   const isRTL = i18n.language === 'ar' || language === 'ar';
 
@@ -96,10 +89,16 @@ export function SignupForm({
   });
 
   return (
-    <View style={styles.container}>
-      {error ? <Text style={styles.apiError}>{error}</Text> : null}
+    <View className="w-full">
+      {error
+        ? (
+            <View className="mb-4 flex-row items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+              <Text className="flex-1 text-sm text-red-600">{error}</Text>
+            </View>
+          )
+        : null}
 
-      <View style={styles.form}>
+      <View className="gap-3.5">
         {/* Role Card Selector */}
         <form.Field
           name="role"
@@ -109,56 +108,21 @@ export function SignupForm({
             const selectedRole = field.state.value as Role | '';
 
             return (
-              <View style={styles.formBlock}>
-                <Text style={styles.roleLabel}>
-                  {t('auth.signup.roleLabel')}
-                </Text>
-                <View style={styles.roleCardsRow}>
-                  {ROLE_OPTIONS.map((roleOption) => {
-                    const isSelected = selectedRole === roleOption.value;
-                    return (
-                      <Pressable
-                        key={roleOption.value}
-                        style={[
-                          styles.roleCard,
-                          isSelected && styles.roleCardSelected,
-                        ]}
-                        onPress={() => {
-                          field.handleChange(roleOption.value);
-                          setGoogleRoleError(null);
-                        }}
-                        testID={`role-card-${roleOption.value.toLowerCase()}`}
-                        accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
-                      >
-                        <Text style={styles.roleAvatar}>
-                          {roleOption.emoji}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.roleCardLabel,
-                            isSelected && styles.roleCardLabelSelected,
-                          ]}
-                        >
-                          {t(roleOption.labelKey)}
-                        </Text>
-                        <View
-                          style={[
-                            styles.radioOuter,
-                            isSelected && styles.radioOuterSelected,
-                          ]}
-                        >
-                          {isSelected && <View style={styles.radioInner} />}
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </View>
+              <View>
+                <RoleCards
+                  roles={[ROLE_OPTIONS.TEACHER, ROLE_OPTIONS.PARENT, ROLE_OPTIONS.MANAGER]}
+                  selected={selectedRole || null}
+                  onSelect={(role) => {
+                    field.handleChange(role as Role);
+                    setGoogleRoleError(null);
+                  }}
+                  overlineLabel={t('auth.signup.roleLabel')}
+                />
                 {hasError && errorMsg
-                  ? <Text style={styles.fieldError}>{errorMsg}</Text>
+                  ? <Text className="ms-1 mt-1 text-xs text-red-500">{errorMsg}</Text>
                   : null}
                 {!hasError && googleRoleError
-                  ? <Text style={styles.fieldError}>{googleRoleError}</Text>
+                  ? <Text className="ms-1 mt-1 text-xs text-red-500">{googleRoleError}</Text>
                   : null}
               </View>
             );
@@ -169,30 +133,19 @@ export function SignupForm({
         <form.Field
           name="fullName"
           children={(field) => {
-            const hasError = field.state.meta.errors.length > 0;
             const errorMsg = getValidationError(field.state.meta.errors);
             return (
-              <View style={styles.formBlock}>
-                <Text style={styles.label}>{t('auth.signup.fullNameLabel')}</Text>
-                <TextInput
-                  value={field.state.value}
-                  onChangeText={field.handleChange}
-                  onBlur={field.handleBlur}
-                  autoCorrect={false}
-                  placeholder={t('auth.signup.fullNamePlaceholder')}
-                  placeholderTextColor="#94A3B8"
-                  testID="fullName-input"
-                  textAlign={isRTL ? 'right' : 'left'}
-                  style={[
-                    styles.input,
-                    isRTL && styles.inputRTL,
-                    hasError && styles.inputError,
-                  ]}
-                />
-                {hasError && errorMsg
-                  ? <Text style={styles.fieldError}>{errorMsg}</Text>
-                  : null}
-              </View>
+              <AuthInput
+                label={t('auth.signup.fullNameLabel')}
+                value={field.state.value}
+                onChangeText={field.handleChange}
+                onBlur={field.handleBlur}
+                autoCorrect={false}
+                placeholder={t('auth.signup.fullNamePlaceholder')}
+                textAlign={isRTL ? 'right' : 'left'}
+                error={errorMsg}
+                testID="fullName-input"
+              />
             );
           }}
         />
@@ -201,32 +154,21 @@ export function SignupForm({
         <form.Field
           name="email"
           children={(field) => {
-            const hasError = field.state.meta.errors.length > 0;
             const errorMsg = getValidationError(field.state.meta.errors);
             return (
-              <View style={styles.formBlock}>
-                <Text style={styles.label}>{t('auth.signup.emailLabel')}</Text>
-                <TextInput
-                  value={field.state.value}
-                  onChangeText={field.handleChange}
-                  onBlur={field.handleBlur}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  autoCorrect={false}
-                  placeholder="name@example.com"
-                  placeholderTextColor="#94A3B8"
-                  testID="email-input"
-                  textAlign={isRTL ? 'right' : 'left'}
-                  style={[
-                    styles.input,
-                    isRTL && styles.inputRTL,
-                    hasError && styles.inputError,
-                  ]}
-                />
-                {hasError && errorMsg
-                  ? <Text style={styles.fieldError}>{errorMsg}</Text>
-                  : null}
-              </View>
+              <AuthInput
+                label={t('auth.signup.emailLabel')}
+                value={field.state.value}
+                onChangeText={field.handleChange}
+                onBlur={field.handleBlur}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoCorrect={false}
+                placeholder="name@example.com"
+                textAlign={isRTL ? 'right' : 'left'}
+                error={errorMsg}
+                testID="email-input"
+              />
             );
           }}
         />
@@ -235,42 +177,19 @@ export function SignupForm({
         <form.Field
           name="password"
           children={(field) => {
-            const hasError = field.state.meta.errors.length > 0;
             const errorMsg = getValidationError(field.state.meta.errors);
             return (
-              <View style={styles.formBlock}>
-                <Text style={styles.label}>{t('auth.signup.passwordLabel')}</Text>
-                <View style={styles.passwordInputWrapper}>
-                  <TextInput
-                    value={field.state.value}
-                    onChangeText={field.handleChange}
-                    onBlur={field.handleBlur}
-                    secureTextEntry={!showPassword}
-                    autoCorrect={false}
-                    testID="password-input"
-                    textAlign={isRTL ? 'right' : 'left'}
-                    style={[
-                      styles.input,
-                      styles.passwordInput,
-                      isRTL && styles.inputRTL,
-                      hasError && styles.inputError,
-                    ]}
-                  />
-                  <Pressable
-                    onPress={() => setShowPassword(!showPassword)}
-                    style={styles.eyeButton}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    testID="password-toggle"
-                  >
-                    {showPassword
-                      ? <EyeOff width={20} height={20} color="#94A3B8" />
-                      : <Eye width={20} height={20} color="#94A3B8" />}
-                  </Pressable>
-                </View>
-                {hasError && errorMsg
-                  ? <Text style={styles.fieldError}>{errorMsg}</Text>
-                  : null}
-              </View>
+              <AuthInput
+                isPassword
+                label={t('auth.signup.passwordLabel')}
+                value={field.state.value}
+                onChangeText={field.handleChange}
+                onBlur={field.handleBlur}
+                autoCorrect={false}
+                textAlign={isRTL ? 'right' : 'left'}
+                error={errorMsg}
+                testID="password-input"
+              />
             );
           }}
         />
@@ -279,38 +198,20 @@ export function SignupForm({
         <form.Subscribe
           selector={state => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, validating]) => (
-            <Pressable
-              style={[
-                styles.submitButton,
-                (!canSubmit || isSubmitting || validating) && styles.submitButtonDisabled,
-              ]}
+            <AuthButton
+              variant="black"
+              title={t('auth.signup.submit')}
               onPress={() => void form.handleSubmit()}
-              disabled={!canSubmit || isSubmitting || validating}
-              testID="signup-submit-button"
-            >
-              {isSubmitting || validating
-                ? (
-                    <ActivityIndicator color="#FFFFFF" />
-                  )
-                : (
-                    <Text style={styles.submitButtonLabel}>
-                      {t('auth.signup.submit')}
-                    </Text>
-                  )}
-            </Pressable>
+              disabled={!canSubmit || isSubmitting || (validating as boolean)}
+              loading={isSubmitting || (validating as boolean)}
+            />
           )}
         />
 
         {showGoogleSignIn
           ? (
               <>
-                <View style={styles.divider}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerLabel}>
-                    {t('auth.signup.orConnectWith')}
-                  </Text>
-                  <View style={styles.dividerLine} />
-                </View>
+                <DividerWithText text={t('auth.signup.orConnectWith')} />
 
                 <GoogleSignInButton
                   onSuccess={(idToken) => {
@@ -328,13 +229,11 @@ export function SignupForm({
                   isLoading={isGoogleSigningIn}
                   variant="signup"
                 />
+
                 {useExistingGoogleToken
                   ? (
                       <Pressable
-                        style={[
-                          styles.existingTokenButton,
-                          isGoogleSigningIn && styles.submitButtonDisabled,
-                        ]}
+                        className={`h-[52px] items-center justify-center rounded-xl bg-blue-500 ${isGoogleSigningIn ? 'opacity-50' : ''}`}
                         onPress={() => {
                           const selectedRole = form.state.values.role as Role | '';
                           if (!selectedRole) {
@@ -348,9 +247,11 @@ export function SignupForm({
                         testID="google-continue-button"
                       >
                         {isGoogleSigningIn
-                          ? <ActivityIndicator color="#FFFFFF" />
+                          ? (
+                              <ActivityIndicator color="#FFFFFF" />
+                            )
                           : (
-                              <Text style={styles.existingTokenButtonLabel}>
+                              <Text className="text-base font-semibold text-white">
                                 {t('auth.signup.continueWithGoogle')}
                               </Text>
                             )}
@@ -364,174 +265,3 @@ export function SignupForm({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  apiError: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-    borderRadius: 10,
-    borderWidth: 1,
-    color: '#DC2626',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    textAlign: 'center',
-  },
-  container: {
-    width: '100%',
-  },
-  divider: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 20,
-    marginTop: 28,
-  },
-  dividerLabel: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1.8,
-    marginHorizontal: 14,
-  },
-  dividerLine: {
-    backgroundColor: '#CBD5E1',
-    flex: 1,
-    height: 1,
-  },
-  eyeButton: {
-    padding: 4,
-    position: 'absolute',
-    right: 14,
-    top: 14,
-  },
-  fieldError: {
-    color: '#DC2626',
-    fontSize: 13,
-    marginTop: 6,
-    textAlign: 'left',
-  },
-  form: {
-    gap: 14,
-  },
-  formBlock: {
-    width: '100%',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
-    borderRadius: 14,
-    borderWidth: 1,
-    color: '#0F172A',
-    fontSize: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 15,
-  },
-  inputError: {
-    borderColor: '#EF4444',
-  },
-  inputRTL: {
-    writingDirection: 'rtl',
-  },
-  label: {
-    color: '#334155',
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 10,
-    textAlign: 'left',
-  },
-  passwordInput: {
-    paddingRight: 48,
-  },
-  passwordInputWrapper: {
-    position: 'relative',
-  },
-  radioInner: {
-    backgroundColor: '#2563EB',
-    borderRadius: 5,
-    height: 10,
-    width: 10,
-  },
-  radioOuter: {
-    alignItems: 'center',
-    borderColor: '#CBD5E1',
-    borderRadius: 10,
-    borderWidth: 2,
-    height: 20,
-    justifyContent: 'center',
-    marginTop: 8,
-    width: 20,
-  },
-  radioOuterSelected: {
-    borderColor: '#2563EB',
-  },
-  roleAvatar: {
-    fontSize: 36,
-    marginBottom: 6,
-  },
-  roleCard: {
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#CBD5E1',
-    borderRadius: 16,
-    borderWidth: 2,
-    flexBasis: '30%',
-    flexGrow: 1,
-    paddingVertical: 18,
-  },
-  roleCardLabel: {
-    color: '#334155',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  roleCardLabelSelected: {
-    color: '#2563EB',
-  },
-  roleCardSelected: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#2563EB',
-  },
-  roleCardsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  roleLabel: {
-    color: '#334155',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    marginBottom: 12,
-    textTransform: 'uppercase',
-  },
-  submitButton: {
-    alignItems: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 16,
-    justifyContent: 'center',
-    marginTop: 12,
-    minHeight: 58,
-  },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  submitButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  existingTokenButton: {
-    alignItems: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 16,
-    justifyContent: 'center',
-    marginTop: 10,
-    minHeight: 52,
-  },
-  existingTokenButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-});
