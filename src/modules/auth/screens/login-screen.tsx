@@ -1,29 +1,22 @@
-import type { LoginFormValues } from '../types';
+import type { LoginFormValues } from '@modules/auth/types';
+import { LoginForm } from '@modules/auth/components/login-form';
+import { AuthLayout } from '@modules/auth/components/ui';
+import { useLogin } from '@modules/auth/hooks/use-login';
+import { usePhoneLogin } from '@modules/auth/hooks/use-phone-login';
+import { googleAuthService } from '@modules/auth/services';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import LottieView from 'lottie-react-native';
 import * as React from 'react';
 import { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, Platform, Text, View } from 'react-native';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
 import { AppRoute } from '@/core/navigation/routes';
 import { setOnboardingContext, useAuthStore } from '@/features/auth/use-auth-store';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
-
-import { LoginForm } from '../components/login-form';
-import { useLogin } from '../hooks/use-login';
-import { usePhoneLogin } from '../hooks/use-phone-login';
-import { googleAuthService } from '../services';
 
 function getSignupRole(role: UserRole | undefined): 'TEACHER' | 'PARENT' | 'MANAGER' | undefined {
   if (role === UserRole.TEACHER || role === UserRole.PARENT || role === UserRole.MANAGER) {
@@ -318,73 +311,46 @@ export function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar style="light" translucent />
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          style={styles.flex}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <LoginForm
-            onSubmit={handleSubmit}
-            onPhoneSubmit={handlePhoneLogin}
-            isSubmitting={isPending}
-            isPhoneSubmitting={isPhoneLoginPending}
-            error={errorMsg}
-            onForgotPassword={handleForgotPassword}
-            onForgotPhonePassword={handlePhoneForgotPassword}
-            onGoogleSignIn={handleGoogleSignIn}
-            onGoogleSignInError={handleGoogleSignInError}
-            isGoogleSigningIn={isGoogleSigningIn}
-            showGoogleSignIn={isGoogleSigninMobileEnabled}
-            initialMode={initialMode}
-            initialPhone={initialPhone}
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <AuthLayout testID="login-screen">
+      <StatusBar style="dark" translucent />
+
+      {/* Lottie hero */}
+      <View className="mt-4 items-center">
+        <LottieView
+          source={require('@assets/lottie/education-books.json')}
+          autoPlay
+          loop
+          renderMode={Platform.OS === 'android' ? 'HARDWARE' : 'AUTOMATIC'}
+          style={{ width: 240, height: 200 }}
+        />
+      </View>
+
+      {/* Title + subtitle */}
+      <View className="my-6 items-center gap-1">
+        <Text className="text-[28px] font-bold text-gray-900">
+          {t('auth.login.title')}
+        </Text>
+        <Text className="text-center text-[15px] text-gray-500">
+          {t('auth.login.subtitle')}
+        </Text>
+      </View>
+
+      {/* Login Form */}
+      <LoginForm
+        onSubmit={handleSubmit}
+        onPhoneSubmit={handlePhoneLogin}
+        isSubmitting={isPending}
+        isPhoneSubmitting={isPhoneLoginPending}
+        error={errorMsg}
+        onForgotPassword={handleForgotPassword}
+        onForgotPhonePassword={handlePhoneForgotPassword}
+        onGoogleSignIn={handleGoogleSignIn}
+        onGoogleSignInError={handleGoogleSignInError}
+        isGoogleSigningIn={isGoogleSigningIn}
+        showGoogleSignIn={isGoogleSigninMobileEnabled}
+        initialMode={initialMode}
+        initialPhone={initialPhone}
+      />
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  modeTab: {
-    alignItems: 'center',
-    flex: 1,
-    paddingVertical: 8,
-  },
-  modeTabActive: {
-    borderBottomColor: '#2563EB',
-    borderBottomWidth: 2,
-  },
-  modeTabLabel: {
-    color: '#94A3B8',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  modeTabLabelActive: {
-    color: '#2563EB',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  modeToggle: {
-    borderBottomColor: '#E2E8F0',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  safeArea: {
-    backgroundColor: '#FFFFFF',
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-});
