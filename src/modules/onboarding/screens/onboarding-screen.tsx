@@ -1,22 +1,22 @@
+import type { UserRole } from '@/core/auth/roles';
+import {
+  AuthButton,
+  AuthInput,
+  AuthLayout,
+  ROLE_OPTIONS,
+  RoleCards,
+} from '@modules/auth/components/ui';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import LottieView from 'lottie-react-native';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { PhoneField } from '@/components/ui';
-
-import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import {
   clearDraftData,
@@ -45,7 +45,6 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Role = UserRole.TEACHER | UserRole.PARENT;
-const ROLE_OPTIONS: Role[] = [UserRole.TEACHER, UserRole.PARENT];
 
 function getJwtExpiry(accessToken: string): number | null {
   const parts = accessToken.split('.');
@@ -295,244 +294,90 @@ export function OnboardingScreen() {
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-      <StatusBar style="light" translucent />
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          style={styles.flex}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.container}>
-            {/* Header */}
-            <Text style={styles.title}>{t('auth.onboarding.title')}</Text>
+    <AuthLayout testID="onboarding-screen">
+      <StatusBar style="dark" translucent />
 
-            {/* API Error */}
-            {errorMsg
-              ? (
-                  <Text style={styles.apiError} testID="onboarding-error">
-                    {errorMsg}
-                  </Text>
-                )
-              : null}
+      {/* Lottie hero */}
+      <View className="mt-4 items-center">
+        <LottieView
+          source={require('@assets/lottie/education-welcome.json')}
+          autoPlay
+          loop
+          renderMode={Platform.OS === 'android' ? 'HARDWARE' : 'AUTOMATIC'}
+          style={{ width: 200, height: 160 }}
+        />
+      </View>
 
-            {/* Role Selector — only shown when role is missing from context */}
-            {showRoleSelector && (
-              <View style={styles.formBlock}>
-                <Text style={styles.roleLabel}>{t('auth.signup.roleLabel')}</Text>
-                <View style={styles.roleCardsRow}>
-                  {ROLE_OPTIONS.map((role) => {
-                    const isSelected = selectedRole === role;
-                    return (
-                      <Pressable
-                        key={role}
-                        style={[styles.roleCard, isSelected && styles.roleCardSelected]}
-                        onPress={() => setSelectedRole(role)}
-                        testID={`role-card-${role.toLowerCase()}`}
-                        accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
-                      >
-                        <Text style={styles.roleAvatar}>
-                          {role === UserRole.TEACHER ? '👩‍🏫' : '👨‍👩‍👧'}
-                        </Text>
-                        <Text style={[styles.roleCardLabel, isSelected && styles.roleCardLabelSelected]}>
-                          {role === UserRole.TEACHER ? t('auth.signup.teacherLabel') : t('auth.signup.parentLabel')}
-                        </Text>
-                        <View style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}>
-                          {isSelected && <View style={styles.radioInner} />}
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-            )}
+      {/* Title + subtitle */}
+      <View className="mt-4 mb-6 items-center gap-1">
+        <Text className="text-[28px] font-bold text-gray-900">
+          {t('auth.onboarding.title')}
+        </Text>
+        <Text className="text-center text-[15px] text-gray-500">
+          {t('auth.onboarding.subtitle')}
+        </Text>
+      </View>
 
-            {/* Full Name */}
-            <View style={styles.formBlock}>
-              <Text style={styles.label}>{t('auth.signup.fullNameLabel')}</Text>
-              <TextInput
-                value={fullName}
-                onChangeText={setFullName}
-                autoCorrect={false}
-                placeholder={t('auth.signup.fullNamePlaceholder')}
-                placeholderTextColor="#94A3B8"
-                testID="fullName-input"
-                textAlign={isRTL ? 'right' : 'left'}
-                style={[styles.input, isRTL && styles.inputRTL]}
-              />
+      {/* API Error */}
+      {errorMsg
+        ? (
+            <View className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5">
+              <Text className="text-center text-[14px] font-medium text-red-600" testID="onboarding-error">
+                {errorMsg}
+              </Text>
             </View>
+          )
+        : null}
 
-            {/* Phone Number */}
-            {!knownPhone && !isResolvingKnownPhone && (
-              <View style={styles.formBlock}>
-                <PhoneField
-                  label={t('auth.onboarding.phoneLabel')}
-                  countryCode={phoneCountryCode}
-                  localNumber={phoneLocalNumber}
-                  onCountryCodeChange={setPhoneCountryCode}
-                  onLocalNumberChange={setPhoneLocalNumber}
-                  testIDPrefix="onboarding-phone"
-                />
-              </View>
-            )}
+      {/* Role Selector — only shown when role is missing from context */}
+      {showRoleSelector && (
+        <View className="mb-4">
+          <RoleCards
+            roles={[ROLE_OPTIONS.TEACHER, ROLE_OPTIONS.PARENT]}
+            selected={selectedRole}
+            onSelect={value => setSelectedRole(value as Role)}
+            overlineLabel={t('auth.signup.roleLabel')}
+          />
+        </View>
+      )}
 
-            {/* Submit Button */}
-            <Pressable
-              style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-              onPress={() => void handleSubmit()}
-              disabled={isSubmitting}
-              testID="onboarding-submit-button"
-            >
-              {isSubmitting
-                ? <ActivityIndicator color="#FFFFFF" />
-                : (
-                    <Text style={styles.submitButtonLabel}>
-                      {t('auth.onboarding.submit')}
-                    </Text>
-                  )}
-            </Pressable>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      {/* Full Name */}
+      <View className="mb-4">
+        <AuthInput
+          label={t('auth.signup.fullNameLabel')}
+          value={fullName}
+          onChangeText={setFullName}
+          autoCorrect={false}
+          placeholder={t('auth.signup.fullNamePlaceholder')}
+          textAlign={isRTL ? 'right' : 'left'}
+          testID="fullName-input"
+        />
+      </View>
+
+      {/* Phone Number */}
+      {!knownPhone && !isResolvingKnownPhone && (
+        <View className="mb-4">
+          <PhoneField
+            label={t('auth.onboarding.phoneLabel')}
+            countryCode={phoneCountryCode}
+            localNumber={phoneLocalNumber}
+            onCountryCodeChange={setPhoneCountryCode}
+            onLocalNumberChange={setPhoneLocalNumber}
+            testIDPrefix="onboarding-phone"
+          />
+        </View>
+      )}
+
+      {/* Submit Button */}
+      <View className="mt-2 mb-8">
+        <AuthButton
+          variant="blue"
+          title={t('auth.onboarding.submit')}
+          onPress={() => void handleSubmit()}
+          disabled={isSubmitting}
+          loading={isSubmitting}
+        />
+      </View>
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  apiError: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-    borderRadius: 10,
-    borderWidth: 1,
-    color: '#DC2626',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    textAlign: 'center',
-  },
-  container: {
-    flex: 1,
-    gap: 14,
-    paddingHorizontal: 24,
-    paddingTop: 32,
-  },
-  flex: {
-    flex: 1,
-  },
-  formBlock: {
-    width: '100%',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
-    borderRadius: 14,
-    borderWidth: 1,
-    color: '#0F172A',
-    fontSize: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 15,
-  },
-  inputRTL: {
-    writingDirection: 'rtl',
-  },
-  label: {
-    color: '#334155',
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 10,
-    textAlign: 'left',
-  },
-  radioInner: {
-    backgroundColor: '#2563EB',
-    borderRadius: 5,
-    height: 10,
-    width: 10,
-  },
-  radioOuter: {
-    alignItems: 'center',
-    borderColor: '#CBD5E1',
-    borderRadius: 10,
-    borderWidth: 2,
-    height: 20,
-    justifyContent: 'center',
-    marginTop: 8,
-    width: 20,
-  },
-  radioOuterSelected: {
-    borderColor: '#2563EB',
-  },
-  roleAvatar: {
-    fontSize: 36,
-    marginBottom: 6,
-  },
-  roleCard: {
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#CBD5E1',
-    borderRadius: 16,
-    borderWidth: 2,
-    flex: 1,
-    paddingVertical: 18,
-  },
-  roleCardLabel: {
-    color: '#334155',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  roleCardLabelSelected: {
-    color: '#2563EB',
-  },
-  roleCardSelected: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#2563EB',
-  },
-  roleCardsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  roleLabel: {
-    color: '#334155',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    marginBottom: 12,
-    textTransform: 'uppercase',
-  },
-  safeArea: {
-    backgroundColor: '#FFFFFF',
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  submitButton: {
-    alignItems: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 16,
-    justifyContent: 'center',
-    marginTop: 12,
-    minHeight: 58,
-  },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  submitButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  title: {
-    color: '#0F172A',
-    fontSize: 28,
-    fontWeight: '800',
-    marginBottom: 8,
-    textAlign: 'left',
-  },
-});
