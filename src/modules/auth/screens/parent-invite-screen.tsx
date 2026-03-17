@@ -1,22 +1,24 @@
-import type { ParentInviteValidateResponse } from '../types';
+import type { ParentInviteValidateResponse } from '@modules/auth/types';
+import {
+  AuthButton,
+  AuthInput,
+  AuthLayout,
+} from '@modules/auth/components/ui';
+import { acceptParentInvite, validateParentInvite } from '@modules/auth/services';
 import { useForm } from '@tanstack/react-form';
-import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import LottieView from 'lottie-react-native';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
-  StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Eye, EyeOff, GraduationCap } from '@/components/ui/icons';
 import { UserRole } from '@/core/auth/roles';
 import { setOnboardingContext, signIn } from '@/features/auth/use-auth-store';
-import { acceptParentInvite, validateParentInvite } from '../services';
 
 // eslint-disable-next-line max-lines-per-function
 export default function ParentInviteScreen() {
@@ -91,8 +93,9 @@ export default function ParentInviteScreen() {
           router.replace('/(tabs)');
         }
       }
-      catch (err: any) {
-        setError(err.message || t('auth.invite.acceptError'));
+      catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : null;
+        setError(errMsg || t('auth.invite.acceptError'));
       }
       finally {
         setIsSubmitting(false);
@@ -125,8 +128,9 @@ export default function ParentInviteScreen() {
           }
         }
       }
-      catch (err: any) {
-        setError(err.message || t('auth.invite.validationError'));
+      catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : null;
+        setError(errMsg || t('auth.invite.validationError'));
       }
       finally {
         setIsValidating(false);
@@ -138,278 +142,130 @@ export default function ParentInviteScreen() {
 
   if (isValidating) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.content}>
-          <ActivityIndicator size="large" color="#2563EB" />
-          <Text style={styles.loadingText}>{t('auth.invite.validating')}</Text>
-        </View>
+      <View
+        className="flex-1 items-center justify-center bg-white"
+        style={{ paddingTop: insets.top }}
+      >
+        <ActivityIndicator size="large" color="#2563EB" />
+        <Text className="mt-4 text-center text-[16px] text-slate-500">
+          {t('auth.invite.validating')}
+        </Text>
       </View>
     );
   }
 
   if (error && !inviteValidation?.valid) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.content}>
-          <View style={styles.logoBadge}>
-            <GraduationCap color="#FFFFFF" width={42} height={42} />
-          </View>
-          <Text style={styles.errorTitle}>{t('auth.invite.errorTitle')}</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
-          <Pressable
-            style={styles.backButton}
-            onPress={() => router.replace('/login')}
-          >
-            <Text style={styles.backButtonLabel}>{t('common.back')}</Text>
-          </Pressable>
-        </View>
+      <View
+        className="flex-1 items-center justify-center bg-white px-7"
+        style={{ paddingTop: insets.top }}
+      >
+        <Text className="mb-3 text-center text-[24px] font-bold text-gray-900">
+          {t('auth.invite.errorTitle')}
+        </Text>
+        <Text className="mb-6 text-center text-[16px] text-slate-500">
+          {error}
+        </Text>
+        <AuthButton
+          variant="blue"
+          title={t('common.back')}
+          onPress={() => router.replace('/login')}
+        />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.hero}>
-        <Image
-          source={{
-            uri: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=1200&q=80',
-          }}
-          style={styles.heroImage}
-          contentFit="cover"
-          transition={250}
+    <AuthLayout testID="parent-invite-screen">
+      {/* Lottie hero */}
+      <View className="mt-4 items-center">
+        <LottieView
+          source={require('@assets/lottie/education-welcome.json')}
+          autoPlay
+          loop
+          style={{ width: 200, height: 160 }}
         />
       </View>
 
-      <View style={styles.logoWrapper}>
-        <View style={styles.logoBadge}>
-          <GraduationCap color="#FFFFFF" width={42} height={42} />
-        </View>
+      {/* Title + subtitle */}
+      <View className="mt-4 mb-6 items-center gap-1">
+        <Text className="text-center text-[28px] font-bold text-gray-900">
+          {t('auth.invite.title')}
+        </Text>
+        <Text className="text-center text-[15px] text-gray-500">
+          {t('auth.invite.subtitle')}
+        </Text>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.title}>{t('auth.invite.title')}</Text>
-        <Text style={styles.subtitle}>{t('auth.invite.subtitle')}</Text>
+      {/* API error */}
+      {error
+        ? (
+            <Text className="mb-3 text-center text-[14px] font-medium text-red-600">
+              {error}
+            </Text>
+          )
+        : null}
 
-        {error ? <Text style={styles.apiError}>{error}</Text> : null}
+      {/* Form */}
+      <View className="gap-3.5">
+        <form.Field
+          name="fullName"
+          children={field => (
+            <AuthInput
+              label={t('auth.invite.fullNameLabel')}
+              value={field.state.value}
+              onChangeText={field.handleChange}
+              onBlur={field.handleBlur}
+              autoCapitalize="words"
+              autoCorrect={false}
+              placeholder="John Doe"
+              testID="fullname-input"
+            />
+          )}
+        />
 
-        <View style={styles.form}>
-          <form.Field
-            name="fullName"
-            children={field => (
-              <View style={styles.formBlock}>
-                <Text style={styles.label}>{t('auth.invite.fullNameLabel')}</Text>
-                <TextInput
-                  value={field.state.value}
-                  onChangeText={field.handleChange}
-                  onBlur={field.handleBlur}
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  placeholder="John Doe"
-                  placeholderTextColor="#94A3B8"
-                  testID="fullname-input"
-                  style={styles.input}
-                />
-              </View>
-            )}
-          />
+        <form.Field
+          name="password"
+          children={field => (
+            <AuthInput
+              label={t('auth.invite.passwordLabel')}
+              value={field.state.value}
+              onChangeText={field.handleChange}
+              onBlur={field.handleBlur}
+              isPassword={!showPassword}
+              secureTextEntry={!showPassword}
+              autoCorrect={false}
+              testID="password-input"
+            />
+          )}
+        />
 
-          <View style={styles.formBlock}>
-            <Text style={styles.label}>{t('auth.invite.passwordLabel')}</Text>
-            <View style={styles.passwordInputWrapper}>
-              <form.Field
-                name="password"
-                children={field => (
-                  <TextInput
-                    value={field.state.value}
-                    onChangeText={field.handleChange}
-                    onBlur={field.handleBlur}
-                    secureTextEntry={!showPassword}
-                    autoCorrect={false}
-                    testID="password-input"
-                    style={[
-                      styles.input,
-                      styles.passwordInput,
-                    ]}
-                  />
-                )}
-              />
-              <Pressable
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeButton}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                {showPassword
-                  ? <EyeOff width={20} height={20} color="#94A3B8" />
-                  : <Eye width={20} height={20} color="#94A3B8" />}
-              </Pressable>
-            </View>
-          </View>
+        {/* Toggle show/hide password */}
+        <Pressable
+          onPress={() => setShowPassword(!showPassword)}
+          className="self-end"
+          hitSlop={8}
+        >
+          <Text className="text-[13px] font-medium text-blue-600">
+            {showPassword ? t('auth.common.optional') : t('auth.common.optional')}
+          </Text>
+        </Pressable>
 
-          <form.Subscribe
-            selector={state => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, validating]) => (
-              <Pressable
-                style={[
-                  styles.submitButton,
-                  (!canSubmit || isSubmitting || validating) && styles.submitButtonDisabled,
-                ]}
+        <form.Subscribe
+          selector={state => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, validating]) => (
+            <View className="mt-2 mb-8">
+              <AuthButton
+                variant="blue"
+                title={t('auth.invite.acceptButton')}
                 onPress={() => void form.handleSubmit()}
-                disabled={!canSubmit || isSubmitting || validating}
-                testID="invite-submit-button"
-              >
-                {isSubmitting || validating
-                  ? <ActivityIndicator color="#FFFFFF" />
-                  : (
-                      <Text style={styles.submitButtonLabel}>
-                        {t('auth.invite.acceptButton')}
-                      </Text>
-                    )}
-              </Pressable>
-            )}
-          />
-        </View>
+                disabled={!canSubmit || isSubmitting || Boolean(validating)}
+                loading={isSubmitting || Boolean(validating)}
+              />
+            </View>
+          )}
+        />
       </View>
-    </View>
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  apiError: {
-    color: '#DC2626',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  container: {
-    backgroundColor: '#FFFFFF',
-    flexGrow: 1,
-  },
-  content: {
-    paddingBottom: 32,
-    paddingHorizontal: 28,
-    paddingTop: 28,
-  },
-  logoBadge: {
-    alignItems: 'center',
-    backgroundColor: '#3B82F6',
-    borderRadius: 22,
-    elevation: 12,
-    height: 88,
-    justifyContent: 'center',
-    shadowColor: '#1E40AF',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    width: 88,
-  },
-  logoWrapper: {
-    alignItems: 'center',
-    marginTop: -44,
-    zIndex: 10,
-  },
-  hero: {
-    backgroundColor: '#D4E4D8',
-    height: 300,
-    overflow: 'hidden',
-  },
-  heroImage: {
-    height: '100%',
-    width: '100%',
-  },
-  title: {
-    color: '#0F172A',
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: '#64748B',
-    fontSize: 16,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  form: {
-    gap: 14,
-  },
-  formBlock: {
-    width: '100%',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
-    borderRadius: 14,
-    borderWidth: 1,
-    color: '#0F172A',
-    fontSize: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 15,
-  },
-  label: {
-    color: '#334155',
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  passwordInput: {
-    paddingRight: 48,
-  },
-  passwordInputWrapper: {
-    position: 'relative',
-  },
-  eyeButton: {
-    padding: 4,
-    position: 'absolute',
-    right: 14,
-    top: 14,
-  },
-  submitButton: {
-    alignItems: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 16,
-    justifyContent: 'center',
-    marginTop: 8,
-    paddingVertical: 16,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#94A3B8',
-  },
-  submitButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  loadingText: {
-    color: '#64748B',
-    fontSize: 16,
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  errorTitle: {
-    color: '#0F172A',
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    color: '#64748B',
-    fontSize: 16,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  backButton: {
-    alignItems: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 12,
-    justifyContent: 'center',
-    paddingVertical: 14,
-    width: '100%',
-  },
-  backButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
