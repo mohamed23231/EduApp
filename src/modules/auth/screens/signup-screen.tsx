@@ -1,22 +1,32 @@
-import type { SignupPayload } from '../types';
+import type { SignupPayload } from '@modules/auth/types';
+import { Ionicons } from '@expo/vector-icons';
+import { PhoneSignupForm } from '@modules/auth/components/phone-signup-form';
+import { SignupForm } from '@modules/auth/components/signup-form';
+import {
+  AuthLayout,
+  SegmentedControl,
+} from '@modules/auth/components/ui';
+import {
+  usePhoneOtpRequest,
+  usePhoneSignup,
+  usePhoneSignupVerify,
+} from '@modules/auth/hooks/use-phone-signup';
+import { useSignup } from '@modules/auth/hooks/use-signup';
+import { googleAuthService } from '@modules/auth/services';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import LottieView from 'lottie-react-native';
 import * as React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  KeyboardAvoidingView,
   Linking,
   Platform,
   Pressable,
-  ScrollView,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
@@ -27,15 +37,6 @@ import {
   isTokenWithinReuseWindow,
 } from '@/lib/auth/token-reuse-window';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
-import { PhoneSignupForm } from '../components/phone-signup-form';
-import { SignupForm } from '../components/signup-form';
-import {
-  usePhoneOtpRequest,
-  usePhoneSignup,
-  usePhoneSignupVerify,
-} from '../hooks/use-phone-signup';
-import { useSignup } from '../hooks/use-signup';
-import { googleAuthService } from '../services';
 
 type SignupRole = 'TEACHER' | 'PARENT' | 'MANAGER';
 
@@ -45,20 +46,6 @@ function getSignupRole(role: UserRole | string | undefined): SignupRole | undefi
   }
 
   return undefined;
-}
-
-function ChevronLeft({ color = '#0F172A' }: { color?: string }) {
-  return (
-    <Svg width={10} height={18} viewBox="0 0 10 18" fill="none">
-      <Path
-        d="M9 1L1 9L9 17"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -348,209 +335,106 @@ export function SignupScreen() {
   const consentParts = consentRaw.split('§TERMS§');
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+    <AuthLayout testID="signup-screen">
       <StatusBar style="dark" translucent />
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+
+      {/* Back button */}
+      <Pressable
+        onPress={() => router.back()}
+        className="mt-2 mb-4 size-10 items-center justify-center rounded-full border border-gray-200"
+        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        testID="back-button"
       >
-        <ScrollView
-          style={styles.flex}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+        <Ionicons name="chevron-back" size={20} color="#374151" />
+      </Pressable>
+
+      {/* Lottie hero */}
+      <View className="items-center">
+        <LottieView
+          source={require('@assets/lottie/education-books.json')}
+          autoPlay
+          loop
+          renderMode={Platform.OS === 'android' ? 'HARDWARE' : 'AUTOMATIC'}
+          style={{ width: 200, height: 160 }}
+        />
+      </View>
+
+      {/* Title + subtitle */}
+      <View className="mt-4 mb-6 items-center gap-1">
+        <Text className="text-[28px] font-bold text-gray-900">
+          {t('auth.signup.title')}
+        </Text>
+        <Text className="text-center text-[15px] text-gray-500">
+          {t('auth.signup.subtitle')}
+        </Text>
+      </View>
+
+      {/* Email / Phone mode toggle */}
+      <View className="mb-5">
+        <SegmentedControl
+          segments={[t('auth.signup.emailTab'), t('auth.signup.phoneTab')]}
+          activeIndex={signupMode === 'email' ? 0 : 1}
+          onChange={index => setSignupMode(index === 0 ? 'email' : 'phone')}
+        />
+      </View>
+
+      {/* Form */}
+      {signupMode === 'email'
+        ? (
+            <SignupForm
+              key={prefillEmailParam || 'signup-default'}
+              onSubmit={handleSubmit}
+              isSubmitting={isPending}
+              error={errorMsg}
+              onGoogleSignUp={handleGoogleSignup}
+              onGoogleSignInError={handleGoogleSignupError}
+              isGoogleSigningIn={isGoogleSigningIn}
+              showGoogleSignIn={isGoogleSigninMobileEnabled}
+              initialEmail={prefillEmailParam}
+              useExistingGoogleToken={Boolean(pendingGoogleToken)}
+            />
+          )
+        : (
+            <PhoneSignupForm
+              onSubmit={handlePhoneSignup}
+              onOtpRequest={handlePhoneOtpRequest}
+              onOtpVerify={handlePhoneOtpVerify}
+              isSubmitting={isPhoneSignupPending}
+              isRequestingOtp={isOtpPending}
+              isVerifyingOtp={isPhoneSignupVerifyPending}
+              error={errorMsg}
+            />
+          )}
+
+      {/* Consent text */}
+      <View className="mt-4 px-1">
+        <Text className="text-center text-[13px]/5 text-slate-500">
+          {consentParts[0]}
+          <Text
+            className="font-semibold text-blue-600 underline"
+            onPress={handleTermsPress}
+            testID="terms-link"
+          >
+            {t('auth.signup.termsLink')}
+          </Text>
+          {consentParts[1] ?? ''}
+        </Text>
+      </View>
+
+      {/* Already have an account */}
+      <View className="mt-5 mb-8 flex-row items-center justify-center gap-1.5">
+        <Text className="text-base font-medium text-slate-500">
+          {t('auth.signup.alreadyHaveAccount')}
+        </Text>
+        <Pressable
+          onPress={() => router.replace(AppRoute.auth.login)}
+          testID="login-link"
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <Pressable
-              onPress={() => router.back()}
-              style={styles.backButton}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              testID="back-button"
-            >
-              <ChevronLeft />
-            </Pressable>
-            <Text style={styles.headerTitle}>{t('auth.signup.title')}</Text>
-            <View style={styles.headerSpacer} />
-          </View>
-
-          {/* Form */}
-          <View style={styles.content}>
-            {/* Email / Phone mode toggle */}
-            <View style={styles.modeToggle}>
-              <Pressable
-                style={[styles.modeTab, signupMode === 'email' && styles.modeTabActive]}
-                onPress={() => setSignupMode('email')}
-              >
-                <Text style={signupMode === 'email' ? styles.modeTabLabelActive : styles.modeTabLabel}>
-                  {t('auth.signup.emailTab')}
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modeTab, signupMode === 'phone' && styles.modeTabActive]}
-                onPress={() => setSignupMode('phone')}
-              >
-                <Text style={signupMode === 'phone' ? styles.modeTabLabelActive : styles.modeTabLabel}>
-                  {t('auth.signup.phoneTab')}
-                </Text>
-              </Pressable>
-            </View>
-
-            {signupMode === 'email'
-              ? (
-                  <SignupForm
-                    key={prefillEmailParam || 'signup-default'}
-                    onSubmit={handleSubmit}
-                    isSubmitting={isPending}
-                    error={errorMsg}
-                    onGoogleSignUp={handleGoogleSignup}
-                    onGoogleSignInError={handleGoogleSignupError}
-                    isGoogleSigningIn={isGoogleSigningIn}
-                    showGoogleSignIn={isGoogleSigninMobileEnabled}
-                    initialEmail={prefillEmailParam}
-                    useExistingGoogleToken={Boolean(pendingGoogleToken)}
-                  />
-                )
-              : (
-                  <PhoneSignupForm
-                    onSubmit={handlePhoneSignup}
-                    onOtpRequest={handlePhoneOtpRequest}
-                    onOtpVerify={handlePhoneOtpVerify}
-                    isSubmitting={isPhoneSignupPending}
-                    isRequestingOtp={isOtpPending}
-                    isVerifyingOtp={isPhoneSignupVerifyPending}
-                    error={errorMsg}
-                  />
-                )}
-
-            {/* Consent text */}
-            <View style={styles.consentRow}>
-              <Text style={styles.consentText}>
-                {consentParts[0]}
-                <Text
-                  style={styles.consentLink}
-                  onPress={handleTermsPress}
-                  testID="terms-link"
-                >
-                  {t('auth.signup.termsLink')}
-                </Text>
-                {consentParts[1] ?? ''}
-              </Text>
-            </View>
-
-            {/* Already have an account */}
-            <View style={styles.loginRow}>
-              <Text style={styles.loginText}>
-                {t('auth.signup.alreadyHaveAccount')}
-              </Text>
-              <Pressable
-                onPress={() => router.replace(AppRoute.auth.login)}
-                testID="login-link"
-              >
-                <Text style={styles.loginLink}>
-                  {t('auth.signup.loginLink')}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          <Text className="text-base font-bold text-blue-600">
+            {t('auth.signup.loginLink')}
+          </Text>
+        </Pressable>
+      </View>
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  modeTab: {
-    alignItems: 'center',
-    flex: 1,
-    paddingVertical: 8,
-  },
-  modeTabActive: {
-    borderBottomColor: '#2563EB',
-    borderBottomWidth: 2,
-  },
-  modeTabLabel: {
-    color: '#94A3B8',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  modeTabLabelActive: {
-    color: '#2563EB',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  modeToggle: {
-    borderBottomColor: '#E2E8F0',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  backButton: {
-    alignItems: 'center',
-    height: 40,
-    justifyContent: 'center',
-    width: 40,
-  },
-  consentLink: {
-    color: '#2563EB',
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  consentRow: {
-    marginTop: 16,
-    paddingHorizontal: 4,
-  },
-  consentText: {
-    color: '#64748B',
-    fontSize: 13,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
-  content: {
-    paddingBottom: 32,
-    paddingHorizontal: 24,
-    paddingTop: 8,
-  },
-  flex: {
-    flex: 1,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  headerTitle: {
-    color: '#0F172A',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  loginLink: {
-    color: '#2563EB',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  loginRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 6,
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  loginText: {
-    color: '#64748B',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  safeArea: {
-    backgroundColor: '#FFFFFF',
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-});
