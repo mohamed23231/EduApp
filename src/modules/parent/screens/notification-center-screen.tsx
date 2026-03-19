@@ -133,7 +133,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   const isRTL = I18nManager.isRTL;
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-[#F9FAFB]">
       <PushDisabledBanner />
       <NotificationHeader isRTL={isRTL} />
       <View className="flex-1 items-center justify-center px-6">
@@ -156,7 +156,7 @@ function EmptyState() {
   const { t } = useTranslation();
   const isRTL = I18nManager.isRTL;
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-[#F9FAFB]">
       <PushDisabledBanner />
       <NotificationHeader isRTL={isRTL} />
       <View className="flex-1 items-center justify-center px-6">
@@ -233,7 +233,7 @@ function NotificationListView({
 }: NotificationListViewProps) {
   const { t } = useTranslation();
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-[#F9FAFB]">
       <PushDisabledBanner />
       <View className={`flex-row items-center border-b border-gray-200 bg-white px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
         <Pressable
@@ -363,7 +363,7 @@ export function NotificationCenterScreen() {
 
   if (isLoading && notifications.length === 0) {
     return (
-      <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+      <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-[#F9FAFB]">
         <PushDisabledBanner />
         <NotificationHeader isRTL={isRTL} />
         <SkeletonLoader />

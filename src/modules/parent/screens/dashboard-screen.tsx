@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, I18nManager, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
@@ -30,13 +30,17 @@ function TeacherInfoRow({ student, t }: { student: Student; t: (key: string) => 
   if (!student.teacherName)
     return null;
   return (
-    <View style={styles.teacherRow}>
-      <View style={styles.teacherIcon}>
-        <Ionicons name="school-outline" size={16} color="#6366F1" />
+    <View className="mb-4 flex-row items-center gap-3 rounded-xl border border-gray-200 bg-white p-4">
+      <View className="size-9 shrink-0 items-center justify-center rounded-full bg-blue-50">
+        <Ionicons name="school-outline" size={16} color="#3478F6" />
       </View>
-      <View style={styles.teacherInfo}>
-        <Text style={styles.teacherLabel}>{t('parent.dashboard.teacherLabel')}</Text>
-        <Text style={styles.teacherName} numberOfLines={1}>{student.teacherName}</Text>
+      <View className="flex-1">
+        <Text className="text-[11px] font-medium tracking-wider text-gray-400 uppercase">
+          {t('parent.dashboard.teacherLabel')}
+        </Text>
+        <Text className="mt-px text-[15px] font-semibold text-gray-900" numberOfLines={1}>
+          {student.teacherName}
+        </Text>
       </View>
     </View>
   );
@@ -45,24 +49,28 @@ function TeacherInfoRow({ student, t }: { student: Student; t: (key: string) => 
 function AttendanceStatsSection({ isLoading, error, stats, onRetry }: AttendanceStatsSectionProps) {
   const { t } = useTranslation();
   return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{t('parent.dashboard.statsTitle')}</Text>
+    <View className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+      <Text className="mb-3 text-base font-semibold text-gray-900">
+        {t('parent.dashboard.statsTitle')}
+      </Text>
 
       {isLoading && (
-        <View style={styles.loadingContainer} testID="stats-skeleton">
+        <View className="items-center py-6" testID="stats-skeleton">
           <ActivityIndicator size="small" />
         </View>
       )}
 
       {error && !isLoading && (
-        <View style={styles.errorContainer} testID="stats-error">
-          <Text style={styles.errorText}>{t('parent.dashboard.statsError')}</Text>
-          <Button label={t('parent.common.retry')} onPress={onRetry} />
+        <View className="rounded-lg bg-red-50 p-3" testID="stats-error">
+          <Text className="mb-2 text-sm text-red-500">
+            {t('parent.dashboard.statsError')}
+          </Text>
+          <Button label={t('parent.common.retry')} onPress={onRetry} size="sm" />
         </View>
       )}
 
       {stats && !isLoading && !error && (
-        <View style={styles.statsContent}>
+        <View className="items-center">
           <AttendanceDonutChart attendanceRate={stats.attendanceRate} size={160} />
           <AttendanceStatCard
             present={stats.present}
@@ -85,26 +93,32 @@ type AttendanceTimelineSectionProps = {
 function AttendanceTimelineSection({ isLoading, error, timeline, onRetry }: AttendanceTimelineSectionProps) {
   const { t } = useTranslation();
   return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{t('parent.dashboard.timelineTitle')}</Text>
+    <View className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+      <Text className="mb-3 text-base font-semibold text-gray-900">
+        {t('parent.dashboard.timelineTitle')}
+      </Text>
 
       {isLoading && (
-        <View style={styles.loadingContainer} testID="timeline-skeleton">
+        <View className="items-center py-6" testID="timeline-skeleton">
           <ActivityIndicator size="small" />
         </View>
       )}
 
       {error && !isLoading && (
-        <View style={styles.errorContainer} testID="timeline-error">
-          <Text style={styles.errorText}>{t('parent.dashboard.timelineError')}</Text>
-          <Button label={t('parent.common.retry')} onPress={onRetry} />
+        <View className="rounded-lg bg-red-50 p-3" testID="timeline-error">
+          <Text className="mb-2 text-sm text-red-500">
+            {t('parent.dashboard.timelineError')}
+          </Text>
+          <Button label={t('parent.common.retry')} onPress={onRetry} size="sm" />
         </View>
       )}
 
       {timeline && !isLoading && !error && (
         <>
           {timeline.length === 0 && (
-            <Text style={styles.emptyText}>{t('parent.dashboard.noTimeline')}</Text>
+            <Text className="py-4 text-center text-sm text-gray-500">
+              {t('parent.dashboard.noTimeline')}
+            </Text>
           )}
           {timeline.slice(0, 5).map(record => (
             <TimelineItem
@@ -121,17 +135,46 @@ function AttendanceTimelineSection({ isLoading, error, timeline, onRetry }: Atte
   );
 }
 
-export function ParentDashboardScreen() {
+type PerformanceCardProps = {
+  studentId: string;
+};
+
+function PerformanceCard({ studentId }: PerformanceCardProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  return (
+    <Pressable
+      className="mb-4 flex-row items-center gap-3 rounded-xl border border-gray-200 bg-white p-4"
+      onPress={() => router.push(AppRoute.parent.studentPerformance(studentId))}
+      testID="performance-button"
+    >
+      <View className="size-10 items-center justify-center rounded-[10px] bg-blue-50">
+        <Ionicons name="stats-chart" size={20} color="#3478F6" />
+      </View>
+      <View className="flex-1">
+        <Text className="text-[15px] font-semibold text-gray-900">
+          {t('parent.dashboard.performanceTitle')}
+        </Text>
+        <Text className="mt-0.5 text-[13px] text-gray-500">
+          {t('parent.dashboard.performanceSubtitle')}
+        </Text>
+      </View>
+      <Ionicons
+        name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
+        size={20}
+        color="#9CA3AF"
+      />
+    </Pressable>
+  );
+}
+
+function useDashboardState() {
   const { data: students, isLoading, error, refetch } = useStudents();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const unreadCount = useNotificationStore.use.unreadCount();
 
   const effectiveSelectedId = useMemo(() => {
-    if (!students?.length) {
+    if (!students?.length)
       return null;
-    }
     if (selectedStudentId && students.some(s => s.id === selectedStudentId)) {
       return selectedStudentId;
     }
@@ -142,6 +185,23 @@ export function ParentDashboardScreen() {
     () => students?.find(s => s.id === effectiveSelectedId) ?? null,
     [students, effectiveSelectedId],
   );
+
+  return { students, isLoading, error, refetch, effectiveSelectedId, selectedStudent, setSelectedStudentId };
+}
+
+export function ParentDashboardScreen() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const {
+    students,
+    isLoading,
+    error,
+    refetch,
+    effectiveSelectedId,
+    selectedStudent,
+    setSelectedStudentId,
+  } = useDashboardState();
+  const unreadCount = useNotificationStore.use.unreadCount();
 
   const {
     data: stats,
@@ -158,9 +218,10 @@ export function ParentDashboardScreen() {
   } = useAttendanceTimeline(effectiveSelectedId ?? '');
 
   if (isLoading) {
+
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
-        <View style={styles.centeredContainer} testID="loading-indicator">
+      <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-white">
+        <View className="flex-1 items-center justify-center" testID="loading-indicator">
           <ActivityIndicator size="large" />
         </View>
       </SafeAreaView>
@@ -168,11 +229,11 @@ export function ParentDashboardScreen() {
   }
 
   if (error) {
-    const errorMessage = extractErrorMessage(error, t);
+
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
-        <View style={styles.errorScreenContainer}>
-          <Text style={styles.errorScreenText}>{errorMessage}</Text>
+      <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-white">
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="mb-4 text-center text-base text-red-500">{extractErrorMessage(error, t)}</Text>
           <Button label={t('parent.common.retry')} onPress={() => refetch()} testID="retry-button" />
         </View>
       </SafeAreaView>
@@ -180,246 +241,36 @@ export function ParentDashboardScreen() {
   }
 
   if (!students?.length) {
+
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
+      <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-white">
         <EmptyDashboard onLinkStudent={() => router.push(AppRoute.parent.linkStudent)} />
       </SafeAreaView>
     );
   }
 
+
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('parent.dashboard.title')}</Text>
-        <View style={styles.headerActions}>
-          <NotificationBell
-            unreadCount={unreadCount}
-            onPress={() => router.push(AppRoute.parent.notifications)}
-          />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => router.push(AppRoute.parent.linkStudent)}
-            testID="add-student-button"
-          >
-            <Ionicons name="add-circle" size={28} color="#3B82F6" />
-          </TouchableOpacity>
+    <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-white">
+      <View className="flex-row items-center justify-between bg-white p-4">
+        <Text className="text-[22px] font-bold text-gray-900">{t('parent.dashboard.title')}</Text>
+        <View className="flex-row items-center gap-2">
+          <NotificationBell unreadCount={unreadCount} onPress={() => router.push(AppRoute.parent.notifications)} />
+          <Pressable className="p-1" onPress={() => router.push(AppRoute.parent.linkStudent)} testID="add-student-button">
+            <Ionicons name="add-circle" size={28} color="#3478F6" />
+          </Pressable>
         </View>
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.studentSelectorContainer}>
-          <StudentSelector
-            students={students}
-            selectedId={effectiveSelectedId}
-            onSelect={setSelectedStudentId}
-          />
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
+        <View className="mb-4">
+          <StudentSelector students={students} selectedId={effectiveSelectedId} onSelect={setSelectedStudentId} />
         </View>
-
-        {selectedStudent && (
-          <TeacherInfoRow student={selectedStudent} t={t} />
-        )}
-
-        <AttendanceStatsSection
-          isLoading={statsLoading}
-          error={statsError}
-          stats={stats}
-          onRetry={() => refetchStats()}
-        />
-
-        <AttendanceTimelineSection
-          isLoading={timelineLoading}
-          error={timelineError}
-          timeline={timeline}
-          onRetry={() => refetchTimeline()}
-        />
-
-        {effectiveSelectedId && (
-          <TouchableOpacity
-            style={styles.performanceCard}
-            onPress={() => router.push(AppRoute.parent.studentPerformance(effectiveSelectedId))}
-            testID="performance-button"
-          >
-            <View style={styles.performanceIcon}>
-              <Ionicons name="stats-chart" size={20} color="#3B82F6" />
-            </View>
-            <View style={styles.performanceContent}>
-              <Text style={styles.performanceTitle}>{t('parent.dashboard.performanceTitle')}</Text>
-              <Text style={styles.performanceSubtitle}>{t('parent.dashboard.performanceSubtitle')}</Text>
-            </View>
-            <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-        )}
+        {selectedStudent && <TeacherInfoRow student={selectedStudent} t={t} />}
+        <AttendanceStatsSection isLoading={statsLoading} error={statsError} stats={stats} onRetry={() => refetchStats()} />
+        <AttendanceTimelineSection isLoading={timelineLoading} error={timelineError} timeline={timeline} onRetry={() => refetchTimeline()} />
+        {effectiveSelectedId && <PerformanceCard studentId={effectiveSelectedId} />}
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  addButton: {
-    padding: 4,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-  },
-  studentSelectorContainer: {
-    marginBottom: 16,
-  },
-  teacherRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 16,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  teacherIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#EDE9FE',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  teacherInfo: {
-    flex: 1,
-  },
-  teacherLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  teacherName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    marginTop: 1,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 12,
-  },
-  loadingContainer: {
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
-  errorContainer: {
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    padding: 12,
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  emptyText: {
-    color: '#6B7280',
-    fontSize: 14,
-    textAlign: 'center',
-    paddingVertical: 16,
-  },
-  statsContent: {
-    alignItems: 'center',
-  },
-  centeredContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorScreenContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  errorScreenText: {
-    fontSize: 16,
-    color: '#DC2626',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  performanceCard: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  performanceIcon: {
-    alignItems: 'center',
-    backgroundColor: '#EFF6FF',
-    borderRadius: 10,
-    height: 40,
-    justifyContent: 'center',
-    width: 40,
-  },
-  performanceContent: {
-    flex: 1,
-  },
-  performanceTitle: {
-    color: '#111827',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  performanceSubtitle: {
-    color: '#6B7280',
-    fontSize: 13,
-    marginTop: 2,
-  },
-});

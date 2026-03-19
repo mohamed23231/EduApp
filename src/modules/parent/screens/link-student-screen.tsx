@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
+import LottieView from 'lottie-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -7,10 +8,9 @@ import {
   I18nManager,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
-  StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import Animated, {
@@ -26,7 +26,7 @@ import { useLinkStudent } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
 import { linkStudentSchema } from '../validators/link-student.schema';
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 function useClearErrorsOnChange({
   accessCode,
@@ -70,37 +70,33 @@ function ScreenHeader({
   title: string;
 }) {
   return (
-    <View style={s.header}>
-      <TouchableOpacity
-        style={s.backButton}
+    <View className="flex-row items-center px-4 py-3">
+      <Pressable
+        className="size-10 items-center justify-center rounded-full border border-gray-200"
         onPress={onBack}
         accessibilityRole="button"
         accessibilityLabel={backLabel}
         testID="back-button"
+        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
       >
-        <Ionicons
-          name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'}
-          size={24}
-          color="#111827"
-        />
-      </TouchableOpacity>
-      <Text style={s.headerTitle}>{title}</Text>
-      <View style={s.headerSpacer} />
+        <Ionicons name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'} size={20} color="#374151" />
+      </Pressable>
+      <Text className="flex-1 text-center text-base font-bold text-gray-900">{title}</Text>
+      <View className="size-10" />
     </View>
   );
 }
 
-function Illustration() {
+function LottieHero() {
   return (
-    <View style={s.illustrationContainer}>
-      <View style={s.illustration}>
-        <View style={s.illustrationIconWrapper}>
-          <Ionicons name="school" size={44} color="#6366F1" />
-        </View>
-        <View style={s.illustrationBadge}>
-          <Ionicons name="link" size={18} color="#FFFFFF" />
-        </View>
-      </View>
+    <View className="mt-6 items-center">
+      <LottieView
+        source={require('@assets/lottie/education-books.json')}
+        autoPlay
+        loop
+        renderMode={Platform.OS === 'android' ? 'HARDWARE' : 'AUTOMATIC'}
+        style={{ width: 200, height: 160 }}
+      />
     </View>
   );
 }
@@ -122,16 +118,14 @@ function CodeInput({
 }) {
   return (
     <>
-      <Text style={s.inputLabel}>{label}</Text>
-      <View style={[s.inputContainer, hasError && s.inputContainerError]}>
+      <Text className="ms-1 mb-1.5 text-xs font-medium text-gray-500">{label}</Text>
+      <View
+        className={`h-[52px] flex-row items-center rounded-lg border bg-white px-4 ${
+          hasError ? 'border-red-500' : 'border-gray-300'
+        }`}
+      >
         <TextInput
-          style={[
-            s.input,
-            {
-              textAlign: I18nManager.isRTL ? 'right' : 'left',
-              writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-            },
-          ]}
+          className="flex-1 text-[15px] text-gray-900"
           placeholder={placeholder}
           placeholderTextColor="#9CA3AF"
           value={accessCode}
@@ -142,7 +136,7 @@ function CodeInput({
           autoCorrect={false}
           accessibilityLabel={label}
         />
-        <Ionicons name="qr-code-outline" size={20} color="#9CA3AF" style={s.inputIcon} />
+        <Ionicons name="qr-code-outline" size={20} color="#9CA3AF" className="ms-2" />
       </View>
     </>
   );
@@ -175,16 +169,16 @@ function SubmitButton({
     scale.value = withSpring(1);
   };
 
-  const iconColor = disabled ? '#9CA3AF' : '#FFFFFF';
-
   return (
-    <AnimatedTouchableOpacity
-      style={[s.submitButton, disabled && s.submitButtonDisabled, animatedStyle]}
+    <AnimatedPressable
+      className={`h-[52px] items-center justify-center rounded-xl bg-gray-900 ${
+        disabled ? 'opacity-50' : ''
+      }`}
+      style={animatedStyle}
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled}
-      activeOpacity={0.8}
       testID="submit-button"
       accessibilityRole="button"
       accessibilityState={{ disabled }}
@@ -192,19 +186,8 @@ function SubmitButton({
     >
       {isPending
         ? <ActivityIndicator color="#FFFFFF" size="small" />
-        : (
-            <View style={s.submitContent}>
-              <Text style={[s.submitText, disabled && s.submitTextDisabled]}>
-                {label}
-              </Text>
-              <Ionicons
-                name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
-                size={18}
-                color={iconColor}
-              />
-            </View>
-          )}
-    </AnimatedTouchableOpacity>
+        : <Text className="text-base font-semibold text-white">{label}</Text>}
+    </AnimatedPressable>
   );
 }
 
@@ -218,14 +201,35 @@ function ErrorMessages({
   return (
     <>
       {validationError && (
-        <Text style={s.errorText} accessibilityRole="alert">{validationError}</Text>
+        <Text className="ms-1 mt-1.5 text-xs text-red-500" accessibilityRole="alert">
+          {validationError}
+        </Text>
       )}
       {errorMessage && (
-        <Text style={s.errorText} testID="error-message" accessibilityRole="alert">
+        <Text
+          className="ms-1 mt-1.5 text-xs text-red-500"
+          testID="error-message"
+          accessibilityRole="alert"
+        >
           {errorMessage}
         </Text>
       )}
     </>
+  );
+}
+
+function HelpLink({ onPress, label }: { onPress: () => void; label: string }) {
+  return (
+    <Pressable
+      className="mt-5 mb-7 flex-row items-center justify-center gap-1.5"
+      onPress={onPress}
+      testID="help-link"
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
+      <Ionicons name="information-circle-outline" size={16} color="#6B7280" />
+      <Text className="text-[13px] text-gray-500">{label}</Text>
+    </Pressable>
   );
 }
 
@@ -246,8 +250,7 @@ export function LinkStudentScreen() {
   const handleSubmit = () => {
     const result = linkStudentSchema.safeParse({ accessCode });
     if (!result.success) {
-      const firstError = result.error.issues[0];
-      setValidationError(t(firstError.message));
+      setValidationError(t(result.error.issues[0].message));
       return;
     }
     mutate(accessCode.trim(), {
@@ -260,32 +263,33 @@ export function LinkStudentScreen() {
   const hasInputError = !!validationError || !!errorMessage;
 
   return (
-    <SafeAreaView style={s.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={{ flex: 1 }} className="bg-white" edges={['top', 'bottom']}>
       <ScreenHeader
         onBack={() => router.back()}
         backLabel={t('parent.common.back')}
         title={t('parent.common.brandName')}
       />
-
       <KeyboardAvoidingView
-        style={s.flex}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          style={s.flex}
-          contentContainerStyle={s.scrollContent}
+          style={{ flex: 1 }}
+          contentContainerClassName="flex-grow px-4 pb-6"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           <Animated.View entering={FadeInDown.delay(0).duration(400)}>
-            <Illustration />
+            <LottieHero />
           </Animated.View>
-
           <Animated.View entering={FadeInDown.delay(100).duration(400)}>
-            <Text style={s.title}>{t('parent.linkStudent.title')}</Text>
-            <Text style={s.description}>{t('parent.linkStudent.description')}</Text>
+            <Text className="mb-2 text-center text-[28px] font-bold text-gray-900">
+              {t('parent.linkStudent.title')}
+            </Text>
+            <Text className="mb-8 px-2 text-center text-[15px] text-gray-500">
+              {t('parent.linkStudent.description')}
+            </Text>
           </Animated.View>
-
           <Animated.View entering={FadeInDown.delay(200).duration(400)}>
             <CodeInput
               accessCode={accessCode}
@@ -295,23 +299,11 @@ export function LinkStudentScreen() {
               label={t('parent.linkStudent.inputLabel')}
               placeholder={t('parent.linkStudent.inputPlaceholder')}
             />
-
             <ErrorMessages validationError={validationError} errorMessage={errorMessage} />
           </Animated.View>
-
           <Animated.View entering={FadeInDown.delay(300).duration(400)}>
-            <TouchableOpacity
-              style={s.helpLinkContainer}
-              onPress={() => helpModalRef.current?.present()}
-              testID="help-link"
-              accessibilityRole="button"
-              accessibilityLabel={t('parent.linkStudent.helpLink')}
-            >
-              <Ionicons name="information-circle-outline" size={16} color="#6B7280" />
-              <Text style={s.helpLink}>{t('parent.linkStudent.helpLink')}</Text>
-            </TouchableOpacity>
+            <HelpLink onPress={() => helpModalRef.current?.present()} label={t('parent.linkStudent.helpLink')} />
           </Animated.View>
-
           <Animated.View entering={FadeInDown.delay(400).duration(400)}>
             <SubmitButton
               onPress={handleSubmit}
@@ -320,203 +312,24 @@ export function LinkStudentScreen() {
               label={t('parent.linkStudent.submit')}
             />
           </Animated.View>
-
-          <View style={s.footer}>
-            <Text style={s.footerText}>{t('parent.linkStudent.fallbackHelp')}</Text>
+          <View className="flex-1 items-center justify-end pt-6 pb-2">
+            <Text className="px-4 text-center text-xs text-gray-400">
+              {t('parent.linkStudent.fallbackHelp')}
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
       <Modal
         ref={helpModalRef.current?.ref}
         snapPoints={['50%']}
         title={t('parent.linkStudent.helpLink')}
       >
-        <View style={s.modalContent}>
-          <Text style={s.modalText}>{t('parent.linkStudent.helpContent')}</Text>
+        <View className="px-5 pb-6">
+          <Text className="text-[15px]/6 text-gray-700">
+            {t('parent.linkStudent.helpContent')}
+          </Text>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  flex: { flex: 1 },
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-    textAlign: 'center',
-  },
-  headerSpacer: { width: 40 },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    flexGrow: 1,
-  },
-  illustrationContainer: {
-    alignItems: 'center',
-    marginTop: 32,
-    marginBottom: 28,
-  },
-  illustration: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  illustrationIconWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  illustrationBadge: {
-    position: 'absolute',
-    bottom: 4,
-    end: 4,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#6366F1',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 15,
-    color: '#6B7280',
-    lineHeight: 24,
-    textAlign: 'center',
-    marginBottom: 32,
-    paddingHorizontal: 8,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6366F1',
-    marginBottom: 8,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-  },
-  inputContainerError: {
-    borderColor: '#DC2626',
-    backgroundColor: '#FEF2F2',
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#111827',
-  },
-  inputIcon: {
-    marginStart: 8,
-  },
-  errorText: {
-    fontSize: 13,
-    color: '#DC2626',
-    marginTop: 8,
-  },
-  helpLinkContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 28,
-    gap: 6,
-  },
-  helpLink: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  submitButton: {
-    backgroundColor: '#6366F1',
-    borderRadius: 16,
-    minHeight: 52,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 14,
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#E5E7EB',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  submitContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  submitText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  submitTextDisabled: {
-    color: '#9CA3AF',
-  },
-  footer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingTop: 24,
-    paddingBottom: 8,
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    textAlign: 'center',
-    lineHeight: 18,
-    paddingHorizontal: 16,
-  },
-  modalContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-  },
-  modalText: {
-    fontSize: 15,
-    color: '#374151',
-    lineHeight: 24,
-  },
-});

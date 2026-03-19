@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { Color } from '@/components/ui/color-utils';
 
@@ -45,52 +45,30 @@ export function StudentAvatar({ name, size = 'md', selected = false, onPress }: 
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${name}, ${selected ? 'selected' : 'not selected'}`}
-      style={styles.pressable}
+      className="items-center"
     >
       <View
-        style={[
-          styles.ringContainer,
-          {
-            width: ring,
-            height: ring,
-            borderRadius: ring / 2,
-            borderColor: selected ? Color.indigo(500) : 'transparent',
-          },
-        ]}
+        className="items-center justify-center"
+        style={{
+          width: ring,
+          height: ring,
+          borderRadius: ring / 2,
+          borderWidth: 2.5,
+          borderColor: selected ? '#3478F6' : 'transparent',
+        }}
       >
         <View
-          style={[
-            styles.avatar,
-            {
-              width: container,
-              height: container,
-              borderRadius: container / 2,
-              backgroundColor: bgColor,
-            },
-          ]}
+          className="items-center justify-center"
+          style={{
+            width: container,
+            height: container,
+            borderRadius: container / 2,
+            backgroundColor: bgColor,
+          }}
         >
-          <Text style={[styles.initials, { fontSize }]}>{initials}</Text>
+          <Text className="font-bold text-white" style={{ fontSize }}>{initials}</Text>
         </View>
       </View>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  pressable: {
-    alignItems: 'center',
-  },
-  ringContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2.5,
-  },
-  avatar: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  initials: {
-    color: Color.white(),
-    fontWeight: '700',
-  },
-});

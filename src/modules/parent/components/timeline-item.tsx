@@ -1,7 +1,7 @@
 import type { AttendanceStatus } from '@/modules/parent/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, StyleSheet, View } from 'react-native';
+import { I18nManager, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { Color, withOpacity } from '@/components/ui/color-utils';
 
@@ -79,73 +79,30 @@ export function TimelineItem({ date, time, status, excuseNote }: TimelineItemPro
   };
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.iconCircle, { backgroundColor: badgeBg }]}>
+    <View className="flex-row items-center gap-3 border-b border-gray-100 px-1 py-3">
+      <View
+        className="size-9 shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: badgeBg }}
+      >
         <Ionicons name={STATUS_ICON[status]} size={20} color={color} />
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.date}>{formatDate(date)}</Text>
-        <Text style={styles.time}>{formatTime(time)}</Text>
+      <View className="flex-1">
+        <Text className="text-sm font-semibold text-gray-700">{formatDate(date)}</Text>
+        <Text className="mt-0.5 text-xs text-gray-400">{formatTime(time)}</Text>
         {status === 'EXCUSED' && excuseNote && (
-          <Text style={styles.excuseNote} numberOfLines={2}>{excuseNote}</Text>
+          <Text className="mt-1 text-xs text-gray-500 italic" numberOfLines={2}>{excuseNote}</Text>
         )}
       </View>
 
-      <View style={[styles.badge, { backgroundColor: badgeBg }]}>
-        <Text style={[styles.badgeText, { color }]}>
+      <View
+        className="shrink-0 rounded-xl px-2.5 py-1"
+        style={{ backgroundColor: badgeBg }}
+      >
+        <Text className="text-[11px] font-semibold" style={{ color }}>
           {statusLabelMap[status]}
         </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: Color.gray(100),
-    gap: 12,
-  },
-  iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  content: {
-    flex: 1,
-  },
-  date: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Color.gray(700),
-  },
-  time: {
-    fontSize: 12,
-    color: Color.gray(400),
-    marginTop: 2,
-  },
-  excuseNote: {
-    fontSize: 12,
-    color: Color.gray(500),
-    marginTop: 3,
-    fontStyle: 'italic',
-  },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    flexShrink: 0,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-});

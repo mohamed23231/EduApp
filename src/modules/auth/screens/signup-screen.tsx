@@ -55,7 +55,8 @@ export function SignupScreen() {
     prefillEmail?: string | string[];
     idToken?: string | string[];
   }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const status = useAuthStore.use.status();
   const user = useAuthStore.use.user();
   const onboardingContext = useAuthStore.use.onboardingContext();
@@ -345,7 +346,7 @@ export function SignupScreen() {
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         testID="back-button"
       >
-        <Ionicons name="chevron-back" size={20} color="#374151" />
+        <Ionicons name={isRTL ? 'chevron-forward' : 'chevron-back'} size={20} color="#374151" />
       </Pressable>
 
       {/* Lottie hero */}

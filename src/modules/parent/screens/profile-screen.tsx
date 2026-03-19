@@ -3,8 +3,9 @@ import type { TFunction } from 'i18next';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { I18nManager, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from '@/components/ui';
 
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
@@ -75,70 +76,135 @@ function LanguageToggle() {
     setLanguage(isArabic ? 'en' : 'ar');
   };
 
+  const activeShadow = { shadowColor: '#3B82F6', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.3, shadowRadius: 2, elevation: 2 };
+
   return (
-    <View style={styles.settingsRow}>
-      <View style={styles.settingsRowLeft}>
-        <View style={styles.iconContainer}>
+    <View className="flex-row items-center justify-between px-4 py-3.5">
+      <View className="flex-1 flex-row items-center">
+        <View className="me-3 size-8 items-center justify-center rounded-lg bg-gray-100">
           <Ionicons name="language-outline" size={20} color="#6B7280" />
         </View>
-        <Text style={styles.settingsLabel}>
+        <Text className="text-[15px] font-medium text-gray-700">
           {t('parent.profile.languageLabel')}
         </Text>
       </View>
       <TouchableOpacity
-        style={styles.langToggle}
+        className="flex-row rounded-lg bg-gray-100 p-0.5"
         onPress={handleToggle}
         activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel={t('parent.profile.languageLabel')}
       >
-        <View style={[styles.langOption, !isArabic && styles.langOptionActive]}>
-          <Text style={[styles.langOptionText, !isArabic && styles.langOptionTextActive]}>EN</Text>
+        <View
+          className={`rounded-md px-3.5 py-1.5 ${!isArabic ? 'bg-blue-500 shadow-sm' : ''}`}
+          style={!isArabic ? activeShadow : undefined}
+        >
+          <Text className={`text-[13px] font-semibold ${!isArabic ? 'text-white' : 'text-gray-500'}`}>EN</Text>
         </View>
-        <View style={[styles.langOption, isArabic && styles.langOptionActive]}>
-          <Text style={[styles.langOptionText, isArabic && styles.langOptionTextActive]}>عربي</Text>
+        <View
+          className={`rounded-md px-3.5 py-1.5 ${isArabic ? 'bg-blue-500 shadow-sm' : ''}`}
+          style={isArabic ? activeShadow : undefined}
+        >
+          <Text className={`text-[13px] font-semibold ${isArabic ? 'text-white' : 'text-gray-500'}`}>عربي</Text>
         </View>
       </TouchableOpacity>
     </View>
   );
 }
 
-export function ProfileScreen() {
-  const { t } = useTranslation();
+function ProfileHeader({ initials, displayName, roleBadge }: { initials: string; displayName: string; roleBadge: string }) {
+  return (
+    <View className="items-center bg-white px-6 py-8">
+      <View className="mb-4">
+        <View
+          className="size-20 items-center justify-center rounded-full bg-blue-500"
+          style={{ shadowColor: '#3B82F6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 }}
+        >
+          <Text className="text-[28px] font-bold text-white">{initials}</Text>
+        </View>
+      </View>
+      <Text className="mb-2 text-center text-[18px] font-semibold text-gray-900">{displayName}</Text>
+      <View className="rounded-full bg-blue-50 px-3 py-1">
+        <Text className="text-xs font-semibold text-blue-600 capitalize">{roleBadge}</Text>
+      </View>
+    </View>
+  );
+}
+
+function SettingsRow({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: React.ReactNode }) {
+  return (
+    <View className="flex-row items-center justify-between px-4 py-3.5">
+      <View className="flex-1 flex-row items-center">
+        <View className="me-3 size-8 items-center justify-center rounded-lg bg-gray-100">
+          <Ionicons name={icon} size={20} color="#6B7280" />
+        </View>
+        <Text className="text-[15px] font-medium text-gray-700">{label}</Text>
+      </View>
+      {value}
+    </View>
+  );
+}
+
+function AccountCard({ accountLabel, accountIdentifier, roleBadge, t }: {
+  accountLabel: string;
+  accountIdentifier: string;
+  roleBadge: string;
+  t: TFunction;
+}) {
+  return (
+    <View className="px-4 pt-6">
+      <Text className="ms-1 mb-2 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
+        {t('parent.profile.accountSection')}
+      </Text>
+      <View className="rounded-xl border border-gray-200 bg-white">
+        <SettingsRow
+          icon="mail-outline"
+          label={accountLabel}
+          value={(
+            <Text className="shrink text-sm text-gray-500" style={{ textAlign: I18nManager.isRTL ? 'left' : 'right' }} numberOfLines={1}>
+              {accountIdentifier}
+            </Text>
+          )}
+        />
+        <View className="ms-[60px] h-px bg-gray-200" />
+        <SettingsRow
+          icon="shield-outline"
+          label={t('parent.profile.roleLabel')}
+          value={(
+            <View className="rounded-lg bg-blue-50 px-2.5 py-1">
+              <Text className="text-[13px] font-semibold text-blue-600 capitalize">{roleBadge}</Text>
+            </View>
+          )}
+        />
+        <View className="ms-[60px] h-px bg-gray-200" />
+        <LanguageToggle />
+      </View>
+    </View>
+  );
+}
+
+function useHydrateUser() {
   const user = useAuthStore.use.user();
   const token = useAuthStore.use.token();
   const signIn = useAuthStore.use.signIn();
-  const signOut = useAuthStore.use.signOut();
 
   React.useEffect(() => {
     let cancelled = false;
 
     async function hydrateUserDetails() {
-      if (!user || !token) {
+      if (!user || !token)
         return;
-      }
 
       const missingName = !user.fullName?.trim();
-      const missingPhoneForPhoneAccount
-        = isGeneratedPhoneEmail(user.email) && !user.phoneE164;
-
-      if (!missingName && !missingPhoneForPhoneAccount) {
+      const missingPhone = isGeneratedPhoneEmail(user.email) && !user.phoneE164;
+      if (!missingName && !missingPhone)
         return;
-      }
 
       try {
         const validatedUser = await validateToken();
-        if (cancelled) {
+        if (cancelled)
           return;
-        }
-
-        signIn({
-          token,
-          user: {
-            ...user,
-            ...validatedUser,
-          },
-        });
+        signIn({ token, user: { ...user, ...validatedUser } });
       }
       catch {
         // Best-effort hydration for legacy cached user payloads.
@@ -146,18 +212,22 @@ export function ProfileScreen() {
     }
 
     void hydrateUserDetails();
-
     return () => {
       cancelled = true;
     };
-  }, [
-    signIn,
-    token,
-    user,
-  ]);
+  }, [signIn, token, user]);
+
+  return { user };
+}
+
+export function ProfileScreen() {
+  const { t } = useTranslation();
+  const { user } = useHydrateUser();
+  const signOut = useAuthStore.use.signOut();
 
   const displayName = getDisplayName(user?.fullName, user?.email, t);
   const initials = getInitials(user?.fullName, user?.email);
+  const roleBadge = getTranslatedRole(user?.role, t);
   const accountIdentifier = isGeneratedPhoneEmail(user?.email)
     ? (user?.phoneE164 ?? getDisplayAccountIdentifier(user?.email, t))
     : getDisplayAccountIdentifier(user?.email, t);
@@ -166,256 +236,21 @@ export function ProfileScreen() {
     : t('parent.profile.emailLabel');
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.headerSection}>
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
-        </View>
-        <Text style={styles.emailHeader}>{displayName}</Text>
-        <View style={styles.roleBadgeHeader}>
-          <Text style={styles.roleBadgeHeaderText}>{getTranslatedRole(user?.role, t)}</Text>
-        </View>
-      </View>
-
-      <View style={styles.settingsSection}>
-        <Text style={styles.sectionTitle}>{t('parent.profile.accountSection')}</Text>
-        <View style={styles.card}>
-          <View style={styles.settingsRow}>
-            <View style={styles.settingsRowLeft}>
-              <View style={styles.iconContainer}>
-                <Ionicons name="mail-outline" size={20} color="#6B7280" />
-              </View>
-              <Text style={styles.settingsLabel}>
-                {accountLabel}
-              </Text>
-            </View>
-            <Text
-              style={[styles.settingsValue, { textAlign: I18nManager.isRTL ? 'left' : 'right' }]}
-              numberOfLines={1}
-            >
-              {accountIdentifier}
-            </Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.settingsRow}>
-            <View style={styles.settingsRowLeft}>
-              <View style={styles.iconContainer}>
-                <Ionicons name="shield-outline" size={20} color="#6B7280" />
-              </View>
-              <Text style={styles.settingsLabel}>
-                {t('parent.profile.roleLabel')}
-              </Text>
-            </View>
-            <View style={styles.roleBadge}>
-              <Text style={styles.roleBadgeText}>{getTranslatedRole(user?.role, t)}</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <LanguageToggle />
-        </View>
-      </View>
-
-      <View style={styles.spacer} />
-
-      <View style={styles.logoutContainer}>
+    <SafeAreaView style={{ flex: 1 }} className="bg-white" edges={['top']}>
+      <ProfileHeader initials={initials} displayName={displayName} roleBadge={roleBadge} />
+      <AccountCard accountLabel={accountLabel} accountIdentifier={accountIdentifier} roleBadge={roleBadge} t={t} />
+      <View className="flex-1" />
+      <View className="px-4 pb-8">
         <TouchableOpacity
-          style={styles.logoutButton}
+          className="h-[52px] flex-row items-center justify-center rounded-xl bg-red-50"
           onPress={signOut}
           accessibilityRole="button"
           accessibilityLabel={t('parent.profile.logoutButton')}
         >
-          <Ionicons
-            name="log-out-outline"
-            size={20}
-            color="#DC2626"
-            style={styles.logoutIcon}
-          />
-          <Text style={styles.logoutText}>{t('parent.profile.logoutButton')}</Text>
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" style={{ marginEnd: 8 }} />
+          <Text className="text-base font-semibold text-red-600">{t('parent.profile.logoutButton')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  headerSection: {
-    alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  avatarContainer: {
-    marginBottom: 16,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#6366F1',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  avatarText: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  emailHeader: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  roleBadgeHeader: {
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  roleBadgeHeaderText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6366F1',
-    textTransform: 'capitalize',
-  },
-  settingsSection: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 8,
-    marginStart: 4,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  settingsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  settingsRowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginEnd: 12,
-  },
-  settingsLabel: {
-    fontSize: 15,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  settingsValue: {
-    fontSize: 14,
-    color: '#6B7280',
-    flexShrink: 1,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-    marginStart: 60,
-  },
-  roleBadge: {
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  roleBadgeText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6366F1',
-    textTransform: 'capitalize',
-  },
-  langToggle: {
-    flexDirection: 'row',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    padding: 2,
-  },
-  langOption: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  langOptionActive: {
-    backgroundColor: '#6366F1',
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  langOptionText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  langOptionTextActive: {
-    color: '#FFFFFF',
-  },
-  spacer: {
-    flex: 1,
-  },
-  logoutContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    backgroundColor: '#FEE2E2',
-    borderRadius: 12,
-    minHeight: 48,
-  },
-  logoutIcon: {
-    marginEnd: 8,
-  },
-  logoutText: {
-    fontSize: 16,
-    color: '#DC2626',
-    fontWeight: '600',
-  },
-});

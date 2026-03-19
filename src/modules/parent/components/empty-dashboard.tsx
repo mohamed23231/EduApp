@@ -1,7 +1,7 @@
+import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Button, Text } from '@/components/ui';
-import { Color } from '@/components/ui/color-utils';
 
 type EmptyDashboardProps = {
   onLinkStudent: () => void;
@@ -11,17 +11,22 @@ export function EmptyDashboard({ onLinkStudent }: EmptyDashboardProps) {
   const { t } = useTranslation();
 
   return (
-    <View style={styles.container}>
-      {/* Illustration placeholder */}
-      <View style={styles.illustrationCircle}>
-        <Text style={styles.emoji}>🎓</Text>
+    <View className="flex-1 items-center justify-center px-8">
+      <View className="mb-6 items-center">
+        <LottieView
+          source={require('@assets/lottie/education-welcome.json')}
+          autoPlay
+          loop
+          renderMode={Platform.OS === 'android' ? 'HARDWARE' : 'AUTOMATIC'}
+          style={{ width: 200, height: 160 }}
+        />
       </View>
 
-      <Text style={styles.title}>
+      <Text className="mb-2 text-center text-[22px] font-bold text-gray-900">
         {t('parent.dashboard.emptyTitle')}
       </Text>
 
-      <Text style={styles.message}>
+      <Text className="mb-8 text-center text-[15px]/6 text-gray-500">
         {t('parent.dashboard.emptyMessage')}
       </Text>
 
@@ -29,42 +34,8 @@ export function EmptyDashboard({ onLinkStudent }: EmptyDashboardProps) {
         label={t('parent.dashboard.linkStudentCta')}
         onPress={onLinkStudent}
         testID="link-student-cta"
+        className="h-[52px] rounded-xl"
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-  },
-  illustrationCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Color.blue(50),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  emoji: {
-    fontSize: 36,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Color.text.primary(),
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: 14,
-    color: Color.text.secondary(),
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 20,
-  },
-});

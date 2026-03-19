@@ -10,7 +10,8 @@ import LottieView from 'lottie-react-native';
 import * as React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Platform, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, Text, View } from 'react-native';
+import { useSelectedLanguage } from '@/lib/i18n';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
@@ -33,7 +34,9 @@ export function LoginScreen() {
     mode?: string | string[];
     phone?: string | string[];
   }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { language, setLanguage } = useSelectedLanguage();
+  const isRTL = i18n.language === 'ar' || language === 'ar';
   const signIn = useAuthStore.use.signIn();
   const status = useAuthStore.use.status();
   const user = useAuthStore.use.user();
@@ -313,6 +316,16 @@ export function LoginScreen() {
   return (
     <AuthLayout testID="login-screen">
       <StatusBar style="dark" translucent />
+
+      {/* Language switcher — top right */}
+      <Pressable
+        onPress={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+        className="mt-1 flex-row items-center self-end rounded-full bg-gray-100 px-3 py-1.5"
+      >
+        <Text className="text-xs font-semibold text-gray-700">
+          {isRTL ? 'EN' : 'عربي'}
+        </Text>
+      </Pressable>
 
       {/* Lottie hero */}
       <View className="mt-4 items-center">

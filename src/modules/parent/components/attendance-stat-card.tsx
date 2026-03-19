@@ -1,7 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { Text } from '@/components/ui';
-import { Color } from '@/components/ui/color-utils';
+
+const STATUS_COLORS = {
+  present: '#22C55E',
+  absent: '#EF4444',
+  excused: '#F59E0B',
+};
 
 type StatItemProps = {
   color: string;
@@ -11,12 +16,12 @@ type StatItemProps = {
 
 function StatItem({ color, label, count }: StatItemProps) {
   return (
-    <View style={styles.statItem}>
-      <View style={styles.statLabelRow}>
-        <View style={[styles.dot, { backgroundColor: color }]} />
-        <Text style={styles.statLabel}>{label}</Text>
+    <View className="flex-1 items-center">
+      <View className="mb-1 flex-row items-center">
+        <View className="me-1 size-2 rounded-full" style={{ backgroundColor: color }} />
+        <Text className="text-xs text-gray-500">{label}</Text>
       </View>
-      <Text style={styles.statCount}>{count}</Text>
+      <Text className="text-xl font-bold text-gray-900">{count}</Text>
     </View>
   );
 }
@@ -31,42 +36,10 @@ export function AttendanceStatCard({ present, absent, excused }: AttendanceStatC
   const { t } = useTranslation();
 
   return (
-    <View style={styles.container}>
-      <StatItem color={Color.status.present()} label={t('parent.attendance.statusPresent')} count={present} />
-      <StatItem color={Color.status.absent()} label={t('parent.attendance.statusAbsent')} count={absent} />
-      <StatItem color={Color.status.excused()} label={t('parent.attendance.statusExcused')} count={excused} />
+    <View className="flex-row px-2 py-4">
+      <StatItem color={STATUS_COLORS.present} label={t('parent.attendance.statusPresent')} count={present} />
+      <StatItem color={STATUS_COLORS.absent} label={t('parent.attendance.statusAbsent')} count={absent} />
+      <StatItem color={STATUS_COLORS.excused} label={t('parent.attendance.statusExcused')} count={excused} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginEnd: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: Color.text.secondary(),
-  },
-  statCount: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Color.text.primary(),
-  },
-});

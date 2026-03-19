@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type AuthLayoutProps = PropsWithChildren<{
@@ -8,13 +8,14 @@ type AuthLayoutProps = PropsWithChildren<{
 
 export function AuthLayout({ children, testID }: AuthLayoutProps) {
   return (
-    <SafeAreaView className="flex-1 bg-white" testID={testID}>
+    <SafeAreaView style={layoutStyles.flex} className="bg-white" testID={testID}>
       <KeyboardAvoidingView
-        className="flex-1"
+        style={layoutStyles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          className="flex-1 px-4 pt-2"
+          style={layoutStyles.flex}
+          contentContainerStyle={layoutStyles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -24,3 +25,8 @@ export function AuthLayout({ children, testID }: AuthLayoutProps) {
     </SafeAreaView>
   );
 }
+
+const layoutStyles = StyleSheet.create({
+  flex: { flex: 1 },
+  scrollContent: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 8 },
+});

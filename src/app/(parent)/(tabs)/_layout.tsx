@@ -17,7 +17,7 @@ export default function ParentTabsLayout() {
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: '#6366F1',
+        tabBarActiveTintColor: '#3478F6',
         tabBarInactiveTintColor: '#9CA3AF',
       }}
     >
@@ -27,8 +27,8 @@ export default function ParentTabsLayout() {
           title: t('parent.tabs.dashboard'),
           tabBarAccessibilityLabel: t('parent.tabs.dashboard'),
           tabBarButtonTestID: 'parent-tab-dashboard',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
           ),
         }}
       />
@@ -38,8 +38,8 @@ export default function ParentTabsLayout() {
           title: t('parent.tabs.profile'),
           tabBarAccessibilityLabel: t('parent.tabs.profile'),
           tabBarButtonTestID: 'parent-tab-profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
           ),
         }}
       />

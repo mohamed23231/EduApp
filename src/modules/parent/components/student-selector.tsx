@@ -1,6 +1,6 @@
 import type { Student } from '@/modules/parent/types';
 import { useRef } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { StudentAvatar } from './student-avatar';
 
@@ -28,11 +28,11 @@ export function StudentSelector({ students, selectedId, onSelect }: StudentSelec
       data={students}
       keyExtractor={item => item.id}
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerClassName="px-4 py-3"
       onLayout={handleLayout}
       onScrollToIndexFailed={() => { }}
       renderItem={({ item }) => (
-        <View style={styles.itemContainer}>
+        <View className="me-4 items-center p-1">
           <StudentAvatar
             name={item.fullName}
             size="md"
@@ -40,7 +40,7 @@ export function StudentSelector({ students, selectedId, onSelect }: StudentSelec
             onPress={() => onSelect(item.id)}
           />
           {item.gradeLevel && (
-            <Text style={styles.gradeLabel}>
+            <Text className="mt-1 text-[11px] text-gray-500">
               {item.gradeLevel}
             </Text>
           )}
@@ -49,20 +49,3 @@ export function StudentSelector({ students, selectedId, onSelect }: StudentSelec
     />
   );
 }
-
-const styles = StyleSheet.create({
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  itemContainer: {
-    alignItems: 'center',
-    marginEnd: 16,
-    padding: 4,
-  },
-  gradeLabel: {
-    fontSize: 11,
-    color: '#6B7280',
-    marginTop: 4,
-  },
-});

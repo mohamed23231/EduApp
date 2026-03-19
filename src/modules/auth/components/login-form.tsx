@@ -114,24 +114,7 @@ export function LoginForm({
   const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
 
   return (
-    <View className="flex-1 bg-white">
-      {/* Language Switcher */}
-      <Pressable
-        onPress={toggleLanguage}
-        className="mb-4 flex-row items-center self-end rounded-full bg-gray-100 px-3 py-1.5"
-      >
-        <Text className="text-xs font-semibold text-gray-700">
-          {isRTL ? 'EN' : 'عربي'}
-        </Text>
-      </Pressable>
-
-      <Text className="text-center text-2xl font-extrabold text-gray-900">
-        {t('auth.login.title')}
-      </Text>
-      <Text className="mt-2 mb-5 text-center text-sm text-gray-500">
-        {t('auth.login.subtitle')}
-      </Text>
-
+    <View>
       {/* Email / Phone tab toggle */}
       <SegmentedControl
         segments={[t('auth.login.emailTab'), t('auth.login.phoneTab')]}

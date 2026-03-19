@@ -4,6 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, SectionList, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
 import { useAttendance, useAttendanceStats, useStudentDetails } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
@@ -16,13 +17,20 @@ type StatusConfig = {
   hex: string;
 };
 
-function getStatusConfig(status: AttendanceRecord['status'], t: ReturnType<typeof useTranslation>['t']): StatusConfig {
+function getStatusConfig(
+  status: AttendanceRecord['status'],
+  t: ReturnType<typeof useTranslation>['t'],
+): StatusConfig {
   switch (status) {
-    case 'PRESENT': return { bg: 'bg-green-100', text: 'text-green-700', label: t('parent.attendance.statusPresent', 'Present'), dot: 'bg-green-500', hex: '#22C55E' };
-    case 'ABSENT': return { bg: 'bg-red-100', text: 'text-red-700', label: t('parent.attendance.statusAbsent', 'Absent'), dot: 'bg-red-500', hex: '#EF4444' };
-    case 'EXCUSED': return { bg: 'bg-orange-100', text: 'text-orange-700', label: t('parent.attendance.statusExcused', 'Excused'), dot: 'bg-orange-500', hex: '#F59E0B' };
+    case 'PRESENT':
+      return { bg: 'bg-green-100', text: 'text-green-700', label: t('parent.attendance.statusPresent', 'Present'), dot: 'bg-green-500', hex: '#22C55E' };
+    case 'ABSENT':
+      return { bg: 'bg-red-100', text: 'text-red-700', label: t('parent.attendance.statusAbsent', 'Absent'), dot: 'bg-red-500', hex: '#EF4444' };
+    case 'EXCUSED':
+      return { bg: 'bg-orange-100', text: 'text-orange-700', label: t('parent.attendance.statusExcused', 'Excused'), dot: 'bg-orange-500', hex: '#F59E0B' };
     case 'NOT_MARKED':
-    default: return { bg: 'bg-gray-100', text: 'text-gray-700', label: t('parent.attendance.statusNotMarked', 'Not Marked'), dot: 'bg-gray-500', hex: '#9CA3AF' };
+    default:
+      return { bg: 'bg-gray-100', text: 'text-gray-700', label: t('parent.attendance.statusNotMarked', 'Not Marked'), dot: 'bg-gray-500', hex: '#9CA3AF' };
   }
 }
 
@@ -38,34 +46,33 @@ function AttendanceHeader({ student, stats, isRTL, t }: AttendanceHeaderProps) {
     return null;
 
   return (
-    <View className="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <Text className="mb-4 text-xl font-bold text-gray-900" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+    <View className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
+      <Text
+        className="mb-4 text-xl font-bold text-gray-900"
+        style={{ textAlign: isRTL ? 'right' : 'left' }}
+      >
         {student?.fullName || t('parent.attendance.studentName', 'Student')}
       </Text>
 
       {stats && (
-        <View className={`items-center justify-start ${isRTL ? 'flex-row-reverse' : 'flex-row'} -mx-2 flex-wrap`}>
-          <View className="mb-2 px-2">
-            <View className="items-center rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
-              <Text className="text-2xl font-bold text-indigo-600">
-                {Math.round(stats.attendanceRate)}
-                %
-              </Text>
-              <Text className="mt-1 text-xs font-medium tracking-wide text-indigo-800 uppercase">
-                {t('parent.attendance.rate', 'Present')}
-              </Text>
-            </View>
+        <View className={`${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-3`}>
+          <View className="flex-1 items-center rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
+            <Text className="text-2xl font-bold text-blue-600">
+              {Math.round(stats.attendanceRate)}
+              %
+            </Text>
+            <Text className="mt-1 text-xs font-medium tracking-wide text-blue-800 uppercase">
+              {t('parent.attendance.rate', 'Attendance Rate')}
+            </Text>
           </View>
 
-          <View className="mb-2 px-2">
-            <View className="items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3">
-              <Text className="text-2xl font-bold text-red-600">
-                {stats.absent}
-              </Text>
-              <Text className="mt-1 text-xs font-medium tracking-wide text-red-800 uppercase">
-                {t('parent.attendance.absentCount', 'Absent')}
-              </Text>
-            </View>
+          <View className="flex-1 items-center rounded-xl border border-red-100 bg-red-50 px-4 py-3">
+            <Text className="text-2xl font-bold text-red-600">
+              {stats.absent}
+            </Text>
+            <Text className="mt-1 text-xs font-medium tracking-wide text-red-800 uppercase">
+              {t('parent.attendance.absentCount', 'Absent')}
+            </Text>
           </View>
         </View>
       )}
@@ -95,21 +102,23 @@ function AttendanceEmptyView({ t }: AttendanceEmptyViewProps) {
 
 function AttendanceLoadingView() {
   return (
-    <View className="flex-1 bg-[#F9FAFB] px-4 py-6" testID="loading-indicator">
-      <View className="mb-6 h-32 justify-center rounded-2xl border border-gray-100 bg-white px-6 shadow-sm">
+    <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-white">
+    <View className="flex-1 px-4 py-6" testID="loading-indicator">
+      <View className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
         <View className="mb-4 h-6 w-1/2 rounded-sm bg-gray-200" />
-        <View className="flex-row items-center space-x-4">
-          <View className="h-8 w-1/3 rounded-sm bg-gray-200" />
-          <View className="ml-4 h-8 w-1/3 rounded-sm bg-gray-200" />
+        <View className="flex-row gap-3">
+          <View className="h-16 flex-1 rounded-xl bg-gray-200" />
+          <View className="h-16 flex-1 rounded-xl bg-gray-200" />
         </View>
       </View>
       {[1, 2, 3].map(i => (
-        <View key={i} className="mb-4 rounded-2xl border border-gray-100 bg-white p-4">
+        <View key={i} className="mb-3 rounded-xl border border-gray-200 bg-white p-4">
           <View className="mb-2 h-5 w-3/4 rounded-sm bg-gray-200" />
           <View className="h-4 w-1/2 rounded-sm bg-gray-200" />
         </View>
       ))}
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -122,7 +131,8 @@ type AttendanceErrorViewProps = {
 function AttendanceErrorView({ error, onRetry, t }: AttendanceErrorViewProps) {
   const errorMessage = extractErrorMessage(error, t);
   return (
-    <View className="flex-1 items-center justify-center bg-[#F9FAFB] px-6">
+    <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-white">
+    <View className="flex-1 items-center justify-center px-6">
       <View className="mb-4 size-16 items-center justify-center rounded-full bg-red-100">
         <Ionicons name="alert" size={32} color="#EF4444" />
       </View>
@@ -134,6 +144,7 @@ function AttendanceErrorView({ error, onRetry, t }: AttendanceErrorViewProps) {
       </Text>
       <Button label={t('parent.common.retry')} onPress={onRetry} />
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -149,35 +160,32 @@ function AttendanceRecordItem({ item, isRTL, t }: AttendanceRecordItemProps) {
 
   return (
     <View
-      className="mb-3 rounded-2xl bg-white p-4 shadow-sm"
+      className="mb-3 rounded-xl border border-gray-200 bg-white p-4"
       style={{
         flexDirection: isRTL ? 'row-reverse' : 'row',
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
-        borderTopColor: '#F3F4F6',
-        borderBottomColor: '#F3F4F6',
-        borderLeftWidth: isRTL ? 1 : 4,
-        borderRightWidth: isRTL ? 4 : 1,
-        borderLeftColor: isRTL ? '#F3F4F6' : config.hex,
-        borderRightColor: isRTL ? config.hex : '#F3F4F6',
+        borderStartWidth: 4,
+        borderStartColor: config.hex,
       }}
     >
       <View className="flex-1">
-        <Text className="mb-1 text-base font-semibold text-gray-900" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+        <Text
+          className="mb-1 text-base font-semibold text-gray-900"
+          style={{ textAlign: isRTL ? 'right' : 'left' }}
+        >
           {item.sessionName}
         </Text>
 
-        <View className={`${isRTL ? 'flex-row-reverse' : 'flex-row'} mb-2 items-center`}>
+        <View className={`${isRTL ? 'flex-row-reverse' : 'flex-row'} items-center gap-1`}>
           <Ionicons name="time-outline" size={14} color="#6B7280" />
-          <Text className={`text-xs text-gray-500 ${isRTL ? 'mr-1' : 'ml-1'}`}>
+          <Text className="text-xs text-gray-500">
             {item.sessionDate}
           </Text>
 
           {teacherName && (
             <>
-              <Text className="mx-2 text-gray-300">•</Text>
+              <Text className="mx-1 text-gray-300">|</Text>
               <Ionicons name="person-outline" size={14} color="#6B7280" />
-              <Text className={`text-xs text-gray-500 ${isRTL ? 'mr-1' : 'ml-1'}`}>
+              <Text className="text-xs text-gray-500">
                 {teacherName}
               </Text>
             </>
@@ -185,9 +193,12 @@ function AttendanceRecordItem({ item, isRTL, t }: AttendanceRecordItemProps) {
         </View>
       </View>
 
-      <View className={`${isRTL ? 'mr-3' : 'ml-3'} justify-start`}>
+      <View className="justify-start" style={{ marginStart: 12 }}>
         <View className={`${config.bg} flex-row items-center rounded-full px-2.5 py-1`}>
-          <View className={`size-1.5 rounded-full ${config.dot} ${isRTL ? 'ml-1.5' : 'mr-1.5'}`} />
+          <View
+            className={`size-1.5 rounded-full ${config.dot}`}
+            style={{ marginEnd: 6 }}
+          />
           <Text className={`text-xs font-bold ${config.text}`}>
             {config.label}
           </Text>
@@ -241,7 +252,7 @@ export function StudentAttendanceScreen() {
 
   if (!studentId) {
     return (
-      <View className="flex-1 items-center justify-center px-4">
+      <View className="flex-1 items-center justify-center bg-white px-4">
         <Text className="text-center text-base font-semibold text-red-600">
           {t('parent.common.genericError')}
         </Text>
@@ -258,7 +269,7 @@ export function StudentAttendanceScreen() {
   }
 
   return (
-    <View className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView edges={['top']} style={{ flex: 1 }} className="bg-white">
       <SectionList
         sections={groupedRecords}
         keyExtractor={(item, index) => `${item.sessionDate}-${index}`}
@@ -268,12 +279,15 @@ export function StudentAttendanceScreen() {
         ListHeaderComponent={<AttendanceHeader student={student} stats={stats} isRTL={isRTL} t={t} />}
         ListEmptyComponent={<AttendanceEmptyView t={t} />}
         renderSectionHeader={({ section: { title } }) => (
-          <Text className="mt-2 mb-3 text-sm font-bold tracking-wide text-gray-900" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+          <Text
+            className="mt-4 mb-3 text-sm font-bold tracking-wide text-gray-500 uppercase"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}
+          >
             {title}
           </Text>
         )}
         renderItem={({ item }) => <AttendanceRecordItem item={item} isRTL={isRTL} t={t} />}
       />
-    </View>
+    </SafeAreaView>
   );
 }

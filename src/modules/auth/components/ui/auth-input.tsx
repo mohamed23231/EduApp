@@ -1,6 +1,7 @@
 import type { TextInputProps } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 type AuthInputProps = TextInputProps & {
@@ -10,6 +11,8 @@ type AuthInputProps = TextInputProps & {
 };
 
 export function AuthInput({ label, error, isPassword, ...inputProps }: AuthInputProps) {
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [focused, setFocused] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -21,7 +24,7 @@ export function AuthInput({ label, error, isPassword, ...inputProps }: AuthInput
 
   return (
     <View className="gap-1.5">
-      <Text className="ms-1 text-xs font-medium text-gray-500">{label}</Text>
+      <Text className="ms-1 text-xs font-medium text-gray-500" style={{ textAlign: isRTL ? 'right' : 'left' }}>{label}</Text>
       <View
         className={`h-[52px] flex-row items-center rounded-lg border ${borderClass} bg-white px-4`}
       >
@@ -29,6 +32,7 @@ export function AuthInput({ label, error, isPassword, ...inputProps }: AuthInput
           className="flex-1 text-[15px] text-gray-900"
           placeholderTextColor="#9CA3AF"
           secureTextEntry={isPassword && !visible}
+          textAlign={isRTL ? 'right' : 'left'}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           {...inputProps}
@@ -49,7 +53,7 @@ export function AuthInput({ label, error, isPassword, ...inputProps }: AuthInput
       </View>
       {error
         ? (
-            <Text className="ms-1 text-xs text-red-500">{error}</Text>
+            <Text className="ms-1 text-xs text-red-500" style={{ textAlign: isRTL ? 'right' : 'left' }}>{error}</Text>
           )
         : null}
     </View>

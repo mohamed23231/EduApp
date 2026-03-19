@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui';
-import { Color } from '@/components/ui/color-utils';
 
 type NotificationBellProps = {
   unreadCount: number;
@@ -14,42 +13,22 @@ export function NotificationBell({ unreadCount, onPress }: NotificationBellProps
     : 'Notifications';
 
   return (
-    <TouchableOpacity
-      style={styles.button}
+    <Pressable
+      className="relative p-2.5"
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       testID="notification-bell"
     >
-      <Ionicons name="notifications" size={24} color={Color.blue(500)} />
+      <Ionicons name="notifications" size={24} color="#3478F6" />
       {unreadCount > 0 && (
-        <View style={styles.badge} testID="notification-badge">
-          <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+        <View
+          className="absolute end-0 top-0 h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500"
+          testID="notification-badge"
+        >
+          <Text className="text-xs font-semibold text-white">{unreadCount > 99 ? '99+' : unreadCount}</Text>
         </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    padding: 10,
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: 0,
-    end: 0,
-    backgroundColor: Color.danger(500),
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: Color.white(),
-    fontSize: 12,
-    fontWeight: '600',
-  },
-});
