@@ -132,15 +132,41 @@ global.window = {};
 global.window = global;
 
 // Mock i18next
-jest.mock('i18next', () => ({
-  use: jest.fn(function () { return this; }),
-  init: jest.fn(function () { return this; }),
-  t: jest.fn((key: string) => key),
-  language: 'en',
-  languages: ['en', 'ar'],
-  changeLanguage: jest.fn(),
-  dir: jest.fn(() => 'ltr'),
-}));
+jest.mock('i18next', () => {
+  const i18nMock: any = {
+    t: jest.fn((key: string) => key),
+    language: 'en',
+    languages: ['en', 'ar'],
+    changeLanguage: jest.fn(),
+    dir: jest.fn(() => 'ltr'),
+    on: jest.fn(),
+    off: jest.fn(),
+  };
+  i18nMock.use = jest.fn(() => i18nMock);
+  i18nMock.init = jest.fn(() => i18nMock);
+  return {
+    __esModule: true,
+    default: i18nMock,
+    ...i18nMock,
+  };
+});
+
+// Mock react-native-safe-area-context — provide stub insets/frame so primitives
+// that read useSafeAreaInsets() / useSafeAreaFrame() (e.g. Sheet, ConfirmSheet,
+// TopBar) render in tests without a real SafeAreaProvider wrapper.
+jest.mock('react-native-safe-area-context', () => {
+  const RN = require('react-native');
+  const insets = { top: 0, right: 0, bottom: 0, left: 0 };
+  const frame = { x: 0, y: 0, width: 390, height: 844 };
+  return {
+    SafeAreaProvider: ({ children }: { children: React.ReactNode }) => children,
+    SafeAreaView: RN.View,
+    SafeAreaInsetsContext: { Consumer: ({ children }: { children: (i: typeof insets) => React.ReactNode }) => children(insets) },
+    useSafeAreaInsets: () => insets,
+    useSafeAreaFrame: () => frame,
+    initialWindowMetrics: { insets, frame },
+  };
+});
 
 // Mock react-i18next
 jest.mock('react-i18next', () => ({

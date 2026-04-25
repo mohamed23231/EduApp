@@ -220,6 +220,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               'node_modules/@expo-google-fonts/inter/500Medium/Inter_500Medium.ttf',
               'node_modules/@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf',
               'node_modules/@expo-google-fonts/inter/700Bold/Inter_700Bold.ttf',
+              'assets/fonts/GeistVariable.ttf',
+              'assets/fonts/Geist-Bold.ttf',
+              'assets/fonts/Rubik-Regular.ttf',
+              'assets/fonts/Rubik-Medium.ttf',
+              'assets/fonts/Rubik-Bold.ttf',
             ],
           },
           android: {
@@ -243,6 +248,21 @@ export default ({ config }: ConfigContext): ExpoConfig => {
                     path: 'node_modules/@expo-google-fonts/inter/700Bold/Inter_700Bold.ttf',
                     weight: 700,
                   },
+                ],
+              },
+              {
+                fontFamily: 'Geist',
+                fontDefinitions: [
+                  { path: 'assets/fonts/GeistVariable.ttf', weight: 400 },
+                  { path: 'assets/fonts/Geist-Bold.ttf', weight: 700 },
+                ],
+              },
+              {
+                fontFamily: 'Rubik',
+                fontDefinitions: [
+                  { path: 'assets/fonts/Rubik-Regular.ttf', weight: 400 },
+                  { path: 'assets/fonts/Rubik-Medium.ttf', weight: 500 },
+                  { path: 'assets/fonts/Rubik-Bold.ttf', weight: 700 },
                 ],
               },
             ],

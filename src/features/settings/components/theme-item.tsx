@@ -1,23 +1,23 @@
 import type { OptionType } from '@/components/ui';
 
-import type { ColorSchemeType } from '@/lib/hooks/use-selected-theme';
+import type { ThemeMode } from '@/components/ui/theme';
 import * as React from 'react';
 import { Options, useModal } from '@/components/ui';
-import { useSelectedTheme } from '@/lib/hooks/use-selected-theme';
+import { useTheme } from '@/components/ui/theme';
 import { translate } from '@/lib/i18n';
 
 import { SettingsItem } from './settings-item';
 
 export function ThemeItem() {
-  const { selectedTheme, setSelectedTheme } = useSelectedTheme();
+  const { mode, setMode } = useTheme();
   const modal = useModal();
 
   const onSelect = React.useCallback(
     (option: OptionType) => {
-      setSelectedTheme(option.value as ColorSchemeType);
+      setMode(option.value as ThemeMode);
       modal.dismiss();
     },
-    [setSelectedTheme, modal],
+    [setMode, modal],
   );
 
   const themes = React.useMemo(
@@ -30,8 +30,8 @@ export function ThemeItem() {
   );
 
   const theme = React.useMemo(
-    () => themes.find(t => t.value === selectedTheme),
-    [selectedTheme, themes],
+    () => themes.find(t => t.value === mode),
+    [mode, themes],
   );
 
   return (

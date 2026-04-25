@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -84,7 +85,7 @@ export function OrgSetupScreen() {
         className="flex-1"
       >
         <ScrollView contentContainerClassName="px-6 py-8">
-          <View className="rounded-[32px] bg-[#2563EB] p-6">
+          <View className="rounded-r5 bg-[#2563EB] p-6">
             <Text className="font-inter text-3xl font-semibold text-[#FFFFFF]">
               {heroLines[0]}
             </Text>

@@ -108,7 +108,7 @@ export function ReportsScreen() {
             [t('manager.reports.cards.absentCount', { defaultValue: 'Absent' }), overview.data?.absentCount ?? 0],
             [t('manager.reports.cards.excusedCount', { defaultValue: 'Excused' }), overview.data?.excusedCount ?? 0],
           ].map(([label, value]) => (
-            <View key={String(label)} className="min-w-[47%] flex-1 rounded-[24px] bg-white p-4">
+            <View key={String(label)} className="min-w-[47%] flex-1 rounded-r4 bg-white p-4">
               <Text className="font-inter text-sm text-slate-500">{label}</Text>
               <Text className="font-inter mt-2 text-3xl font-semibold text-slate-900">{value}</Text>
             </View>

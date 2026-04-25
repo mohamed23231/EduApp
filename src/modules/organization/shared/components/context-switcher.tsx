@@ -37,7 +37,7 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 bg-black/40" onPress={onClose} />
-      <View className="rounded-t-[32px] bg-white px-6 pt-5 pb-10">
+      <View className="rounded-t-r5 bg-white px-6 pt-5 pb-10">
         <View className="mb-1 items-center">
           <View className="h-1 w-12 rounded-full bg-slate-200" />
         </View>

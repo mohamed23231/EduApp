@@ -54,7 +54,7 @@ export function OrgInvitationScreen({ token, invitation, onAccepted, onDeclined 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAFB]">
       <View className="flex-1 px-6 py-8">
-        <View className="rounded-[32px] bg-[#2563EB] p-6">
+        <View className="rounded-r5 bg-[#2563EB] p-6">
           <Text className="font-inter text-sm tracking-[1.6px] text-[#BFDBFE] uppercase">
             {t('orgInvitation.badge')}
           </Text>

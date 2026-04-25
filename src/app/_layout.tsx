@@ -11,6 +11,9 @@ import { Platform, StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import colors from '@/components/ui/colors';
+import { ThemeProvider as AppThemeProvider, useTheme } from '@/components/ui/theme';
+import { ToastHost } from '@/components/ui/toast-host';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
@@ -22,7 +25,6 @@ import {
   signIn,
 } from '@/features/auth/use-auth-store';
 import { APIProvider } from '@/lib/api';
-import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
 import { setItem } from '@/lib/storage';
 import { getOnboardingContext, validateToken } from '@/modules/auth/services';
 import '@/lib/i18n';
@@ -220,7 +222,7 @@ function useGlobalNotificationPresentation() {
           name: 'Default',
           importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#2563EB',
+          lightColor: colors.brand.blue,
           sound: 'default',
         });
       }
@@ -246,7 +248,6 @@ export default function RootLayout() {
       });
 
       try {
-        loadSelectedTheme();
         hydrateAuth();
       }
       catch {
@@ -290,19 +291,51 @@ function Providers({
   children: React.ReactNode;
   onLayout?: () => void;
 }) {
-  const theme = useThemeConfig();
+  return (
+    <AppThemeProvider>
+      <ThemedRoot onLayout={onLayout}>{children}</ThemedRoot>
+    </AppThemeProvider>
+  );
+}
+
+// ThemedRoot consumes useTheme() (only reachable below <AppThemeProvider>) and
+// writes `data-theme` / `data-locale` onto the root view via React Native's
+// dataSet API. CSS attribute selectors in `global.css` (`[data-locale="ar"]`)
+// match these attributes through uniwind / react-native-css-interop.
+function ThemedRoot({
+  children,
+  onLayout,
+}: {
+  children: React.ReactNode;
+  onLayout?: () => void;
+}) {
+  const navTheme = useThemeConfig();
+  const { resolvedMode, locale } = useTheme();
+
+  // GestureHandlerRootView's ambient typing does not declare `dataSet`, but the
+  // underlying View accepts it. Spread via an `unknown` cast to keep the type
+  // boundary explicit. CSS attribute selectors `[data-theme="..."]` and
+  // `[data-locale="..."]` in global.css read these attributes through uniwind /
+  // react-native-css-interop.
+  const rootDataSet = { dataSet: { theme: resolvedMode, locale } } as unknown as Record<string, unknown>;
+
   return (
     <GestureHandlerRootView
       onLayout={onLayout}
       style={styles.container}
       // eslint-disable-next-line better-tailwindcss/no-unknown-classes
-      className={theme.dark ? `dark` : undefined}
+      className={navTheme.dark ? `dark` : undefined}
+      {...rootDataSet}
     >
       <KeyboardProvider>
-        <ThemeProvider value={theme}>
+        <ThemeProvider value={navTheme}>
           <APIProvider>
             <BottomSheetModalProvider>
-              {children}
+              {/* Single root-owned ToastHost (T041 / US7). Screens dispatch
+                  via useToast(); never own local toast timers. */}
+              <ToastHost placement="top">
+                {children}
+              </ToastHost>
               <FlashMessage position="top" />
             </BottomSheetModalProvider>
           </APIProvider>

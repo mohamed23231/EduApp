@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import colors from '@/components/ui/colors';
 
 export default function ParentTabsLayout() {
   const { t } = useTranslation();
@@ -10,15 +11,15 @@ export default function ParentTabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.neutral.card,
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: colors.neutral.rule,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: '#6366F1',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: colors.brand.primary,
+        tabBarInactiveTintColor: colors.neutral.dim,
       }}
     >
       <Tabs.Screen

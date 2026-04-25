@@ -1,126 +1,114 @@
-/* Import Tailwind base styles */
 @import 'tailwindcss';
 @import 'uniwind';
 
-/* Define your theme in CSS (replaces tailwind.config.js) */
 @theme {
-  /* Font families */
-  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* ── Brand tokens ── */
+  --color-brand: #22C572;
+  --color-brand-deep: #0E8B4F;
+  --color-brand-blue: #2D7DE0;
+  --color-brand-blue-deep: #1B5BB8;
+  --color-brand-glow: rgba(34, 197, 114, 0.42);
+  --color-brand-ink: #FFFFFF;
+  /* NOTE: gradient tokens are NOT exposed via Tailwind --color-* (Tailwind 4
+     `bg-*` utilities don't accept linear-gradient() values). Render gradients
+     via <expo-linear-gradient> using the discrete colors above:
+       <LinearGradient colors={[colors.brand.blue, colors.brand.primary]}
+         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />. */
 
-  /* Base colors */
-  --color-white: #ffffff;
-  --color-black: #000000;
+  /* ── Neutral palette ── */
+  --color-ink: #0B0D10;
+  --color-ink-bg: #0B0D10;
+  --color-ink-elev: #14171C;
+  --color-paper: #F5F5F0;
+  --color-card: #FFFFFF;
+  --color-card-warm: #F5F2EA;
+  --color-rule: #E6E3DB;
+  --color-rule-dark: #23272E;
+  --color-ink-soft: #3A3F47;
+  --color-ink-muted: #5C636E;
+  --color-dim: #C7CBD3;
+  --color-white: #FFFFFF;
 
-  /* Charcoal palette */
-  --color-charcoal-50: #F2F2F2;
-  --color-charcoal-100: #E5E5E5;
-  --color-charcoal-200: #C9C9C9;
-  --color-charcoal-300: #B0B0B0;
-  --color-charcoal-400: #969696;
-  --color-charcoal-500: #7D7D7D;
-  --color-charcoal-600: #616161;
-  --color-charcoal-700: #474747;
-  --color-charcoal-800: #383838;
-  --color-charcoal-850: #2E2E2E;
-  --color-charcoal-900: #1E1E1E;
-  --color-charcoal-950: #121212;
+  /* ── Semantic palette ── */
+  --color-present: #00C2A0;
+  --color-present-soft: #CCF1E7;
+  --color-present-ink: #00493A;
+  --color-absent: #FF5B4A;
+  --color-absent-soft: #FFE1DD;
+  --color-absent-ink: #7A1C10;
+  --color-excused: #FFB020;
+  --color-excused-soft: #FFF0D5;
+  --color-excused-ink: #7A4E00;
+  --color-info: #3D7FFF;
+  --color-info-soft: #DCE8FF;
 
-  /* Neutral palette */
-  --color-neutral-50: #FAFAFA;
-  --color-neutral-100: #F5F5F5;
-  --color-neutral-200: #F0EFEE;
-  --color-neutral-300: #D4D4D4;
-  --color-neutral-400: #A3A3A3;
-  --color-neutral-500: #737373;
-  --color-neutral-600: #525252;
-  --color-neutral-700: #404040;
-  --color-neutral-800: #262626;
-  --color-neutral-900: #171717;
+  /* ── Radii scale ── */
+  --radius-r1: 8px;
+  --radius-r2: 12px;
+  --radius-r3: 18px;
+  --radius-r4: 24px;
+  --radius-r5: 32px;
 
-  /* Primary palette */
-  --color-primary-50: #FFE2CC;
-  --color-primary-100: #FFC499;
-  --color-primary-200: #FFA766;
-  --color-primary-300: #FF984C;
-  --color-primary-400: #FF8933;
-  --color-primary-500: #FF7B1A;
-  --color-primary-600: #FF6C00;
-  --color-primary-700: #E56100;
-  --color-primary-800: #CC5600;
-  --color-primary-900: #B24C00;
+  /* ── Typography ── */
+  --font-family-ui: 'Geist', 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+  --font-family-display: 'Geist', 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+  --font-family-arabic: 'Rubik', 'SF Arabic', system-ui, sans-serif;
 
-  /* Success palette */
-  --color-success-50: #F0FDF4;
-  --color-success-100: #DCFCE7;
-  --color-success-200: #BBF7D0;
-  --color-success-300: #86EFAC;
-  --color-success-400: #4ADE80;
-  --color-success-500: #22C55E;
-  --color-success-600: #16A34A;
-  --color-success-700: #15803D;
-  --color-success-800: #166534;
-  --color-success-900: #14532D;
+  /* ── Type scale ── */
+  --text-micro: 10px;
+  --text-caption: 11px;
+  --text-small: 12px;
+  --text-body: 13px;
+  --text-body-lg: 15px;
+  --text-title: 18px;
+  --text-headline: 22px;
+  --text-display: 30px;
+  --text-hero: 34px;
 
-  /* Warning palette */
-  --color-warning-50: #FFFBEB;
-  --color-warning-100: #FEF3C7;
-  --color-warning-200: #FDE68A;
-  --color-warning-300: #FCD34D;
-  --color-warning-400: #FBBF24;
-  --color-warning-500: #F59E0B;
-  --color-warning-600: #D97706;
-  --color-warning-700: #B45309;
-  --color-warning-800: #92400E;
-  --color-warning-900: #78350F;
-
-  /* Danger palette */
-  --color-danger-50: #FEF2F2;
-  --color-danger-100: #FEE2E2;
-  --color-danger-200: #FECACA;
-  --color-danger-300: #FCA5A5;
-  --color-danger-400: #F87171;
-  --color-danger-500: #EF4444;
-  --color-danger-600: #DC2626;
-  --color-danger-700: #B91C1C;
-  --color-danger-800: #991B1B;
-  --color-danger-900: #7F1D1D;
-
-  /* Semantic colors - using primary for main brand color */
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
-
-  --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
-
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
-
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #FF6C00;
-
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #ffffff;
+  /* ── Z-index scale ── */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 20;
+  --z-navigation: 30;
+  --z-tabbar: 40;
+  --z-toast: 50;
+  --z-offline-banner: 100;
+  --z-sheet: 180;
+  --z-confirm-sheet: 200;
+  --z-modal: 300;
 }
 
-/* Dark mode colors */
+/* Locale-aware font-family switch (Plan Amendment 5) */
+/* NOTE(US1): This uses CSS attribute selectors. In React Native with uniwind/react-native-css-interop,
+   the ThemeProvider writes a data-locale attribute on the root view, causing --font-family-ui to
+   resolve to the Arabic font stack when locale is 'ar'. Verify during US1 integration. */
+[data-locale="ar"] {
+  --font-family-ui: var(--font-family-arabic);
+}
+
+/* TODO(US1/T020): white-label sibling-set mechanism is UNPROVEN.
+   Uniwind 1.2.4's runtime path activates the `@media (prefers-color-scheme: dark)`
+   block below via Appearance.setColorScheme(); it does NOT honor a `[data-theme="X"]`
+   root selector in React Native. The earlier `[data-theme="dark"]` block was therefore
+   dead code and was removed.
+   Before adding a third (e.g., white-label) sibling token-set in Phase 3, run a second
+   spike to confirm whether uniwind supports custom `data-theme` keys via config or
+   whether a different mechanism (build-time profiles, custom hook layered over
+   useCSSVariable, etc.) is required. See specs/002-ui-redesign/checklists/requirements.md. */
+
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-background: #0a0a0a;
-    --color-foreground: #fafafa;
-
-    --color-card: #171717;
-    --color-card-foreground: #fafafa;
-
-    --color-muted: #262626;
-    --color-muted-foreground: #a3a3a3;
-
-    --color-border: #404040;
-    --color-input: #404040;
+    --color-ink-bg: var(--color-ink);
+    --color-paper: var(--color-ink);
+    --color-card: var(--color-ink-elev);
+    --color-card-warm: #1A1D23;
+    --color-rule: var(--color-rule-dark);
+    --color-ink-soft: #9BA1AC;
+    --color-ink-muted: #8B919C;
+    --color-dim: #6B7280;
   }
 }
 
-/* Custom utilities (if needed) */
 @layer utilities {
   .text-balance {
     text-wrap: balance;

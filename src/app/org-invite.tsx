@@ -14,7 +14,7 @@ export default function OrgInviteRoute() {
 
   if (!resolvedToken) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-[#f5f1e8]">
+      <SafeAreaView className="flex-1 items-center justify-center bg-paper">
         <View className="px-6">
           <Text className="font-inter text-center text-base text-slate-500">
             {t('orgInvitation.invalidToken')}

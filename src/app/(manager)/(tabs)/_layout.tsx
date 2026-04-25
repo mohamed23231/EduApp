@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import colors from '@/components/ui/colors';
 
 export default function ManagerTabsLayout() {
   const { t } = useTranslation();
@@ -9,8 +10,8 @@ export default function ManagerTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#3B82F6',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: colors.brand.primary,
+        tabBarInactiveTintColor: colors.neutral.dim,
       }}
     >
       <Tabs.Screen

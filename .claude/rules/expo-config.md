@@ -24,8 +24,9 @@ globs:
 ## Config plugin pattern
 
 ```ts
+import type { ConfigPlugin } from '@expo/config-plugins';
 // plugins/withCustomManifestEntry.ts
-import { withAndroidManifest, ConfigPlugin } from '@expo/config-plugins';
+import { withAndroidManifest } from '@expo/config-plugins';
 
 export const withCustomManifestEntry: ConfigPlugin = (config) => {
   return withAndroidManifest(config, (cfg) => {
