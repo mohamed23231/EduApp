@@ -1,6 +1,9 @@
 import type { ConfigContext, ExpoConfig } from '@expo/config';
-
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
+
+import { existsSync, readFileSync } from 'node:fs';
+
+import { join } from 'node:path';
 
 import 'tsx/cjs';
 
@@ -9,7 +12,7 @@ import 'tsx/cjs';
 import Env from './env';
 
 const EXPO_ACCOUNT_OWNER = process.env.EXPO_ACCOUNT_OWNER;
-const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID;
+const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID || 'a78173db-7bed-463b-9616-9a3ff01e3dc2';
 
 const appIconBadgeConfig: AppIconBadgeConfig = {
   enabled: Env.EXPO_PUBLIC_APP_ENV !== 'production',
@@ -27,7 +30,97 @@ const appIconBadgeConfig: AppIconBadgeConfig = {
   ],
 };
 
+const associatedDomainHost = (() => {
+  if (!Env.EXPO_PUBLIC_ASSOCIATED_DOMAIN) {
+    return undefined;
+  }
+  try {
+    return new URL(Env.EXPO_PUBLIC_ASSOCIATED_DOMAIN).host;
+  }
+  catch {
+    return undefined;
+  }
+})();
+
+function deriveIosUrlScheme(iosClientId?: string): string | undefined {
+  if (!iosClientId) {
+    return undefined;
+  }
+
+  const suffix = '.apps.googleusercontent.com';
+  if (!iosClientId.endsWith(suffix)) {
+    return undefined;
+  }
+
+  const clientIdPrefix = iosClientId.slice(0, -suffix.length);
+  if (!clientIdPrefix) {
+    return undefined;
+  }
+
+  return `com.googleusercontent.apps.${clientIdPrefix}`;
+}
+
+const iosGoogleUrlScheme
+  = Env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME
+    ?? deriveIosUrlScheme(Env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
+
+const androidGoogleServicesPath = './google-services.json';
+const hasAndroidGoogleServicesFile = existsSync(
+  join(__dirname, androidGoogleServicesPath),
+);
+const androidGoogleServicesPackageNames = (() => {
+  if (!hasAndroidGoogleServicesFile) {
+    return new Set<string>();
+  }
+
+  try {
+    const googleServicesConfig = JSON.parse(
+      readFileSync(join(__dirname, androidGoogleServicesPath), 'utf8'),
+    ) as {
+      client?: Array<{
+        client_info?: {
+          android_client_info?: {
+            package_name?: string;
+          };
+        };
+      }>;
+    };
+
+    return new Set(
+      googleServicesConfig.client
+        ?.map(client => client.client_info?.android_client_info?.package_name)
+        .filter((packageName): packageName is string => Boolean(packageName)),
+    );
+  }
+  catch {
+    return new Set<string>();
+  }
+})();
+
+// eslint-disable-next-line max-lines-per-function
 export default ({ config }: ConfigContext): ExpoConfig => {
+  const googleSignInPlugin: [string, Record<string, string | undefined>] | null
+    = iosGoogleUrlScheme
+      ? [
+          '@react-native-google-signin/google-signin',
+          {
+            iosClientId: Env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+            androidClientId: Env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+            webClientId: Env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+            iosUrlScheme: iosGoogleUrlScheme,
+          },
+        ]
+      : null;
+  const hasMatchingAndroidGoogleServices = androidGoogleServicesPackageNames.has(
+    Env.EXPO_PUBLIC_PACKAGE,
+  );
+
+  if (hasAndroidGoogleServicesFile && !hasMatchingAndroidGoogleServices) {
+    console.warn(
+      `Skipping Android google-services.json for package "${Env.EXPO_PUBLIC_PACKAGE}" because no matching client was found.`,
+    );
+  }
+
   const appConfig: ExpoConfig = {
     ...config,
     name: Env.EXPO_PUBLIC_NAME,
@@ -37,10 +130,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: Env.EXPO_PUBLIC_VERSION.toString(),
     orientation: 'portrait',
     icon: './assets/icon.png',
-    userInterfaceStyle: 'automatic',
+    userInterfaceStyle: 'light',
     newArchEnabled: true,
     updates: {
+      url: 'https://u.expo.dev/a78173db-7bed-463b-9616-9a3ff01e3dc2',
       fallbackToCacheTimeout: 0,
+    },
+    runtimeVersion: {
+      policy: 'appVersion',
     },
     assetBundlePatterns: ['**/*'],
     ios: {
@@ -49,9 +146,21 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
       },
+      ...(associatedDomainHost
+        ? {
+            associatedDomains: [
+              `applinks:${associatedDomainHost}`,
+            ],
+          }
+        : {}),
     },
     experiments: {
       typedRoutes: true,
+    },
+    notification: {
+      icon: './assets/notification-icon.png',
+      color: '#6366F1',
+      androidMode: 'default',
     },
     android: {
       adaptiveIcon: {
@@ -59,6 +168,35 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: '#2E3C4B',
       },
       package: Env.EXPO_PUBLIC_PACKAGE,
+      ...(hasMatchingAndroidGoogleServices
+        ? { googleServicesFile: androidGoogleServicesPath }
+        : {}),
+      ...(associatedDomainHost
+        ? {
+            intentFilters: [
+              {
+                action: 'android.intent.action.VIEW',
+                autoVerify: true,
+                data: [
+                  {
+                    scheme: 'https',
+                    host: associatedDomainHost,
+                    pathPrefix: '/reset-password',
+                  },
+                  {
+                    scheme: 'https',
+                    host: associatedDomainHost,
+                    pathPrefix: '/org-invite',
+                  },
+                ],
+                category: [
+                  'android.intent.category.DEFAULT',
+                  'android.intent.category.BROWSABLE',
+                ],
+              },
+            ],
+          }
+        : {}),
     },
     web: {
       favicon: './assets/favicon.png',
@@ -112,9 +250,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
       ],
       'expo-localization',
+      'expo-notifications',
       'expo-router',
+      ...(googleSignInPlugin ? [googleSignInPlugin] : []),
       ['app-icon-badge', appIconBadgeConfig],
       ['react-native-edge-to-edge'],
+      './plugins/with-quoted-react-native-xcode-script',
+      './plugins/with-notification-sounds',
     ],
   };
 
@@ -122,14 +264,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     appConfig.owner = EXPO_ACCOUNT_OWNER;
   }
 
-  if (EAS_PROJECT_ID) {
-    appConfig.extra = {
-      ...appConfig.extra,
-      eas: {
-        projectId: EAS_PROJECT_ID,
-      },
-    };
-  }
+  appConfig.extra = {
+    ...appConfig.extra,
+    eas: {
+      projectId: EAS_PROJECT_ID,
+    },
+  };
 
   return appConfig;
 };

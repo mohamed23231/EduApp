@@ -8,7 +8,8 @@
       "@modules/*": ["./src/modules/*"],
       "@shared/*": ["./src/shared/*"],
       "@testing/*": ["./src/testing/*"],
-      "@env": ["env.ts"]
+      "@env": ["env.ts"],
+      "@assets/*": ["./assets/*"]
     },
     "checkJs": true,
     "strict": true,

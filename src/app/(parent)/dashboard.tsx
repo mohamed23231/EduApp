@@ -1,10 +1,7 @@
-import { Text, View } from '@/components/ui';
+import { Redirect } from 'expo-router';
+import { AppRoute } from '@/core/navigation/routes';
 
-export default function ParentDashboardPage() {
-  return (
-    <View className="flex-1 items-center justify-center">
-      <Text className="text-lg font-semibold">Parent Dashboard</Text>
-      <Text className="mt-2 text-sm">Scaffolded route for parent domain flows.</Text>
-    </View>
-  );
+// Backward-compatible route shim for older links still pointing to /(parent)/dashboard.
+export default function ParentDashboardLegacyRoute() {
+  return <Redirect href={AppRoute.parent.dashboard} />;
 }

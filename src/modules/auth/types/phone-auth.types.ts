@@ -1,0 +1,104 @@
+import type { UserRole } from '@/core/auth/roles';
+
+export type PhoneOtpPurpose = 'SIGNUP' | 'RESET_PASSWORD';
+
+export type PhoneOtpRequestParams = {
+  phone: string;
+  purpose: PhoneOtpPurpose;
+};
+
+export type PhoneSignupVerifyParams = {
+  phone: string;
+  otp: string;
+};
+
+export type PhoneSignupVerifyResponse = {
+  canContinue: boolean;
+  accountExists: boolean;
+  existingRole?: UserRole;
+};
+
+export type PhoneSignupParams = {
+  phone: string;
+  otp: string;
+  password: string;
+  role: UserRole;
+  fullName: string;
+  email?: string;
+};
+
+export type PhoneLoginParams = {
+  phone: string;
+  password: string;
+};
+
+export type PhoneResetPasswordRequestParams = {
+  phone: string;
+};
+
+export type PhoneResetPasswordConfirmParams = {
+  phone: string;
+  otp: string;
+  newPassword: string;
+};
+
+export type ParentInviteValidateResponse = {
+  valid: boolean;
+  expired: boolean;
+  alreadyOnboarded: boolean;
+};
+
+export type ParentInviteAcceptParams = {
+  token: string;
+  password: string;
+  fullName?: string;
+};
+
+export type PhoneAuthResponse = {
+  accessToken: string;
+  refreshToken: string;
+  userId?: string;
+  email?: string | null;
+  role?: UserRole;
+  fullName?: string;
+  authProviderId?: string;
+  phoneE164?: string | null;
+  user?: {
+    id: string;
+    email: string | null;
+    role: UserRole;
+    fullName?: string;
+    phoneE164?: string | null;
+  };
+  onboardingRequired?: boolean;
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
+};
+
+export type PhoneLoginResponse = {
+  access: string;
+  refresh: string;
+  user: {
+    id: string;
+    email: string | null;
+    role: UserRole;
+    fullName?: string;
+    phoneE164?: string | null;
+  };
+  onboardingRequired: false;
+};
+
+export type PhoneLoginResponseOnboarding = {
+  access: string;
+  refresh: string;
+  user: {
+    id: string;
+    email: string | null;
+    role: UserRole;
+    fullName?: string;
+    phoneE164?: string | null;
+  } | null;
+  onboardingRequired: true;
+  onboardingReason?: 'USER_NOT_FOUND' | 'PROFILE_NOT_FOUND' | 'ORG_SETUP_REQUIRED';
+};
+
+export type PhoneLoginResponseUnion = PhoneLoginResponse | PhoneLoginResponseOnboarding;

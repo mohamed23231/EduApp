@@ -16,6 +16,7 @@ module.exports = function (api) {
             '@shared': './src/shared',
             '@testing': './src/testing',
             '@env': './env.ts',
+            '@assets': './assets',
           },
           extensions: [
             '.ios.ts',

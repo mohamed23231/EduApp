@@ -1,0 +1,32 @@
+node_modules/
+.git/
+.expo/*
+!.expo/app-icon-badge/
+!.expo/app-icon-badge/**
+.env
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+yarn-error.log
+/coverage
+.DS_Store
+/ios
+/android
+expo-env.d.ts
+
+# Local-only/editor files
+.vscode/
+
+# Generated build artifacts
+build-*.aab
+build-*.apk
+*.ipa
+
+# Non-app documentation site content
+docs/

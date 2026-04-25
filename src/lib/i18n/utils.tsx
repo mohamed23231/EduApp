@@ -33,9 +33,20 @@ export function changeLanguage(lang: Language) {
     I18nManager.forceRTL(false);
   }
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
-    if (__DEV__)
-      NativeModules.DevSettings.reload();
-    else RNRestart.restart();
+    // Delay reload to let MMKV persist the language change
+    setTimeout(() => {
+      try {
+        if (__DEV__) {
+          NativeModules.DevSettings.reload();
+        }
+        else {
+          RNRestart.restart();
+        }
+      }
+      catch {
+        // Fallback: if reload fails, the language change still took effect via i18n
+      }
+    }, 300);
   }
   else if (Platform.OS === 'web') {
     window.location.reload();

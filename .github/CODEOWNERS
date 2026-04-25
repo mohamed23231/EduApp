@@ -1,0 +1,51 @@
+# ============================================================================
+# BRANCH PROTECTION SETTINGS FOR MAIN BRANCH
+# ============================================================================
+#
+# This CODEOWNERS file enforces mandatory code review for auth-critical files.
+# The following branch protection rules MUST be configured in GitHub:
+#
+# Settings → Branches → main → Branch protection rules:
+#
+# 1. ✅ Require a pull request before merging
+#    - Dismiss stale pull request approvals when new commits are pushed
+#    - Require review from code owners (enabled below)
+#
+# 2. ✅ Require approvals: minimum 1
+#    - At least one approved review required before merge
+#
+# 3. ✅ Require review from Code Owners
+#    - Automatically request review from @privat-edu/auth-leads for auth files
+#
+# 4. ✅ Require status checks to pass before merging
+#    - type-check (from .github/workflows/type-check.yml)
+#    - test (from .github/workflows/test.yml)
+#    - lint (from .github/workflows/lint-ts.yml)
+#
+# 5. ✅ Require branches to be up to date before merging
+#    - Ensures PR is rebased on latest main before merge
+#
+# ============================================================================
+# AUTH BASELINE FREEZE — REQUIRES TECH LEAD REVIEW
+# ============================================================================
+#
+# The following files are frozen behind mandatory code owner review.
+# Any changes to these files require approval from @privat-edu/auth-leads.
+#
+# Frozen scope:
+#   - src/features/auth/** — Auth feature modules
+#   - src/modules/auth/** — Auth business logic and services
+#   - src/modules/onboarding/** — Onboarding flow and state
+#   - src/lib/api/client.tsx — API client with token refresh interceptor
+#
+# Rationale: These files form the authentication baseline that must remain
+# stable to prevent regressions in login, signup, token refresh, and routing.
+#
+# Replace @privat-edu/auth-leads with your actual GitHub team or user handles.
+#
+# ============================================================================
+
+/src/features/auth/          @mohamed23231
+/src/modules/auth/           @mohamed23231
+/src/modules/onboarding/     @mohamed23231
+/src/lib/api/client.tsx      @mohamed23231

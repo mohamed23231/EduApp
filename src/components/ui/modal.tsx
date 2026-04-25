@@ -35,22 +35,18 @@ import type {
 } from '@gorhom/bottom-sheet';
 import { BottomSheetModal, useBottomSheet } from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Path, Svg } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from './text';
 
-type ModalProps = BottomSheetModalProps & {
+type ModalProps = Omit<BottomSheetModalProps, 'children'> & {
   title?: string;
+  children?: React.ReactNode;
 };
 
 type ModalRef = React.ForwardedRef<BottomSheetModal>;
-
-type ModalHeaderProps = {
-  title?: string;
-  dismiss: () => void;
-};
 
 export function useModal() {
   const ref = React.useRef<BottomSheetModal>(null);
@@ -63,13 +59,13 @@ export function useModal() {
   return { ref, present, dismiss };
 }
 
-export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | number)[], title, detached = false, ...props }: ModalProps & { ref?: ModalRef }) {
-  const detachedProps = React.useMemo(
-    () => getDetachedProps(detached),
-    [detached],
-  );
+export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | number)[], title, detached = true, children, ...props }: ModalProps & { ref?: ModalRef }) {
   const modal = useModal();
+  const insets = useSafeAreaInsets();
   const snapPoints = React.useMemo(() => _snapPoints, [_snapPoints]);
+  const bottomInset = detached
+    ? (insets.bottom === 0 ? 14 : insets.bottom)
+    : 0;
 
   React.useImperativeHandle(
     ref,
@@ -78,25 +74,50 @@ export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | numb
 
   const renderHandleComponent = React.useCallback(
     () => (
-      <>
-        <View className="mt-2 mb-8 h-1 w-12 self-center rounded-lg bg-gray-400 dark:bg-gray-700" />
-        <ModalHeader title={title} dismiss={modal.dismiss} />
-      </>
+      <Pressable
+        onPress={modal.dismiss}
+        style={handleStyles.container}
+        accessibilityRole="button"
+        accessibilityLabel="close"
+        hitSlop={{ top: 10, bottom: 10, left: 40, right: 40 }}
+      >
+        <View style={handleStyles.notch} />
+      </Pressable>
     ),
-    [title, modal.dismiss],
+    [modal.dismiss],
+  );
+
+  const renderHeader = React.useCallback(
+    () => {
+      if (!title)
+        return null;
+      return (
+        <View style={handleStyles.titleRow}>
+          <Text style={handleStyles.title} numberOfLines={1}>{title}</Text>
+        </View>
+      );
+    },
+    [title],
   );
 
   return (
     <BottomSheetModal
       {...props}
-      {...detachedProps}
       ref={modal.ref}
       index={0}
       snapPoints={snapPoints}
+      detached={detached}
+      bottomInset={bottomInset}
       backdropComponent={props.backdropComponent || renderBackdrop}
       enableDynamicSizing={false}
       handleComponent={renderHandleComponent}
-    />
+      topInset={0}
+      backgroundStyle={floatingStyles.background}
+      style={floatingStyles.container}
+    >
+      {renderHeader()}
+      {children}
+    </BottomSheetModal>
   );
 }
 
@@ -122,67 +143,41 @@ export function renderBackdrop(props: BottomSheetBackdropProps) {
   return <CustomBackdrop {...props} />;
 }
 
-/**
- *
- * @param detached
- * @returns
- *
- * @description
- * In case the modal is detached, we need to add some extra props to the modal to make it look like a detached modal.
- */
-
-function getDetachedProps(detached: boolean) {
-  if (detached) {
-    return {
-      detached: true,
-      bottomInset: 46,
-      style: { marginHorizontal: 16, overflow: 'hidden' },
-    } as Partial<BottomSheetModalProps>;
-  }
-  return {} as Partial<BottomSheetModalProps>;
-}
-
-/**
- * ModalHeader
- */
-
-const ModalHeader = React.memo(({ title, dismiss }: ModalHeaderProps) => {
-  return (
-    <>
-      {title && (
-        <View className="flex-row px-2 py-4">
-          <View className="size-6" />
-          <View className="flex-1">
-            <Text className="text-center text-[16px] font-bold text-[#26313D] dark:text-white">
-              {title}
-            </Text>
-          </View>
-        </View>
-      )}
-      <CloseButton close={dismiss} />
-    </>
-  );
+const floatingStyles = StyleSheet.create({
+  background: {
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+  },
+  container: {
+    marginHorizontal: 14,
+    overflow: 'visible' as const,
+  },
 });
 
-function CloseButton({ close }: { close: () => void }) {
-  return (
-    <Pressable
-      onPress={close}
-      className="absolute top-3 right-3 size-6 items-center justify-center"
-      hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-      accessibilityLabel="close modal"
-      accessibilityRole="button"
-      accessibilityHint="closes the modal"
-    >
-      <Svg
-        className="fill-neutral-300 dark:fill-white"
-        width={24}
-        height={24}
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <Path d="M18.707 6.707a1 1 0 0 0-1.414-1.414L12 10.586 6.707 5.293a1 1 0 0 0-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 1 0 1.414 1.414L12 13.414l5.293 5.293a1 1 0 0 0 1.414-1.414L13.414 12l5.293-5.293Z" />
-      </Svg>
-    </Pressable>
-  );
-}
+const handleStyles = StyleSheet.create({
+  container: {
+    position: 'absolute' as const,
+    left: '50%',
+    top: -12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{ translateX: I18nManager.isRTL ? 20 : -20 }],
+  },
+  notch: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#9CA3AF',
+    borderRadius: 32,
+  },
+  titleRow: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1F2937',
+    textAlign: 'center',
+  },
+});

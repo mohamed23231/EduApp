@@ -1,10 +1,6 @@
-import { Text, View } from '@/components/ui';
+import { Redirect } from 'expo-router';
+import { AppRoute } from '@/core/navigation/routes';
 
-export default function TeacherDashboardPage() {
-  return (
-    <View className="flex-1 items-center justify-center">
-      <Text className="text-lg font-semibold">Teacher Dashboard</Text>
-      <Text className="mt-2 text-sm">Scaffolded route for teacher domain flows.</Text>
-    </View>
-  );
+export default function Dashboard() {
+  return <Redirect href={AppRoute.teacher.dashboard} />;
 }

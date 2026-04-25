@@ -1,58 +1,299 @@
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import type * as ExpoNotifications from 'expo-notifications';
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import * as Linking from 'expo-linking';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { Platform, StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
-import { hydrateAuth } from '@/features/auth/use-auth-store';
-
+import { UserRole } from '@/core/auth/roles';
+import { getHomeRouteForRole } from '@/core/auth/routing';
+import { AppRoute } from '@/core/navigation/routes';
+import {
+  clearOnboardingContext,
+  hydrateAuth,
+  setOnboardingContext,
+  signIn,
+} from '@/features/auth/use-auth-store';
 import { APIProvider } from '@/lib/api';
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
+import { setItem } from '@/lib/storage';
+import { getOnboardingContext, validateToken } from '@/modules/auth/services';
+import '@/lib/i18n';
 // Import  global CSS file
 import '../global.css';
 
 export { ErrorBoundary } from 'expo-router';
 
+// Keep splash visible until bootstrap completes.
+void SplashScreen.preventAutoHideAsync().catch(() => { });
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const unstable_settings = {
-  initialRouteName: '(app)',
+  initialRouteName: 'login',
 };
 
-hydrateAuth();
-loadSelectedTheme();
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-// Set the animation options. This is optional.
-SplashScreen.setOptions({
-  duration: 500,
-  fade: true,
-});
+type ExpoNotificationsModule = typeof ExpoNotifications;
+
+function normalizePath(path?: string | null): string {
+  return (path ?? '').replace(/^\/+|\/+$/g, '').toLowerCase();
+}
+
+function extractLinkParams(url: string, queryParams?: Linking.QueryParams): Record<string, string> {
+  const params: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(queryParams ?? {})) {
+    if (typeof value === 'string') {
+      params[key] = value;
+    }
+  }
+
+  const hashIndex = url.indexOf('#');
+  if (hashIndex >= 0) {
+    const hash = url.slice(hashIndex + 1);
+    const hashParams = new URLSearchParams(hash);
+
+    hashParams.forEach((value, key) => {
+      params[key] = value;
+    });
+  }
+
+  return params;
+}
+
+function toOnboardingRole(role?: UserRole): 'TEACHER' | 'PARENT' | 'MANAGER' | undefined {
+  if (role === UserRole.TEACHER || role === UserRole.PARENT || role === UserRole.MANAGER) {
+    return role;
+  }
+
+  return undefined;
+}
+
+async function completeAuthCallback(
+  params: Record<string, string>,
+  router: ReturnType<typeof useRouter>,
+): Promise<boolean> {
+  const accessToken = params.access_token;
+  const refreshToken = params.refresh_token;
+
+  if (!accessToken || !refreshToken) {
+    return false;
+  }
+
+  const token = { access: accessToken, refresh: refreshToken };
+  signIn({ token, user: null });
+
+  try {
+    const validatedUser = await validateToken();
+    clearOnboardingContext();
+    signIn({ token, user: validatedUser });
+    router.replace(getHomeRouteForRole(validatedUser.role));
+    return true;
+  }
+  catch {
+    try {
+      const onboarding = await getOnboardingContext();
+      const onboardingRole = toOnboardingRole(onboarding.role);
+
+      setOnboardingContext({
+        email: onboarding.email ?? '',
+        ...(onboarding.fullName ? { fullName: onboarding.fullName } : {}),
+        ...(onboarding.phoneE164 ? { phone: onboarding.phoneE164 } : {}),
+        ...(onboardingRole ? { role: onboardingRole } : {}),
+      });
+
+      if (onboardingRole === UserRole.MANAGER) {
+        router.replace(AppRoute.manager.setup);
+      }
+      else {
+        router.replace(AppRoute.auth.onboarding);
+      }
+
+      return true;
+    }
+    catch {
+      router.replace(AppRoute.auth.login);
+      return true;
+    }
+  }
+}
+
+/**
+ * Deep-link handler for password reset URLs.
+ * Listens for Universal Links (iOS) and App Links (Android) matching /reset-password.
+ * Extracts token params and navigates to the reset-password screen.
+ * Requirements: 7.1, 7.2, 11.2
+ */
+function useDeepLinkHandler() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const handledUrls = new Set<string>();
+
+    const handleUrl = async (url: string) => {
+      if (handledUrls.has(url)) {
+        return;
+      }
+      handledUrls.add(url);
+
+      const parsed = Linking.parse(url);
+      const normalizedPath = normalizePath(parsed.path);
+      const params = extractLinkParams(url, parsed.queryParams ?? undefined);
+
+      if (normalizedPath === 'reset-password') {
+        const code = params.code;
+        const accessToken = params.access_token;
+        const refreshToken = params.refresh_token;
+
+        if (code) {
+          router.push({ pathname: '/reset-password' as any, params: { code } });
+        }
+        else if (accessToken && refreshToken) {
+          router.push({ pathname: '/reset-password' as any, params: { access_token: accessToken, refresh_token: refreshToken } });
+        }
+        return;
+      }
+
+      if (normalizedPath === 'org-invite') {
+        const token = params.token;
+        if (token && token.length > 0) {
+          void setItem('pendingOrgInviteToken', token);
+          router.push({ pathname: '/org-invite' as any, params: { token } });
+        }
+        return;
+      }
+
+      if (await completeAuthCallback(params, router)) {
+        return;
+      }
+
+      if (normalizedPath === 'manager' || normalizedPath === 'manager/setup') {
+        router.replace(AppRoute.manager.setup);
+        return;
+      }
+
+      if (normalizedPath === 'manager/dashboard') {
+        router.replace(AppRoute.manager.dashboard);
+      }
+    };
+
+    // Handle URL that launched the app (cold start)
+    void Linking.getInitialURL().then((url) => {
+      if (url) {
+        void handleUrl(url);
+      }
+    });
+
+    // Handle URLs received while app is running (warm start)
+    const onUrl = ({ url }: { url: string }) => {
+      void handleUrl(url);
+    };
+    // eslint-disable-next-line react-web-api/no-leaked-event-listener
+    const subscription = Linking.addEventListener('url', onUrl);
+    return () => subscription.remove();
+  }, [router]);
+}
+
+function useGlobalNotificationPresentation() {
+  useEffect(() => {
+    try {
+      const Notifications = require('expo-notifications') as ExpoNotificationsModule;
+
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+        }),
+      });
+
+      if (Platform.OS === 'android') {
+        void Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#2563EB',
+          sound: 'default',
+        });
+      }
+    }
+    catch {
+      // expo-notifications may be unavailable in some development binaries.
+    }
+  }, []);
+}
 
 export default function RootLayout() {
+  const [isAppReady, setIsAppReady] = React.useState(false);
+  useDeepLinkHandler();
+  useGlobalNotificationPresentation();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const bootstrap = async () => {
+      SplashScreen.setOptions({
+        duration: 500,
+        fade: true,
+      });
+
+      try {
+        loadSelectedTheme();
+        hydrateAuth();
+      }
+      catch {
+        // no-op
+      }
+      finally {
+        if (isMounted) {
+          setIsAppReady(true);
+        }
+      }
+    };
+
+    void bootstrap();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const onLayoutRootView = React.useCallback(() => {
+    if (isAppReady) {
+      void SplashScreen.hideAsync().catch(() => { });
+    }
+  }, [isAppReady]);
+
+  if (!isAppReady) {
+    return null;
+  }
+
   return (
-    <Providers>
-      <Stack>
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
-        <Stack.Screen name="(parent)" options={{ headerShown: false }} />
-        <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
-        <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-        <Stack.Screen name="(super-admin)" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-      </Stack>
+    <Providers onLayout={onLayoutRootView}>
+      <Stack screenOptions={{ headerShown: false }} />
     </Providers>
   );
 }
 
-function Providers({ children }: { children: React.ReactNode }) {
+function Providers({
+  children,
+  onLayout,
+}: {
+  children: React.ReactNode;
+  onLayout?: () => void;
+}) {
   const theme = useThemeConfig();
   return (
     <GestureHandlerRootView
+      onLayout={onLayout}
       style={styles.container}
       // eslint-disable-next-line better-tailwindcss/no-unknown-classes
       className={theme.dark ? `dark` : undefined}

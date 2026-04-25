@@ -1,6 +1,714 @@
 {
+  "auth": {
+    "common": {
+      "optional": "optional"
+    },
+    "errors": {
+      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "Your Google email is not verified. Please verify it and try again.",
+      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again."
+    },
+    "invite": {
+      "acceptButton": "Activate Account",
+      "acceptError": "Unable to activate account. Please try again.",
+      "alreadyOnboarded": "This invitation was already used. Please sign in.",
+      "errorTitle": "Invitation Error",
+      "expired": "This invitation has expired.",
+      "fullNameLabel": "Full Name (optional)",
+      "invalid": "This invitation is invalid.",
+      "invalidToken": "Invitation token is missing or invalid.",
+      "passwordLabel": "Password",
+      "subtitle": "Set your password to activate your account.",
+      "title": "Parent Invitation",
+      "validating": "Validating invitation...",
+      "validationError": "Unable to validate invitation right now."
+    },
+    "login": {
+      "createAccount": "Create Account",
+      "dontHaveAccount": "Don't have an account?",
+      "emailLabel": "Email Address",
+      "emailTab": "Email",
+      "forgotPassword": "Forgot Password?",
+      "genericError": "Failed to sign in. Please try again.",
+      "orConnectWith": "OR CONNECT WITH",
+      "passwordLabel": "Password",
+      "phoneTab": "Phone",
+      "protectedBy": "PROTECTED BY TABA3NY SECURITY",
+      "signInWithGoogle": "Sign in with Google",
+      "submit": "Sign In",
+      "submitting": "Signing In...",
+      "subtitle": "Welcome back! Please login to your school management portal.",
+      "title": "Taba3ny",
+      "validation": {
+        "emailInvalid": "Please enter a valid email",
+        "emailRequired": "Email is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordRequired": "Password is required"
+      }
+    },
+    "onboarding": {
+      "genericError": "Profile creation failed. Please try again.",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "submit": "Complete Setup",
+      "title": "Complete Your Profile"
+    },
+    "phone": {
+      "countries": {
+        "eg": "Egypt ({{dialCode}})",
+        "sa": "Saudi Arabia ({{dialCode}})"
+      },
+      "countryCodeLabel": "Country",
+      "emailLabel": "Email",
+      "fullNameLabel": "Full Name",
+      "loginButton": "Sign In with Phone",
+      "newPasswordLabel": "New Password",
+      "otpLabel": "Verification Code",
+      "otpSentHint": "A verification code was sent to {{phone}}",
+      "passwordLabel": "Password",
+      "phoneLabel": "Phone Number",
+      "requestOtp": "Send OTP",
+      "resendOtp": "Resend OTP",
+      "resetPasswordButton": "Reset Password",
+      "resetSubtitle": "Reset password using your phone number and OTP.",
+      "signupButton": "Create Account",
+      "signupExistingAccount": "This phone number already has an account. Please sign in instead.",
+      "signupFlowHint": "First verify your phone, then choose role and complete profile details.",
+      "validation": {
+        "egyptInvalid": "Enter a valid Egyptian mobile number",
+        "saudiInvalid": "Enter a valid Saudi mobile number"
+      },
+      "verifyOtp": "Verify OTP"
+    },
+    "reset_password": {
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "error": "Unable to reset password. Please request a new reset email.",
+      "expiredToken": "Reset link has expired. Please request a new one.",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordRequired": "Please enter and confirm your new password.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "resendEmail": "Request a new reset email",
+      "submit": "Update Password",
+      "subtitle": "Create a new password to secure your account.",
+      "success": "Password updated successfully. You can now sign in.",
+      "title": "Reset Your Password",
+      "useEmailLink": "Use email reset link instead"
+    },
+    "signup": {
+      "alreadyHaveAccount": "Already have an account?",
+      "consent": "By tapping Create Account, you agree to our {{terms}} and {{privacy}}",
+      "continueWithGoogle": "Continue with Google",
+      "emailLabel": "Email",
+      "emailTab": "Email",
+      "fullNameLabel": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "genericError": "Something went wrong. Please try again.",
+      "loginLink": "Log In",
+      "managerLabel": "School / Center",
+      "orConnectWith": "OR CONNECT WITH",
+      "parentLabel": "Parent",
+      "passwordLabel": "Password",
+      "phoneTab": "Phone",
+      "roleLabel": "I AM A...",
+      "signUpWithGoogle": "Sign up with Google",
+      "submit": "Create Account",
+      "teacherLabel": "Teacher",
+      "termsLink": "Terms of Service",
+      "title": "Create Your Account",
+      "validation": {
+        "emailInvalid": "Please enter a valid email",
+        "fullNameRequired": "Full name is required",
+        "fullNameTooLong": "Full name must be 100 characters or less",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "roleRequired": "Please select a role"
+      }
+    }
+  },
+  "contextSwitcher": {
+    "orgContext": "Organization",
+    "personal": "Personal (Independent)",
+    "personalDesc": "Your own students and sessions",
+    "roleManager": "Manager",
+    "roleTeacher": "Teacher",
+    "selectOrg": "Switch to {{name}} organization",
+    "selectPersonal": "Switch to personal context",
+    "title": "Switch context"
+  },
+  "manager": {
+    "attendance": {
+      "absent": "Absent",
+      "back": "Back",
+      "clearRating": "Clear",
+      "emptyStudents": "No students assigned to this session.",
+      "enterRating": "Enter rating",
+      "excuseNote": "Excuse note...",
+      "excused": "Excused",
+      "markedCount": "Marked: {{marked}}/{{total}}",
+      "noRating": "Not rated",
+      "noSearchResults": "No students match your search.",
+      "present": "Present",
+      "rating": "Rating",
+      "ratingLabel": "{{value}}/10",
+      "searchStudent": "Search students...",
+      "sessionClosed": "Session is closed — attendance is read-only.",
+      "sessionNotActive": "Start the session first to mark attendance.",
+      "submitButton": "Save Attendance",
+      "submitError": "Failed to save attendance. Please try again.",
+      "submitSuccess": "Attendance saved successfully!",
+      "submitting": "Saving...",
+      "title": "Attendance"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "errorTitle": "Something went wrong",
+      "loading": "Loading...",
+      "noOrgCopy": "Create your first organization to get started.",
+      "noOrgTitle": "No organization yet",
+      "ok": "OK"
+    },
+    "dashboard": {
+      "cards": {
+        "absentToday": "Absent today",
+        "activeTeachers": "Active teachers",
+        "runningNow": "Running now",
+        "students": "Students",
+        "todaySessions": "Today"
+      },
+      "emptyCopy": "Create your first organization to unlock the manager dashboard.",
+      "emptyTitle": "No organization yet",
+      "endSession": "End Session",
+      "goodAfternoon": "Good afternoon",
+      "goodEvening": "Good evening",
+      "goodMorning": "Good morning",
+      "infoAbsent": "{{count}} absent today",
+      "infoTeachers": "{{count}} teachers",
+      "markAttendance": "Mark Attendance",
+      "noSessions": "No sessions scheduled for today yet.",
+      "openSession": "Open session",
+      "quickAddStudent": "Add student",
+      "quickInvite": "Invite",
+      "quickNewSession": "New session",
+      "sessionDuration": "{{minutes}} min",
+      "sessionStudents": "{{count}} students",
+      "startSession": "Start Session",
+      "subtitle": "Keep today moving, track usage, and unblock your team before sessions start.",
+      "title": "Manager dashboard",
+      "todayTitle": "Today's sessions",
+      "viewAll": "View all"
+    },
+    "days": {
+      "fri": "Fri",
+      "mon": "Mon",
+      "sat": "Sat",
+      "sun": "Sun",
+      "thu": "Thu",
+      "tue": "Tue",
+      "wed": "Wed"
+    },
+    "limits": {
+      "sessions": "Session limit reached ({{current}}/{{limit}}).",
+      "students": "Student limit reached ({{current}}/{{limit}})."
+    },
+    "more": {
+      "accountSection": "Account",
+      "emailLabel": "Email",
+      "entitlementSection": "Subscription",
+      "languageLabel": "Language",
+      "logout": "Log Out",
+      "orgName": "Organization: {{name}}",
+      "phoneAccount": "Phone Account",
+      "phoneLabel": "Phone",
+      "planLabel": "Plan",
+      "planStatus": {
+        "expired": "Expired",
+        "subscription": "Active",
+        "trial": "Trial"
+      },
+      "quickLinksSection": "Quick links",
+      "reports": {
+        "body": "Review attendance, engagement, and teacher performance trends.",
+        "cta": "Open reports",
+        "title": "Reports"
+      },
+      "roleManager": "Manager",
+      "settings": {
+        "body": "Update contact information and monitor limit usage.",
+        "cta": "Open settings",
+        "title": "Settings"
+      },
+      "subscriptionEnds": "Ends",
+      "subtitle": "Settings, reports, and higher-level organization controls live here.",
+      "title": "More",
+      "trialEnds": "Trial ends",
+      "usage": {
+        "minutes": "Minutes",
+        "sessions": "Sessions",
+        "students": "Students",
+        "teachers": "Teachers",
+        "title": "Usage",
+        "unlimited": "∞"
+      }
+    },
+    "reports": {
+      "cards": {
+        "absentCount": "Absent",
+        "attendanceRate": "Attendance rate",
+        "averageRating": "Average rating",
+        "completed": "Completed",
+        "excusedCount": "Excused",
+        "totalSessions": "Total sessions"
+      },
+      "range": {
+        "month": "Month",
+        "term": "Term",
+        "week": "Week"
+      },
+      "subtitle": "Attendance, completion, and teacher performance trends for your organization.",
+      "teacherLastSession": "Last session: {{date}}",
+      "teacherPerformance": "Teacher performance",
+      "teacherRating": "Rating: {{rating}}",
+      "teacherSummary": "{{completed}} completed • {{attendance}}% attendance",
+      "title": "Reports"
+    },
+    "sessionDetail": {
+      "accessibility": {
+        "ratingChip": "Rate {{name}} with score {{score}}",
+        "statusChip": "Mark {{name}} as {{status}}"
+      },
+      "attendanceError": "Could not save attendance right now.",
+      "attendanceTitle": "Attendance",
+      "close": "Close session",
+      "closeConfirm": "Confirm",
+      "closeWarning": "{{count}} unmarked students will be auto-marked as absent. Continue?",
+      "closeWarningTitle": "Close session",
+      "daysLabel": "Days",
+      "durationLabel": "Duration",
+      "durationValue": "{{minutes}} min",
+      "excuseNoteLabel": "Excuse note",
+      "excuseNotePlaceholder": "Reason for excuse...",
+      "instanceState": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "closed": "Closed",
+        "draft": "Upcoming"
+      },
+      "loadError": "Failed to load session data.",
+      "markedCount": "Marked: {{marked}}/{{total}}",
+      "noInstances": "No instances found for the last 7 days.",
+      "noStudents": "No students assigned to this session.",
+      "paused": "Paused",
+      "ratingLabel": "Rating",
+      "recentInstances": "Recent instances",
+      "retry": "Retry",
+      "saveAttendance": "Save attendance",
+      "saveAttendanceSuccess": "Attendance saved successfully.",
+      "start": "Start session",
+      "statsActive": "Active",
+      "statsCompleted": "Completed",
+      "statsTitle": "Statistics (30 days)",
+      "statsTotal": "Total",
+      "statsUpcoming": "Upcoming",
+      "status": {
+        "absent": "Absent",
+        "excused": "Excused",
+        "present": "Present"
+      },
+      "studentCount": "{{count}} students",
+      "title": "Session detail",
+      "viewAttendance": "View Attendance"
+    },
+    "sessions": {
+      "accessibility": {
+        "dayChip": "Toggle {{day}}",
+        "memberChip": "Select {{name}}",
+        "ratingChip": "Set rating {{score}}",
+        "studentChip": "Toggle {{name}}"
+      },
+      "actions": {
+        "create": "Create session",
+        "delete": "Delete",
+        "details": "Details",
+        "pause": "Pause",
+        "resume": "Resume"
+      },
+      "clearAll": "Clear all",
+      "confirmStudents": "Confirm ({{count}})",
+      "createScreenTitle": "Create Session",
+      "createSuccess": "Session created successfully.",
+      "createTitle": "Create session template",
+      "deleteConfirm": "Delete",
+      "deleteMessage": "This will soft-delete the session template. Existing records are preserved.",
+      "deleteTitle": "Delete session?",
+      "empty": "No sessions yet.",
+      "errorLoading": "Could not load sessions.",
+      "errorRetry": "Retry",
+      "fields": {
+        "days": "Days of week",
+        "duration": "Duration in minutes",
+        "students": "Assigned students",
+        "subject": "Subject",
+        "teacher": "Assigned teacher",
+        "time": "Time (HH:MM)"
+      },
+      "listTitle": "Existing templates",
+      "myselfSuffix": "(Myself)",
+      "noOrgCopy": "Create an organization first to start adding sessions.",
+      "noOrgTitle": "No organization yet",
+      "paused": "Paused",
+      "selectAll": "Select all",
+      "selectStudentsPlaceholder": "Select students",
+      "selectTeacher": "Select teacher",
+      "selectedCount": "{{count}} selected",
+      "studentCount": "{{count}} students",
+      "submitError": "Unable to save the session right now.",
+      "subtitle": "Build recurring session templates and keep teacher assignments visible.",
+      "title": "Sessions",
+      "validation": {
+        "daysRequired": "Choose at least one day",
+        "subjectRequired": "Subject is required",
+        "teacherRequired": "Choose a teacher",
+        "timeInvalid": "Enter a valid time in HH:MM format"
+      }
+    },
+    "settings": {
+      "fields": {
+        "address": "Address",
+        "email": "Email",
+        "name": "Organization name",
+        "phone": "Phone"
+      },
+      "save": "Save settings",
+      "subscriptionDates": "Subscription: {{start}} — {{end}}",
+      "subtitle": "Keep organization details current and watch entitlement usage at a glance.",
+      "title": "Settings",
+      "trialEndDate": "Trial ends: {{date}}",
+      "updateError": "Unable to update organization settings.",
+      "updated": "Organization settings updated.",
+      "usage": {
+        "minutes": "Session minutes",
+        "source": "Source: {{source}}",
+        "students": "Students",
+        "teachers": "Teachers",
+        "templates": "Session templates",
+        "title": "Usage"
+      }
+    },
+    "setup": {
+      "address": "Address (optional)",
+      "email": "Email (optional)",
+      "heroCopy": "Set up the basics once, then start adding students, inviting teachers, and running sessions.",
+      "heroTitle": "Create your organization",
+      "name": "Organization name",
+      "phone": "Phone (optional)",
+      "submit": "Create organization",
+      "submitError": "We could not create your organization right now.",
+      "validation": {
+        "emailInvalid": "Please enter a valid email address",
+        "nameRequired": "Organization name is required"
+      }
+    },
+    "studentDetail": {
+      "absent": "Absent",
+      "assignedSessions": "Assigned sessions",
+      "attendanceRate": "Attendance",
+      "attended": "{{count}} attended",
+      "avgRating": "Avg. rating",
+      "bySubject": "By subject",
+      "excused": "Excused",
+      "loadError": "Failed to load student.",
+      "noSessions": "Not assigned to any sessions yet.",
+      "performance": "Performance",
+      "present": "Present",
+      "ratingTrend": "Rating trend (last 10)",
+      "retry": "Retry",
+      "statsError": "Could not load stats.",
+      "totalSessions": "Sessions"
+    },
+    "students": {
+      "actions": {
+        "copy": "Copy code",
+        "create": "Create student",
+        "delete": "Delete",
+        "edit": "Edit",
+        "regenerate": "Regenerate code",
+        "save": "Save changes"
+      },
+      "connectionCode": "Connection code",
+      "copiedBody": "The connection code is ready to paste.",
+      "copiedTitle": "Copied",
+      "createScreenTitle": "Add Student",
+      "createSuccess": "Student added successfully",
+      "createTitle": "Add student",
+      "deleteConfirm": "Delete",
+      "deleteMessage": "This will remove the student from future sessions. Historical data is preserved.",
+      "deleteTitle": "Delete student?",
+      "editTitle": "Edit student",
+      "empty": "No students yet.",
+      "errorLoading": "Could not load students.",
+      "errorRetry": "Retry",
+      "fields": {
+        "gradeLevel": "Grade level",
+        "name": "Student name",
+        "notes": "Notes",
+        "parentPhone": "Parent phone"
+      },
+      "gradeFilter": "Filter by grade",
+      "grades": {
+        "all": "All grades",
+        "grade1": "Grade 1",
+        "grade10": "Grade 10",
+        "grade11": "Grade 11",
+        "grade12": "Grade 12",
+        "grade2": "Grade 2",
+        "grade3": "Grade 3",
+        "grade4": "Grade 4",
+        "grade5": "Grade 5",
+        "grade6": "Grade 6",
+        "grade7": "Grade 7",
+        "grade8": "Grade 8",
+        "grade9": "Grade 9",
+        "label": "Select grade",
+        "other": "Other",
+        "university": "University"
+      },
+      "nextPage": "Next",
+      "noGrade": "No grade level",
+      "pageInfo": "Page {{page}} of {{total}}",
+      "parentLinked": "Parent linked",
+      "prevPage": "Previous",
+      "regenerateMessage": "The old code will stop working immediately.",
+      "regenerateTitle": "Regenerate code?",
+      "search": "Search students",
+      "sessionsCount": "{{count}} sessions",
+      "submitError": "Unable to save the student right now.",
+      "subtitle": "Search the roster, share connection codes, and keep parent contact details fresh.",
+      "title": "Students",
+      "validation": {
+        "nameRequired": "Student name is required"
+      }
+    },
+    "tabs": {
+      "home": "Home",
+      "homeAccessibility": "Manager dashboard",
+      "more": "More",
+      "sessions": "Sessions",
+      "students": "Students",
+      "teachers": "Teachers"
+    },
+    "teachers": {
+      "activeSessions": "{{count}} active sessions",
+      "cancelMessage": "This invitation will be cancelled immediately.",
+      "email": "Email",
+      "empty": "No teachers yet.",
+      "errorLoading": "Could not load members.",
+      "errorRetry": "Retry",
+      "inviteError": "Unable to send the invitation right now.",
+      "inviteHint": "Enter a phone number, email address, or both. The teacher will receive an invitation to join your organization.",
+      "inviteSent": "Invitation sent successfully.",
+      "inviteTitle": "Invite teacher",
+      "inviteValidation": "Please provide at least a phone number or email address.",
+      "listTitle": "Current members",
+      "pendingCancel": "Cancel",
+      "pendingEmpty": "No pending invitations.",
+      "pendingExpires": "Expires {{date}}",
+      "pendingResend": "Resend",
+      "pendingTitle": "Pending invitations",
+      "phone": "Phone",
+      "remove": "Remove",
+      "removeConfirm": "Remove",
+      "removeMessage": "Their assigned sessions will be paused and future instances cancelled.",
+      "removeTitle": "Remove teacher?",
+      "roleOwner": "Owner",
+      "roleTeacher": "Teacher",
+      "sendInvite": "Send invitation",
+      "subtitle": "Invite teachers by phone or email, then remove them cleanly when responsibilities change.",
+      "title": "Teachers"
+    },
+    "trialBanner": {
+      "body": "This organization is now read-only until a subscription is activated.",
+      "contactSupport": "Contact support",
+      "createNew": "Create new org",
+      "supportEmail": "support@privatedulink.com",
+      "title": "Trial expired"
+    },
+    "whatsapp": {
+      "copiedBody": "WhatsApp is unavailable, so the message was copied.",
+      "copiedTitle": "Copied",
+      "share": "Share via WhatsApp"
+    },
+    "wizard": {
+      "completed": "Completed",
+      "progress": "{{done}}/{{total}} complete",
+      "stepLabel": "Step {{count}}",
+      "steps": {
+        "sessions": {
+          "copy": "Once students and a teacher are ready, schedule the recurring session template.",
+          "cta": "Open sessions",
+          "title": "Create the first session"
+        },
+        "students": {
+          "copy": "Create at least one student so sessions and attendance have real rosters.",
+          "cta": "Open students",
+          "title": "Add your first student"
+        },
+        "teachers": {
+          "copy": "Invite teachers now, or assign sessions to yourself as the owner to get started quickly.",
+          "cta": "Open teachers",
+          "title": "Invite or assign a teacher"
+        }
+      },
+      "subtitle": "Complete these three steps to get your organization live.",
+      "title": "Launch checklist"
+    }
+  },
+  "notification": {
+    "absence": {
+      "body": "{{studentName}} was marked absent on {{sessionDate}}",
+      "title": "Absence Alert"
+    },
+    "lowScore": {
+      "body": "{{studentName}} received a rating of {{rating}} from {{teacherName}} on {{sessionDate}}",
+      "title": "Low Performance Alert"
+    }
+  },
   "onboarding": {
-    "message": "Welcome to Privat Edu"
+    "message": "Welcome to Taba3ny"
+  },
+  "orgInvitation": {
+    "accept": "Accept invitation",
+    "acceptError": "Unable to accept invitation.",
+    "badge": "Organization Invite",
+    "body": "You have been invited to join {{org}} as a teacher. Accept to gain access to the organization's sessions.",
+    "decline": "Decline",
+    "declineError": "Unable to decline invitation.",
+    "invalidToken": "This invitation link is invalid or has expired.",
+    "invitedBy": "Invited by {{name}}",
+    "unknownOrg": "an organization"
+  },
+  "parent": {
+    "attendance": {
+      "absent": "Absent",
+      "absentCount": "Absences",
+      "emptyMessage": "No attendance records available.",
+      "emptyTitle": "No Records Yet",
+      "excused": "Excused",
+      "notMarked": "Not Marked",
+      "present": "Present",
+      "rate": "Attendance Rate",
+      "statusAbsent": "Absent",
+      "statusExcused": "Excused",
+      "statusNotMarked": "Not Marked",
+      "statusPresent": "Present",
+      "studentName": "Student",
+      "title": "Attendance",
+      "unknownDate": "Unknown Date"
+    },
+    "common": {
+      "back": "Back",
+      "brandName": "Taba3ny",
+      "genericError": "Something went wrong. Please try again.",
+      "loading": "Loading...",
+      "offlineError": "No internet connection. Please check your network and try again.",
+      "retry": "Retry",
+      "serverError": "Server error. Please try again later."
+    },
+    "dashboard": {
+      "emptyMessage": "Link a student to get started.",
+      "emptyTitle": "No Students Linked",
+      "linkStudentCta": "Link a Student",
+      "noTimeline": "No recent attendance records.",
+      "performanceSubtitle": "View ratings and progress",
+      "performanceTitle": "Student Performance",
+      "statsError": "Failed to load attendance stats.",
+      "statsTitle": "Attendance Overview",
+      "teacherLabel": "Teacher",
+      "termLabel": "Term",
+      "timelineError": "Failed to load attendance timeline.",
+      "timelineTitle": "Recent Attendance",
+      "title": "My Students"
+    },
+    "linkStudent": {
+      "description": "Enter the integration code provided by your school to link your child's account.",
+      "fallbackHelp": "Don't have a code? Please contact your school's administration office for assistance.",
+      "helpContent": "You can find the integration code in the welcome letter from your school, or contact the school administration.",
+      "helpLink": "Where do I find the code?",
+      "inputLabel": "Student Integration Code",
+      "inputPlaceholder": "EDU-123-456",
+      "submit": "Link Student",
+      "title": "Link Your Student",
+      "validation": {
+        "codeRequired": "Access code is required"
+      }
+    },
+    "notifications": {
+      "absence": {
+        "body": "{{studentName}} was marked absent on {{sessionDate}}",
+        "title": "Absence Alert"
+      },
+      "earlier": "Earlier",
+      "empty": "You don't have any notifications yet.",
+      "emptyTitle": "No Notifications",
+      "error": "Failed to load notifications. Please try again.",
+      "errorTitle": "Oops! Something went wrong",
+      "lowScore": {
+        "body": "{{studentName}} received a rating of {{rating}} from {{teacherName}} on {{sessionDate}}",
+        "title": "Low Performance Alert"
+      },
+      "markAllAsRead": "Mark all as read",
+      "openSettings": "Open Settings",
+      "pushDisabled": "Push notifications are off. In-app notifications are still active.",
+      "pushUnsupported": "Push notifications are not available on simulator builds.",
+      "thisWeek": "This Week",
+      "title": "Notifications",
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "performance": {
+      "average": "Average",
+      "emptyState": "No performance data yet",
+      "emptyStateHint": "Ratings will appear here after sessions are completed",
+      "highest": "Best Rating",
+      "lowScoreNote": "Needs attention",
+      "lowest": "Lowest",
+      "noRating": "No rating",
+      "ratedCount": "Rated",
+      "title": "Performance"
+    },
+    "profile": {
+      "accountSection": "Account",
+      "emailLabel": "Email",
+      "languageLabel": "Language",
+      "logoutButton": "Log Out",
+      "logoutConfirm": "Are you sure you want to log out?",
+      "phoneAccount": "Phone Account",
+      "phoneLabel": "Phone",
+      "roleLabel": "Role",
+      "roleParent": "Parent",
+      "title": "Profile"
+    },
+    "studentDetails": {
+      "labels": {
+        "email": "Email",
+        "enrollmentDate": "Enrollment Date",
+        "grade": "Grade",
+        "phone": "Phone",
+        "school": "School"
+      },
+      "title": "Student Details",
+      "viewAttendance": "View Attendance"
+    },
+    "studentList": {
+      "emptyMessage": "Link a student to see them here.",
+      "emptyTitle": "No Students",
+      "title": "Students"
+    },
+    "tabs": {
+      "dashboard": "Dashboard",
+      "profile": "Profile"
+    }
   },
   "settings": {
     "about": "About",
@@ -29,5 +737,362 @@
     "version": "Version",
     "website": "Website"
   },
-  "welcome": "Welcome to Privat Edu"
+  "teacher": {
+    "attendance": {
+      "absent": "Absent",
+      "absentLabel": "Mark Absent",
+      "applyToAll": "Apply {{rating}}/10 to {{count}} students",
+      "batchRating": "Quick Rate All",
+      "batchRatingButton": "Rate {{count}} students at once",
+      "batchRatingDescription": "Apply the same rating to {{count}} unmarked students",
+      "batchRatingTip": "You can still adjust individual ratings after applying",
+      "clearRating": "Clear",
+      "conflictError": "One or more records were already submitted.",
+      "emptyMessage": "No students assigned to this session.",
+      "enterRating": "Enter Rating (0-10)",
+      "error": "Failed to submit attendance. Please try again.",
+      "excuseNote": "Reason",
+      "excused": "Excused",
+      "excusedLabel": "Mark Excused",
+      "markAllPresent": "Mark All Present",
+      "noRating": "No rating",
+      "noSearchResults": "No students found",
+      "partialFailureError": "Some attendance records failed to save.",
+      "present": "Present",
+      "presentLabel": "Mark Present",
+      "progress": "{{marked}} of {{total}} marked",
+      "rating": "Rating",
+      "ratingLabel": "{{value}}/10",
+      "ratingTapToEdit": "Tap to enter rating",
+      "retryButton": "Retry Failed",
+      "searchPlaceholder": "Search students...",
+      "searchStudent": "Search student...",
+      "selectRatingFirst": "Select a rating first",
+      "sessionClosed": "This session has ended.",
+      "sessionNotActive": "This session is not active yet.",
+      "studentCount": "{{count}} students",
+      "submitButton": "Submit Attendance",
+      "submitSuccess": "Attendance has been recorded successfully.",
+      "submitWithCount": "Submit Attendance ({{marked}}/{{total}})",
+      "submitting": "Submitting...",
+      "title": "Mark Attendance"
+    },
+    "common": {
+      "accountExpired": "Your account has expired. Please contact support to renew.",
+      "back": "Back",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "edit": "Edit",
+      "error": "An error occurred",
+      "featureDisabled": "This feature is not available for your account.",
+      "genericError": "Something went wrong. Please try again.",
+      "loading": "Loading...",
+      "ok": "OK",
+      "retry": "Retry",
+      "save": "Save"
+    },
+    "connectionCode": {
+      "assignToSessionButton": "Assign to Session",
+      "codeLabel": "Student Access Code",
+      "confirmRegenerateMessage": "The old code will stop working. Students will need the new code to link their accounts.",
+      "confirmRegenerateTitle": "Regenerate Access Code?",
+      "copied": "Copied!",
+      "copiedMessage": "Access code copied to clipboard",
+      "copiedTitle": "Copied",
+      "copyButton": "Copy Code",
+      "expiresAt": "Expires on {{date}}",
+      "regenerateButton": "Regenerate Code",
+      "regenerateWarning": "Regenerating will invalidate the current code",
+      "regenerating": "Regenerating...",
+      "shareButton": "Share Code",
+      "title": "Student Access Code"
+    },
+    "dashboard": {
+      "activeSessions": "Active",
+      "emptyMessage": "No sessions scheduled for today.",
+      "emptyTitle": "No Sessions Today",
+      "goodAfternoon": "Good afternoon",
+      "goodEvening": "Good evening",
+      "goodMorning": "Good morning",
+      "greeting": "Hello, {{name}}! 👋",
+      "sessionsTitle": "Today's Sessions",
+      "sessionsToday": "Today",
+      "title": "Teacher Dashboard"
+    },
+    "onboarding": {
+      "error": "Setup failed. Please try again.",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "submit": "Complete Setup",
+      "submitting": "Setting up...",
+      "subtitle": "Please provide your contact information",
+      "title": "Complete Your Profile"
+    },
+    "performance": {
+      "average": "Average",
+      "emptyState": "No performance data yet",
+      "emptyStateHint": "Ratings will appear here after sessions are rated",
+      "highest": "Highest",
+      "lowest": "Lowest",
+      "noRatingLabel": "No rating",
+      "ratedCount": "Rated",
+      "studentPerformance": "Student Performance",
+      "totalCount": "Total"
+    },
+    "profile": {
+      "accountSection": "Account",
+      "emailLabel": "Email",
+      "expired": {
+        "bannerMessage": "Your account has expired. Write actions are blocked.",
+        "bannerTitle": "Account Expired",
+        "renewalCta": "Contact your admin to reactivate your account."
+      },
+      "languageLabel": "Language",
+      "logoutButton": "Log Out",
+      "logoutConfirm": "Are you sure you want to log out?",
+      "phoneAccount": "Phone Account",
+      "phoneLabel": "Phone",
+      "roleLabel": "Role",
+      "roleTeacher": "Teacher",
+      "status": {
+        "ACTIVE": "Active",
+        "EXPIRED": "Expired",
+        "INVITED": "Invited",
+        "SUSPENDED": "Suspended",
+        "TRIAL": "Trial"
+      },
+      "statusSection": "Account Status",
+      "subscription": {
+        "billingCycle": "Billing Cycle",
+        "billingCycleMonthly": "Monthly",
+        "billingCycleYearly": "Yearly",
+        "daysRemaining_one": "{{count}} day remaining",
+        "daysRemaining_other": "{{count}} days remaining",
+        "endDate": "End Date",
+        "expiredLabel": "Expired",
+        "planName": "Plan",
+        "startDate": "Start Date",
+        "status": "Status",
+        "title": "Subscription",
+        "unlimited": "Unlimited"
+      },
+      "title": "Profile",
+      "trial": {
+        "daysRemaining_one": "{{count}} day remaining",
+        "daysRemaining_other": "{{count}} days remaining",
+        "endDate": "Trial ends on {{date}}",
+        "sessionHours": "Session Hours",
+        "sessions": "Sessions",
+        "students": "Students",
+        "title": "Trial Period",
+        "unlimited": "Unlimited",
+        "usage": "Usage",
+        "usageFormat": "{{current}} / {{limit}}",
+        "warningDaysRemaining": "Trial ending soon!"
+      }
+    },
+    "rankings": {
+      "averageRating": "Average Rating",
+      "filterAll": "All",
+      "filterLast10": "Last 10",
+      "filterLast5": "Last 5",
+      "insufficientData": "Insufficient Data",
+      "insufficientDataDescription": "Needs at least 1 rated session to rank",
+      "noRatings": "No ratings yet for this session",
+      "ranking": "Ranking",
+      "ratedSessions": "{{count}} rated sessions",
+      "topStudents": "Top Students",
+      "trend": {
+        "down": "Declining",
+        "stable": "Stable",
+        "up": "Improving"
+      }
+    },
+    "sessions": {
+      "assignStudentsButton": "Assign Students",
+      "assignStudentsEmpty": "No students assigned yet",
+      "assignedStudents": "Assigned Students",
+      "attendanceSummary": "{{present}} present • {{absent}} absent • {{excused}} excused",
+      "closed": "Closed",
+      "conflictError": "This session conflicts with another session.",
+      "createButton": "Create Session",
+      "createTitle": "New Session",
+      "daysLabel": "Days of Week",
+      "daysOfWeek": "Days",
+      "delete": "Delete",
+      "deleteButton": "Delete Session",
+      "deleteConfirmMessage": "This session and all its instances will be permanently deleted.",
+      "deleteConfirmTitle": "Delete Session?",
+      "deleteSuccess": "Session deleted successfully",
+      "deselectAll": "Deselect All",
+      "editSession": "Edit Session",
+      "editTitle": "Edit Session",
+      "emptyMessage": "No sessions scheduled.",
+      "emptyTitle": "Create Your First Session",
+      "endSession": "End Session",
+      "endSessionConfirm": "End this session? Students without attendance will be marked absent.",
+      "endSessionSuccess": "Session ended successfully.",
+      "markAttendance": "Mark Attendance",
+      "noStudentsAvailable": "No students available",
+      "removeStudentConfirm": "Remove this student?",
+      "saveButton": "Save Session",
+      "selectAll": "Select All",
+      "selectDays": "Select Days",
+      "selectStudents": "Select Students",
+      "sessionForm": {
+        "daysLabel": "Days of Week",
+        "subjectLabel": "Subject",
+        "subjectPlaceholder": "Enter subject name",
+        "timeLabel": "Start Time",
+        "timePlaceholder": "HH:mm",
+        "validation": {
+          "daysRequired": "Select at least one day",
+          "subjectRequired": "Subject is required",
+          "timeInvalid": "Time must be in HH:mm format",
+          "timeRequired": "Time is required"
+        }
+      },
+      "startSession": "Start Session",
+      "startSessionButton": "Start Session",
+      "status": {
+        "ACTIVE": "Active",
+        "CLOSED": "Closed",
+        "DRAFT": "Upcoming"
+      },
+      "studentCount": "{{count}} students",
+      "studentsLabel": "Students",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "Enter subject name",
+      "submitting": "Creating...",
+      "timeLabel": "Start Time",
+      "title": "Sessions",
+      "updating": "Updating...",
+      "validation": {
+        "daysOfWeekRequired": "Select at least one day",
+        "studentsRequired": "Select at least one student",
+        "subjectRequired": "Subject is required",
+        "timeInvalid": "Time must be in HH:mm format"
+      },
+      "weekdays": {
+        "fri": "Fri",
+        "mon": "Mon",
+        "sat": "Sat",
+        "sun": "Sun",
+        "thu": "Thu",
+        "tue": "Tue",
+        "wed": "Wed"
+      }
+    },
+    "studentActions": {
+      "codeCopied": "Access code copied to clipboard",
+      "codeRegenerated": "Access code regenerated",
+      "codeShared": "Code shared successfully",
+      "confirmDelete": "This student and all their records will be permanently deleted.",
+      "confirmRegenerate": "The old code will stop working. Students will need the new code to link their accounts.",
+      "copyCode": "Copy Code",
+      "deleteStudent": "Delete Student",
+      "editStudent": "Edit Student",
+      "noCode": "No access code yet",
+      "regenerateCode": "Regenerate Code",
+      "shareCode": "Share Code",
+      "studentDeleted": "Student deleted successfully",
+      "studentUpdated": "Student updated successfully",
+      "title": "Student Actions",
+      "viewCode": "View Access Code",
+      "viewDetails": "View Details"
+    },
+    "studentSelect": {
+      "clearAll": "Clear All",
+      "confirm": "Confirm ({{count}})",
+      "selectedCount": "{{count}} selected"
+    },
+    "students": {
+      "connectionCodeButton": "Access Code",
+      "createButton": "Create Student",
+      "createTitle": "Add Student",
+      "createdFlowAssignSession": "Assign to Session",
+      "createdFlowMessage": "Next, either share the access code with the parent or assign this student to a session.",
+      "createdFlowShareCode": "Share Access Code",
+      "createdFlowTitle": "Student Created",
+      "deleteButton": "Delete Student",
+      "deleteConfirmMessage": "This student and all their records will be permanently deleted.",
+      "deleteConfirmTitle": "Delete Student?",
+      "deleteSuccess": "Student deleted successfully",
+      "editTitle": "Edit Student",
+      "emptyAssigned": "No Assigned Students",
+      "emptyFilterMessage": "Try changing the filter to see more students.",
+      "emptyMessage": "No students added yet. Create one to get started.",
+      "emptyTitle": "No Students",
+      "emptyUnassigned": "All Students Assigned",
+      "filterAll": "All",
+      "filterAssigned": "In Sessions",
+      "filterUnassigned": "Unassigned",
+      "form": {
+        "gradeLabel": "Grade (Optional)",
+        "gradePlaceholder": "e.g., 10th Grade",
+        "nameLabel": "Student Name",
+        "namePlaceholder": "Enter student name",
+        "notesLabel": "Notes (Optional)",
+        "notesPlaceholder": "Add any additional notes",
+        "parentPhoneLabel": "Parent Phone Number",
+        "parentPhonePlaceholder": "Enter parent phone number",
+        "validation": {
+          "nameRequired": "Student name is required",
+          "parentPhoneInvalid": "Please enter a valid phone number with country code",
+          "parentPhoneRequired": "Parent phone number is required"
+        }
+      },
+      "noConnectionCode": "No access code generated yet",
+      "noSessions": "No sessions",
+      "search": "Search by name...",
+      "searchPlaceholder": "Type to search...",
+      "sessionCount_few": "{{count}} sessions",
+      "sessionCount_many": "{{count}} sessions",
+      "sessionCount_one": "{{count}} session",
+      "sessionCount_other": "{{count}} sessions",
+      "sessionCount_two": "{{count}} sessions",
+      "submitting": "Creating...",
+      "title": "Students",
+      "totalCount_few": "{{count}} students",
+      "totalCount_many": "{{count}} students",
+      "totalCount_one": "{{count}} student",
+      "totalCount_other": "{{count}} students",
+      "totalCount_two": "{{count}} students",
+      "updating": "Updating...",
+      "validation": {
+        "nameRequired": "Student name is required",
+        "parentPhoneInvalid": "Please enter a valid phone number with country code",
+        "parentPhoneRequired": "Parent phone number is required"
+      }
+    },
+    "tabs": {
+      "dashboard": "Home",
+      "profile": "Profile",
+      "sessions": "Sessions",
+      "students": "Students"
+    },
+    "timePicker": {
+      "done": "Done",
+      "hours": "Hour",
+      "minutes": "Minute"
+    },
+    "toast": {
+      "copied": "Copied to clipboard",
+      "error": "Error",
+      "success": "Success"
+    }
+  },
+  "teacherOrg": {
+    "closeSession": "Close session",
+    "duration": "{{min}} min · {{n}} students",
+    "empty": "No sessions assigned for today.",
+    "startSession": "Start session",
+    "subtitle": "Your assigned sessions",
+    "today": "Today",
+    "upcoming": "Upcoming"
+  },
+  "welcome": "Welcome to Taba3ny"
 }

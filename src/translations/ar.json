@@ -1,6 +1,714 @@
 {
+  "auth": {
+    "common": {
+      "optional": "اختياري"
+    },
+    "errors": {
+      "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "بريدك الإلكتروني في جوجل غير مُتحقق منه. يرجى التحقق منه والمحاولة مرة أخرى.",
+      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى."
+    },
+    "invite": {
+      "acceptButton": "تفعيل الحساب",
+      "acceptError": "تعذر تفعيل الحساب. يرجى المحاولة مرة أخرى.",
+      "alreadyOnboarded": "تم استخدام هذه الدعوة مسبقًا. يرجى تسجيل الدخول.",
+      "errorTitle": "خطأ في الدعوة",
+      "expired": "انتهت صلاحية هذه الدعوة.",
+      "fullNameLabel": "الاسم الكامل (اختياري)",
+      "invalid": "هذه الدعوة غير صالحة.",
+      "invalidToken": "رمز الدعوة مفقود أو غير صالح.",
+      "passwordLabel": "كلمة المرور",
+      "subtitle": "أنشئ كلمة المرور لتفعيل حسابك.",
+      "title": "دعوة ولي الأمر",
+      "validating": "جارٍ التحقق من الدعوة...",
+      "validationError": "تعذر التحقق من الدعوة الآن."
+    },
+    "login": {
+      "createAccount": "إنشاء حساب",
+      "dontHaveAccount": "ليس لديك حساب؟",
+      "emailLabel": "البريد الإلكتروني",
+      "emailTab": "البريد الإلكتروني",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "genericError": "تعذر تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقاً.",
+      "orConnectWith": "أو الاتصال عبر",
+      "passwordLabel": "كلمة المرور",
+      "phoneTab": "الهاتف",
+      "protectedBy": "محمي بواسطة أمان تابعني",
+      "signInWithGoogle": "تسجيل الدخول عبر Google",
+      "submit": "تسجيل الدخول",
+      "submitting": "جاري تسجيل الدخول...",
+      "subtitle": "مرحباً بعودتك! يرجى تسجيل الدخول إلى بوابة إدارة المدرسة.",
+      "title": "تابعني",
+      "validation": {
+        "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "passwordRequired": "كلمة المرور مطلوبة"
+      }
+    },
+    "onboarding": {
+      "genericError": "فشل إنشاء الملف الشخصي. يرجى المحاولة مرة أخرى.",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "submit": "إكمال الإعداد",
+      "title": "أكمل ملفك الشخصي"
+    },
+    "phone": {
+      "countries": {
+        "eg": "مصر ({{dialCode}})",
+        "sa": "السعودية ({{dialCode}})"
+      },
+      "countryCodeLabel": "الدولة",
+      "emailLabel": "البريد الإلكتروني",
+      "fullNameLabel": "الاسم الكامل",
+      "loginButton": "تسجيل الدخول بالهاتف",
+      "newPasswordLabel": "كلمة المرور الجديدة",
+      "otpLabel": "رمز التحقق",
+      "otpSentHint": "تم إرسال رمز التحقق إلى {{phone}}",
+      "passwordLabel": "كلمة المرور",
+      "phoneLabel": "رقم الهاتف",
+      "requestOtp": "إرسال رمز التحقق",
+      "resendOtp": "إعادة إرسال الرمز",
+      "resetPasswordButton": "إعادة تعيين كلمة المرور",
+      "resetSubtitle": "أعد تعيين كلمة المرور باستخدام رقم الهاتف ورمز التحقق.",
+      "signupButton": "إنشاء حساب",
+      "signupExistingAccount": "رقم الهاتف هذا لديه حساب بالفعل. يرجى تسجيل الدخول بدلاً من ذلك.",
+      "signupFlowHint": "أولاً تحقق من رقم الهاتف، ثم اختر الدور وأكمل بيانات الملف الشخصي.",
+      "validation": {
+        "egyptInvalid": "أدخل رقم هاتف مصري صحيح",
+        "saudiInvalid": "أدخل رقم جوال سعودي صحيح"
+      },
+      "verifyOtp": "تأكيد الرمز"
+    },
+    "reset_password": {
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور الجديدة",
+      "error": "تعذر إعادة تعيين كلمة المرور. يرجى طلب بريد إعادة تعيين جديد.",
+      "expiredToken": "انتهت صلاحية رابط إعادة التعيين. يرجى طلب رابط جديد.",
+      "newPasswordLabel": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+      "passwordRequired": "يرجى إدخال كلمة المرور الجديدة وتأكيدها.",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      "resendEmail": "طلب بريد إعادة تعيين جديد",
+      "submit": "تحديث كلمة المرور",
+      "subtitle": "أنشئ كلمة مرور جديدة لتأمين حسابك.",
+      "success": "تم تحديث كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.",
+      "title": "إعادة تعيين كلمة المرور",
+      "useEmailLink": "استخدام رابط البريد الإلكتروني بدلًا من ذلك"
+    },
+    "signup": {
+      "alreadyHaveAccount": "لديك حساب بالفعل؟",
+      "consent": "بالنقر على إنشاء حساب، فإنك توافق على {{terms}} و{{privacy}}",
+      "continueWithGoogle": "المتابعة عبر Google",
+      "emailLabel": "البريد الإلكتروني",
+      "emailTab": "البريد الإلكتروني",
+      "fullNameLabel": "الاسم الكامل",
+      "fullNamePlaceholder": "أدخل اسمك الكامل",
+      "genericError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+      "loginLink": "تسجيل الدخول",
+      "managerLabel": "مدرسة / مركز",
+      "orConnectWith": "أو الاتصال عبر",
+      "parentLabel": "ولي أمر",
+      "passwordLabel": "كلمة المرور",
+      "phoneTab": "الهاتف",
+      "roleLabel": "أنا...",
+      "signUpWithGoogle": "إنشاء حساب عبر Google",
+      "submit": "إنشاء حساب",
+      "teacherLabel": "معلم",
+      "termsLink": "شروط الخدمة",
+      "title": "إنشاء حسابك",
+      "validation": {
+        "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+        "fullNameRequired": "الاسم الكامل مطلوب",
+        "fullNameTooLong": "يجب أن يكون الاسم الكامل 100 حرف أو أقل",
+        "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "roleRequired": "يرجى اختيار دور"
+      }
+    }
+  },
+  "contextSwitcher": {
+    "orgContext": "المؤسسة",
+    "personal": "شخصي (مستقل)",
+    "personalDesc": "طلابك وجلساتك الخاصة",
+    "roleManager": "مدير",
+    "roleTeacher": "معلم",
+    "selectOrg": "التبديل إلى مؤسسة {{name}}",
+    "selectPersonal": "التبديل إلى السياق الشخصي",
+    "title": "تبديل السياق"
+  },
+  "manager": {
+    "attendance": {
+      "absent": "غائب",
+      "back": "رجوع",
+      "clearRating": "مسح",
+      "emptyStudents": "لا يوجد طلاب مسجلين في هذه الحصة.",
+      "enterRating": "أدخل التقييم",
+      "excuseNote": "ملاحظة العذر...",
+      "excused": "بعذر",
+      "markedCount": "تم التسجيل: {{marked}}/{{total}}",
+      "noRating": "بدون تقييم",
+      "noSearchResults": "لا يوجد طلاب يطابقون بحثك.",
+      "present": "حاضر",
+      "rating": "التقييم",
+      "ratingLabel": "{{value}}/10",
+      "searchStudent": "البحث عن طلاب...",
+      "sessionClosed": "الحصة مغلقة — الحضور للقراءة فقط.",
+      "sessionNotActive": "ابدأ الحصة أولاً لتسجيل الحضور.",
+      "submitButton": "حفظ الحضور",
+      "submitError": "فشل حفظ الحضور. حاول مرة أخرى.",
+      "submitSuccess": "تم حفظ الحضور بنجاح!",
+      "submitting": "جارٍ الحفظ...",
+      "title": "الحضور"
+    },
+    "common": {
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "errorTitle": "حدث خطأ ما",
+      "loading": "جارٍ التحميل...",
+      "noOrgCopy": "أنشئ مؤسستك الأولى للبدء.",
+      "noOrgTitle": "لا توجد مؤسسة بعد",
+      "ok": "حسنًا"
+    },
+    "dashboard": {
+      "cards": {
+        "absentToday": "غياب اليوم",
+        "activeTeachers": "المعلمون النشطون",
+        "runningNow": "جارية الآن",
+        "students": "الطلاب",
+        "todaySessions": "اليوم"
+      },
+      "emptyCopy": "أنشئ أول مؤسسة لفتح لوحة المدير.",
+      "emptyTitle": "لا توجد مؤسسة بعد",
+      "endSession": "إنهاء الحصة",
+      "goodAfternoon": "مساء الخير",
+      "goodEvening": "مساء الخير",
+      "goodMorning": "صباح الخير",
+      "infoAbsent": "{{count}} غائبون اليوم",
+      "infoTeachers": "{{count}} معلمين",
+      "markAttendance": "تسجيل الحضور",
+      "noSessions": "لا توجد حصص مجدولة لليوم حتى الآن.",
+      "openSession": "فتح الحصة",
+      "quickAddStudent": "إضافة طالب",
+      "quickInvite": "دعوة",
+      "quickNewSession": "حصة جديدة",
+      "sessionDuration": "{{minutes}} دقيقة",
+      "sessionStudents": "{{count}} طالب",
+      "startSession": "ابدأ الحصة",
+      "subtitle": "تابع يومك، وراقب الاستهلاك، وأزل العوائق قبل بدء الحصص.",
+      "title": "لوحة المدير",
+      "todayTitle": "حصص اليوم",
+      "viewAll": "عرض الكل"
+    },
+    "days": {
+      "fri": "الجمعة",
+      "mon": "الإثنين",
+      "sat": "السبت",
+      "sun": "الأحد",
+      "thu": "الخميس",
+      "tue": "الثلاثاء",
+      "wed": "الأربعاء"
+    },
+    "limits": {
+      "sessions": "تم الوصول إلى حد الحصص ({{current}}/{{limit}}).",
+      "students": "تم الوصول إلى حد الطلاب ({{current}}/{{limit}})."
+    },
+    "more": {
+      "accountSection": "الحساب",
+      "emailLabel": "البريد الإلكتروني",
+      "entitlementSection": "الاشتراك",
+      "languageLabel": "اللغة",
+      "logout": "تسجيل الخروج",
+      "orgName": "المؤسسة: {{name}}",
+      "phoneAccount": "حساب الهاتف",
+      "phoneLabel": "الهاتف",
+      "planLabel": "الخطة",
+      "planStatus": {
+        "expired": "منتهية",
+        "subscription": "نشطة",
+        "trial": "تجريبية"
+      },
+      "quickLinksSection": "روابط سريعة",
+      "reports": {
+        "body": "راجع اتجاهات الحضور والتفاعل وأداء المعلمين.",
+        "cta": "افتح التقارير",
+        "title": "التقارير"
+      },
+      "roleManager": "مدير",
+      "settings": {
+        "body": "حدّث معلومات التواصل وراقب استخدام الحدود.",
+        "cta": "افتح الإعدادات",
+        "title": "الإعدادات"
+      },
+      "subscriptionEnds": "تنتهي في",
+      "subtitle": "الإعدادات والتقارير والتحكمات الأعلى مستوى موجودة هنا.",
+      "title": "المزيد",
+      "trialEnds": "تنتهي التجربة في",
+      "usage": {
+        "minutes": "الدقائق",
+        "sessions": "الحصص",
+        "students": "الطلاب",
+        "teachers": "المعلمون",
+        "title": "الاستخدام",
+        "unlimited": "∞"
+      }
+    },
+    "reports": {
+      "cards": {
+        "absentCount": "الغياب",
+        "attendanceRate": "معدل الحضور",
+        "averageRating": "متوسط التقييم",
+        "completed": "المكتملة",
+        "excusedCount": "بعذر",
+        "totalSessions": "إجمالي الحصص"
+      },
+      "range": {
+        "month": "شهر",
+        "term": "فصل",
+        "week": "أسبوع"
+      },
+      "subtitle": "اتجاهات الحضور والإنجاز وأداء المعلمين داخل المؤسسة.",
+      "teacherLastSession": "آخر حصة: {{date}}",
+      "teacherPerformance": "أداء المعلمين",
+      "teacherRating": "التقييم: {{rating}}",
+      "teacherSummary": "{{completed}} مكتملة • {{attendance}}% حضور",
+      "title": "التقارير"
+    },
+    "sessionDetail": {
+      "accessibility": {
+        "ratingChip": "تقييم {{name}} بدرجة {{score}}",
+        "statusChip": "تسجيل {{name}} كـ {{status}}"
+      },
+      "attendanceError": "تعذر حفظ الحضور الآن.",
+      "attendanceTitle": "الحضور",
+      "close": "أغلق الحصة",
+      "closeConfirm": "تأكيد",
+      "closeWarning": "سيتم تسجيل {{count}} طالب غير محدد كغائبين تلقائياً. هل تريد المتابعة؟",
+      "closeWarningTitle": "إغلاق الحصة",
+      "daysLabel": "الأيام",
+      "durationLabel": "المدة",
+      "durationValue": "{{minutes}} دقيقة",
+      "excuseNoteLabel": "ملاحظة العذر",
+      "excuseNotePlaceholder": "سبب العذر...",
+      "instanceState": {
+        "active": "نشطة",
+        "cancelled": "ملغاة",
+        "closed": "مغلقة",
+        "draft": "قادمة"
+      },
+      "loadError": "فشل تحميل بيانات الحصة.",
+      "markedCount": "تم التسجيل: {{marked}}/{{total}}",
+      "noInstances": "لا توجد حصص في آخر 7 أيام.",
+      "noStudents": "لا يوجد طلاب مسجلين في هذه الحصة.",
+      "paused": "متوقفة",
+      "ratingLabel": "التقييم",
+      "recentInstances": "الحصص الأخيرة",
+      "retry": "إعادة المحاولة",
+      "saveAttendance": "حفظ الحضور",
+      "saveAttendanceSuccess": "تم حفظ الحضور بنجاح.",
+      "start": "ابدأ الحصة",
+      "statsActive": "نشطة",
+      "statsCompleted": "مكتملة",
+      "statsTitle": "الإحصائيات (30 يوم)",
+      "statsTotal": "الإجمالي",
+      "statsUpcoming": "قادمة",
+      "status": {
+        "absent": "غائب",
+        "excused": "بعذر",
+        "present": "حاضر"
+      },
+      "studentCount": "{{count}} طالب",
+      "title": "تفاصيل الحصة",
+      "viewAttendance": "عرض الحضور"
+    },
+    "sessions": {
+      "accessibility": {
+        "dayChip": "تبديل {{day}}",
+        "memberChip": "اختيار {{name}}",
+        "ratingChip": "تعيين التقييم {{score}}",
+        "studentChip": "تبديل {{name}}"
+      },
+      "actions": {
+        "create": "إنشاء الحصة",
+        "delete": "حذف",
+        "details": "التفاصيل",
+        "pause": "إيقاف",
+        "resume": "استئناف"
+      },
+      "clearAll": "مسح الكل",
+      "confirmStudents": "تأكيد ({{count}})",
+      "createScreenTitle": "إنشاء حصة",
+      "createSuccess": "تم إنشاء الحصة بنجاح.",
+      "createTitle": "إنشاء قالب حصة",
+      "deleteConfirm": "حذف",
+      "deleteMessage": "سيتم حذف قالب الحصة. السجلات الحالية محفوظة.",
+      "deleteTitle": "حذف الحصة؟",
+      "empty": "لا توجد حصص بعد.",
+      "errorLoading": "تعذر تحميل الحصص.",
+      "errorRetry": "إعادة المحاولة",
+      "fields": {
+        "days": "أيام الأسبوع",
+        "duration": "المدة بالدقائق",
+        "students": "الطلاب المسندون",
+        "subject": "المادة",
+        "teacher": "المعلم المسؤول",
+        "time": "الوقت (HH:MM)"
+      },
+      "listTitle": "القوالب الحالية",
+      "myselfSuffix": "(أنا)",
+      "noOrgCopy": "أنشئ مؤسسة أولاً لبدء إضافة الحصص.",
+      "noOrgTitle": "لا توجد مؤسسة بعد",
+      "paused": "متوقفة",
+      "selectAll": "تحديد الكل",
+      "selectStudentsPlaceholder": "اختر الطلاب",
+      "selectTeacher": "اختر معلماً",
+      "selectedCount": "{{count}} محدد",
+      "studentCount": "{{count}} طلاب",
+      "submitError": "تعذر حفظ الحصة الآن.",
+      "subtitle": "أنشئ قوالب حصص متكررة مع ظهور واضح لإسناد المعلمين.",
+      "title": "الحصص",
+      "validation": {
+        "daysRequired": "اختر يوماً واحداً على الأقل",
+        "subjectRequired": "المادة مطلوبة",
+        "teacherRequired": "اختر معلماً",
+        "timeInvalid": "أدخل وقتاً صحيحاً بصيغة HH:MM"
+      }
+    },
+    "settings": {
+      "fields": {
+        "address": "العنوان",
+        "email": "البريد الإلكتروني",
+        "name": "اسم المؤسسة",
+        "phone": "الهاتف"
+      },
+      "save": "حفظ الإعدادات",
+      "subscriptionDates": "الاشتراك: {{start}} — {{end}}",
+      "subtitle": "حدّث تفاصيل المؤسسة وراقب استهلاك الحدود بسهولة.",
+      "title": "الإعدادات",
+      "trialEndDate": "تنتهي التجربة: {{date}}",
+      "updateError": "تعذر تحديث إعدادات المؤسسة.",
+      "updated": "تم تحديث إعدادات المؤسسة.",
+      "usage": {
+        "minutes": "دقائق الحصص",
+        "source": "المصدر: {{source}}",
+        "students": "الطلاب",
+        "teachers": "المعلمون",
+        "templates": "قوالب الحصص",
+        "title": "الاستخدام"
+      }
+    },
+    "setup": {
+      "address": "العنوان (اختياري)",
+      "email": "البريد الإلكتروني (اختياري)",
+      "heroCopy": "اضبط الأساسيات مرة واحدة ثم ابدأ بإضافة الطلاب ودعوة المعلمين وتشغيل الحصص.",
+      "heroTitle": "أنشئ مؤسستك",
+      "name": "اسم المؤسسة",
+      "phone": "الهاتف (اختياري)",
+      "submit": "إنشاء المؤسسة",
+      "submitError": "تعذر إنشاء المؤسسة الآن.",
+      "validation": {
+        "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+        "nameRequired": "اسم المؤسسة مطلوب"
+      }
+    },
+    "studentDetail": {
+      "absent": "غائب",
+      "assignedSessions": "الحصص المسجّل بها",
+      "attendanceRate": "الحضور",
+      "attended": "{{count}} حضور",
+      "avgRating": "متوسط التقييم",
+      "bySubject": "حسب المادة",
+      "excused": "معذور",
+      "loadError": "تعذّر تحميل بيانات الطالب.",
+      "noSessions": "لم يُسجَّل في أي حصة بعد.",
+      "performance": "الأداء",
+      "present": "حاضر",
+      "ratingTrend": "اتجاه التقييم (آخر 10)",
+      "retry": "إعادة المحاولة",
+      "statsError": "تعذّر تحميل الإحصائيات.",
+      "totalSessions": "الحصص"
+    },
+    "students": {
+      "actions": {
+        "copy": "نسخ الرمز",
+        "create": "إنشاء الطالب",
+        "delete": "حذف",
+        "edit": "تعديل",
+        "regenerate": "إعادة إنشاء الرمز",
+        "save": "حفظ التغييرات"
+      },
+      "connectionCode": "رمز الربط",
+      "copiedBody": "رمز الربط جاهز للصق.",
+      "copiedTitle": "تم النسخ",
+      "createScreenTitle": "إضافة طالب",
+      "createSuccess": "تمت إضافة الطالب بنجاح",
+      "createTitle": "إضافة طالب",
+      "deleteConfirm": "حذف",
+      "deleteMessage": "سيتم إزالة الطالب من الحصص المستقبلية. البيانات التاريخية محفوظة.",
+      "deleteTitle": "حذف الطالب؟",
+      "editTitle": "تعديل الطالب",
+      "empty": "لا يوجد طلاب بعد.",
+      "errorLoading": "تعذر تحميل الطلاب.",
+      "errorRetry": "إعادة المحاولة",
+      "fields": {
+        "gradeLevel": "المرحلة الدراسية",
+        "name": "اسم الطالب",
+        "notes": "ملاحظات",
+        "parentPhone": "هاتف ولي الأمر"
+      },
+      "gradeFilter": "تصفية حسب المرحلة",
+      "grades": {
+        "all": "جميع المراحل",
+        "grade1": "الصف الأول",
+        "grade10": "الصف العاشر",
+        "grade11": "الصف الحادي عشر",
+        "grade12": "الصف الثاني عشر",
+        "grade2": "الصف الثاني",
+        "grade3": "الصف الثالث",
+        "grade4": "الصف الرابع",
+        "grade5": "الصف الخامس",
+        "grade6": "الصف السادس",
+        "grade7": "الصف السابع",
+        "grade8": "الصف الثامن",
+        "grade9": "الصف التاسع",
+        "label": "اختر المرحلة",
+        "other": "أخرى",
+        "university": "جامعة"
+      },
+      "nextPage": "التالي",
+      "noGrade": "بدون مرحلة دراسية",
+      "pageInfo": "صفحة {{page}} من {{total}}",
+      "parentLinked": "ولي الأمر مرتبط",
+      "prevPage": "السابق",
+      "regenerateMessage": "الكود القديم سيتوقف عن العمل فوراً.",
+      "regenerateTitle": "تجديد الكود؟",
+      "search": "ابحث عن الطلاب",
+      "sessionsCount": "{{count}} حصص",
+      "submitError": "تعذر حفظ الطالب الآن.",
+      "subtitle": "ابحث في القائمة، وشارك أكواد الربط، وحدّث بيانات أولياء الأمور بسهولة.",
+      "title": "الطلاب",
+      "validation": {
+        "nameRequired": "اسم الطالب مطلوب"
+      }
+    },
+    "tabs": {
+      "home": "الرئيسية",
+      "homeAccessibility": "لوحة المدير",
+      "more": "المزيد",
+      "sessions": "الحصص",
+      "students": "الطلاب",
+      "teachers": "المعلمون"
+    },
+    "teachers": {
+      "activeSessions": "{{count}} حصص نشطة",
+      "cancelMessage": "سيتم إلغاء هذه الدعوة فوراً.",
+      "email": "البريد الإلكتروني",
+      "empty": "لا يوجد معلمون بعد.",
+      "errorLoading": "تعذر تحميل الأعضاء.",
+      "errorRetry": "إعادة المحاولة",
+      "inviteError": "تعذر إرسال الدعوة الآن.",
+      "inviteHint": "أدخل رقم هاتف أو بريداً إلكترونياً أو كليهما. سيتلقى المعلم دعوة للانضمام إلى مؤسستك.",
+      "inviteSent": "تم إرسال الدعوة بنجاح.",
+      "inviteTitle": "دعوة معلم",
+      "inviteValidation": "يرجى تقديم رقم هاتف أو بريد إلكتروني على الأقل.",
+      "listTitle": "الأعضاء الحاليون",
+      "pendingCancel": "إلغاء",
+      "pendingEmpty": "لا توجد دعوات معلقة.",
+      "pendingExpires": "تنتهي {{date}}",
+      "pendingResend": "إعادة الإرسال",
+      "pendingTitle": "الدعوات المعلقة",
+      "phone": "الهاتف",
+      "remove": "إزالة",
+      "removeConfirm": "إزالة",
+      "removeMessage": "سيتم إيقاف الحصص المسندة إليه وإلغاء الجلسات المستقبلية.",
+      "removeTitle": "إزالة المعلم؟",
+      "roleOwner": "مالك",
+      "roleTeacher": "معلم",
+      "sendInvite": "إرسال الدعوة",
+      "subtitle": "ادعُ المعلمين عبر الهاتف أو البريد الإلكتروني، ثم أزلهم بشكل منظم عند تغير المسؤوليات.",
+      "title": "المعلمون"
+    },
+    "trialBanner": {
+      "body": "أصبحت هذه المؤسسة للقراءة فقط حتى يتم تفعيل الاشتراك.",
+      "contactSupport": "تواصل مع الدعم",
+      "createNew": "أنشئ مؤسسة جديدة",
+      "supportEmail": "support@privatedulink.com",
+      "title": "انتهت الفترة التجريبية"
+    },
+    "whatsapp": {
+      "copiedBody": "واتساب غير متاح حالياً، لذلك تم نسخ الرسالة.",
+      "copiedTitle": "تم النسخ",
+      "share": "شارك عبر واتساب"
+    },
+    "wizard": {
+      "completed": "مكتمل",
+      "progress": "{{done}}/{{total}} مكتمل",
+      "stepLabel": "الخطوة {{count}}",
+      "steps": {
+        "sessions": {
+          "copy": "بعد تجهيز الطلاب والمعلم، أنشئ قالب الحصة المتكررة.",
+          "cta": "افتح الحصص",
+          "title": "أنشئ أول حصة"
+        },
+        "students": {
+          "copy": "أنشئ طالباً واحداً على الأقل حتى تصبح الحصص والحضور مرتبطة بقوائم حقيقية.",
+          "cta": "افتح الطلاب",
+          "title": "أضف أول طالب"
+        },
+        "teachers": {
+          "copy": "يمكنك دعوة المعلمين الآن أو إسناد الحصص لنفسك بصفتك المالك للبدء بسرعة.",
+          "cta": "افتح المعلمين",
+          "title": "ادعُ معلماً أو أسند الحصة لنفسك"
+        }
+      },
+      "subtitle": "أكمل هذه الخطوات الثلاث لتصبح المؤسسة جاهزة للعمل.",
+      "title": "قائمة الإطلاق"
+    }
+  },
+  "notification": {
+    "absence": {
+      "body": "تم تحديد {{studentName}} كغائب في {{sessionDate}}",
+      "title": "تنبيه غياب"
+    },
+    "lowScore": {
+      "body": "حصل {{studentName}} على تقييم {{rating}} من {{teacherName}} بتاريخ {{sessionDate}}",
+      "title": "تنبيه أداء منخفض"
+    }
+  },
   "onboarding": {
-    "message": "مرحبا بك في Privat Edu"
+    "message": "مرحبا بك في تابعني"
+  },
+  "orgInvitation": {
+    "accept": "قبول الدعوة",
+    "acceptError": "تعذّر قبول الدعوة.",
+    "badge": "دعوة مؤسسية",
+    "body": "تمت دعوتك للانضمام إلى {{org}} كمعلم. اقبل للوصول إلى جلسات المؤسسة.",
+    "decline": "رفض",
+    "declineError": "تعذّر رفض الدعوة.",
+    "invalidToken": "رابط الدعوة غير صالح أو منتهي الصلاحية.",
+    "invitedBy": "دعوة من {{name}}",
+    "unknownOrg": "مؤسسة"
+  },
+  "parent": {
+    "attendance": {
+      "absent": "غائب",
+      "absentCount": "الغيابات",
+      "emptyMessage": "لا توجد سجلات حضور متاحة.",
+      "emptyTitle": "لا توجد سجلات بعد",
+      "excused": "معذور",
+      "notMarked": "لم يُحدَّد",
+      "present": "حاضر",
+      "rate": "معدل الحضور",
+      "statusAbsent": "غائب",
+      "statusExcused": "معذور",
+      "statusNotMarked": "لم يتم تحديده",
+      "statusPresent": "حاضر",
+      "studentName": "الطالب",
+      "title": "الحضور",
+      "unknownDate": "تاريخ غير معروف"
+    },
+    "common": {
+      "back": "رجوع",
+      "brandName": "تابعني",
+      "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "loading": "جاري التحميل...",
+      "offlineError": "لا توجد اتصال بالإنترنت. يرجى التحقق من شبكتك والمحاولة مرة أخرى.",
+      "retry": "إعادة محاولة",
+      "serverError": "خطأ في الخادم. يرجى المحاولة لاحقاً."
+    },
+    "dashboard": {
+      "emptyMessage": "ربط طالب للبدء.",
+      "emptyTitle": "لم يتم ربط أي طلاب",
+      "linkStudentCta": "ربط طالب",
+      "noTimeline": "لا توجد سجلات حضور حديثة.",
+      "performanceSubtitle": "عرض التقييمات والتقدم",
+      "performanceTitle": "أداء الطالب",
+      "statsError": "فشل تحميل إحصائيات الحضور.",
+      "statsTitle": "نظرة عامة على الحضور",
+      "teacherLabel": "المعلم",
+      "termLabel": "الفصل الدراسي",
+      "timelineError": "فشل تحميل سجل الحضور.",
+      "timelineTitle": "الحضور الأخير",
+      "title": "طلابي"
+    },
+    "linkStudent": {
+      "description": "أدخل رمز التكامل المقدم من مدرستك لربط حساب طفلك.",
+      "fallbackHelp": "ليس لديك رمز؟ يرجى التواصل مع مكتب إدارة مدرستك للحصول على المساعدة.",
+      "helpContent": "يمكنك العثور على رمز التكامل في خطاب الترحيب من مدرستك، أو التواصل مع إدارة المدرسة.",
+      "helpLink": "أين أجد الرمز؟",
+      "inputLabel": "رمز تكامل الطالب",
+      "inputPlaceholder": "EDU-123-456",
+      "submit": "ربط الطالب",
+      "title": "ربط طالبك",
+      "validation": {
+        "codeRequired": "رمز الوصول مطلوب"
+      }
+    },
+    "notifications": {
+      "absence": {
+        "body": "تم تحديد {{studentName}} كغائب في {{sessionDate}}",
+        "title": "تنبيه غياب"
+      },
+      "earlier": "سابقاً",
+      "empty": "ليس لديك أي إشعارات حتى الآن.",
+      "emptyTitle": "لا توجد إشعارات",
+      "error": "فشل تحميل الإشعارات. يرجى المحاولة مرة أخرى.",
+      "errorTitle": "عذراً! حدث خطأ ما",
+      "lowScore": {
+        "body": "حصل {{studentName}} على تقييم {{rating}} من {{teacherName}} بتاريخ {{sessionDate}}",
+        "title": "تنبيه أداء منخفض"
+      },
+      "markAllAsRead": "وضع علامة على الكل كمقروء",
+      "openSettings": "فتح الإعدادات",
+      "pushDisabled": "الإشعارات الفورية معطلة. الإشعارات داخل التطبيق لا تزال نشطة.",
+      "pushUnsupported": "الإشعارات الفورية غير متاحة على المحاكي.",
+      "thisWeek": "هذا الأسبوع",
+      "title": "الإشعارات",
+      "today": "اليوم",
+      "yesterday": "أمس"
+    },
+    "performance": {
+      "average": "المتوسط",
+      "emptyState": "لا توجد بيانات أداء بعد",
+      "emptyStateHint": "ستظهر التقييمات هنا بعد اكتمال الحصص",
+      "highest": "أفضل تقييم",
+      "lowScoreNote": "يحتاج إلى اهتمام",
+      "lowest": "الأدنى",
+      "noRating": "بدون تقييم",
+      "ratedCount": "مقيّم",
+      "title": "الأداء"
+    },
+    "profile": {
+      "accountSection": "الحساب",
+      "emailLabel": "البريد الإلكتروني",
+      "languageLabel": "اللغة",
+      "logoutButton": "تسجيل الخروج",
+      "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "phoneAccount": "حساب هاتف",
+      "phoneLabel": "الهاتف",
+      "roleLabel": "الدور",
+      "roleParent": "ولي أمر",
+      "title": "الملف الشخصي"
+    },
+    "studentDetails": {
+      "labels": {
+        "email": "البريد الإلكتروني",
+        "enrollmentDate": "تاريخ التسجيل",
+        "grade": "المرحلة",
+        "phone": "رقم الهاتف",
+        "school": "المدرسة"
+      },
+      "title": "تفاصيل الطالب",
+      "viewAttendance": "عرض الحضور"
+    },
+    "studentList": {
+      "emptyMessage": "ربط طالب لرؤيته هنا.",
+      "emptyTitle": "لا توجد طلاب",
+      "title": "الطلاب"
+    },
+    "tabs": {
+      "dashboard": "لوحة التحكم",
+      "profile": "الملف الشخصي"
+    }
   },
   "settings": {
     "about": "حول التطبيق ",
@@ -29,5 +737,362 @@
     "version": "إصدار",
     "website": "موقع الكتروني"
   },
-  "welcome": "مرحبا بك في Privat Edu"
+  "teacher": {
+    "attendance": {
+      "absent": "غائب",
+      "absentLabel": "وضع علامة غائب",
+      "applyToAll": "تطبيق {{rating}}/10 على {{count}} طالب",
+      "batchRating": "تقييم سريع للجميع",
+      "batchRatingButton": "تقييم {{count}} طالب دفعة واحدة",
+      "batchRatingDescription": "تطبيق نفس التقييم على {{count}} طالب غير مقيّم",
+      "batchRatingTip": "يمكنك تعديل التقييمات الفردية بعد التطبيق",
+      "clearRating": "مسح",
+      "conflictError": "تم تقديم سجل واحد أو أكثر بالفعل.",
+      "emptyMessage": "لا يوجد طلاب مسندين لهذه الحصة.",
+      "enterRating": "أدخل التقييم (0-10)",
+      "error": "فشل تقديم الحضور. يرجى المحاولة مرة أخرى.",
+      "excuseNote": "السبب",
+      "excused": "معذور",
+      "excusedLabel": "وضع علامة معذور",
+      "markAllPresent": "تحضير الكل",
+      "noRating": "بدون تقييم",
+      "noSearchResults": "لم يتم العثور على طلاب",
+      "partialFailureError": "فشل حفظ بعض سجلات الحضور.",
+      "present": "حاضر",
+      "presentLabel": "وضع علامة حاضر",
+      "progress": "{{marked}} من {{total}} تم تسجيلهم",
+      "rating": "التقييم",
+      "ratingLabel": "{{value}}/10",
+      "ratingTapToEdit": "اضغط لإدخال التقييم",
+      "retryButton": "إعادة محاولة الفاشلة",
+      "searchPlaceholder": "ابحث عن طالب...",
+      "searchStudent": "ابحث عن طالب...",
+      "selectRatingFirst": "اختر تقييماً أولاً",
+      "sessionClosed": "خلصت الحصة دي.",
+      "sessionNotActive": "الحصة دي لسه مبدأتش.",
+      "studentCount": "{{count}} طالب",
+      "submitButton": "تقديم الحضور",
+      "submitSuccess": "تم تسجيل الحضور بنجاح.",
+      "submitWithCount": "تقديم الحضور ({{marked}}/{{total}})",
+      "submitting": "جاري التقديم...",
+      "title": "تسجيل الحضور"
+    },
+    "common": {
+      "accountExpired": "انتهت صلاحية حسابك. يرجى التواصل مع الدعم لتجديد اشتراكك.",
+      "back": "رجوع",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "delete": "حذف",
+      "edit": "تعديل",
+      "error": "حدث خطأ",
+      "featureDisabled": "هذه الميزة غير متاحة لحسابك.",
+      "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "loading": "جاري التحميل...",
+      "ok": "موافق",
+      "retry": "إعادة محاولة",
+      "save": "حفظ"
+    },
+    "connectionCode": {
+      "assignToSessionButton": "إسناد لحصة",
+      "codeLabel": "رمز وصول الطالب",
+      "confirmRegenerateMessage": "سيتوقف الرمز القديم عن العمل. سيحتاج الطلاب إلى الرمز الجديد لربط حساباتهم.",
+      "confirmRegenerateTitle": "إعادة إنشاء رمز الوصول؟",
+      "copied": "تم النسخ!",
+      "copiedMessage": "تم نسخ رمز الوصول إلى الحافظة",
+      "copiedTitle": "تم النسخ",
+      "copyButton": "نسخ الرمز",
+      "expiresAt": "ينتهي في {{date}}",
+      "regenerateButton": "إعادة إنشاء الرمز",
+      "regenerateWarning": "سيؤدي إعادة الإنشاء إلى إبطال الرمز الحالي",
+      "regenerating": "جاري إعادة الإنشاء...",
+      "shareButton": "مشاركة الرمز",
+      "title": "رمز وصول الطالب"
+    },
+    "dashboard": {
+      "activeSessions": "نشطة",
+      "emptyMessage": "مفيش حصص متجدولة النهاردة.",
+      "emptyTitle": "مفيش حصص النهاردة",
+      "goodAfternoon": "مساء الخير",
+      "goodEvening": "مساء النور",
+      "goodMorning": "صباح الخير",
+      "greeting": "مرحباً، {{name}}! 👋",
+      "sessionsTitle": "حصص النهاردة",
+      "sessionsToday": "اليوم",
+      "title": "لوحة تحكم المعلم"
+    },
+    "onboarding": {
+      "error": "فشل الإعداد. يرجى المحاولة مرة أخرى.",
+      "nameLabel": "الاسم الكامل",
+      "namePlaceholder": "أدخل اسمك الكامل",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "submit": "إكمال الإعداد",
+      "submitting": "جاري الإعداد...",
+      "subtitle": "يرجى تقديم معلومات الاتصال الخاصة بك",
+      "title": "أكمل ملفك الشخصي"
+    },
+    "performance": {
+      "average": "المتوسط",
+      "emptyState": "لا توجد بيانات أداء بعد",
+      "emptyStateHint": "ستظهر التقييمات هنا بعد تقييم الحصص",
+      "highest": "الأعلى",
+      "lowest": "الأدنى",
+      "noRatingLabel": "بدون تقييم",
+      "ratedCount": "مقيّم",
+      "studentPerformance": "أداء الطالب",
+      "totalCount": "الإجمالي"
+    },
+    "profile": {
+      "accountSection": "الحساب",
+      "emailLabel": "البريد الإلكتروني",
+      "expired": {
+        "bannerMessage": "انتهت صلاحية حسابك. الإجراءات الكتابية محظورة.",
+        "bannerTitle": "انتهى الحساب",
+        "renewalCta": "تواصل مع المسؤول لإعادة تفعيل حسابك."
+      },
+      "languageLabel": "اللغة",
+      "logoutButton": "تسجيل الخروج",
+      "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "phoneAccount": "حساب هاتف",
+      "phoneLabel": "الهاتف",
+      "roleLabel": "الدور",
+      "roleTeacher": "معلم",
+      "status": {
+        "ACTIVE": "نشط",
+        "EXPIRED": "منتهي",
+        "INVITED": "مدعو",
+        "SUSPENDED": "موقوف",
+        "TRIAL": "تجريبي"
+      },
+      "statusSection": "حالة الحساب",
+      "subscription": {
+        "billingCycle": "دورة الفوترة",
+        "billingCycleMonthly": "شهري",
+        "billingCycleYearly": "سنوي",
+        "daysRemaining_one": "يوم واحد متبقٍ",
+        "daysRemaining_other": "{{count}} أيام متبقية",
+        "endDate": "تاريخ الانتهاء",
+        "expiredLabel": "منتهي",
+        "planName": "الخطة",
+        "startDate": "تاريخ البدء",
+        "status": "الحالة",
+        "title": "الاشتراك",
+        "unlimited": "غير محدود"
+      },
+      "title": "الملف الشخصي",
+      "trial": {
+        "daysRemaining_one": "يوم واحد متبقٍ",
+        "daysRemaining_other": "{{count}} أيام متبقية",
+        "endDate": "تنتهي التجربة في {{date}}",
+        "sessionHours": "ساعات الحصص",
+        "sessions": "الحصص",
+        "students": "الطلاب",
+        "title": "الفترة التجريبية",
+        "unlimited": "غير محدود",
+        "usage": "الاستخدام",
+        "usageFormat": "{{current}} / {{limit}}",
+        "warningDaysRemaining": "التجربة على وشك الانتهاء!"
+      }
+    },
+    "rankings": {
+      "averageRating": "متوسط التقييم",
+      "filterAll": "الكل",
+      "filterLast10": "آخر 10",
+      "filterLast5": "آخر 5",
+      "insufficientData": "بيانات غير كافية",
+      "insufficientDataDescription": "محتاج حصة مقيّمة واحدة على الأقل للترتيب",
+      "noRatings": "مفيش تقييمات للحصة دي لسه",
+      "ranking": "الترتيب",
+      "ratedSessions": "{{count}} حصص مقيّمة",
+      "topStudents": "أفضل الطلاب",
+      "trend": {
+        "down": "تراجع",
+        "stable": "مستقر",
+        "up": "تحسّن"
+      }
+    },
+    "sessions": {
+      "assignStudentsButton": "إسناد الطلاب",
+      "assignStudentsEmpty": "لم يتم إسناد أي طلاب حتى الآن",
+      "assignedStudents": "الطلاب المسندين",
+      "attendanceSummary": "{{present}} حاضر • {{absent}} غائب • {{excused}} معذور",
+      "closed": "مغلقة",
+      "conflictError": "الحصة دي بتتعارض مع حصة تانية.",
+      "createButton": "إنشاء حصة",
+      "createTitle": "حصة جديدة",
+      "daysLabel": "أيام الأسبوع",
+      "daysOfWeek": "الأيام",
+      "delete": "حذف",
+      "deleteButton": "حذف الحصة",
+      "deleteConfirmMessage": "الحصة دي وكل مثيلاتها هتتحذف نهائي.",
+      "deleteConfirmTitle": "حذف الحصة؟",
+      "deleteSuccess": "تم حذف الحصة بنجاح",
+      "deselectAll": "إلغاء تحديد الكل",
+      "editSession": "تعديل الحصة",
+      "editTitle": "تعديل الحصة",
+      "emptyMessage": "مفيش حصص متجدولة.",
+      "emptyTitle": "أنشئ أول حصة ليك",
+      "endSession": "إنهاء الحصة",
+      "endSessionConfirm": "تنهي الحصة دي؟ الطلاب اللي مسجلوش حضور هيتسجلوا غياب.",
+      "endSessionSuccess": "تم إنهاء الحصة بنجاح.",
+      "markAttendance": "تسجيل الحضور",
+      "noStudentsAvailable": "لا يوجد طلاب متاحون",
+      "removeStudentConfirm": "إزالة هذا الطالب؟",
+      "saveButton": "حفظ الحصة",
+      "selectAll": "تحديد الكل",
+      "selectDays": "اختر الأيام",
+      "selectStudents": "اختر الطلاب",
+      "sessionForm": {
+        "daysLabel": "أيام الأسبوع",
+        "subjectLabel": "الموضوع",
+        "subjectPlaceholder": "أدخل اسم الموضوع",
+        "timeLabel": "وقت البدء",
+        "timePlaceholder": "HH:mm",
+        "validation": {
+          "daysRequired": "اختر يوماً واحداً على الأقل",
+          "subjectRequired": "الموضوع مطلوب",
+          "timeInvalid": "يجب أن يكون الوقت بصيغة HH:mm",
+          "timeRequired": "الوقت مطلوب"
+        }
+      },
+      "startSession": "بدء الحصة",
+      "startSessionButton": "بدء الحصة",
+      "status": {
+        "ACTIVE": "نشطة",
+        "CLOSED": "مغلقة",
+        "DRAFT": "قادمة"
+      },
+      "studentCount": "{{count}} طالب",
+      "studentsLabel": "الطلاب",
+      "subjectLabel": "الموضوع",
+      "subjectPlaceholder": "أدخل اسم الموضوع",
+      "submitting": "جاري الإنشاء...",
+      "timeLabel": "وقت البدء",
+      "title": "الحصص",
+      "updating": "جاري التحديث...",
+      "validation": {
+        "daysOfWeekRequired": "اختر يوماً واحداً على الأقل",
+        "studentsRequired": "اختر طالباً واحداً على الأقل",
+        "subjectRequired": "الموضوع مطلوب",
+        "timeInvalid": "يجب أن يكون الوقت بصيغة HH:mm"
+      },
+      "weekdays": {
+        "fri": "الجمعة",
+        "mon": "الاثنين",
+        "sat": "السبت",
+        "sun": "الأحد",
+        "thu": "الخميس",
+        "tue": "الثلاثاء",
+        "wed": "الأربعاء"
+      }
+    },
+    "studentActions": {
+      "codeCopied": "تم نسخ رمز الوصول إلى الحافظة",
+      "codeRegenerated": "تم إعادة إنشاء رمز الوصول",
+      "codeShared": "تمت مشاركة الرمز بنجاح",
+      "confirmDelete": "سيتم حذف هذا الطالب وجميع سجلاته بشكل دائم.",
+      "confirmRegenerate": "سيتوقف الرمز القديم عن العمل. سيحتاج الطلاب إلى الرمز الجديد لربط حساباتهم.",
+      "copyCode": "نسخ الرمز",
+      "deleteStudent": "حذف الطالب",
+      "editStudent": "تعديل الطالب",
+      "noCode": "لم يتم إنشاء رمز وصول بعد",
+      "regenerateCode": "إعادة إنشاء الرمز",
+      "shareCode": "مشاركة الرمز",
+      "studentDeleted": "تم حذف الطالب بنجاح",
+      "studentUpdated": "تم تحديث الطالب بنجاح",
+      "title": "إجراءات الطالب",
+      "viewCode": "عرض رمز الوصول",
+      "viewDetails": "عرض التفاصيل"
+    },
+    "studentSelect": {
+      "clearAll": "مسح الكل",
+      "confirm": "تأكيد ({{count}})",
+      "selectedCount": "{{count}} محدد"
+    },
+    "students": {
+      "connectionCodeButton": "رمز الوصول",
+      "createButton": "إضافة طالب",
+      "createTitle": "إضافة طالب",
+      "createdFlowAssignSession": "إسناد لحصة",
+      "createdFlowMessage": "الخطوة الجاية: شارك رمز الوصول مع ولي الأمر أو أسند الطالب ده لحصة.",
+      "createdFlowShareCode": "مشاركة رمز الوصول",
+      "createdFlowTitle": "تم إنشاء الطالب",
+      "deleteButton": "حذف الطالب",
+      "deleteConfirmMessage": "سيتم حذف هذا الطالب وجميع سجلاته بشكل دائم.",
+      "deleteConfirmTitle": "حذف الطالب؟",
+      "deleteSuccess": "تم حذف الطالب بنجاح",
+      "editTitle": "تعديل الطالب",
+      "emptyAssigned": "لا يوجد طلاب مسندين",
+      "emptyFilterMessage": "جرب تغيير الفلتر لرؤية المزيد من الطلاب.",
+      "emptyMessage": "لم يتم إضافة أي طلاب حتى الآن. أنشئ واحداً للبدء.",
+      "emptyTitle": "لا يوجد طلاب",
+      "emptyUnassigned": "جميع الطلاب مسندين",
+      "filterAll": "الكل",
+      "filterAssigned": "في الحصص",
+      "filterUnassigned": "غير مسندين",
+      "form": {
+        "gradeLabel": "المرحلة (اختيارية)",
+        "gradePlaceholder": "مثال: الصف العاشر",
+        "nameLabel": "اسم الطالب",
+        "namePlaceholder": "أدخل اسم الطالب",
+        "notesLabel": "ملاحظات (اختيارية)",
+        "notesPlaceholder": "أضف أي ملاحظات إضافية",
+        "parentPhoneLabel": "رقم هاتف ولي الأمر",
+        "parentPhonePlaceholder": "أدخل رقم هاتف ولي الأمر",
+        "validation": {
+          "nameRequired": "اسم الطالب مطلوب",
+          "parentPhoneInvalid": "يرجى إدخال رقم هاتف صحيح مع مفتاح الدولة",
+          "parentPhoneRequired": "رقم هاتف ولي الأمر مطلوب"
+        }
+      },
+      "noConnectionCode": "لم يتم إنشاء رمز وصول حتى الآن",
+      "noSessions": "بدون حصص",
+      "search": "البحث حسب الاسم...",
+      "searchPlaceholder": "اكتب للبحث...",
+      "sessionCount_few": "{{count}} حصص",
+      "sessionCount_many": "{{count}} حصة",
+      "sessionCount_one": "حصة واحدة",
+      "sessionCount_other": "{{count}} حصة",
+      "sessionCount_two": "حصتين",
+      "submitting": "جاري الإنشاء...",
+      "title": "الطلاب",
+      "totalCount_few": "{{count}} طلاب",
+      "totalCount_many": "{{count}} طالب",
+      "totalCount_one": "طالب واحد",
+      "totalCount_other": "{{count}} طالب",
+      "totalCount_two": "طالبان",
+      "updating": "جاري التحديث...",
+      "validation": {
+        "nameRequired": "اسم الطالب مطلوب",
+        "parentPhoneInvalid": "يرجى إدخال رقم هاتف صحيح مع مفتاح الدولة",
+        "parentPhoneRequired": "رقم هاتف ولي الأمر مطلوب"
+      }
+    },
+    "tabs": {
+      "dashboard": "الرئيسية",
+      "profile": "الملف الشخصي",
+      "sessions": "الحصص",
+      "students": "الطلاب"
+    },
+    "timePicker": {
+      "done": "تم",
+      "hours": "الساعة",
+      "minutes": "الدقيقة"
+    },
+    "toast": {
+      "copied": "تم النسخ إلى الحافظة",
+      "error": "خطأ",
+      "success": "نجاح"
+    }
+  },
+  "teacherOrg": {
+    "closeSession": "إغلاق الجلسة",
+    "duration": "{{min}} دقيقة · {{n}} طالب",
+    "empty": "لا توجد جلسات معيّنة لليوم.",
+    "startSession": "بدء الجلسة",
+    "subtitle": "جلساتك المعيّنة",
+    "today": "اليوم",
+    "upcoming": "القادمة"
+  },
+  "welcome": "مرحبا بك في تابعني"
 }

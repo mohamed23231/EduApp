@@ -1,6 +1,7 @@
 /* eslint-disable better-tailwindcss/no-unknown-classes */
 import type { TextInputProps } from 'react-native';
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { I18nManager, TextInput as NTextInput, StyleSheet, View } from 'react-native';
 import { tv } from 'tailwind-variants';
 
@@ -49,6 +50,7 @@ export type NInputProps = {
 export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextInput | null> }) {
   const { label, error, testID, onBlur: onBlurProp, onFocus: onFocusProp, ...inputProps } = props;
   const [isFocussed, setIsFocussed] = React.useState(false);
+  const { t } = useTranslation();
 
   const onBlur = React.useCallback(
     (e: any) => {
@@ -71,6 +73,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
     focused: isFocussed,
     disabled: Boolean(props.disabled),
   });
+  const translatedError = error ? t(error, { defaultValue: error }) : '';
 
   return (
     <View className={styles.container()}>
@@ -96,12 +99,12 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
           inputProps.style,
         ])}
       />
-      {error && (
+      {translatedError && (
         <Text
           testID={testID ? `${testID}-error` : undefined}
           className="text-sm text-danger-400 dark:text-danger-600"
         >
-          {error}
+          {translatedError}
         </Text>
       )}
     </View>
