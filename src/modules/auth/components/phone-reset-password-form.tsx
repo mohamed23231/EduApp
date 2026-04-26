@@ -2,34 +2,106 @@ import type { PhoneResetPasswordConfirmParams, PhoneResetPasswordRequestParams }
 import { useForm } from '@tanstack/react-form';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Platform, Pressable, Text, View } from 'react-native';
 import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { PhoneField } from '@/components/ui';
-import { Eye, EyeOff } from '@/components/ui/icons';
+  AuthFieldShell,
+  AuthInput,
+  Icon,
+  isoToFlagEmoji,
+  PressButton,
+} from '@/components/ui';
+import colors from '@/components/ui/colors';
+import { Modal, useModal } from '@/components/ui/modal';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import {
   buildE164Phone,
   DEFAULT_COUNTRY_CODE,
+  getPhoneCountryByDialCode,
   getPhoneValidationErrorKey,
+  getSupportedPhoneCountries,
   sanitizeOtpCode,
 } from '@/shared/utils/phone';
+
+/**
+ * PhoneResetPasswordForm — dark identity per `contracts/visual-auth.md`.
+ * Two-step flow inside one dark shell: request (phone) → confirm (OTP cells + new password).
+ */
 
 type ResetStep = 'request' | 'confirm';
 
 export type PhoneResetPasswordFormProps = {
-  onRequest: (data: PhoneResetPasswordRequestParams) => void;
-  onConfirm: (data: PhoneResetPasswordConfirmParams) => void;
+  onRequest: (data: PhoneResetPasswordRequestParams) => Promise<void> | void;
+  onConfirm: (data: PhoneResetPasswordConfirmParams) => Promise<void> | void;
   isSubmitting: boolean;
   error?: string | null;
-  otpSent?: boolean;
 };
+
+type OtpCellsProps = {
+  value: string;
+  onChange: (value: string) => void;
+  isRTL: boolean;
+};
+
+function OtpCells({ value, onChange, isRTL }: OtpCellsProps) {
+  const cells = Array.from({ length: 6 }, (_, idx) => value[idx] ?? '');
+  return (
+    <View style={{ position: 'relative' }}>
+      <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
+        {cells.map((char, idx) => {
+          const filled = char.length > 0;
+          return (
+            <View
+              // eslint-disable-next-line react/no-array-index-key
+              key={idx}
+              style={{
+                width: 46,
+                height: 60,
+                borderRadius: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: filled
+                  ? 'rgba(34,197,114,0.18)'
+                  : 'rgba(255,255,255,0.06)',
+                borderWidth: 1.5,
+                borderColor: filled
+                  ? colors.brand.primary
+                  : 'rgba(255,255,255,0.15)',
+              }}
+            >
+              <Text style={{ color: colors.neutral.white, fontSize: 26, fontWeight: '700' }}>
+                {char}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          start: 0,
+          end: 0,
+          bottom: 0,
+          opacity: 0.01,
+        }}
+      >
+        <AuthFieldShell>
+          <AuthInput
+            value={value}
+            onChangeText={onChange}
+            placeholder=""
+            keyboardType="numeric"
+            maxLength={6}
+            autoFocus
+            textContentType="oneTimeCode"
+            testID="otp-input"
+            textAlign={isRTL ? 'right' : 'left'}
+          />
+        </AuthFieldShell>
+      </View>
+    </View>
+  );
+}
 
 // eslint-disable-next-line max-lines-per-function
 export function PhoneResetPasswordForm({
@@ -37,19 +109,22 @@ export function PhoneResetPasswordForm({
   onConfirm,
   isSubmitting,
   error,
-  otpSent: _otpSent = false,
 }: PhoneResetPasswordFormProps) {
-  const { t } = useTranslation();
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [phone, setPhone] = React.useState(''); // normalized E.164
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
+  const [step, setStep] = React.useState<ResetStep>('request');
+  const [phone, setPhone] = React.useState('');
   const [phoneCountryCode, setPhoneCountryCode] = React.useState(DEFAULT_COUNTRY_CODE);
   const [phoneLocalNumber, setPhoneLocalNumber] = React.useState('');
+  const [showPassword, setShowPassword] = React.useState(false);
   const [clientError, setClientError] = React.useState<string | null>(null);
-  const [step, setStep] = React.useState<ResetStep>('request');
 
-  const normalizeOtp = React.useCallback((value: string) => {
-    return sanitizeOtpCode(value, 6);
-  }, []);
+  const countryPickerModal = useModal();
+  const supportedCountries = React.useMemo(() => getSupportedPhoneCountries(), []);
+  const phoneCountry = getPhoneCountryByDialCode(phoneCountryCode);
+  const phoneFlag = isoToFlagEmoji(phoneCountry.iso2);
+  const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
 
   const translateApiError = React.useCallback(
     (err: unknown) => getApiErrorMessage(
@@ -61,26 +136,20 @@ export function PhoneResetPasswordForm({
   );
 
   const form = useForm({
-    defaultValues: {
-      phone: '',
-      otp: '',
-      newPassword: '',
-    },
+    defaultValues: { otp: '', newPassword: '' },
     onSubmit: async ({ value }) => {
       try {
         if (step === 'request') {
-          const normalizedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
-          if (!normalizedPhone) {
+          if (!composedPhone) {
             setClientError(getPhoneValidationErrorKey(phoneCountryCode));
             return;
           }
           setClientError(null);
-          setPhone(normalizedPhone);
-          await onRequest({ phone: normalizedPhone });
+          setPhone(composedPhone);
+          await onRequest({ phone: composedPhone });
           setStep('confirm');
           return;
         }
-
         setClientError(null);
         await onConfirm({
           phone,
@@ -95,9 +164,8 @@ export function PhoneResetPasswordForm({
   });
 
   const handleResendOtp = async () => {
-    if (!phone || isSubmitting) {
+    if (!phone || isSubmitting)
       return;
-    }
     try {
       setClientError(null);
       await onRequest({ phone });
@@ -107,215 +175,232 @@ export function PhoneResetPasswordForm({
     }
   };
 
-  const renderRequestStep = () => (
-    <View style={styles.formBlock}>
-      <PhoneField
-        label={t('auth.phone.phoneLabel')}
-        countryCode={phoneCountryCode}
-        localNumber={phoneLocalNumber}
-        onCountryCodeChange={setPhoneCountryCode}
-        onLocalNumberChange={setPhoneLocalNumber}
-        error={clientError ?? undefined}
-        testIDPrefix="phone-reset"
-      />
-    </View>
-  );
-
-  const renderConfirmStep = () => (
-    <>
-      <View style={styles.formBlock}>
-        <Text style={styles.label}>{t('auth.phone.otpLabel')}</Text>
-        <Text style={styles.otpHint}>
-          {t('auth.phone.otpSentHint', { phone })}
-        </Text>
-        <form.Field
-          name="otp"
-          children={field => (
-            <TextInput
-              value={field.state.value}
-              onChangeText={value => field.handleChange(normalizeOtp(value))}
-              onBlur={field.handleBlur}
-              keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
-              autoFocus
-              editable={!isSubmitting}
-              autoCorrect={false}
-              textContentType="oneTimeCode"
-              placeholder="123456"
-              placeholderTextColor="#94A3B8"
-              maxLength={6}
-              testID="otp-input"
-              style={[styles.input, styles.otpInput]}
-            />
-          )}
-        />
-        <Pressable
-          style={[styles.secondaryButton, isSubmitting && styles.secondaryButtonDisabled]}
-          onPress={() => void handleResendOtp()}
-          disabled={isSubmitting}
-        >
-          <Text style={styles.secondaryButtonLabel}>{t('auth.phone.resendOtp')}</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.formBlock}>
-        <Text style={styles.label}>{t('auth.phone.newPasswordLabel')}</Text>
-        <View style={styles.passwordInputWrapper}>
-          <form.Field
-            name="newPassword"
-            children={field => (
-              <TextInput
-                value={field.state.value}
-                onChangeText={field.handleChange}
-                onBlur={field.handleBlur}
-                secureTextEntry={!showPassword}
-                autoCorrect={false}
-                testID="password-input"
-                style={[
-                  styles.input,
-                  styles.passwordInput,
-                ]}
-              />
-            )}
-          />
-          <Pressable
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            {showPassword
-              ? <EyeOff width={20} height={20} color="#94A3B8" />
-              : <Eye width={20} height={20} color="#94A3B8" />}
-          </Pressable>
-        </View>
-      </View>
-    </>
-  );
+  const errorMsgRaw = clientError || error;
+  const errorMsg = errorMsgRaw ? t(errorMsgRaw, { defaultValue: errorMsgRaw }) : null;
 
   return (
-    <View style={styles.container}>
-      {(clientError || error)
+    <View style={{ gap: 14 }}>
+      {errorMsg
         ? (
-            <Text style={styles.apiError}>
-              {t(clientError || error || '', { defaultValue: clientError || error || '' })}
+            <Text
+              style={{
+                color: colors.semantic.absent,
+                fontSize: 13,
+                fontWeight: '600',
+                textAlign: 'center',
+              }}
+            >
+              {errorMsg}
             </Text>
           )
         : null}
 
-      {step === 'request' && renderRequestStep()}
-      {step === 'confirm' && renderConfirmStep()}
+      {step === 'request' && (
+        <View style={{ gap: 12 }}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable
+              onPress={() => countryPickerModal.present()}
+              accessibilityRole="button"
+              accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
+              testID="phone-reset-country-chip"
+              style={({ pressed }) => ({
+                height: 56,
+                borderRadius: 16,
+                paddingHorizontal: 14,
+                backgroundColor: pressed
+                  ? 'rgba(34,197,114,0.30)'
+                  : 'rgba(255,255,255,0.06)',
+                borderWidth: 1.5,
+                borderColor: pressed
+                  ? colors.brand.primary
+                  : 'rgba(255,255,255,0.12)',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+              })}
+            >
+              <Text style={{ fontSize: 18 }}>{phoneFlag}</Text>
+              <Text style={{ color: colors.neutral.white, fontSize: 15, fontWeight: '700' }}>
+                {phoneCountryCode}
+              </Text>
+              <Text style={{ color: colors.neutral.dim, fontSize: 14, marginStart: 2 }}>
+                ▾
+              </Text>
+            </Pressable>
+            <AuthFieldShell>
+              <AuthInput
+                value={phoneLocalNumber}
+                onChangeText={setPhoneLocalNumber}
+                placeholder={t('auth.phone.localPlaceholder', '1XX XXX XXXX')}
+                keyboardType="phone-pad"
+                testID="phone-reset-input"
+                textAlign={isRTL ? 'right' : 'left'}
+              />
+            </AuthFieldShell>
+          </View>
 
-      <form.Subscribe
-        selector={state => [state.canSubmit, state.isSubmitting]}
-        children={([canSubmit, validating]) => (
-          <Pressable
-            style={[
-              styles.submitButton,
-              (!canSubmit || isSubmitting || validating) && styles.submitButtonDisabled,
-            ]}
+          <PressButton
+            variant="gradient"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
+            disabled={!composedPhone}
             onPress={() => void form.handleSubmit()}
-            disabled={!canSubmit || isSubmitting || validating}
-            testID="phone-reset-submit-button"
+            label={t('auth.phone.requestOtp')}
+            trailingIcon={<Icon name="arrowR" size={18} color={colors.neutral.white} />}
+            testID="phone-reset-request-button"
+          />
+        </View>
+      )}
+
+      {step === 'confirm' && (
+        <View style={{ gap: 14 }}>
+          <Text
+            style={{
+              color: colors.neutral.dim,
+              fontSize: 13,
+              fontWeight: '500',
+              textAlign: 'center',
+            }}
           >
-            {isSubmitting || validating
-              ? <ActivityIndicator color="#FFFFFF" />
-              : (
-                  <Text style={styles.submitButtonLabel}>
-                    {step === 'request'
-                      ? t('auth.phone.requestOtp')
-                      : t('auth.phone.resetPasswordButton')}
-                  </Text>
-                )}
+            {t('auth.phone.otpSentHint', { phone })}
+          </Text>
+
+          <form.Field
+            name="otp"
+            children={field => (
+              <OtpCells
+                value={field.state.value}
+                onChange={v => field.handleChange(sanitizeOtpCode(v, 6))}
+                isRTL={isRTL}
+              />
+            )}
+          />
+
+          <Pressable
+            onPress={() => void handleResendOtp()}
+            disabled={isSubmitting}
+            style={{ alignSelf: 'center', paddingVertical: 6, paddingHorizontal: 12 }}
+            testID="phone-reset-resend-button"
+          >
+            <Text
+              style={{
+                color: isSubmitting ? colors.neutral.inkMuted : colors.brand.primary,
+                fontSize: 13,
+                fontWeight: '700',
+              }}
+            >
+              {t('auth.phone.resendOtp')}
+            </Text>
           </Pressable>
-        )}
-      />
+
+          <form.Field
+            name="newPassword"
+            children={field => (
+              <AuthFieldShell>
+                <AuthInput
+                  value={field.state.value}
+                  onChangeText={field.handleChange}
+                  placeholder={t('auth.phone.newPasswordLabel')}
+                  secureTextEntry={!showPassword}
+                  testID="phone-reset-password-input"
+                  textAlign={isRTL ? 'right' : 'left'}
+                  fontSize={16}
+                  letterSpacing={0}
+                />
+                <Pressable
+                  onPress={() => setShowPassword(s => !s)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={{ marginStart: 8 }}
+                >
+                  <Icon
+                    name={showPassword ? 'eyeOff' : 'eye'}
+                    size={20}
+                    color={colors.neutral.dim}
+                  />
+                </Pressable>
+              </AuthFieldShell>
+            )}
+          />
+
+          <PressButton
+            variant="gradient"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
+            onPress={() => void form.handleSubmit()}
+            label={t('auth.phone.resetPasswordButton')}
+            trailingIcon={<Icon name="arrowR" size={18} color={colors.neutral.white} />}
+            testID="phone-reset-confirm-button"
+          />
+        </View>
+      )}
+
+      {/* Country picker — same Modal+useModal pattern as login/signup. */}
+      <Modal
+        ref={countryPickerModal.ref}
+        snapPoints={['38%']}
+        title={t('auth.phone.countryCodeLabel', 'Country')}
+      >
+        <View style={{ paddingHorizontal: 20, paddingBottom: 22, gap: 8 }}>
+          {supportedCountries.map((country) => {
+            const selected = country.dialCode === phoneCountryCode;
+            const flag = isoToFlagEmoji(country.iso2);
+            const label = t(`auth.phone.countries.${country.iso2.toLowerCase()}`, {
+              dialCode: country.dialCode,
+              defaultValue: `${country.iso2} (${country.dialCode})`,
+            });
+            return (
+              <Pressable
+                key={country.iso2}
+                onPress={() => {
+                  setPhoneCountryCode(country.dialCode);
+                  countryPickerModal.dismiss();
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                testID={`phone-reset-country-option-${country.iso2.toLowerCase()}`}
+                style={({ pressed }) => ({
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  paddingVertical: 14,
+                  paddingHorizontal: 14,
+                  borderRadius: 14,
+                  backgroundColor: selected
+                    ? colors.brand.primaryGlow
+                    : pressed
+                      ? colors.neutral.paper
+                      : 'transparent',
+                })}
+              >
+                <Text style={{ fontSize: 24 }}>{flag}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.neutral.ink, fontSize: 15, fontWeight: '700' }}>
+                    {label}
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.neutral.inkMuted,
+                      fontSize: 13,
+                      fontWeight: '500',
+                      marginTop: 2,
+                    }}
+                  >
+                    {country.dialCode}
+                  </Text>
+                </View>
+                {selected
+                  ? <Icon name="check" size={20} color={colors.brand.primary} />
+                  : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      </Modal>
+
+      {/* Reference Platform once for clean import diff (formatter-stable) */}
+      {Platform.OS === 'web' ? null : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  apiError: {
-    color: '#DC2626',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  container: {
-    gap: 14,
-  },
-  formBlock: {
-    width: '100%',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
-    borderRadius: 14,
-    borderWidth: 1,
-    color: '#0F172A',
-    fontSize: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 15,
-  },
-  otpInput: {
-    fontSize: 24,
-    letterSpacing: 8,
-    textAlign: 'center',
-  },
-  otpHint: {
-    color: '#64748B',
-    fontSize: 14,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  label: {
-    color: '#334155',
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  passwordInput: {
-    paddingRight: 48,
-  },
-  passwordInputWrapper: {
-    position: 'relative',
-  },
-  eyeButton: {
-    padding: 4,
-    position: 'absolute',
-    right: 14,
-    top: 14,
-  },
-  submitButton: {
-    alignItems: 'center',
-    backgroundColor: '#2563EB',
-    borderRadius: 16,
-    justifyContent: 'center',
-    paddingVertical: 16,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#94A3B8',
-  },
-  submitButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#2563EB',
-    borderRadius: 12,
-    borderWidth: 1,
-    justifyContent: 'center',
-    marginTop: 10,
-    paddingVertical: 12,
-  },
-  secondaryButtonDisabled: {
-    opacity: 0.5,
-  },
-  secondaryButtonLabel: {
-    color: '#2563EB',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-});

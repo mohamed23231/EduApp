@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import colors from '@/components/ui/colors';
+
+/**
+ * GoogleSignInButton — dark-shell variant per `contracts/visual-auth.md`.
+ * Sits on the dark `<AuthShell>` canvas; matches the rest of the auth dark
+ * inputs (rgba(255,255,255,0.06) fill, hairline white border, 56h, r16).
+ */
 
 type GoogleSigninModule = {
   GoogleSignin: {
@@ -34,14 +35,6 @@ export type GoogleSignInButtonProps = {
   variant?: 'login' | 'signup';
 };
 
-/**
- * Google Sign-In Button Component
- *
- * Initiates native Google Sign-In flow and returns ID token.
- * Supports both login and signup flows.
- *
- * Requirements: 10.1, 10.6, 10.7
- */
 export function GoogleSignInButton({
   onSuccess,
   onError,
@@ -55,29 +48,17 @@ export function GoogleSignInButton({
     try {
       setIsSigningIn(true);
       const { GoogleSignin } = getGoogleSigninModule();
-
-      // Check if Google Play Services are available (Android only)
       await GoogleSignin.hasPlayServices();
-
-      // Initiate Google Sign-In flow
       const userInfo = await GoogleSignin.signIn();
-
-      const signInPayload = userInfo as {
-        idToken?: string;
-        data?: { idToken?: string };
-      };
+      const signInPayload = userInfo as { idToken?: string; data?: { idToken?: string } };
       const idToken = signInPayload.data?.idToken ?? signInPayload.idToken;
-
       if (!idToken) {
         throw new Error('No ID token received from Google Sign-In');
       }
-
-      // Call the success callback with the ID token
       onSuccess(idToken);
     }
     catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      console.error('Google Sign-In error:', err);
       onError?.(err);
     }
     finally {
@@ -92,53 +73,51 @@ export function GoogleSignInButton({
 
   return (
     <Pressable
-      style={[
-        styles.button,
-        isProcessing && styles.buttonDisabled,
-      ]}
       onPress={handleGoogleSignIn}
       disabled={isProcessing}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isProcessing }}
+      style={({ pressed }) => ({
+        height: 56,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        backgroundColor: pressed
+          ? 'rgba(255,255,255,0.10)'
+          : 'rgba(255,255,255,0.06)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.12)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        opacity: isProcessing ? 0.6 : 1,
+      })}
     >
       {isProcessing
         ? (
-            <ActivityIndicator color="#1F2937" size="small" />
+            <ActivityIndicator color={colors.neutral.dim} size="small" />
           )
         : (
-            <View style={styles.buttonContent}>
-              <Text style={styles.googleIcon}>G</Text>
-              <Text style={styles.buttonLabel}>{buttonLabel}</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 12,
+              }}
+            >
+              <Text style={{ color: colors.neutral.white, fontSize: 18, fontWeight: '700' }}>G</Text>
+              <Text
+                style={{
+                  color: colors.neutral.white,
+                  fontSize: 15,
+                  fontWeight: '600',
+                }}
+              >
+                {buttonLabel}
+              </Text>
             </View>
           )}
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
-    borderRadius: 16,
-    borderWidth: 1,
-    justifyContent: 'center',
-    minHeight: 58,
-    width: '100%',
-  },
-  buttonContent: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'center',
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonLabel: {
-    color: '#1F2937',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  googleIcon: {
-    fontSize: 20,
-  },
-});

@@ -11,12 +11,17 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  AuthShell,
+  GradientText,
+  Icon,
+  TabaMark,
+} from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
@@ -26,6 +31,7 @@ import {
   createTokenWithTimestamp,
   isTokenWithinReuseWindow,
 } from '@/lib/auth/token-reuse-window';
+import { useSelectedLanguage } from '@/lib/i18n';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { PhoneSignupForm } from '../components/phone-signup-form';
 import { SignupForm } from '../components/signup-form';
@@ -45,20 +51,6 @@ function getSignupRole(role: UserRole | string | undefined): SignupRole | undefi
   }
 
   return undefined;
-}
-
-function ChevronLeft({ color = '#0F172A' }: { color?: string }) {
-  return (
-    <Svg width={10} height={18} viewBox="0 0 10 18" fill="none">
-      <Path
-        d="M9 1L1 9L9 17"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -112,32 +104,14 @@ export function SignupScreen() {
       const signupRole = getSignupRole(data.user.role as UserRole);
 
       if (signupRole === UserRole.MANAGER) {
-        setOnboardingContext({
-          role: signupRole,
-          email: data.user.email,
-          fullName: data.user.fullName,
-        });
-
-        signIn({
-          token: { access: data.accessToken, refresh: data.refreshToken },
-          user: null,
-        });
-
+        setOnboardingContext({ role: signupRole, email: data.user.email, fullName: data.user.fullName });
+        signIn({ token: { access: data.accessToken, refresh: data.refreshToken }, user: null });
         router.replace(AppRoute.manager.setup);
         return;
       }
 
-      setOnboardingContext({
-        role: signupRole,
-        email: data.user.email,
-        fullName: data.user.fullName,
-      });
-
-      signIn({
-        token: { access: data.accessToken, refresh: data.refreshToken },
-        user: null,
-      });
-
+      setOnboardingContext({ role: signupRole, email: data.user.email, fullName: data.user.fullName });
+      signIn({ token: { access: data.accessToken, refresh: data.refreshToken }, user: null });
       router.replace(AppRoute.auth.onboarding);
     }
     catch (error) {
@@ -159,12 +133,7 @@ export function SignupScreen() {
           fullName: data.user?.fullName ?? data.fullName,
           phone: data.user?.phoneE164 ?? data.phoneE164 ?? undefined,
         });
-
-        signIn({
-          token: { access: data.accessToken, refresh: data.refreshToken },
-          user: null,
-        });
-
+        signIn({ token: { access: data.accessToken, refresh: data.refreshToken }, user: null });
         router.replace(AppRoute.manager.setup);
         return;
       }
@@ -175,12 +144,7 @@ export function SignupScreen() {
         fullName: data.user?.fullName ?? data.fullName,
         phone: data.user?.phoneE164 ?? data.phoneE164 ?? undefined,
       });
-
-      signIn({
-        token: { access: data.accessToken, refresh: data.refreshToken },
-        user: null,
-      });
-
+      signIn({ token: { access: data.accessToken, refresh: data.refreshToken }, user: null });
       router.replace(AppRoute.auth.onboarding);
     }
     catch (error) {
@@ -189,24 +153,14 @@ export function SignupScreen() {
     }
   };
 
-  const handlePhoneOtpVerify = async (
-    values: Parameters<typeof verifyPhoneSignup>[0],
-  ) => {
+  const handlePhoneOtpVerify = async (values: Parameters<typeof verifyPhoneSignup>[0]) => {
     setErrorMsg(null);
     try {
       const result = await verifyPhoneSignup(values);
-
       if (result.accountExists || !result.canContinue) {
         setErrorMsg(t('auth.phone.signupExistingAccount'));
-        router.replace({
-          pathname: AppRoute.auth.login as any,
-          params: {
-            mode: 'phone',
-            phone: values.phone,
-          },
-        });
+        router.replace({ pathname: AppRoute.auth.login as any, params: { mode: 'phone', phone: values.phone } });
       }
-
       return result;
     }
     catch (error) {
@@ -216,10 +170,7 @@ export function SignupScreen() {
     }
   };
 
-  const handlePhoneOtpRequest = async (
-    phone: string,
-    purpose: 'SIGNUP' | 'RESET_PASSWORD',
-  ) => {
+  const handlePhoneOtpRequest = async (phone: string, purpose: 'SIGNUP' | 'RESET_PASSWORD') => {
     setErrorMsg(null);
     try {
       await requestOtp({ phone, purpose });
@@ -232,20 +183,14 @@ export function SignupScreen() {
   };
 
   const handleTermsPress = () => {
-    Linking.openURL('https://example.com/terms').catch(() => { });
+    Linking.openURL('https://example.com/terms').catch(() => {});
   };
 
-  const handleGoogleSignup = async (
-    idToken: string,
-    role: SignupRole,
-  ) => {
+  const handleGoogleSignup = async (idToken: string, role: SignupRole) => {
     setErrorMsg(null);
     setIsGoogleSigningIn(true);
-
     try {
-      // Check token reuse window — re-acquire if expired (Req 10.7, 10.8)
       let tokenToUse: string | null = null;
-
       if (pendingGoogleToken && isTokenWithinReuseWindow(pendingGoogleToken)) {
         tokenToUse = pendingGoogleToken.idToken;
       }
@@ -255,15 +200,13 @@ export function SignupScreen() {
       }
 
       if (!tokenToUse) {
-        // Token missing or expired — re-initiate Google Sign-In
         try {
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
           const payload = userInfo as { idToken?: string; data?: { idToken?: string } };
           const freshToken = payload.data?.idToken ?? payload.idToken;
-          if (!freshToken) {
+          if (!freshToken)
             throw new Error('No ID token from Google');
-          }
           tokenToUse = freshToken;
           setPendingGoogleToken(createTokenWithTimestamp(freshToken));
         }
@@ -274,56 +217,23 @@ export function SignupScreen() {
       }
 
       const response = await googleAuthService.googleSignup(tokenToUse, role);
-
-      const authUser = {
-        id: response.data.user.id,
-        email: response.data.user.email,
-        role: response.data.user.role as UserRole,
-      };
+      const authUser = { id: response.data.user.id, email: response.data.user.email, role: response.data.user.role as UserRole };
 
       if (response.data.onboardingRequired) {
         const onboardingRole = getSignupRole(authUser.role);
-
         if (onboardingRole === UserRole.MANAGER) {
-          setOnboardingContext({
-            email: authUser.email,
-            fullName: response.data.user.fullName,
-            role: onboardingRole,
-          });
-          signIn({
-            token: {
-              access: response.data.accessToken,
-              refresh: response.data.refreshToken,
-            },
-            user: null,
-          });
+          setOnboardingContext({ email: authUser.email, fullName: response.data.user.fullName, role: onboardingRole });
+          signIn({ token: { access: response.data.accessToken, refresh: response.data.refreshToken }, user: null });
           router.replace(AppRoute.manager.setup);
           return;
         }
-
-        setOnboardingContext({
-          email: authUser.email,
-          fullName: response.data.user.fullName,
-          ...(onboardingRole ? { role: onboardingRole } : {}),
-        });
-        signIn({
-          token: {
-            access: response.data.accessToken,
-            refresh: response.data.refreshToken,
-          },
-          user: null,
-        });
+        setOnboardingContext({ email: authUser.email, fullName: response.data.user.fullName, ...(onboardingRole ? { role: onboardingRole } : {}) });
+        signIn({ token: { access: response.data.accessToken, refresh: response.data.refreshToken }, user: null });
         router.replace(AppRoute.auth.onboarding);
         return;
       }
 
-      signIn({
-        token: {
-          access: response.data.accessToken,
-          refresh: response.data.refreshToken,
-        },
-        user: authUser,
-      });
+      signIn({ token: { access: response.data.accessToken, refresh: response.data.refreshToken }, user: authUser });
       router.replace(getHomeRouteForRole(authUser.role));
     }
     catch (error) {
@@ -340,62 +250,193 @@ export function SignupScreen() {
     setErrorMsg(msg);
   };
 
-  // Build consent text with tappable terms link
-  const consentRaw = t('auth.signup.consent', {
-    terms: '§TERMS§',
-    privacy: t('auth.signup.termsLink'),
-  });
-  const consentParts = consentRaw.split('§TERMS§');
+  return (
+    <SignupScreenView
+      {...{
+        router,
+        t,
+        signupMode,
+        setSignupMode,
+        handleSubmit,
+        handlePhoneSignup,
+        handlePhoneOtpRequest,
+        handlePhoneOtpVerify,
+        handleGoogleSignup,
+        handleGoogleSignupError,
+        handleTermsPress,
+        isPending,
+        isPhoneSignupPending,
+        isOtpPending,
+        isPhoneSignupVerifyPending,
+        isGoogleSigningIn,
+        isGoogleSigninMobileEnabled,
+        errorMsg,
+        pendingGoogleToken,
+        prefillEmailParam,
+      }}
+    />
+  );
+}
+
+type SignupScreenViewProps = {
+  router: ReturnType<typeof useRouter>;
+  t: (key: string, opts?: any) => string;
+  signupMode: 'email' | 'phone';
+  setSignupMode: (mode: 'email' | 'phone') => void;
+  handleSubmit: (values: SignupPayload) => Promise<void>;
+  handlePhoneSignup: (values: any) => Promise<void>;
+  handlePhoneOtpRequest: (phone: string, purpose: 'SIGNUP' | 'RESET_PASSWORD') => Promise<void>;
+  handlePhoneOtpVerify: (values: any) => Promise<any>;
+  handleGoogleSignup: (idToken: string, role: SignupRole) => Promise<void>;
+  handleGoogleSignupError: (error: Error) => void;
+  handleTermsPress: () => void;
+  isPending: boolean;
+  isPhoneSignupPending: boolean;
+  isOtpPending: boolean;
+  isPhoneSignupVerifyPending: boolean;
+  isGoogleSigningIn: boolean;
+  isGoogleSigninMobileEnabled: boolean;
+  errorMsg: string | null;
+  pendingGoogleToken: ReturnType<typeof createTokenWithTimestamp> | null;
+  prefillEmailParam: string;
+};
+
+// eslint-disable-next-line max-lines-per-function
+function SignupScreenView({
+  router,
+  t,
+  signupMode,
+  setSignupMode,
+  handleSubmit,
+  handlePhoneSignup,
+  handlePhoneOtpRequest,
+  handlePhoneOtpVerify,
+  handleGoogleSignup,
+  handleGoogleSignupError,
+  handleTermsPress,
+  isPending,
+  isPhoneSignupPending,
+  isOtpPending,
+  isPhoneSignupVerifyPending,
+  isGoogleSigningIn,
+  isGoogleSigninMobileEnabled,
+  errorMsg,
+  pendingGoogleToken,
+  prefillEmailParam,
+}: SignupScreenViewProps) {
+  const insets = useSafeAreaInsets();
+  const { language, setLanguage } = useSelectedLanguage();
+  const isRTL = language === 'ar';
+
+  const toggleLanguage = () => setLanguage(language === 'en' ? 'ar' : 'en');
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-      <StatusBar style="dark" translucent />
+    <AuthShell testID="signup-auth-shell">
+      <StatusBar style="light" translucent />
       <KeyboardAvoidingView
-        style={styles.flex}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          style={styles.flex}
-          contentContainerStyle={styles.scrollContent}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View style={styles.header}>
+          {/* Top bar — back chip + corner mark + language switch */}
+          <View
+            style={{
+              paddingHorizontal: 24,
+              paddingTop: 8,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Pressable
+                onPress={() => router.back()}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                testID="back-button"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  backgroundColor: 'rgba(255,255,255,0.06)',
+                  borderWidth: 1.5,
+                  borderColor: 'rgba(255,255,255,0.12)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Icon
+                  name="arrowL"
+                  size={18}
+                  color={colors.neutral.white}
+                />
+              </Pressable>
+              <TabaMark size={48} frame="ink" testID="signup-mark" />
+            </View>
             <Pressable
-              onPress={() => router.back()}
-              style={styles.backButton}
+              onPress={toggleLanguage}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              testID="back-button"
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255,255,255,0.08)',
+              }}
             >
-              <ChevronLeft />
+              <Icon name="globe" size={14} color={colors.neutral.dim} />
+              <Text style={{ color: colors.neutral.dim, fontSize: 13, fontWeight: '700' }}>
+                {language === 'en' ? 'العربية' : 'English'}
+              </Text>
             </Pressable>
-            <Text style={styles.headerTitle}>{t('auth.signup.title')}</Text>
-            <View style={styles.headerSpacer} />
           </View>
 
-          {/* Form */}
-          <View style={styles.content}>
-            {/* Email / Phone mode toggle */}
-            <View style={styles.modeToggle}>
-              <Pressable
-                style={[styles.modeTab, signupMode === 'email' && styles.modeTabActive]}
-                onPress={() => setSignupMode('email')}
-              >
-                <Text style={signupMode === 'email' ? styles.modeTabLabelActive : styles.modeTabLabel}>
-                  {t('auth.signup.emailTab')}
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modeTab, signupMode === 'phone' && styles.modeTabActive]}
-                onPress={() => setSignupMode('phone')}
-              >
-                <Text style={signupMode === 'phone' ? styles.modeTabLabelActive : styles.modeTabLabel}>
-                  {t('auth.signup.phoneTab')}
-                </Text>
-              </Pressable>
+          {/* Hero copy */}
+          <View style={{ paddingHorizontal: 24, marginTop: 32 }}>
+            <Text
+              style={{
+                color: colors.neutral.white,
+                fontSize: 32,
+                lineHeight: 36,
+                fontWeight: '700',
+                letterSpacing: -1.2,
+                textAlign: isRTL ? 'right' : 'left',
+                writingDirection: isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {t('auth.signup.heroLine1', 'Create your')}
+            </Text>
+            <View style={{ marginTop: 2, alignSelf: isRTL ? 'flex-end' : 'flex-start' }}>
+              <GradientText size={32} weight="700">
+                {t('auth.signup.heroLine2', 'classroom.')}
+              </GradientText>
             </View>
+            <Text
+              style={{
+                color: colors.neutral.dim,
+                fontSize: 14,
+                lineHeight: 22,
+                fontWeight: '500',
+                marginTop: 12,
+                textAlign: isRTL ? 'right' : 'left',
+                writingDirection: isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {t(
+                'auth.signup.subheadline',
+                'Sign up to start tracking sessions, attendance, and progress.',
+              )}
+            </Text>
+          </View>
 
+          {/* Body */}
+          <View style={{ paddingHorizontal: 24, marginTop: 22, flex: 1 }}>
             {signupMode === 'email'
               ? (
                   <SignupForm
@@ -423,134 +464,106 @@ export function SignupScreen() {
                   />
                 )}
 
-            {/* Consent text */}
-            <View style={styles.consentRow}>
-              <Text style={styles.consentText}>
-                {consentParts[0]}
-                <Text
-                  style={styles.consentLink}
-                  onPress={handleTermsPress}
-                  testID="terms-link"
-                >
-                  {t('auth.signup.termsLink')}
-                </Text>
-                {consentParts[1] ?? ''}
+            {/* OR divider */}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+                marginVertical: 18,
+              }}
+            >
+              <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.10)' }} />
+              <Text
+                style={{
+                  color: colors.neutral.inkMuted,
+                  fontSize: 10,
+                  fontWeight: '700',
+                  letterSpacing: 1.5,
+                }}
+              >
+                {t('auth.login.orDivider', 'OR')}
               </Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.10)' }} />
             </View>
 
-            {/* Already have an account */}
-            <View style={styles.loginRow}>
-              <Text style={styles.loginText}>
+            {/* Mode toggle (text link, login parity) */}
+            <Pressable
+              onPress={() => setSignupMode(signupMode === 'email' ? 'phone' : 'email')}
+              style={{
+                height: 50,
+                borderRadius: 14,
+                backgroundColor: 'rgba(255,255,255,0.06)',
+                borderWidth: 1.5,
+                borderColor: 'rgba(255,255,255,0.12)',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                gap: 10,
+              }}
+              testID="signup-mode-toggle"
+            >
+              <Icon
+                name={signupMode === 'email' ? 'phonePortrait' : 'mail'}
+                size={18}
+                color={colors.neutral.white}
+              />
+              <Text style={{ color: colors.neutral.white, fontSize: 14, fontWeight: '600' }}>
+                {signupMode === 'email'
+                  ? t('auth.login.usePhoneInstead', 'Use phone instead')
+                  : t('auth.login.useEmailInstead', 'Use email instead')}
+              </Text>
+            </Pressable>
+
+            {/* Spacer */}
+            <View style={{ flex: 1, minHeight: 16 }} />
+
+            {/* Already have account */}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                marginTop: 24,
+              }}
+            >
+              <Text style={{ color: colors.neutral.dim, fontSize: 14, fontWeight: '500' }}>
                 {t('auth.signup.alreadyHaveAccount')}
               </Text>
-              <Pressable
-                onPress={() => router.replace(AppRoute.auth.login)}
-                testID="login-link"
-              >
-                <Text style={styles.loginLink}>
+              <Pressable onPress={() => router.replace(AppRoute.auth.login)} testID="login-link">
+                <Text style={{ color: colors.brand.primary, fontSize: 14, fontWeight: '700' }}>
                   {t('auth.signup.loginLink')}
                 </Text>
               </Pressable>
             </View>
+
+            {/* Terms / legal */}
+            <Text
+              style={{
+                color: colors.neutral.inkMuted,
+                fontSize: 11,
+                lineHeight: 16,
+                fontWeight: '500',
+                textAlign: 'center',
+                marginTop: 14,
+                marginBottom: Math.max(insets.bottom, 12),
+                paddingHorizontal: 8,
+              }}
+            >
+              {t('auth.signup.legalLine', 'By creating an account you agree to Taba3ny\'s ')}
+              <Text
+                style={{ color: colors.brand.primary, fontWeight: '700' }}
+                onPress={handleTermsPress}
+                testID="terms-link"
+              >
+                {t('auth.signup.termsLink')}
+              </Text>
+              .
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </AuthShell>
   );
 }
-
-const styles = StyleSheet.create({
-  modeTab: {
-    alignItems: 'center',
-    flex: 1,
-    paddingVertical: 8,
-  },
-  modeTabActive: {
-    borderBottomColor: '#2563EB',
-    borderBottomWidth: 2,
-  },
-  modeTabLabel: {
-    color: '#94A3B8',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  modeTabLabelActive: {
-    color: '#2563EB',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  modeToggle: {
-    borderBottomColor: '#E2E8F0',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  backButton: {
-    alignItems: 'center',
-    height: 40,
-    justifyContent: 'center',
-    width: 40,
-  },
-  consentLink: {
-    color: '#2563EB',
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  consentRow: {
-    marginTop: 16,
-    paddingHorizontal: 4,
-  },
-  consentText: {
-    color: '#64748B',
-    fontSize: 13,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
-  content: {
-    paddingBottom: 32,
-    paddingHorizontal: 24,
-    paddingTop: 8,
-  },
-  flex: {
-    flex: 1,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  headerTitle: {
-    color: '#0F172A',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  loginLink: {
-    color: '#2563EB',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  loginRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 6,
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  loginText: {
-    color: '#64748B',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  safeArea: {
-    backgroundColor: '#FFFFFF',
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-});

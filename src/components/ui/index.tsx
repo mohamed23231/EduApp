@@ -3,6 +3,7 @@ import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
 import Svg from 'react-native-svg';
 import { withUniwind } from 'uniwind';
 
+export { AuthFieldShell, AuthInput, isoToFlagEmoji } from './auth-field';
 export { AuthShell } from './auth-shell';
 export { BigNumber } from './big-number';
 export * from './button';

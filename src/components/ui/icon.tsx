@@ -51,6 +51,8 @@ const ICON_MAP: Record<string, string> = {
   mail: 'mail-outline',
   phonePortrait: 'phone-portrait-outline',
   globe: 'globe-outline',
+  graduationCap: 'school-outline',
+  building: 'business-outline',
 };
 
 const RTL_FLIP_NAMES = new Set(['chevron', 'chevronL', 'arrowR', 'arrowL', 'arrowUpR']);
