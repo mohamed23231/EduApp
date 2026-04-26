@@ -1,425 +1,593 @@
-import type { AttendanceStats, Student, TimelineRecord } from '../types';
-import { Ionicons } from '@expo/vector-icons';
+import type { Student, TimelineRecord } from '../types';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, I18nManager, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Text } from '@/components/ui';
-import { AppRoute } from '@/core/navigation/routes';
 import {
-  AttendanceDonutChart,
-  AttendanceStatCard,
-  EmptyDashboard,
-  NotificationBell,
-  StudentSelector,
-  TimelineItem,
-} from '../components';
-import { useAttendanceStats, useAttendanceTimeline, useStudents } from '../hooks';
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  BigNumber,
+  Dot,
+  Hairline,
+  Icon,
+  Monogram,
+  PressButton,
+  SectionLabel,
+  StatusChip,
+  TabaMark,
+} from '@/components/ui';
+import colors from '@/components/ui/colors';
+import { AppRoute } from '@/core/navigation/routes';
+import { EmptyDashboard, NotificationBell } from '../components';
+import { useChildSummaryHero } from '../hooks';
+import { useStudents } from '../hooks/use-students';
 import { extractErrorMessage } from '../services/error-utils';
 import { useNotificationStore } from '../store/use-notification-store';
 
-type AttendanceStatsSectionProps = {
-  isLoading: boolean;
-  error: Error | null | undefined;
-  stats: AttendanceStats | undefined;
-  onRetry: () => void;
-};
+/**
+ * ParentDashboardScreen — Phase 8 rebuild against `contracts/visual-parent.md`.
+ *
+ * Macro: paper canvas, ink hero, hairline-divided rows. The hero holds the
+ * single sentence the parent opened the app to read ("Layla was in class
+ * today"). All data comes from useChildSummaryHero — no fabricated live or
+ * next-session fields.
+ */
 
-function TeacherInfoRow({ student, t }: { student: Student; t: (key: string) => string }) {
-  if (!student.teacherName)
+type StatusKey = 'present' | 'absent' | 'excused' | 'none';
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function deriveStatusKey(status: string): StatusKey {
+  if (status === 'PRESENT')
+    return 'present';
+  if (status === 'ABSENT')
+    return 'absent';
+  if (status === 'EXCUSED')
+    return 'excused';
+  return 'none';
+}
+
+function deriveTodayRecord(timeline: TimelineRecord[]): TimelineRecord | null {
+  if (!timeline.length)
     return null;
-  return (
-    <View style={styles.teacherRow}>
-      <View style={styles.teacherIcon}>
-        <Ionicons name="school-outline" size={16} color="#6366F1" />
-      </View>
-      <View style={styles.teacherInfo}>
-        <Text style={styles.teacherLabel}>{t('parent.dashboard.teacherLabel')}</Text>
-        <Text style={styles.teacherName} numberOfLines={1}>{student.teacherName}</Text>
-      </View>
-    </View>
-  );
+  const today = todayKey();
+  return timeline.find(r => r.date === today) ?? timeline[0];
 }
 
-function AttendanceStatsSection({ isLoading, error, stats, onRetry }: AttendanceStatsSectionProps) {
-  const { t } = useTranslation();
-  return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{t('parent.dashboard.statsTitle')}</Text>
-
-      {isLoading && (
-        <View style={styles.loadingContainer} testID="stats-skeleton">
-          <ActivityIndicator size="small" />
-        </View>
-      )}
-
-      {error && !isLoading && (
-        <View style={styles.errorContainer} testID="stats-error">
-          <Text style={styles.errorText}>{t('parent.dashboard.statsError')}</Text>
-          <Button label={t('parent.common.retry')} onPress={onRetry} />
-        </View>
-      )}
-
-      {stats && !isLoading && !error && (
-        <View style={styles.statsContent}>
-          <AttendanceDonutChart attendanceRate={stats.attendanceRate} size={160} />
-          <AttendanceStatCard
-            present={stats.present}
-            absent={stats.absent}
-            excused={stats.excused}
-          />
-        </View>
-      )}
-    </View>
-  );
-}
-
-type AttendanceTimelineSectionProps = {
-  isLoading: boolean;
-  error: Error | null | undefined;
-  timeline: TimelineRecord[] | undefined;
-  onRetry: () => void;
+type HeroProps = {
+  studentFirstName: string;
+  todayRecord: TimelineRecord | null;
+  attendanceRate: number | undefined;
+  isRTL: boolean;
+  t: (key: string, opts?: any) => string;
 };
 
-function AttendanceTimelineSection({ isLoading, error, timeline, onRetry }: AttendanceTimelineSectionProps) {
-  const { t } = useTranslation();
+// eslint-disable-next-line max-lines-per-function
+function ParentHero({ studentFirstName, todayRecord, attendanceRate, isRTL, t }: HeroProps) {
+  const status: StatusKey = todayRecord ? deriveStatusKey(todayRecord.status) : 'none';
+
+  const STATUS_DOT: Record<StatusKey, string> = {
+    present: colors.semantic.present,
+    absent: colors.semantic.absent,
+    excused: colors.semantic.excused,
+    none: colors.neutral.dim,
+  };
+  const STATUS_TAG_COLOR: Record<StatusKey, string> = {
+    present: colors.brand.primary,
+    absent: colors.semantic.absent,
+    excused: colors.semantic.excused,
+    none: colors.neutral.dim,
+  };
+  const STATUS_TAG_KEY: Record<StatusKey, [string, string]> = {
+    present: ['parent.dashboard.hero.tagPresent', 'IN CLASS TODAY'],
+    absent: ['parent.dashboard.hero.tagAbsent', 'NOT IN CLASS'],
+    excused: ['parent.dashboard.hero.tagExcused', 'EXCUSED TODAY'],
+    none: ['parent.dashboard.hero.tagNone', 'NO SESSIONS YET'],
+  };
+  const STATUS_HEADLINE_KEY: Record<StatusKey, [string, string]> = {
+    present: ['parent.dashboard.hero.headlinePresent', '{{name}} was in class today.'],
+    absent: ['parent.dashboard.hero.headlineAbsent', '{{name}} was absent today.'],
+    excused: ['parent.dashboard.hero.headlineExcused', '{{name}} was excused today.'],
+    none: ['parent.dashboard.hero.headlineNone', '{{name}} has no sessions yet.'],
+  };
+
+  const dotColor = STATUS_DOT[status];
+  const tagColor = STATUS_TAG_COLOR[status];
+  const [tagKey, tagFallback] = STATUS_TAG_KEY[status];
+  const tagText = t(tagKey, { defaultValue: tagFallback });
+  const [headlineKey, headlineFallback] = STATUS_HEADLINE_KEY[status];
+  const headlineText = t(headlineKey, { defaultValue: headlineFallback, name: studentFirstName });
+
+  const subText = todayRecord
+    ? `${todayRecord.date} · ${todayRecord.time}`
+    : t('parent.dashboard.hero.subNone', { defaultValue: 'Stats appear once their first session lands.' });
+
+  const hasRate = typeof attendanceRate === 'number' && !Number.isNaN(attendanceRate);
+
   return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{t('parent.dashboard.timelineTitle')}</Text>
+    <View
+      style={{
+        marginHorizontal: 16,
+        backgroundColor: colors.neutral.ink,
+        borderRadius: 24,
+        padding: 22,
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+      testID="parent-hero"
+    >
+      {/* Brand-green glow accent */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: -40,
+          end: -40,
+          width: 180,
+          height: 180,
+          borderRadius: 999,
+          backgroundColor: colors.brand.primary,
+          opacity: 0.18,
+        }}
+      />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 12,
+        }}
+      >
+        <Dot size={8} color={dotColor} pulse={status === 'present'} />
+        <Text
+          style={{
+            color: tagColor,
+            fontSize: 11,
+            fontWeight: '700',
+            letterSpacing: 1.5,
+          }}
+        >
+          {tagText}
+        </Text>
+      </View>
+      <Text
+        style={{
+          color: colors.neutral.white,
+          fontSize: 28,
+          fontWeight: '700',
+          letterSpacing: -1,
+          lineHeight: 32,
+          textAlign: isRTL ? 'right' : 'left',
+          writingDirection: isRTL ? 'rtl' : 'ltr',
+        }}
+      >
+        {headlineText}
+      </Text>
+      <Text
+        style={{
+          color: colors.neutral.dim,
+          fontSize: 14,
+          fontWeight: '500',
+          marginTop: 8,
+          textAlign: isRTL ? 'right' : 'left',
+          writingDirection: isRTL ? 'rtl' : 'ltr',
+        }}
+      >
+        {subText}
+      </Text>
 
-      {isLoading && (
-        <View style={styles.loadingContainer} testID="timeline-skeleton">
-          <ActivityIndicator size="small" />
-        </View>
-      )}
-
-      {error && !isLoading && (
-        <View style={styles.errorContainer} testID="timeline-error">
-          <Text style={styles.errorText}>{t('parent.dashboard.timelineError')}</Text>
-          <Button label={t('parent.common.retry')} onPress={onRetry} />
-        </View>
-      )}
-
-      {timeline && !isLoading && !error && (
-        <>
-          {timeline.length === 0 && (
-            <Text style={styles.emptyText}>{t('parent.dashboard.noTimeline')}</Text>
-          )}
-          {timeline.slice(0, 5).map(record => (
-            <TimelineItem
-              key={`${record.date}-${record.time}-${record.status}`}
-              date={record.date}
-              time={record.time}
-              status={record.status}
-              excuseNote={record.excuseNote}
-            />
-          ))}
-        </>
-      )}
+      {hasRate
+        ? (
+            <View
+              style={{
+                marginTop: 20,
+                paddingTop: 16,
+                borderTopWidth: 1,
+                borderTopColor: 'rgba(255,255,255,0.10)',
+                flexDirection: 'row',
+                alignItems: 'baseline',
+                gap: 10,
+              }}
+            >
+              <BigNumber
+                value={Math.round(attendanceRate as number)}
+                suffix="%"
+                size={44}
+                weight={700}
+                color={colors.neutral.white}
+              />
+              <Text
+                style={{
+                  color: colors.neutral.dim,
+                  fontSize: 13,
+                  fontWeight: '600',
+                  letterSpacing: 0.3,
+                }}
+              >
+                {t('parent.dashboard.hero.rateLabel', 'attendance · last 30 days')}
+              </Text>
+            </View>
+          )
+        : null}
     </View>
   );
 }
 
+type SwitcherProps = {
+  students: Student[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onAddChild: () => void;
+};
+
+function ChildSwitcher({ students, selectedId, onSelect, onAddChild }: SwitcherProps) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingVertical: 4 }}
+    >
+      {students.map((student) => {
+        const isSelected = student.id === selectedId;
+        return (
+          <Pressable
+            key={student.id}
+            onPress={() => onSelect(student.id)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isSelected }}
+            testID={`child-pill-${student.id}`}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+              paddingStart: 6,
+              paddingEnd: 14,
+              paddingVertical: 6,
+              borderRadius: 999,
+              backgroundColor: isSelected
+                ? colors.neutral.ink
+                : pressed
+                  ? colors.neutral.cardWarm
+                  : colors.neutral.card,
+              borderWidth: 1.5,
+              borderColor: isSelected ? colors.neutral.ink : colors.neutral.rule,
+            })}
+          >
+            <Monogram name={student.fullName} size={32} ring={isSelected} />
+            <Text
+              style={{
+                color: isSelected ? colors.neutral.white : colors.neutral.ink,
+                fontSize: 13,
+                fontWeight: '700',
+                letterSpacing: -0.1,
+              }}
+              numberOfLines={1}
+            >
+              {student.fullName.split(' ')[0]}
+            </Text>
+          </Pressable>
+        );
+      })}
+      <Pressable
+        onPress={onAddChild}
+        accessibilityRole="button"
+        testID="add-child-button"
+        style={({ pressed }) => ({
+          width: 44,
+          height: 44,
+          borderRadius: 999,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card,
+          borderWidth: 1.5,
+          borderStyle: 'dashed',
+          borderColor: colors.neutral.rule,
+        })}
+      >
+        <Icon name="plus" size={16} color={colors.neutral.inkMuted} />
+      </Pressable>
+    </ScrollView>
+  );
+}
+
+type TimelineRowProps = {
+  record: TimelineRecord;
+  isLast: boolean;
+  isRTL: boolean;
+};
+
+function TimelineRow({ record, isLast, isRTL }: TimelineRowProps) {
+  const status = deriveStatusKey(record.status);
+  const chipStatus = status === 'none' ? 'pending' : status;
+  return (
+    <View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          paddingVertical: 14,
+          paddingHorizontal: 4,
+        }}
+      >
+        <View style={{ width: 56 }}>
+          <Text
+            style={{
+              color: colors.neutral.inkMuted,
+              fontSize: 12,
+              fontWeight: '700',
+              letterSpacing: 0.3,
+              textAlign: isRTL ? 'right' : 'left',
+            }}
+          >
+            {record.time}
+          </Text>
+          <Text
+            style={{
+              color: colors.neutral.inkMuted,
+              fontSize: 11,
+              fontWeight: '500',
+              marginTop: 2,
+              textAlign: isRTL ? 'right' : 'left',
+            }}
+            numberOfLines={1}
+          >
+            {record.date}
+          </Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <StatusChip status={chipStatus} />
+        </View>
+        {record.excuseNote
+          ? (
+              <Text
+                style={{
+                  color: colors.neutral.inkMuted,
+                  fontSize: 12,
+                  fontWeight: '500',
+                  maxWidth: 120,
+                  textAlign: isRTL ? 'right' : 'left',
+                }}
+                numberOfLines={2}
+              >
+                {record.excuseNote}
+              </Text>
+            )
+          : null}
+      </View>
+      {!isLast ? <Hairline color={colors.neutral.rule} /> : null}
+    </View>
+  );
+}
+
+// eslint-disable-next-line max-lines-per-function
 export function ParentDashboardScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { data: students, isLoading, error, refetch } = useStudents();
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
+  const isRTL = i18n?.language === 'ar';
+
+  const {
+    data: students,
+    isLoading: studentsLoading,
+    error: studentsError,
+    refetch: refetchStudents,
+  } = useStudents();
   const unreadCount = useNotificationStore.use.unreadCount();
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
 
   const effectiveSelectedId = useMemo(() => {
-    if (!students?.length) {
+    if (!students?.length)
       return null;
-    }
-    if (selectedStudentId && students.some(s => s.id === selectedStudentId)) {
+    if (selectedStudentId && students.some(s => s.id === selectedStudentId))
       return selectedStudentId;
-    }
     return students[0].id;
   }, [students, selectedStudentId]);
 
-  const selectedStudent = useMemo(
-    () => students?.find(s => s.id === effectiveSelectedId) ?? null,
-    [students, effectiveSelectedId],
-  );
-
   const {
-    data: stats,
-    isLoading: statsLoading,
-    error: statsError,
-    refetch: refetchStats,
-  } = useAttendanceStats(effectiveSelectedId ?? '');
+    student: selectedStudent,
+    attendanceStats,
+    recentTimeline,
+    isLoading: heroLoading,
+    error: heroError,
+  } = useChildSummaryHero(effectiveSelectedId ?? '');
 
-  const {
-    data: timeline,
-    isLoading: timelineLoading,
-    error: timelineError,
-    refetch: refetchTimeline,
-  } = useAttendanceTimeline(effectiveSelectedId ?? '');
-
-  if (isLoading) {
+  if (studentsLoading) {
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
-        <View style={styles.centeredContainer} testID="loading-indicator">
-          <ActivityIndicator size="large" />
+      <View style={{ flex: 1, backgroundColor: colors.neutral.paper, paddingTop: insets.top }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} testID="loading-indicator">
+          <ActivityIndicator size="large" color={colors.brand.primary} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
-  if (error) {
-    const errorMessage = extractErrorMessage(error, t);
+  if (studentsError) {
+    const errorMessage = extractErrorMessage(studentsError, t);
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
-        <View style={styles.errorScreenContainer}>
-          <Text style={styles.errorScreenText}>{errorMessage}</Text>
-          <Button label={t('parent.common.retry')} onPress={() => refetch()} testID="retry-button" />
+      <View style={{ flex: 1, backgroundColor: colors.neutral.paper, paddingTop: insets.top }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 16 }}>
+          <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+            {errorMessage}
+          </Text>
+          <PressButton
+            variant="gradient"
+            size="md"
+            onPress={() => refetchStudents()}
+            label={t('parent.common.retry')}
+            testID="retry-button"
+          />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!students?.length) {
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
+      <View style={{ flex: 1, backgroundColor: colors.neutral.paper, paddingTop: insets.top }}>
         <EmptyDashboard onLinkStudent={() => router.push(AppRoute.parent.linkStudent)} />
-      </SafeAreaView>
+      </View>
     );
   }
 
+  const studentFirstName = selectedStudent?.fullName?.split(' ')[0] ?? '';
+  const todayRecord = deriveTodayRecord(recentTimeline);
+
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('parent.dashboard.title')}</Text>
-        <View style={styles.headerActions}>
+    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 32 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top bar */}
+        <View
+          style={{
+            paddingHorizontal: 20,
+            paddingTop: 16,
+            paddingBottom: 14,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <TabaMark size={36} frame="ink" />
+            <View>
+              <Text
+                style={{
+                  color: colors.neutral.inkMuted,
+                  fontSize: 12,
+                  fontWeight: '600',
+                  letterSpacing: 0.2,
+                  textAlign: isRTL ? 'right' : 'left',
+                }}
+              >
+                {t('parent.dashboard.greeting', 'Hi there')}
+              </Text>
+              <Text
+                style={{
+                  color: colors.neutral.ink,
+                  fontSize: 18,
+                  fontWeight: '700',
+                  letterSpacing: -0.4,
+                  marginTop: 1,
+                  textAlign: isRTL ? 'right' : 'left',
+                }}
+              >
+                {t('parent.dashboard.familyLabel', 'Family')}
+              </Text>
+            </View>
+          </View>
           <NotificationBell
             unreadCount={unreadCount}
             onPress={() => router.push(AppRoute.parent.notifications)}
           />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => router.push(AppRoute.parent.linkStudent)}
-            testID="add-student-button"
-          >
-            <Ionicons name="add-circle" size={28} color="#3B82F6" />
-          </TouchableOpacity>
         </View>
-      </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.studentSelectorContainer}>
-          <StudentSelector
+        {/* Child switcher */}
+        <View style={{ marginBottom: 14 }}>
+          <ChildSwitcher
             students={students}
             selectedId={effectiveSelectedId}
             onSelect={setSelectedStudentId}
+            onAddChild={() => router.push(AppRoute.parent.linkStudent)}
           />
         </View>
 
-        {selectedStudent && (
-          <TeacherInfoRow student={selectedStudent} t={t} />
-        )}
+        {/* Hero */}
+        {heroLoading && !selectedStudent
+          ? (
+              <View style={{ marginHorizontal: 16, padding: 22, borderRadius: 24, backgroundColor: colors.neutral.ink, alignItems: 'center' }}>
+                <ActivityIndicator size="small" color={colors.brand.primary} />
+              </View>
+            )
+          : (
+              <ParentHero
+                studentFirstName={studentFirstName}
+                todayRecord={todayRecord}
+                attendanceRate={attendanceStats?.attendanceRate}
+                isRTL={isRTL}
+                t={t}
+              />
+            )}
 
-        <AttendanceStatsSection
-          isLoading={statsLoading}
-          error={statsError}
-          stats={stats}
-          onRetry={() => refetchStats()}
-        />
+        {heroError
+          ? (
+              <Text
+                style={{
+                  marginHorizontal: 16,
+                  marginTop: 10,
+                  color: colors.semantic.absent,
+                  fontSize: 13,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                }}
+                testID="hero-error"
+              >
+                {t('parent.dashboard.statsError')}
+              </Text>
+            )
+          : null}
 
-        <AttendanceTimelineSection
-          isLoading={timelineLoading}
-          error={timelineError}
-          timeline={timeline}
-          onRetry={() => refetchTimeline()}
-        />
+        {/* Recent timeline */}
+        <View style={{ paddingHorizontal: 16, marginTop: 24 }}>
+          <SectionLabel>{t('parent.dashboard.timelineSectionLabel', 'RECENT')}</SectionLabel>
+        </View>
 
-        {effectiveSelectedId && (
-          <TouchableOpacity
-            style={styles.performanceCard}
-            onPress={() => router.push(AppRoute.parent.studentPerformance(effectiveSelectedId))}
-            testID="performance-button"
-          >
-            <View style={styles.performanceIcon}>
-              <Ionicons name="stats-chart" size={20} color="#3B82F6" />
-            </View>
-            <View style={styles.performanceContent}>
-              <Text style={styles.performanceTitle}>{t('parent.dashboard.performanceTitle')}</Text>
-              <Text style={styles.performanceSubtitle}>{t('parent.dashboard.performanceSubtitle')}</Text>
-            </View>
-            <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-        )}
+        <View style={{ marginHorizontal: 16, marginTop: 8 }}>
+          {recentTimeline.length === 0
+            ? (
+                <Text
+                  style={{
+                    color: colors.neutral.inkMuted,
+                    fontSize: 13,
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    paddingVertical: 16,
+                  }}
+                >
+                  {t('parent.dashboard.noTimeline')}
+                </Text>
+              )
+            : (
+                <>
+                  {recentTimeline.slice(0, 3).map((record: TimelineRecord, idx: number, arr: TimelineRecord[]) => (
+                    <TimelineRow
+                      key={`${record.date}-${record.time}-${record.status}`}
+                      record={record}
+                      isLast={idx === arr.length - 1}
+                      isRTL={isRTL}
+                    />
+                  ))}
+                </>
+              )}
+        </View>
+
+        {/* CTAs */}
+        {effectiveSelectedId
+          ? (
+              <View style={{ paddingHorizontal: 16, marginTop: 24, gap: 10 }}>
+                <PressButton
+                  variant="ghost"
+                  size="md"
+                  fullWidth
+                  onPress={() => router.push(AppRoute.parent.studentPerformance(effectiveSelectedId))}
+                  label={t('parent.dashboard.seePerformance', 'View performance & ratings')}
+                  trailingIcon={<Icon name="arrowR" size={18} color={colors.neutral.ink} />}
+                  testID="performance-button"
+                />
+              </View>
+            )
+          : null}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  addButton: {
-    padding: 4,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-  },
-  studentSelectorContainer: {
-    marginBottom: 16,
-  },
-  teacherRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 16,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  teacherIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#EDE9FE',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  teacherInfo: {
-    flex: 1,
-  },
-  teacherLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  teacherName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    marginTop: 1,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 12,
-  },
-  loadingContainer: {
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
-  errorContainer: {
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    padding: 12,
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  emptyText: {
-    color: '#6B7280',
-    fontSize: 14,
-    textAlign: 'center',
-    paddingVertical: 16,
-  },
-  statsContent: {
-    alignItems: 'center',
-  },
-  centeredContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorScreenContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  errorScreenText: {
-    fontSize: 16,
-    color: '#DC2626',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  performanceCard: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  performanceIcon: {
-    alignItems: 'center',
-    backgroundColor: '#EFF6FF',
-    borderRadius: 10,
-    height: 40,
-    justifyContent: 'center',
-    width: 40,
-  },
-  performanceContent: {
-    flex: 1,
-  },
-  performanceTitle: {
-    color: '#111827',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  performanceSubtitle: {
-    color: '#6B7280',
-    fontSize: 13,
-    marginTop: 2,
-  },
-});
