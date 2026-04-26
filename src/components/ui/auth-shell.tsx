@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import colors from '@/components/ui/colors';
@@ -47,22 +47,28 @@ export function AuthShell({ children, testID }: AuthShellProps) {
       edges={['top', 'bottom', 'left', 'right']}
       testID={testID}
     >
-      {/* Glow layer — absolute, non-interactive */}
+      {/* Glow layer — absolute, non-interactive. `pointerEvents` is set
+          BOTH on the wrapper View and on the inner Svg because
+          react-native-svg's native Svg view does not always inherit the
+          parent's pointerEvents on Android. Without this, the Svg layer
+          can swallow touches meant for content underneath (notably
+          Pressable controls like the country chip). */}
       <View
         pointerEvents="none"
         style={{
-          ...Platform.select({
-            ios: { position: 'absolute' },
-            android: { position: 'absolute' },
-            default: { position: 'absolute' },
-          }),
+          position: 'absolute',
           top: 0,
-          left: 0,
-          right: 0,
+          start: 0,
+          end: 0,
           bottom: 0,
+          pointerEvents: 'none',
         }}
       >
-        <Svg width="100%" height="100%">
+        <Svg
+          width="100%"
+          height="100%"
+          pointerEvents="none"
+        >
           <Defs>
             <RadialGradient
               id="glowGreen"
