@@ -17,6 +17,7 @@ import {
   GradientText,
   Icon,
   PressButton,
+  Sheet,
   TabaMark,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
@@ -26,6 +27,7 @@ import {
   buildE164Phone,
   DEFAULT_COUNTRY_CODE,
   getPhoneCountryByDialCode,
+  getSupportedPhoneCountries,
   splitE164Phone,
 } from '@/shared/utils/phone';
 import { loginSchema } from '../validators';
@@ -207,18 +209,22 @@ export function LoginForm({
     () => splitE164Phone(initialPhone),
     [initialPhone],
   );
-  // TODO(visual-auth): wire country picker Sheet to setPhoneCountryCode.
-  const [phoneCountryCode, _setPhoneCountryCode] = useState(
+  const [phoneCountryCode, setPhoneCountryCode] = useState(
     initialPhoneParts.countryCode || DEFAULT_COUNTRY_CODE,
   );
   const [phoneLocalNumber, setPhoneLocalNumber] = useState(
     initialPhoneParts.localNumber,
   );
   const [phonePassword, setPhonePassword] = useState('');
+  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
 
   const phoneCountry = getPhoneCountryByDialCode(phoneCountryCode);
   const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
   const phoneFlag = isoToFlagEmoji(phoneCountry.iso2);
+  const supportedCountries = React.useMemo(
+    () => getSupportedPhoneCountries(),
+    [],
+  );
 
   const form = useForm({
     defaultValues: { email: '', password: '' },
@@ -330,7 +336,11 @@ export function LoginForm({
               <View style={{ gap: 12 }}>
                 {/* Country chip + phone */}
                 <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <View
+                  <Pressable
+                    onPress={() => setCountryPickerOpen(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
+                    testID="login-country-chip"
                     style={{
                       height: 56,
                       borderRadius: 16,
@@ -353,7 +363,8 @@ export function LoginForm({
                     >
                       {phoneCountryCode}
                     </Text>
-                  </View>
+                    <Icon name="chevronDown" size={14} color={colors.neutral.dim} />
+                  </Pressable>
                   <AuthFieldShell>
                     <AuthInput
                       value={phoneLocalNumber}
@@ -646,6 +657,72 @@ export function LoginForm({
 
         {Platform.OS === 'ios' ? null : <View style={{ height: 8 }} />}
       </View>
+
+      <Sheet
+        open={countryPickerOpen}
+        onClose={() => setCountryPickerOpen(false)}
+        title={t('auth.phone.countryCodeLabel', 'Country')}
+        accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
+        testID="login-country-picker-sheet"
+      >
+        <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+          {supportedCountries.map((country) => {
+            const selected = country.dialCode === phoneCountryCode;
+            const flag = isoToFlagEmoji(country.iso2);
+            const label = t(`auth.phone.countries.${country.iso2.toLowerCase()}`, {
+              dialCode: country.dialCode,
+              defaultValue: `${country.iso2} (${country.dialCode})`,
+            });
+            return (
+              <Pressable
+                key={country.iso2}
+                onPress={() => {
+                  setPhoneCountryCode(country.dialCode);
+                  setCountryPickerOpen(false);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                testID={`country-option-${country.iso2.toLowerCase()}`}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  paddingVertical: 14,
+                  paddingHorizontal: 12,
+                  borderRadius: 14,
+                  backgroundColor: selected ? colors.brand.primaryGlow : 'transparent',
+                }}
+              >
+                <Text style={{ fontSize: 24 }}>{flag}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      color: colors.neutral.ink,
+                      fontSize: 15,
+                      fontWeight: '700',
+                    }}
+                  >
+                    {label}
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.neutral.inkMuted,
+                      fontSize: 13,
+                      fontWeight: '500',
+                      marginTop: 2,
+                    }}
+                  >
+                    {country.dialCode}
+                  </Text>
+                </View>
+                {selected
+                  ? <Icon name="check" size={20} color={colors.brand.primary} />
+                  : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      </Sheet>
     </AuthShell>
   );
 }
