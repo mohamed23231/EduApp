@@ -1,4 +1,5 @@
 import type { Student, TimelineRecord } from '../types';
+import type { SupportedLocale } from '@/lib/date';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,7 @@ import {
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
+import { formatCalendarDay, formatTime } from '@/lib/date';
 import { EmptyDashboard, NotificationBell } from '../components';
 import { useChildSummaryHero } from '../hooks';
 import { useStudents } from '../hooks/use-students';
@@ -58,7 +60,18 @@ function deriveTodayRecord(timeline: TimelineRecord[]): TimelineRecord | null {
   if (!timeline.length)
     return null;
   const today = todayKey();
-  return timeline.find(r => r.date === today) ?? timeline[0];
+  return timeline.find(r => r.date.slice(0, 10) === today) ?? timeline[0];
+}
+
+/**
+ * Backend returns `date` as ISO timestamp (e.g. `2026-03-06T00:00:00.000Z`)
+ * and `time` as a separate `HH:MM:SS` string. Combine them into a single
+ * Date-parseable input that dayjs can format with the active locale.
+ */
+function combineDateTime(date: string, time: string): string {
+  const datePart = date.includes('T') ? date.slice(0, 10) : date;
+  const timePart = time.length === 5 ? `${time}:00` : time;
+  return `${datePart}T${timePart}`;
 }
 
 type HeroProps = {
@@ -66,11 +79,12 @@ type HeroProps = {
   todayRecord: TimelineRecord | null;
   attendanceRate: number | undefined;
   isRTL: boolean;
+  locale: SupportedLocale;
   t: (key: string, opts?: any) => string;
 };
 
 // eslint-disable-next-line max-lines-per-function
-function ParentHero({ studentFirstName, todayRecord, attendanceRate, isRTL, t }: HeroProps) {
+function ParentHero({ studentFirstName, todayRecord, attendanceRate, isRTL, locale, t }: HeroProps) {
   const status: StatusKey = todayRecord ? deriveStatusKey(todayRecord.status) : 'none';
 
   const STATUS_DOT: Record<StatusKey, string> = {
@@ -106,7 +120,7 @@ function ParentHero({ studentFirstName, todayRecord, attendanceRate, isRTL, t }:
   const headlineText = t(headlineKey, { defaultValue: headlineFallback, name: studentFirstName });
 
   const subText = todayRecord
-    ? `${todayRecord.date} · ${todayRecord.time}`
+    ? `${formatCalendarDay(todayRecord.date, locale)} · ${formatTime(combineDateTime(todayRecord.date, todayRecord.time), locale)}`
     : t('parent.dashboard.hero.subNone', { defaultValue: 'Stats appear once their first session lands.' });
 
   const hasRate = typeof attendanceRate === 'number' && !Number.isNaN(attendanceRate);
@@ -301,11 +315,14 @@ type TimelineRowProps = {
   record: TimelineRecord;
   isLast: boolean;
   isRTL: boolean;
+  locale: SupportedLocale;
 };
 
-function TimelineRow({ record, isLast, isRTL }: TimelineRowProps) {
+function TimelineRow({ record, isLast, isRTL, locale }: TimelineRowProps) {
   const status = deriveStatusKey(record.status);
   const chipStatus = status === 'none' ? 'pending' : status;
+  const dayLabel = formatCalendarDay(record.date, locale);
+  const timeLabel = formatTime(combineDateTime(record.date, record.time), locale);
   return (
     <View>
       <View
@@ -317,17 +334,17 @@ function TimelineRow({ record, isLast, isRTL }: TimelineRowProps) {
           paddingHorizontal: 4,
         }}
       >
-        <View style={{ width: 56 }}>
+        <View style={{ width: 72 }}>
           <Text
             style={{
-              color: colors.neutral.inkMuted,
-              fontSize: 12,
+              color: colors.neutral.ink,
+              fontSize: 13,
               fontWeight: '700',
-              letterSpacing: 0.3,
+              letterSpacing: 0.2,
               textAlign: isRTL ? 'right' : 'left',
             }}
           >
-            {record.time}
+            {timeLabel}
           </Text>
           <Text
             style={{
@@ -339,28 +356,28 @@ function TimelineRow({ record, isLast, isRTL }: TimelineRowProps) {
             }}
             numberOfLines={1}
           >
-            {record.date}
+            {dayLabel}
           </Text>
         </View>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <StatusChip status={chipStatus} />
+          {record.excuseNote
+            ? (
+                <Text
+                  style={{
+                    flex: 1,
+                    color: colors.neutral.inkMuted,
+                    fontSize: 12,
+                    fontWeight: '500',
+                    textAlign: isRTL ? 'right' : 'left',
+                  }}
+                  numberOfLines={2}
+                >
+                  {record.excuseNote}
+                </Text>
+              )
+            : null}
         </View>
-        {record.excuseNote
-          ? (
-              <Text
-                style={{
-                  color: colors.neutral.inkMuted,
-                  fontSize: 12,
-                  fontWeight: '500',
-                  maxWidth: 120,
-                  textAlign: isRTL ? 'right' : 'left',
-                }}
-                numberOfLines={2}
-              >
-                {record.excuseNote}
-              </Text>
-            )
-          : null}
       </View>
       {!isLast ? <Hairline color={colors.neutral.rule} /> : null}
     </View>
@@ -373,6 +390,7 @@ export function ParentDashboardScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const isRTL = i18n?.language === 'ar';
+  const locale: SupportedLocale = isRTL ? 'ar' : 'en';
 
   const {
     data: students,
@@ -515,6 +533,7 @@ export function ParentDashboardScreen() {
                 todayRecord={todayRecord}
                 attendanceRate={attendanceStats?.attendanceRate}
                 isRTL={isRTL}
+                locale={locale}
                 t={t}
               />
             )}
@@ -565,6 +584,7 @@ export function ParentDashboardScreen() {
                       record={record}
                       isLast={idx === arr.length - 1}
                       isRTL={isRTL}
+                      locale={locale}
                     />
                   ))}
                 </>

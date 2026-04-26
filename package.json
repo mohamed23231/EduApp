@@ -58,6 +58,7 @@
     "app-icon-badge": "^0.1.2",
     "axios": "^1.13.2",
     "burnt": "^0.13.0",
+    "dayjs": "^1.11.20",
     "expo": "~54.0.33",
     "expo-clipboard": "^8.0.8",
     "expo-constants": "~18.0.13",
