@@ -17,10 +17,10 @@ import {
   GradientText,
   Icon,
   PressButton,
-  Sheet,
   TabaMark,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
+import { Modal, useModal } from '@/components/ui/modal';
 import { AppRoute } from '@/core/navigation/routes';
 import { useSelectedLanguage } from '@/lib/i18n';
 import {
@@ -216,7 +216,7 @@ export function LoginForm({
     initialPhoneParts.localNumber,
   );
   const [phonePassword, setPhonePassword] = useState('');
-  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
+  const countryPickerModal = useModal();
 
   const phoneCountry = getPhoneCountryByDialCode(phoneCountryCode);
   const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
@@ -337,7 +337,7 @@ export function LoginForm({
                 {/* Country chip + phone */}
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   <Pressable
-                    onPress={() => setCountryPickerOpen(true)}
+                    onPress={() => countryPickerModal.present()}
                     accessibilityRole="button"
                     accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
                     testID="login-country-chip"
@@ -658,14 +658,13 @@ export function LoginForm({
         {Platform.OS === 'ios' ? null : <View style={{ height: 8 }} />}
       </View>
 
-      <Sheet
-        open={countryPickerOpen}
-        onClose={() => setCountryPickerOpen(false)}
+      {/* Country picker — same Modal/useModal pattern proven by PhoneField. */}
+      <Modal
+        ref={countryPickerModal.ref}
+        snapPoints={['38%']}
         title={t('auth.phone.countryCodeLabel', 'Country')}
-        accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
-        testID="login-country-picker-sheet"
       >
-        <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+        <View style={{ paddingHorizontal: 20, paddingBottom: 22, gap: 8 }}>
           {supportedCountries.map((country) => {
             const selected = country.dialCode === phoneCountryCode;
             const flag = isoToFlagEmoji(country.iso2);
@@ -678,20 +677,24 @@ export function LoginForm({
                 key={country.iso2}
                 onPress={() => {
                   setPhoneCountryCode(country.dialCode);
-                  setCountryPickerOpen(false);
+                  countryPickerModal.dismiss();
                 }}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 testID={`country-option-${country.iso2.toLowerCase()}`}
-                style={{
+                style={({ pressed }) => ({
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 12,
                   paddingVertical: 14,
-                  paddingHorizontal: 12,
+                  paddingHorizontal: 14,
                   borderRadius: 14,
-                  backgroundColor: selected ? colors.brand.primaryGlow : 'transparent',
-                }}
+                  backgroundColor: selected
+                    ? colors.brand.primaryGlow
+                    : pressed
+                      ? colors.neutral.paper
+                      : 'transparent',
+                })}
               >
                 <Text style={{ fontSize: 24 }}>{flag}</Text>
                 <View style={{ flex: 1 }}>
@@ -722,7 +725,7 @@ export function LoginForm({
             );
           })}
         </View>
-      </Sheet>
+      </Modal>
     </AuthShell>
   );
 }
