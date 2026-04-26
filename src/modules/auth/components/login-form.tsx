@@ -337,21 +337,28 @@ export function LoginForm({
                 {/* Country chip + phone */}
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   <Pressable
-                    onPress={() => countryPickerModal.present()}
+                    onPress={() => {
+                      console.log('[login-form] country chip pressed');
+                      countryPickerModal.present();
+                    }}
                     accessibilityRole="button"
                     accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
                     testID="login-country-chip"
-                    style={{
+                    style={({ pressed }) => ({
                       height: 56,
                       borderRadius: 16,
                       paddingHorizontal: 14,
-                      backgroundColor: 'rgba(255,255,255,0.06)',
+                      backgroundColor: pressed
+                        ? 'rgba(34,197,114,0.30)'
+                        : 'rgba(255,255,255,0.06)',
                       borderWidth: 1.5,
-                      borderColor: 'rgba(255,255,255,0.12)',
+                      borderColor: pressed
+                        ? colors.brand.primary
+                        : 'rgba(255,255,255,0.12)',
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: 6,
-                    }}
+                    })}
                   >
                     <Text style={{ fontSize: 18 }}>{phoneFlag}</Text>
                     <Text
@@ -363,7 +370,9 @@ export function LoginForm({
                     >
                       {phoneCountryCode}
                     </Text>
-                    <Icon name="chevronDown" size={14} color={colors.neutral.dim} />
+                    <Text style={{ color: colors.neutral.dim, fontSize: 14, marginStart: 2 }}>
+                      ▾
+                    </Text>
                   </Pressable>
                   <AuthFieldShell>
                     <AuthInput
