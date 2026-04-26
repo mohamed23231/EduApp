@@ -39,6 +39,27 @@ export type AttendanceStats = {
   termName: string;
   termStartDate: string;
   termEndDate: string;
+  /** Phase 8: optional until backend ships. Consecutive recent days marked PRESENT. */
+  currentStreakDays?: number;
+  /** Phase 8: optional until backend ships. Mean rating over last 30 days, null when no ratings. */
+  avgRating30d?: number | null;
+};
+
+export type CurrentSession = {
+  inSession: boolean;
+  sessionInstanceId?: string;
+  sessionName?: string;
+  teacherName?: string;
+  startedAt?: string;
+  room?: string;
+};
+
+export type UpcomingSession = {
+  sessionInstanceId: string;
+  sessionName: string;
+  teacherName: string;
+  startsAt: string;
+  room?: string;
 };
 
 export type TimelineRecord = {

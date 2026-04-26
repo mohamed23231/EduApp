@@ -17,6 +17,9 @@ type BackendAttendanceStats = {
   excused?: number | string;
   notMarked?: number | string;
   attendanceRate?: number | string;
+  // Phase 8 — present once backend lands. Tolerated as optional in the meantime.
+  currentStreakDays?: number | string;
+  avgRating30d?: number | string | null;
 };
 
 type BackendTimelineRecord = {
@@ -54,6 +57,19 @@ export function mapAttendanceStats(data: BackendAttendanceStats): AttendanceStat
     return Math.max(0, Math.floor(Number.isNaN(parsed) ? 0 : parsed));
   };
 
+  const currentStreakDays = data.currentStreakDays !== undefined
+    ? parseCount(data.currentStreakDays)
+    : undefined;
+
+  let avgRating30d: number | null | undefined;
+  if (data.avgRating30d === null) {
+    avgRating30d = null;
+  }
+  else if (data.avgRating30d !== undefined) {
+    const parsed = Number.parseFloat(String(data.avgRating30d));
+    avgRating30d = Number.isNaN(parsed) ? null : parsed;
+  }
+
   return {
     attendanceRate,
     present: parseCount(data.present),
@@ -64,6 +80,8 @@ export function mapAttendanceStats(data: BackendAttendanceStats): AttendanceStat
     termName: data.termName ?? '',
     termStartDate: data.termStartDate ?? '',
     termEndDate: data.termEndDate ?? '',
+    ...(currentStreakDays !== undefined ? { currentStreakDays } : {}),
+    ...(avgRating30d !== undefined ? { avgRating30d } : {}),
   };
 }
 

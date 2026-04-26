@@ -11,6 +11,10 @@ export const QueryKey = {
       ['parent', 'attendance', studentId, 'statistics'] as const,
     attendanceTimeline: (studentId: string, page: number) =>
       ['parent', 'attendance', studentId, 'timeline', page] as const,
+    currentSession: (studentId: string) =>
+      ['parent', 'students', studentId, 'current-session'] as const,
+    upcomingSessions: (studentId: string, limit: number) =>
+      ['parent', 'students', studentId, 'upcoming-sessions', limit] as const,
   },
   teacher: {
     me: ['teacher', 'me'] as const,
