@@ -11,9 +11,7 @@ describe('TabaMark', () => {
     const el = screen.getByTestId('mark');
     expect(el).toBeTruthy();
     expect(el.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ width: 48, height: 48 }),
-      ]),
+      expect.objectContaining({ width: 48, height: 48 }),
     );
   });
 
@@ -21,9 +19,7 @@ describe('TabaMark', () => {
     render(<TabaMark size={64} testID="mark" />);
     const el = screen.getByTestId('mark');
     expect(el.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ width: 64, height: 64 }),
-      ]),
+      expect.objectContaining({ width: 64, height: 64 }),
     );
   });
 
@@ -31,9 +27,7 @@ describe('TabaMark', () => {
     render(<TabaMark frame="ink" testID="mark" />);
     const el = screen.getByTestId('mark');
     expect(el.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: colors.neutral.ink }),
-      ]),
+      expect.objectContaining({ backgroundColor: colors.neutral.ink }),
     );
   });
 
@@ -41,25 +35,23 @@ describe('TabaMark', () => {
     render(<TabaMark frame="paper" testID="mark" />);
     const el = screen.getByTestId('mark');
     expect(el.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: colors.neutral.paper }),
-      ]),
+      expect.objectContaining({ backgroundColor: colors.neutral.card }),
     );
   });
 
-  it('renders boxed with squircle shape', () => {
+  it('renders boxed with smaller corner radius', () => {
     render(<TabaMark size={80} boxed testID="mark" />);
     const el = screen.getByTestId('mark');
     expect(el.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ borderRadius: 80 * 0.22 }),
-      ]),
+      expect.objectContaining({ borderRadius: Math.round(80 * 0.18) }),
     );
   });
 
-  it('renders the placeholder Arabic letter', () => {
-    render(<TabaMark />);
-    expect(screen.getByText('ت')).toBeTruthy();
+  it('renders the brand image', () => {
+    const { UNSAFE_queryAllByType } = render(<TabaMark testID="mark" />);
+    const Image = require('react-native').Image;
+    const images = UNSAFE_queryAllByType(Image);
+    expect(images.length).toBe(1);
   });
 });
 

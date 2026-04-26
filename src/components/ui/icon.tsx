@@ -45,6 +45,12 @@ const ICON_MAP: Record<string, string> = {
   qr: 'qr-code-outline',
   pin: 'location-outline',
   arrowUpR: 'arrow-up-right-outline',
+  // Phase 6 visual-auth additions
+  eye: 'eye-outline',
+  eyeOff: 'eye-off-outline',
+  mail: 'mail-outline',
+  phonePortrait: 'phone-portrait-outline',
+  globe: 'globe-outline',
 };
 
 const RTL_FLIP_NAMES = new Set(['chevron', 'chevronL', 'arrowR', 'arrowL', 'arrowUpR']);

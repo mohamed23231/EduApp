@@ -3,6 +3,7 @@ import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
 import Svg from 'react-native-svg';
 import { withUniwind } from 'uniwind';
 
+export { AuthShell } from './auth-shell';
 export { BigNumber } from './big-number';
 export * from './button';
 export * from './checkbox';
@@ -13,6 +14,7 @@ export { Dot } from './dot';
 export { EmptyState } from './empty-state';
 export { ErrorState } from './error-state';
 export * from './focus-aware-status-bar';
+export { GradientText } from './gradient-text';
 export { Hairline } from './hairline';
 export { Icon } from './icon';
 export { IconTile } from './icon-tile';

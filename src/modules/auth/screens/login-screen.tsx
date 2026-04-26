@@ -10,9 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
@@ -89,10 +88,8 @@ export function LoginScreen() {
           return;
         }
 
-        // Persist onboarding context before signing in
         if (response.onboardingReason === 'PROFILE_NOT_FOUND' && response.user) {
           const onboardingRole = getSignupRole(response.user.role);
-          // User exists in DB — we have role and fullName
           setOnboardingContext({
             email: response.user.email,
             ...(onboardingRole ? { role: onboardingRole } : {}),
@@ -101,7 +98,6 @@ export function LoginScreen() {
           });
         }
         else {
-          // USER_NOT_FOUND — no DB user row, only email is known
           setOnboardingContext({ email: values.email });
         }
 
@@ -275,7 +271,7 @@ export function LoginScreen() {
     if (!trimmedEmail) {
       Alert.alert(
         t('auth.login.forgotPassword'),
-        'Please enter your email first.',
+        t('auth.login.forgotPasswordEmailRequired', 'Please enter your email first.'),
       );
       return;
     }
@@ -283,7 +279,7 @@ export function LoginScreen() {
     if (!isForgotPasswordEnabled) {
       Alert.alert(
         t('auth.login.forgotPassword'),
-        'Forgot password is currently unavailable.',
+        t('auth.login.forgotPasswordUnavailable', 'Forgot password is currently unavailable.'),
       );
       return;
     }
@@ -293,13 +289,13 @@ export function LoginScreen() {
       Alert.alert(
         t('auth.login.forgotPassword'),
         response.message
-        || 'If an account exists, a password reset email has been sent.',
+        || t('auth.login.forgotPasswordSent', 'If an account exists, a password reset email has been sent.'),
       );
     }
     catch (error) {
       const msg = getApiErrorMessage(
         error,
-        'Unable to request password reset right now.',
+        t('auth.login.forgotPasswordError', 'Unable to request password reset right now.'),
       );
       Alert.alert(t('auth.login.forgotPassword'), msg);
     }
@@ -309,7 +305,7 @@ export function LoginScreen() {
     if (!isForgotPasswordEnabled) {
       Alert.alert(
         t('auth.login.forgotPassword'),
-        'Forgot password is currently unavailable.',
+        t('auth.login.forgotPasswordUnavailable', 'Forgot password is currently unavailable.'),
       );
       return;
     }
@@ -318,15 +314,15 @@ export function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+    <View style={{ flex: 1 }}>
       <StatusBar style="light" translucent />
       <KeyboardAvoidingView
-        style={styles.flex}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          style={styles.flex}
-          contentContainerStyle={styles.scrollContent}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -347,44 +343,6 @@ export function LoginScreen() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  modeTab: {
-    alignItems: 'center',
-    flex: 1,
-    paddingVertical: 8,
-  },
-  modeTabActive: {
-    borderBottomColor: '#2563EB',
-    borderBottomWidth: 2,
-  },
-  modeTabLabel: {
-    color: '#94A3B8',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  modeTabLabelActive: {
-    color: '#2563EB',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  modeToggle: {
-    borderBottomColor: '#E2E8F0',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  safeArea: {
-    backgroundColor: '#FFFFFF',
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-});
