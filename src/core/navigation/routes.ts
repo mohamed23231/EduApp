@@ -7,13 +7,15 @@ export const AppRoute = {
   },
   parent: {
     dashboard: '/(parent)/(tabs)/dashboard',
+    schedule: '/(parent)/(tabs)/schedule',
+    inbox: '/(parent)/(tabs)/notifications',
     profile: '/(parent)/(tabs)/profile',
     students: '/(parent)/students',
     linkStudent: '/(parent)/students/link',
     studentDetails: (id: string) => `/(parent)/students/${id}` as const,
     studentAttendance: (id: string) => `/(parent)/students/${id}/attendance` as const,
     studentPerformance: (id: string) => `/(parent)/students/${id}/performance` as const,
-    notifications: '/(parent)/notifications',
+    notifications: '/(parent)/(tabs)/notifications',
   },
   teacher: {
     dashboard: '/(teacher)/(tabs)/dashboard',

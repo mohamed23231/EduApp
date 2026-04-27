@@ -1,127 +1,144 @@
+import type { TimelineRecord } from '../types';
+import type { SupportedLocale } from '@/lib/date';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, View } from 'react-native';
-import { Button, Text } from '@/components/ui';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { Icon, PressButton, SectionLabel } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
 import { AppRoute } from '@/core/navigation/routes';
-import { useStudentDetails } from '../hooks';
+import { TimelineRow } from '../components/dashboard';
+import { StudentHero } from '../components/student';
+import { useAttendanceStats, useAttendanceTimeline, useStudentDetails } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
 
 /**
- * StudentDetailsScreen component
- * Displays detailed information about a linked student
- * Implements four-state pattern: loading, empty, success, error
- * Provides navigation to student attendance records
- * Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5
+ * Parent · Student Detail — dark hero (Monogram + 3-stat strip),
+ * RECENT timeline (3 reused activity cards), and CTAs to attendance + performance.
+ * Mirrors `screens-parent.jsx` § PARENT · STUDENT DETAIL, scoped to data the BE
+ * already exposes today (attendance stats + timeline + student details).
  */
+
+// eslint-disable-next-line max-lines-per-function
 export function StudentDetailsScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const isRTL = i18n?.language === 'ar';
+  const locale: SupportedLocale = isRTL ? 'ar' : 'en';
 
-  // Hooks must always be called in the same order - no conditional returns before hooks
   const { data: student, isLoading, error, refetch } = useStudentDetails(id || '');
+  const { data: stats } = useAttendanceStats(id || '');
+  const { data: timeline } = useAttendanceTimeline(id || '', 1, 5);
   const { isParentPerformanceEnabled } = useFeatureFlags();
 
-  if (!id) {
-    return (
-      <View className="flex-1 items-center justify-center px-4">
-        <Text className="text-center text-base font-semibold text-red-600">
-          {t('parent.common.genericError')}
-        </Text>
-      </View>
-    );
-  }
+  if (!id || (!isLoading && !student && !error))
+    return <CenterText label={t('parent.common.genericError')} />;
 
-  // Loading state
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center" testID="loading-indicator">
-        <ActivityIndicator size="large" />
+      <View
+        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.neutral.paper }}
+        testID="loading-indicator"
+      >
+        <ActivityIndicator size="large" color={colors.brand.primary} />
       </View>
     );
   }
 
-  // Error state
   if (error) {
-    const errorMessage = extractErrorMessage(error, t);
     return (
-      <View className="flex-1 items-center justify-center px-4">
-        <Text className="mb-4 text-center text-base font-semibold text-red-600">
-          {errorMessage}
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 16, backgroundColor: colors.neutral.paper }}>
+        <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+          {extractErrorMessage(error, t)}
         </Text>
-        <Button
-          label={t('parent.common.retry')}
+        <PressButton
+          variant="gradient"
+          size="md"
           onPress={() => refetch()}
+          label={t('parent.common.retry')}
+          testID="retry-button"
         />
       </View>
     );
   }
 
-  // Empty state (no student data)
-  if (!student) {
-    return (
-      <View className="flex-1 items-center justify-center px-4">
-        <Text className="text-center text-base font-semibold">
-          {t('parent.common.genericError')}
-        </Text>
-      </View>
-    );
-  }
+  if (!student)
+    return null;
 
-  // Success state - render student details
   return (
-    <View className="flex-1 px-4 py-6">
-      {/* Student Name */}
-      <Text className="mb-6 text-2xl font-bold">{student.fullName}</Text>
+    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 110 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <StudentHero
+          student={student}
+          stats={stats}
+          onBack={() => router.back()}
+          isRTL={isRTL}
+          t={t}
+        />
 
-      {/* Student Profile Information */}
-      <View className="mb-6">
-        {student.gradeLevel && (
-          <View className="mb-4">
-            <Text className="mb-1 text-sm text-gray-600">{t('parent.studentDetails.labels.grade')}</Text>
-            <Text className="text-base font-semibold">{student.gradeLevel}</Text>
-          </View>
-        )}
+        {timeline && timeline.length > 0
+          ? (
+              <>
+                <View style={{ paddingHorizontal: 16, marginTop: 24 }}>
+                  <SectionLabel>{t('parent.studentDetails.recentLabel', 'RECENT')}</SectionLabel>
+                </View>
+                <View style={{ marginHorizontal: 16, marginTop: 8, gap: 8 }}>
+                  {timeline.slice(0, 3).map((record: TimelineRecord, idx: number, arr: TimelineRecord[]) => (
+                    <TimelineRow
+                      key={`${record.date}-${record.time}-${record.status}`}
+                      record={record}
+                      isLast={idx === arr.length - 1}
+                      isRTL={isRTL}
+                      locale={locale}
+                      studentName={student.fullName}
+                      studentId={student.id}
+                      t={t}
+                    />
+                  ))}
+                </View>
+              </>
+            )
+          : null}
 
-        {student.email && (
-          <View className="mb-4">
-            <Text className="mb-1 text-sm text-gray-600">{t('parent.studentDetails.labels.email')}</Text>
-            <Text className="text-base font-semibold">{student.email}</Text>
-          </View>
-        )}
-
-        {student.phone && (
-          <View className="mb-4">
-            <Text className="mb-1 text-sm text-gray-600">{t('parent.studentDetails.labels.phone')}</Text>
-            <Text className="text-base font-semibold">{student.phone}</Text>
-          </View>
-        )}
-
-        {student.enrollmentDate && (
-          <View className="mb-4">
-            <Text className="mb-1 text-sm text-gray-600">{t('parent.studentDetails.labels.enrollmentDate')}</Text>
-            <Text className="text-base font-semibold">{student.enrollmentDate}</Text>
-          </View>
-        )}
-      </View>
-
-      {/* Navigation to Attendance */}
-      <Button
-        label={t('parent.studentDetails.viewAttendance')}
-        onPress={() => router.push(AppRoute.parent.studentAttendance(id))}
-      />
-
-      {/* Navigation to Performance */}
-      {isParentPerformanceEnabled && (
-        <View style={{ marginTop: 12 }}>
-          <Button
-            label={t('parent.performance.title')}
-            onPress={() => router.push(AppRoute.parent.studentPerformance(id) as any)}
-            variant="outline"
+        <View style={{ paddingHorizontal: 16, marginTop: 24, gap: 10 }}>
+          <PressButton
+            variant="gradient"
+            size="md"
+            fullWidth
+            onPress={() => router.push(AppRoute.parent.studentAttendance(id))}
+            label={t('parent.studentDetails.viewAttendance')}
+            trailingIcon={<Icon name="arrowR" size={18} color={colors.neutral.white} />}
+            testID="view-attendance-button"
           />
+          {isParentPerformanceEnabled
+            ? (
+                <PressButton
+                  variant="ghost"
+                  size="md"
+                  fullWidth
+                  onPress={() => router.push(AppRoute.parent.studentPerformance(id))}
+                  label={t('parent.studentDetails.viewPerformance', 'View performance')}
+                  trailingIcon={<Icon name="arrowR" size={18} color={colors.neutral.ink} />}
+                />
+              )
+            : null}
         </View>
-      )}
+      </ScrollView>
+    </View>
+  );
+}
+
+function CenterText({ label }: { label: string }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: colors.neutral.paper }}>
+      <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+        {label}
+      </Text>
     </View>
   );
 }

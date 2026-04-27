@@ -1,20 +1,12 @@
-import type { TFunction } from 'i18next';
-import type { TimelineRecord } from '../../types';
 import type { StatusKey } from '../../utils/dashboard-helpers';
 import type { SupportedLocale } from '@/lib/date';
+import type { PerformanceRecord } from '@/shared/performance';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import { Icon, Monogram, useMonogramTone } from '@/components/ui';
 import colors from '@/components/ui/colors';
-import { formatCalendarDay, formatTime } from '@/lib/date';
-import { combineDateTime, deriveStatusKey } from '../../utils/dashboard-helpers';
-
-/**
- * One activity-style row in the dashboard's RECENT timeline.
- * Layout matches `ActivityCard` from `screens-parent.jsx`:
- *   [Monogram + status-icon overlay]  [title (status text)]   →
- *                                     [meta: subject · time · day]
- */
+import { formatCalendarDay } from '@/lib/date';
+import { deriveStatusKey } from '../../utils/dashboard-helpers';
 
 const STATUS_OVERLAY: Record<StatusKey, { bg: string; fg: string; icon: 'check' | 'x' | 'clock' | 'sparkle' }> = {
   present: { bg: colors.semantic.presentSoft, fg: colors.semantic.present, icon: 'check' },
@@ -23,52 +15,36 @@ const STATUS_OVERLAY: Record<StatusKey, { bg: string; fg: string; icon: 'check' 
   none: { bg: colors.neutral.cardWarm, fg: colors.neutral.inkMuted, icon: 'sparkle' },
 };
 
-const STATUS_TITLE_KEY: Record<StatusKey, [string, string]> = {
-  present: ['parent.dashboard.row.titlePresent', 'Marked present'],
-  absent: ['parent.dashboard.row.titleAbsent', 'Marked absent'],
-  excused: ['parent.dashboard.row.titleExcused', 'Excused'],
-  none: ['parent.dashboard.row.titleNone', 'Not marked'],
-};
-
-export type TimelineRowProps = {
-  record: TimelineRecord;
-  isLast: boolean;
+export type PerformanceRecordRowProps = {
+  record: PerformanceRecord;
   isRTL: boolean;
   locale: SupportedLocale;
-  studentName?: string;
-  studentId?: string;
-  t: TFunction;
 };
 
-export function TimelineRow({ record, isLast, isRTL, locale, studentName, studentId, t }: TimelineRowProps) {
+export function PerformanceRecordRow({ record, isRTL, locale }: PerformanceRecordRowProps) {
   const status = deriveStatusKey(record.status);
-  const dayLabel = formatCalendarDay(record.date, locale);
-  const timeLabel = formatTime(combineDateTime(record.date, record.time), locale);
   const overlay = STATUS_OVERLAY[status];
-  const [titleKey, titleFallback] = STATUS_TITLE_KEY[status];
-  const titleText = t(titleKey, { defaultValue: titleFallback });
-  const tone = useMonogramTone(studentId ?? record.date);
-  const meta = record.excuseNote
-    ? `${dayLabel} · ${timeLabel} · ${record.excuseNote}`
-    : `${dayLabel} · ${timeLabel}`;
+  const tone = useMonogramTone(record.sessionInstanceId);
+  const dayLabel = formatCalendarDay(record.date, locale);
+  const meta = [record.teacherName, dayLabel].filter(Boolean).join(' · ');
 
   return (
     <View
       style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: isLast ? 0 : 8,
-        paddingVertical: 14,
-        paddingHorizontal: 14,
+        marginHorizontal: 16,
+        marginBottom: 8,
+        padding: 14,
         backgroundColor: colors.neutral.card,
         borderRadius: 18,
         borderWidth: 1.5,
         borderColor: colors.neutral.rule,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
       }}
     >
       <View style={{ position: 'relative' }}>
-        <Monogram name={studentName ?? '?'} tone={tone} size={42} />
+        <Monogram name={record.sessionSubject || '—'} tone={tone} size={42} />
         <View
           style={{
             position: 'absolute',
@@ -93,12 +69,11 @@ export function TimelineRow({ record, isLast, isRTL, locale, studentName, studen
             color: colors.neutral.ink,
             fontSize: 14,
             fontWeight: '700',
-            letterSpacing: -0.1,
             textAlign: isRTL ? 'right' : 'left',
           }}
           numberOfLines={1}
         >
-          {titleText}
+          {record.sessionSubject || '—'}
         </Text>
         <Text
           style={{
@@ -108,11 +83,36 @@ export function TimelineRow({ record, isLast, isRTL, locale, studentName, studen
             marginTop: 2,
             textAlign: isRTL ? 'right' : 'left',
           }}
-          numberOfLines={2}
+          numberOfLines={1}
         >
           {meta}
         </Text>
       </View>
+      {record.rating !== null
+        ? (
+            <View style={{ alignItems: isRTL ? 'flex-start' : 'flex-end' }}>
+              <Text
+                style={{
+                  color: colors.neutral.ink,
+                  fontSize: 16,
+                  fontWeight: '700',
+                  letterSpacing: -0.3,
+                }}
+              >
+                {record.rating}
+              </Text>
+              <Text
+                style={{
+                  color: colors.neutral.inkMuted,
+                  fontSize: 10,
+                  fontWeight: '600',
+                }}
+              >
+                / 10
+              </Text>
+            </View>
+          )
+        : null}
     </View>
   );
 }

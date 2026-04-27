@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import type { CurrentSession, TimelineRecord, UpcomingSession } from '../../types';
 import type { SupportedLocale } from '@/lib/date';
 import * as React from 'react';
@@ -27,7 +28,7 @@ export type ParentHeroProps = {
   attendanceRate: number | undefined;
   isRTL: boolean;
   locale: SupportedLocale;
-  t: (key: string, opts?: any) => string;
+  t: TFunction;
 };
 
 export function ParentHero(props: ParentHeroProps) {

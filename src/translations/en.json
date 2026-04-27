@@ -166,6 +166,9 @@
     "tagline": "Confident progress, every session.",
     "undoLabel": "Undo"
   },
+  "common": {
+    "language": "Language"
+  },
   "contextSwitcher": {
     "orgContext": "Organization",
     "personal": "Personal (Independent)",
@@ -775,6 +778,12 @@
       "noTimeline": "No recent attendance records.",
       "performanceSubtitle": "View ratings and progress",
       "performanceTitle": "Student Performance",
+      "row": {
+        "titleAbsent": "Marked absent",
+        "titleExcused": "Excused",
+        "titleNone": "Not marked",
+        "titlePresent": "Marked present"
+      },
       "seePerformance": "View performance & ratings",
       "statsError": "Failed to load attendance stats.",
       "statsTitle": "Attendance Overview",
@@ -823,26 +832,52 @@
     },
     "performance": {
       "average": "Average",
+      "chartTitle": "Attendance · 8 weeks",
+      "chartTrendingDown": "Trending down ↘",
+      "chartTrendingFlat": "Holding steady →",
+      "chartTrendingUp": "Trending up ↗",
       "emptyState": "No performance data yet",
       "emptyStateHint": "Ratings will appear here after sessions are completed",
       "highest": "Best Rating",
       "lowScoreNote": "Needs attention",
       "lowest": "Lowest",
       "noRating": "No rating",
+      "outOfTen": "/ 10",
       "ratedCount": "Rated",
+      "subjectAttendance": "{{rate}}% attendance",
+      "subjectsEmpty": "No subjects yet.",
+      "tabOverview": "Overview",
+      "tabSubjects": "Subjects",
+      "tabTimeline": "Timeline",
+      "teachersEmpty": "No teachers linked to sessions yet.",
+      "teachersLabel": "TEACHERS",
       "title": "Performance"
     },
     "profile": {
       "accountSection": "Account",
+      "addChild": "Link another child",
+      "childrenLabel": "CHILDREN",
       "emailLabel": "Email",
       "languageLabel": "Language",
+      "linkedSinceLabel": "Linked since",
       "logoutButton": "Log Out",
       "logoutConfirm": "Are you sure you want to log out?",
+      "noChildrenMessage": "Link your first child to get started.",
       "phoneAccount": "Phone Account",
       "phoneLabel": "Phone",
+      "preferencesLabel": "PREFERENCES",
       "roleLabel": "Role",
       "roleParent": "Parent",
+      "showAllChildren": "Show all ({{count}})",
+      "showLessChildren": "Show less",
       "title": "Profile"
+    },
+    "schedule": {
+      "emptyMessage": "Upcoming sessions will appear here.",
+      "emptyTitle": "Nothing scheduled",
+      "title": "Schedule",
+      "todayLabel": "TODAY",
+      "upcomingLabel": "UPCOMING"
     },
     "studentDetails": {
       "labels": {
@@ -852,17 +887,26 @@
         "phone": "Phone",
         "school": "School"
       },
+      "recentLabel": "RECENT",
+      "statAttendance": "ATTENDANCE",
+      "statRating": "AVG RATING",
+      "statStreak": "STREAK",
+      "statStreakSuffix": "d",
       "title": "Student Details",
-      "viewAttendance": "View Attendance"
+      "viewAttendance": "View Attendance",
+      "viewPerformance": "View performance"
     },
     "studentList": {
+      "attendanceLabel": "attendance",
       "emptyMessage": "Link a student to see them here.",
       "emptyTitle": "No Students",
       "title": "Students"
     },
     "tabs": {
-      "dashboard": "Dashboard",
-      "profile": "Profile"
+      "dashboard": "Home",
+      "inbox": "Inbox",
+      "profile": "Me",
+      "schedule": "Schedule"
     }
   },
   "settings": {

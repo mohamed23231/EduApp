@@ -280,7 +280,7 @@ function NotificationListView({
               )
             : null
         }
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 110 }}
       />
     </SafeAreaView>
   );

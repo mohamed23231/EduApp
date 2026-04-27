@@ -22,7 +22,7 @@ describe('non-regression: existing routes unchanged', () => {
     expect(AppRoute.parent.profile).toBe('/(parent)/(tabs)/profile');
     expect(AppRoute.parent.students).toBe('/(parent)/students');
     expect(AppRoute.parent.linkStudent).toBe('/(parent)/students/link');
-    expect(AppRoute.parent.notifications).toBe('/(parent)/notifications');
+    expect(AppRoute.parent.notifications).toBe('/(parent)/(tabs)/notifications');
   });
 
   it('dynamic teacher routes are stable', () => {

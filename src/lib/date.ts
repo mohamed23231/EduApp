@@ -37,9 +37,13 @@ export function formatLongDate(input: Input, locale: SupportedLocale): string {
   return withLocale(input, locale).format('LL');
 }
 
-/** "3:00 PM" / "٣:٠٠ م" — locale-aware 12-hour clock. */
+/**
+ * "3:00 PM" / "٣:٠٠ م" — explicit 12-hour clock, locale-aware numerals/meridiem.
+ *  Don't rely on `LT` — some locales (incl. ar) resolve LT to 24-hour, which
+ *  drops the AM/PM cue parents need to interpret an attendance row.
+ */
 export function formatTime(input: Input, locale: SupportedLocale): string {
-  return withLocale(input, locale).format('LT');
+  return withLocale(input, locale).format('h:mm A');
 }
 
 /** "3 days ago" / "منذ ٣ أيام" — relative phrase for activity feeds. */

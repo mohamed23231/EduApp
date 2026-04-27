@@ -26,7 +26,8 @@ const EXPECTED_SCREENS: string[] = [
 
   // Parent
   'src/app/(parent)/dashboard.tsx',
-  'src/app/(parent)/notifications.tsx',
+  'src/app/(parent)/(tabs)/notifications.tsx',
+  'src/app/(parent)/(tabs)/schedule.tsx',
   'src/app/(parent)/(tabs)/dashboard.tsx',
   'src/app/(parent)/(tabs)/profile.tsx',
   'src/app/(parent)/students/index.tsx',

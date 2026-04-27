@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  Hairline,
   Icon,
   PressButton,
   SectionLabel,
@@ -131,7 +130,7 @@ export function ParentDashboardScreen() {
     <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Top bar */}
@@ -257,10 +256,11 @@ export function ParentDashboardScreen() {
                         isLast={idx === arr.length - 1}
                         isRTL={isRTL}
                         locale={locale}
+                        studentName={selectedStudent?.fullName}
+                        studentId={effectiveSelectedId ?? undefined}
                         t={t}
                       />
                     ))}
-                  <Hairline color={colors.neutral.rule} />
                 </>
               )}
         </View>

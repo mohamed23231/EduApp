@@ -13,11 +13,7 @@ export {
 } from './attendance.service';
 export { extractErrorMessage, isAxiosError } from './error-utils';
 export { getErrorDetails, logError } from './logger';
-export {
-  getParentStudentPerformance,
-  getSessionRankings,
-  getTeacherStudentPerformance,
-} from './performance.service';
+export { getSessionRankings } from './rankings.service';
 export {
   assignStudents,
   createTemplate,
@@ -45,3 +41,7 @@ export {
   createTeacherProfile,
   getTeacherProfile,
 } from './teacher.service';
+export {
+  getParentStudentPerformance,
+  getTeacherStudentPerformance,
+} from '@/shared/performance';

@@ -37,8 +37,9 @@ function getInitials(name: string): string {
   return (first + second).toUpperCase();
 }
 
-export function useMonogramTone(id: string): MonogramTone {
-  const hash = Array.from(id).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+export function useMonogramTone(id: string | undefined | null): MonogramTone {
+  const safe = id ?? '';
+  const hash = Array.from(safe).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
   return ROTATING_TONES[hash % ROTATING_TONES.length];
 }
 

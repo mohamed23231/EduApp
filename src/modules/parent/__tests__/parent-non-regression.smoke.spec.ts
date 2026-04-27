@@ -11,7 +11,7 @@ import { AppRoute } from '@/core/navigation/routes';
 describe('parent Non-Regression Smoke Test (Requirements 23.7, 22.5)', () => {
   it('keeps parent route constants stable', () => {
     expect(AppRoute.parent.dashboard).toBe('/(parent)/(tabs)/dashboard');
-    expect(AppRoute.parent.notifications).toBe('/(parent)/notifications');
+    expect(AppRoute.parent.notifications).toBe('/(parent)/(tabs)/notifications');
     expect(AppRoute.parent.students).toBe('/(parent)/students');
   });
 

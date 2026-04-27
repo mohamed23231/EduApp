@@ -166,6 +166,9 @@
     "tagline": "تقدم واثق، في كل حصة.",
     "undoLabel": "تراجع"
   },
+  "common": {
+    "language": "اللغة"
+  },
   "contextSwitcher": {
     "orgContext": "المؤسسة",
     "personal": "شخصي (مستقل)",
@@ -775,6 +778,12 @@
       "noTimeline": "لا توجد سجلات حضور حديثة.",
       "performanceSubtitle": "عرض التقييمات والتقدم",
       "performanceTitle": "أداء الطالب",
+      "row": {
+        "titleAbsent": "غائب",
+        "titleExcused": "بعذر",
+        "titleNone": "غير مُسجَّل",
+        "titlePresent": "حاضر"
+      },
       "seePerformance": "عرض الأداء والتقييمات",
       "statsError": "فشل تحميل إحصائيات الحضور.",
       "statsTitle": "نظرة عامة على الحضور",
@@ -823,26 +832,52 @@
     },
     "performance": {
       "average": "المتوسط",
+      "chartTitle": "الحضور · ٨ أسابيع",
+      "chartTrendingDown": "في تراجع ↘",
+      "chartTrendingFlat": "ثابت →",
+      "chartTrendingUp": "في تحسن ↗",
       "emptyState": "لا توجد بيانات أداء بعد",
       "emptyStateHint": "ستظهر التقييمات هنا بعد اكتمال الحصص",
       "highest": "أفضل تقييم",
       "lowScoreNote": "يحتاج إلى اهتمام",
       "lowest": "الأدنى",
       "noRating": "بدون تقييم",
+      "outOfTen": "/ ١٠",
       "ratedCount": "مقيّم",
+      "subjectAttendance": "{{rate}}٪ حضور",
+      "subjectsEmpty": "لا توجد مواد بعد.",
+      "tabOverview": "نظرة عامة",
+      "tabSubjects": "المواد",
+      "tabTimeline": "السجل",
+      "teachersEmpty": "لا يوجد معلمون مرتبطون بالحصص بعد.",
+      "teachersLabel": "المعلمون",
       "title": "الأداء"
     },
     "profile": {
       "accountSection": "الحساب",
+      "addChild": "ربط طفل آخر",
+      "childrenLabel": "الأطفال",
       "emailLabel": "البريد الإلكتروني",
       "languageLabel": "اللغة",
+      "linkedSinceLabel": "مرتبط منذ",
       "logoutButton": "تسجيل الخروج",
       "logoutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "noChildrenMessage": "اربط طفلك الأول للبدء.",
       "phoneAccount": "حساب هاتف",
       "phoneLabel": "الهاتف",
+      "preferencesLabel": "التفضيلات",
       "roleLabel": "الدور",
       "roleParent": "ولي أمر",
+      "showAllChildren": "عرض الكل ({{count}})",
+      "showLessChildren": "عرض أقل",
       "title": "الملف الشخصي"
+    },
+    "schedule": {
+      "emptyMessage": "ستظهر الحصص القادمة هنا.",
+      "emptyTitle": "لا توجد حصص مجدولة",
+      "title": "الجدول",
+      "todayLabel": "اليوم",
+      "upcomingLabel": "قادم"
     },
     "studentDetails": {
       "labels": {
@@ -852,17 +887,26 @@
         "phone": "رقم الهاتف",
         "school": "المدرسة"
       },
+      "recentLabel": "الأخيرة",
+      "statAttendance": "الحضور",
+      "statRating": "متوسط التقييم",
+      "statStreak": "متواصل",
+      "statStreakSuffix": "يوم",
       "title": "تفاصيل الطالب",
-      "viewAttendance": "عرض الحضور"
+      "viewAttendance": "عرض الحضور",
+      "viewPerformance": "عرض الأداء"
     },
     "studentList": {
+      "attendanceLabel": "الحضور",
       "emptyMessage": "ربط طالب لرؤيته هنا.",
       "emptyTitle": "لا توجد طلاب",
       "title": "الطلاب"
     },
     "tabs": {
-      "dashboard": "لوحة التحكم",
-      "profile": "الملف الشخصي"
+      "dashboard": "الرئيسية",
+      "inbox": "الإشعارات",
+      "profile": "حسابي",
+      "schedule": "الجدول"
     }
   },
   "settings": {

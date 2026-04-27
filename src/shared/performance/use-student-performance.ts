@@ -4,10 +4,10 @@
  * Validates: Requirements 22.9, 25.7
  */
 
-import type { ParentPerformanceResponse, PerformanceResponse, WindowFilter } from '../types';
+import type { ParentPerformanceResponse, PerformanceResponse, WindowFilter } from './types';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { getParentStudentPerformance, getTeacherStudentPerformance } from '../services';
+import { getParentStudentPerformance, getTeacherStudentPerformance } from './performance.service';
 
 type Role = 'teacher' | 'parent';
 
@@ -15,16 +15,15 @@ export function useStudentPerformance(
   studentId: string,
   window: WindowFilter = 'all',
   role: Role = 'teacher',
-  pageSize = 20,
 ) {
   return useInfiniteQuery<PerformanceResponse | ParentPerformanceResponse, Error>({
     queryKey: [role, 'student-performance', studentId, window],
     queryFn: ({ pageParam }) => {
       const cursor = pageParam as string | undefined;
       if (role === 'parent') {
-        return getParentStudentPerformance(studentId, window, cursor, pageSize);
+        return getParentStudentPerformance(studentId, window, cursor);
       }
-      return getTeacherStudentPerformance(studentId, window, cursor, pageSize);
+      return getTeacherStudentPerformance(studentId, window, cursor);
     },
     initialPageParam: undefined,
     getNextPageParam: lastPage => lastPage.nextCursor ?? undefined,

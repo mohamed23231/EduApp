@@ -1,273 +1,257 @@
-/**
- * ParentStudentPerformanceScreen
- * Shows performance history for a student from the parent's perspective.
- * Uses supportive, non-punitive wording. Low-score highlights use amber accent.
- * Validates: Requirements 26.2–26.11
- */
-
-import type { ParentPerformanceResponse, PerformanceRecord, WindowFilter } from '@/modules/teacher/types';
-import { Ionicons } from '@expo/vector-icons';
+import type { SupportedLocale } from '@/lib/date';
+import type { ParentPerformanceResponse, PerformanceRecord } from '@/shared/performance';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, I18nManager, Pressable, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from '@/components/ui';
-import { useStudentPerformance } from '@/modules/teacher/hooks';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { PressButton, SectionLabel, SegTabs } from '@/components/ui';
+import colors from '@/components/ui/colors';
+import { useStudentPerformance } from '@/shared/performance';
+import {
+  PerformanceRecordRow,
+  SubjectCard,
+  TeacherRow,
+  WeeklyBars,
+} from '../components/performance';
+import { StudentHero } from '../components/student';
+import { useAttendanceStats, useAttendanceTimeline, useStudentDetails } from '../hooks';
+import { extractErrorMessage } from '../services/error-utils';
+import { distinctTeachers, groupBySubject, weekBuckets } from '../utils/performance-aggregates';
 
-const WINDOW_OPTIONS: { key: WindowFilter; labelKey: string }[] = [
-  { key: 'last_5', labelKey: 'teacher.rankings.filterLast5' },
-  { key: 'last_10', labelKey: 'teacher.rankings.filterLast10' },
-  { key: 'all', labelKey: 'teacher.rankings.filterAll' },
-];
+type TabKey = 'overview' | 'subjects' | 'timeline';
 
-function SummaryCard({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.summaryCard}>
-      <Text style={styles.summaryValue}>{value}</Text>
-      <Text style={styles.summaryLabel}>{label}</Text>
-    </View>
-  );
-}
-
-function RecordRow({ record, t }: { record: PerformanceRecord; t: (k: string, o?: any) => string }) {
-  return (
-    <View style={styles.recordRow}>
-      <View style={styles.recordLeft}>
-        <Text style={styles.recordDate}>{record.date}</Text>
-        <Text style={styles.recordSubject}>{record.sessionSubject}</Text>
-      </View>
-      <View style={styles.recordRight}>
-        <View style={[styles.statusBadge, styles[`status_${record.status}`]]}>
-          <Text style={styles.statusText}>{record.status}</Text>
-        </View>
-        <Text style={styles.ratingText}>
-          {record.rating !== null ? `${record.rating}/10` : t('parent.performance.noRating')}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
+// eslint-disable-next-line max-lines-per-function
 export function ParentStudentPerformanceScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{ studentId?: string; id?: string }>();
   const studentId = (params.studentId || params.id) as string;
-  const [window, setWindow] = useState<WindowFilter>('all');
+  const isRTL = i18n?.language === 'ar';
+  const locale: SupportedLocale = isRTL ? 'ar' : 'en';
+  const [tab, setTab] = useState<TabKey>('overview');
 
-  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useStudentPerformance(studentId, window, 'parent');
+  const { data: student } = useStudentDetails(studentId || '');
+  const { data: stats } = useAttendanceStats(studentId || '');
+  const { data: timeline } = useAttendanceTimeline(studentId || '', 1, 60);
+  const {
+    data: performance,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useStudentPerformance(studentId, 'all', 'parent');
 
-  const allPages = data?.pages ?? [];
-  const firstPage = allPages[0] as ParentPerformanceResponse | undefined;
-  const summary = firstPage?.summary;
-  const lowScoreHighlights = firstPage?.lowScoreHighlights ?? [];
-  const allRecords = allPages.flatMap(p => (p as ParentPerformanceResponse).records);
+  const records = useMemo<PerformanceRecord[]>(
+    () => (performance?.pages ?? []).flatMap(p => (p as ParentPerformanceResponse).records),
+    [performance],
+  );
+  const subjects = useMemo(() => groupBySubject(records), [records]);
+  const teachers = useMemo(() => distinctTeachers(records), [records]);
+  const buckets = useMemo(() => weekBuckets(timeline ?? []), [timeline]);
+  const trendKey = useMemo(() => deriveTrend(buckets), [buckets]);
 
-  const filterOptions = WINDOW_OPTIONS.map(o => ({ id: o.key, label: t(o.labelKey) }));
+  const tabLabels = useMemo(() => ({
+    overview: t('parent.performance.tabOverview', 'Overview'),
+    subjects: t('parent.performance.tabSubjects', 'Subjects'),
+    timeline: t('parent.performance.tabTimeline', 'Timeline'),
+  } as const), [t]);
+  const tabValues = [tabLabels.overview, tabLabels.subjects, tabLabels.timeline] as const;
+  const labelToKey = (label: string): TabKey => {
+    if (label === tabLabels.subjects)
+      return 'subjects';
+    if (label === tabLabels.timeline)
+      return 'timeline';
+    return 'overview';
+  };
+
+  if (!studentId)
+    return <Centered text={t('parent.common.genericError')} />;
+  if (isLoading && !student) {
+    return (
+      <View
+        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.neutral.paper }}
+      >
+        <ActivityIndicator size="large" color={colors.brand.primary} />
+      </View>
+    );
+  }
+  if (isError && !student) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 16, backgroundColor: colors.neutral.paper }}>
+        <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+          {extractErrorMessage(error, t)}
+        </Text>
+        <PressButton variant="gradient" size="md" onPress={() => refetch()} label={t('parent.common.retry')} />
+      </View>
+    );
+  }
+  if (!student)
+    return null;
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="button">
-          <Ionicons name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#111827" />
-        </Pressable>
-        <Text style={styles.title}>{t('parent.performance.title')}</Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
+        <StudentHero student={student} stats={stats} onBack={() => router.back()} isRTL={isRTL} t={t} />
 
-      {/* Filter bar */}
-      <View style={styles.filterRow}>
-        {filterOptions.map(opt => (
-          <Pressable
-            key={opt.id}
-            style={[styles.filterChip, window === opt.id && styles.filterChipActive]}
-            onPress={() => setWindow(opt.id as WindowFilter)}
-            accessibilityRole="button"
-          >
-            <Text style={[styles.filterChipText, window === opt.id && styles.filterChipTextActive]}>
-              {opt.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {isLoading && (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" />
+        <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12, alignItems: 'center' }}>
+          <SegTabs
+            tabs={tabValues}
+            active={tabLabels[tab]}
+            onChange={label => setTab(labelToKey(label))}
+          />
         </View>
-      )}
 
-      {isError && (
-        <View style={styles.centered}>
-          <Text style={styles.errorText}>{t('parent.common.genericError')}</Text>
-          <Pressable onPress={() => refetch()} style={styles.retryButton} accessibilityRole="button">
-            <Text style={styles.retryText}>{t('parent.common.retry')}</Text>
-          </Pressable>
-        </View>
-      )}
-
-      {!isLoading && !isError && (
-        <FlatList
-          data={allRecords}
-          keyExtractor={item => item.sessionInstanceId}
-          renderItem={({ item }) => <RecordRow record={item} t={t} />}
-          ListHeaderComponent={(
-            <>
-              {summary && (
-                <View style={styles.summaryRow}>
-                  <SummaryCard
-                    label={t('parent.performance.average')}
-                    value={summary.averageRating !== null ? `${summary.averageRating.toFixed(1)}/10` : '—'}
-                  />
-                  <SummaryCard
-                    label={t('parent.performance.highest')}
-                    value={summary.highestRating !== null ? `${summary.highestRating}/10` : '—'}
-                  />
-                  <SummaryCard
-                    label={t('parent.performance.lowest')}
-                    value={summary.lowestRating !== null ? `${summary.lowestRating}/10` : '—'}
-                  />
-                  <SummaryCard
-                    label={t('parent.performance.ratedCount')}
-                    value={`${summary.ratedSessionsCount}/${summary.totalSessionsCount}`}
-                  />
+        {tab === 'overview'
+          ? (
+              <>
+                <WeeklyBars
+                  buckets={buckets}
+                  title={t('parent.performance.chartTitle', 'Attendance · 8 weeks')}
+                  trend={t(`parent.performance.${trendKey}`)}
+                  currentRate={Math.round(stats?.attendanceRate ?? 0)}
+                  isRTL={isRTL}
+                />
+                <View style={{ paddingHorizontal: 16, marginTop: 24 }}>
+                  <SectionLabel>{t('parent.performance.teachersLabel', 'TEACHERS')}</SectionLabel>
                 </View>
-              )}
-              {lowScoreHighlights.length > 0 && (
-                <View style={styles.highlightsSection}>
-                  <Text style={styles.highlightsTitle}>{t('parent.performance.lowScoreNote')}</Text>
-                  {lowScoreHighlights.map(h => (
-                    <View key={h.sessionInstanceId} style={styles.highlightRow}>
-                      <Ionicons name="alert-circle-outline" size={16} color="#D97706" />
-                      <Text style={styles.highlightText}>
-                        {h.date}
-                        {' '}
-                        —
-                        {h.sessionSubject}
-                        :
-                        {h.rating}
-                        /10
+                {teachers.length === 0
+                  ? (
+                      <Text
+                        style={{
+                          marginHorizontal: 24,
+                          marginTop: 8,
+                          color: colors.neutral.inkMuted,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {t('parent.performance.teachersEmpty')}
                       </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </>
-          )}
-          ListEmptyComponent={(
-            <View style={styles.centered}>
-              <Text style={styles.emptyText}>{t('parent.performance.emptyState')}</Text>
-              <Text style={styles.emptyHint}>{t('parent.performance.emptyStateHint')}</Text>
-            </View>
-          )}
-          ListFooterComponent={
-            hasNextPage
-              ? (
-                  <Pressable
-                    style={styles.loadMoreButton}
-                    onPress={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                    accessibilityRole="button"
-                  >
-                    {isFetchingNextPage
-                      ? <ActivityIndicator size="small" />
-                      : <Text style={styles.loadMoreText}>{t('parent.common.loading')}</Text>}
-                  </Pressable>
-                )
-              : null
-          }
-          contentContainerStyle={styles.listContent}
-        />
-      )}
-    </SafeAreaView>
+                    )
+                  : (
+                      <View style={{ marginTop: 8 }}>
+                        {teachers.map(teacher => (
+                          <TeacherRow key={teacher.teacherName} teacher={teacher} isRTL={isRTL} />
+                        ))}
+                      </View>
+                    )}
+              </>
+            )
+          : null}
+
+        {tab === 'subjects'
+          ? (
+              <View style={{ marginTop: 8 }}>
+                {subjects.length === 0
+                  ? (
+                      <Text
+                        style={{
+                          marginHorizontal: 24,
+                          marginTop: 8,
+                          color: colors.neutral.inkMuted,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {t('parent.performance.subjectsEmpty')}
+                      </Text>
+                    )
+                  : subjects.map(subject => (
+                      <SubjectCard
+                        key={subject.subject}
+                        subject={subject}
+                        isRTL={isRTL}
+                        attendanceLabel={t('parent.performance.subjectAttendance', { rate: '{{rate}}' })}
+                        outOfTen={t('parent.performance.outOfTen', '/ 10')}
+                      />
+                    ))}
+              </View>
+            )
+          : null}
+
+        {tab === 'timeline'
+          ? (
+              <View style={{ marginTop: 8 }}>
+                {records.length === 0
+                  ? (
+                      <Text
+                        style={{
+                          marginHorizontal: 24,
+                          marginTop: 8,
+                          color: colors.neutral.inkMuted,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {t('parent.performance.emptyState')}
+                      </Text>
+                    )
+                  : records.map(r => (
+                      <PerformanceRecordRow
+                        key={r.sessionInstanceId}
+                        record={r}
+                        isRTL={isRTL}
+                        locale={locale}
+                      />
+                    ))}
+                {hasNextPage
+                  ? (
+                      <Pressable
+                        onPress={() => fetchNextPage()}
+                        accessibilityRole="button"
+                        style={{ alignItems: 'center', paddingVertical: 16 }}
+                      >
+                        {isFetchingNextPage
+                          ? <ActivityIndicator size="small" color={colors.brand.primary} />
+                          : (
+                              <Text style={{ color: colors.brand.primary, fontWeight: '600' }}>
+                                {t('parent.common.loading')}
+                              </Text>
+                            )}
+                      </Pressable>
+                    )
+                  : null}
+              </View>
+            )
+          : null}
+      </ScrollView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
-  header: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  backButton: { padding: 4 },
-  title: { fontSize: 18, fontWeight: '700', color: '#111827', flex: 1 },
-  filterRow: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  filterChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
-  },
-  filterChipActive: { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
-  filterChipText: { fontSize: 13, fontWeight: '500', color: '#6B7280' },
-  filterChipTextActive: { color: '#FFFFFF' },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  errorText: { fontSize: 15, color: '#6B7280', textAlign: 'center', marginBottom: 12 },
-  retryButton: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#3B82F6', borderRadius: 8 },
-  retryText: { color: '#FFFFFF', fontWeight: '600' },
-  emptyText: { fontSize: 15, color: '#9CA3AF', textAlign: 'center' },
-  emptyHint: { fontSize: 13, color: '#D1D5DB', textAlign: 'center', marginTop: 4 },
-  listContent: { padding: 16, gap: 8 },
-  summaryRow: { flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' },
-  summaryCard: {
-    flex: 1,
-    minWidth: 70,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-  },
-  summaryValue: { fontSize: 16, fontWeight: '700', color: '#111827' },
-  summaryLabel: { fontSize: 11, color: '#9CA3AF', marginTop: 2, textAlign: 'center' },
-  highlightsSection: {
-    backgroundColor: '#FFFBEB',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-    gap: 8,
-  },
-  highlightsTitle: { fontSize: 13, fontWeight: '600', color: '#92400E' },
-  highlightRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  highlightText: { fontSize: 13, color: '#78350F', flex: 1 },
-  recordRow: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    gap: 12,
-  },
-  recordLeft: { flex: 1 },
-  recordDate: { fontSize: 13, fontWeight: '600', color: '#374151' },
-  recordSubject: { fontSize: 12, color: '#6B7280', marginTop: 2 },
-  recordRight: { alignItems: 'flex-end', gap: 6 },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-  status_PRESENT: { backgroundColor: '#D1FAE5' },
-  status_ABSENT: { backgroundColor: '#FEE2E2' },
-  status_EXCUSED: { backgroundColor: '#FEF3C7' },
-  statusText: { fontSize: 11, fontWeight: '600', color: '#374151' },
-  ratingText: { fontSize: 14, fontWeight: '700', color: '#111827' },
-  loadMoreButton: { alignItems: 'center', paddingVertical: 16 },
-  loadMoreText: { color: '#3B82F6', fontWeight: '600' },
-} as any);
+function Centered({ text }: { text: string }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: colors.neutral.paper }}>
+      <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+
+function deriveTrend(buckets: { rate: number; totalCount: number }[]): 'chartTrendingUp' | 'chartTrendingDown' | 'chartTrendingFlat' {
+  const valid = buckets.filter(b => b.totalCount > 0);
+  if (valid.length < 2)
+    return 'chartTrendingFlat';
+  const half = Math.floor(valid.length / 2);
+  const earlierAvg = avg(valid.slice(0, half).map(b => b.rate));
+  const laterAvg = avg(valid.slice(half).map(b => b.rate));
+  const diff = laterAvg - earlierAvg;
+  if (diff > 5)
+    return 'chartTrendingUp';
+  if (diff < -5)
+    return 'chartTrendingDown';
+  return 'chartTrendingFlat';
+}
+
+function avg(arr: number[]): number {
+  if (arr.length === 0)
+    return 0;
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
+}

@@ -4,7 +4,7 @@
  * Validates: Requirements 23.2–23.10
  */
 
-import type { PerformanceRecord, PerformanceResponse, WindowFilter } from '../types';
+import type { PerformanceRecord, PerformanceResponse, WindowFilter } from '@/shared/performance';
 import { Ionicons } from '@expo/vector-icons';
 import { AxiosError } from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -13,8 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui';
+import { useStudentPerformance } from '@/shared/performance';
 import { FilterChips } from '../components';
-import { useStudentPerformance } from '../hooks';
 
 const WINDOW_OPTIONS: { key: WindowFilter; labelKey: string }[] = [
   { key: 'last_5', labelKey: 'teacher.rankings.filterLast5' },
@@ -53,6 +53,7 @@ function RecordRow({ record, t }: { record: PerformanceRecord; t: (k: string, o?
   );
 }
 
+// eslint-disable-next-line max-lines-per-function
 export function TeacherStudentPerformanceScreen() {
   const { t } = useTranslation();
   const router = useRouter();

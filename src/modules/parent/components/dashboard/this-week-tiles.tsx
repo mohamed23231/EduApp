@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import type { AttendanceStats } from '../../types';
 import * as React from 'react';
 import { Text, View } from 'react-native';
@@ -14,7 +15,7 @@ import colors from '@/components/ui/colors';
 export type ThisWeekTilesProps = {
   stats: AttendanceStats | undefined;
   isRTL: boolean;
-  t: (key: string, opts?: any) => string;
+  t: TFunction;
 };
 
 type AttendanceTileProps = {

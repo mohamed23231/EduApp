@@ -21,11 +21,11 @@ export { Icon } from './icon';
 export { IconTile } from './icon-tile';
 export * from './image';
 export * from './input';
-
+export { LanguageToggle } from './language-toggle';
 export * from './list';
 export * from './modal';
 // Phase 4 US7 — additional primitives
-export { Monogram } from './monogram';
+export { Monogram, useMonogramTone } from './monogram';
 export { OfflineBanner } from './offline-banner';
 export * from './option-picker-sheet';
 export * from './phone-field';
