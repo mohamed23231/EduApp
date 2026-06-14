@@ -19,15 +19,11 @@ export function AttendanceSheetHeader({ sessionClosed, sessionNotActive, onBack 
         <Text className="flex-1 text-lg font-semibold text-[#111827]">{t('teacher.attendance.title')}</Text>
       </View>
 
-      {sessionClosed && (
+      {(sessionClosed || sessionNotActive) && (
         <View className="border-b border-[#FCD34D] bg-[#FEF08A] px-5 py-3">
-          <Text className="text-body text-[#78350F]">{t('teacher.attendance.sessionClosed')}</Text>
-        </View>
-      )}
-
-      {sessionNotActive && !sessionClosed && (
-        <View className="border-b border-[#FCD34D] bg-[#FEF08A] px-5 py-3">
-          <Text className="text-body text-[#78350F]">{t('teacher.attendance.sessionNotActive')}</Text>
+          <Text className="text-body text-[#78350F]">
+            {t(sessionClosed ? 'teacher.attendance.sessionClosed' : 'teacher.attendance.sessionNotActive')}
+          </Text>
         </View>
       )}
     </>

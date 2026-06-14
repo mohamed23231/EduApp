@@ -14,7 +14,7 @@ type ReportRangeSelectorProps = {
 export function ReportRangeSelector({ range, onChange }: ReportRangeSelectorProps) {
   const { t } = useTranslation();
   return (
-    <View className="mt-5 flex-row gap-2">
+    <View accessibilityRole="radiogroup" className="mt-5 flex-row gap-2">
       {RANGE_OPTIONS.map((option) => {
         const selected = range === option;
         const label = t(`manager.reports.range.${option}`, { defaultValue: option });
@@ -29,8 +29,8 @@ export function ReportRangeSelector({ range, onChange }: ReportRangeSelectorProp
             style={{ backgroundColor: selected ? colors.brand.primary : colors.neutral.card }}
           >
             <Text
-              className="text-sm capitalize"
-              style={{ color: selected ? colors.neutral.white : colors.neutral.inkMuted }}
+              className="text-sm"
+              style={{ color: selected ? colors.neutral.white : colors.neutral.inkMuted, textTransform: 'capitalize' }}
             >
               {label}
             </Text>
