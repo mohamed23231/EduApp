@@ -2,6 +2,7 @@ import type { AttendanceStatus, Student } from '../../types';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { AttendanceStatusControl } from '../attendance-status-control';
 
 type AttendanceEntry = {
@@ -32,7 +33,7 @@ export function AttendanceStudentList({
   if (students.length === 0) {
     return (
       <View className="items-center py-10">
-        <Text className="text-body-lg text-[#9CA3AF]">{t('teacher.attendance.noSearchResults')}</Text>
+        <Text className="text-body-lg" style={{ color: colors.text.tertiary }}>{t('teacher.attendance.noSearchResults')}</Text>
       </View>
     );
   }
