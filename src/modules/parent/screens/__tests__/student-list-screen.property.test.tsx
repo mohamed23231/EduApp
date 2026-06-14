@@ -78,13 +78,20 @@ const mockT = (key: string) => key;
 /**
  * Generate a random Student object
  */
+// Names are matched via Testing Library's `getByLabelText`, whose default
+// normalizer trims and collapses whitespace. Two raw strings that differ only
+// by surrounding/inner whitespace (e.g. " 2" vs "2") therefore resolve to the
+// same label and collide in the frequency assertions. Trim + collapse here so
+// the generated label is exactly what the query matches against.
+const nameArbitrary = fc
+  .string({ minLength: 1, maxLength: 50 })
+  .map(s => s.trim().replace(/\s+/g, ' '))
+  .filter(s => s.length > 0);
+
 const studentArbitrary = fc.record({
   id: fc.uuid(),
-  fullName: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
-  gradeLevel: fc.option(
-    fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
-    { nil: undefined },
-  ),
+  fullName: nameArbitrary,
+  gradeLevel: fc.option(nameArbitrary, { nil: undefined }),
 });
 
 /**
