@@ -80,7 +80,10 @@ describe('non-regression: AttendanceRecord type backward compatibility', () => {
           studentId: fc.uuid(),
           sessionInstanceId: fc.uuid(),
           status: fc.constantFrom('PRESENT', 'ABSENT', 'EXCUSED'),
-          createdAt: fc.date().map(d => d.toISOString()),
+          createdAt: fc
+            .date()
+            .filter(d => !Number.isNaN(d.getTime()))
+            .map(d => d.toISOString()),
         }),
         (record) => {
           // Simulate backend response without rating (old API)
