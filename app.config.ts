@@ -275,6 +275,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ...(googleSignInPlugin ? [googleSignInPlugin] : []),
       ['app-icon-badge', appIconBadgeConfig],
       ['react-native-edge-to-edge'],
+      '@sentry/react-native',
       './plugins/with-quoted-react-native-xcode-script',
       './plugins/with-notification-sounds',
     ],

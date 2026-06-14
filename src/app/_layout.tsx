@@ -25,6 +25,7 @@ import {
   signIn,
 } from '@/features/auth/use-auth-store';
 import { APIProvider } from '@/lib/api';
+import { initSentry, withSentry } from '@/lib/sentry';
 import { setItem } from '@/lib/storage';
 import { getOnboardingContext, validateToken } from '@/modules/auth/services';
 import '@/lib/i18n';
@@ -32,6 +33,9 @@ import '@/lib/i18n';
 import '../global.css';
 
 export { ErrorBoundary } from 'expo-router';
+
+// Initialize Sentry as early as possible. No-op unless EXPO_PUBLIC_SENTRY_DSN is set.
+initSentry();
 
 // Keep splash visible until bootstrap completes.
 void SplashScreen.preventAutoHideAsync().catch(() => { });
@@ -233,7 +237,7 @@ function useGlobalNotificationPresentation() {
   }, []);
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const [isAppReady, setIsAppReady] = React.useState(false);
   useDeepLinkHandler();
   useGlobalNotificationPresentation();
@@ -283,6 +287,12 @@ export default function RootLayout() {
     </Providers>
   );
 }
+
+// Wrap with Sentry's error instrumentation when a DSN is configured;
+// otherwise withSentry returns RootLayout unchanged (fully inert).
+const RootLayoutWithSentry = withSentry(RootLayout);
+
+export default RootLayoutWithSentry;
 
 function Providers({
   children,
