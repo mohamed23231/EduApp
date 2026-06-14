@@ -8,7 +8,7 @@
 import type { SubscriptionData } from '../../types';
 import * as React from 'react';
 import { cleanup, render, screen } from '@/lib/test-utils';
-import { SubscriptionCard } from '../SubscriptionCard';
+import { SubscriptionCard } from '../subscription-card';
 
 const { useTranslation } = jest.requireMock('react-i18next');
 

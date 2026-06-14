@@ -5,12 +5,13 @@
  * quick actions, onboarding wizard, trial banner, today's sessions.
  */
 
+import type { TextStyle, ViewStyle } from 'react-native';
 import type { OrgSessionInstance, OrgTeacherStatsItem } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, RefreshControl, View } from 'react-native';
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -310,7 +311,7 @@ function EmptyOrgState({
   onSetup: () => void;
 }) {
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
+    <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
       <View style={styles.emptyOrgHero}>
         <Ionicons name="business-outline" size={48} color="rgba(255,255,255,0.6)" />
         <Text style={styles.emptyOrgTitle}>
@@ -463,7 +464,7 @@ export function DashboardScreen() {
   const upcomingCount = Math.max(0, (overview?.todaySessions ?? 0) - (overview?.runningNow ?? 0));
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
+    <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
       {/* Screen header */}
       <View style={styles.screenHeader}>
         <View style={{ flex: 1 }}>
@@ -579,7 +580,10 @@ export function DashboardScreen() {
             {t('manager.trial.expiredMessage', { defaultValue: 'This organization is read-only. Contact support to activate a subscription.' })}
           </Text>
           <Pressable
-            onPress={() => { trialModal.dismiss(); router.push(AppRoute.manager.setup); }}
+            onPress={() => {
+              trialModal.dismiss();
+              router.push(AppRoute.manager.setup);
+            }}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card, borderWidth: 1, borderColor: colors.neutral.rule })}
           >
             <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.ink, textAlign: 'center' }}>
@@ -625,7 +629,7 @@ export function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   // Layout
   container: { flex: 1, backgroundColor: colors.neutral.paper },
   loadingContainer: { flex: 1, backgroundColor: colors.neutral.paper, alignItems: 'center', justifyContent: 'center' },
@@ -715,7 +719,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.card,
     borderRadius: 14,
     overflow: 'hidden',
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 0.5,
     borderColor: colors.neutral.rule,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -811,4 +815,4 @@ const styles = StyleSheet.create({
   },
   emptyOrgBtnPressed: { opacity: 0.85 },
   emptyOrgBtnText: { fontSize: 15, fontWeight: '700', color: colors.brand.primary },
-});
+} satisfies Record<string, ViewStyle | TextStyle>;

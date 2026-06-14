@@ -59,7 +59,7 @@ export function TeacherInviteScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+    <View className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
       <TopBar
         title={t('manager.teachers.inviteTitle', { defaultValue: 'Invite Teacher' })}
         onBack={() => router.back()}

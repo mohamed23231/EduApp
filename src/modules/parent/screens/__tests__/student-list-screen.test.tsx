@@ -7,7 +7,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStudents } from '../../hooks';
+import { useAttendanceStats, useStudents } from '../../hooks';
 import { StudentListScreen } from '../student-list-screen';
 
 // Mock dependencies
@@ -30,6 +30,12 @@ describe('studentListScreen', () => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useTranslation as jest.Mock).mockReturnValue({ t: mockT });
+    (useAttendanceStats as jest.Mock).mockReturnValue({
+      data: { attendanceRate: 92 },
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
   });
 
   describe('loading State', () => {

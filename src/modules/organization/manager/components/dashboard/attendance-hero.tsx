@@ -28,24 +28,15 @@ export function AttendanceHero({ attendanceRate, presentCount, absentCount, runn
       style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}
     >
       <View
-        style={{
-          backgroundColor: colors.neutral.ink,
-          borderRadius: 24,
-          padding: 24,
-          marginHorizontal: 16,
-          marginTop: 12,
-          overflow: 'hidden',
-        }}
+        className="mx-4 mt-3 overflow-hidden rounded-3xl p-6"
+        style={{ backgroundColor: colors.neutral.ink }}
       >
         {/* Lime glow blob — decorative, no blurRadius on RN View */}
         <View
+          className="absolute size-[200px] rounded-full"
           style={{
-            position: 'absolute',
             top: -50,
             end: -50,
-            width: 200,
-            height: 200,
-            borderRadius: 999,
             backgroundColor: colors.brand.primary,
             opacity: 0.3,
           }}
@@ -53,9 +44,9 @@ export function AttendanceHero({ attendanceRate, presentCount, absentCount, runn
         />
 
         {/* Label row */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <View className="mb-2 flex-row items-center gap-2">
           {/* Static lime dot */}
-          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.brand.primary }} />
+          <View className="size-2 rounded-full" style={{ backgroundColor: colors.brand.primary }} />
           <Text
             style={{
               color: colors.brand.primary,

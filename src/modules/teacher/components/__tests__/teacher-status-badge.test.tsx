@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import { cleanup, render, screen } from '@/lib/test-utils';
-import { TeacherStatusBadge } from '../TeacherStatusBadge';
+import { TeacherStatusBadge } from '../teacher-status-badge';
 
 const { useTranslation } = jest.requireMock('react-i18next');
 

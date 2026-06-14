@@ -40,6 +40,13 @@ export default antfu(
       'cli/',
       'expo-env.d.ts',
       'migration/*',
+      // Non-app-source paths — CI reviewdog scopes to .ts/.tsx via --ext, so these
+      // markdown / tooling / generated files are not part of the linted app surface.
+      '.claude/**',
+      '**/*.md',
+      'scripts/**',
+      'assets/**',
+      '**/*.d.ts',
     ],
   },
 

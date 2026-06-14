@@ -3,14 +3,9 @@ import type { OrgStudent } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, TextInput, View } from 'react-native';
 import { Button, Modal, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type OrgStudentSelectSheetProps = {
   ref?: React.RefObject<BottomSheetModal | null>;
@@ -31,22 +26,71 @@ function StudentPickerRow({
   return (
     <Pressable
       onPress={onToggle}
-      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+      className="flex-row items-center gap-3 rounded-xl border p-3"
+      style={({ pressed }) => ({
+        backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card,
+        borderColor: colors.neutral.rule,
+      })}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: isSelected }}
     >
-      <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
-        {isSelected
-          ? <Ionicons name="checkmark" size={14} color="#FFFFFF" />
-          : null}
+      <View
+        className="size-6 shrink-0 items-center justify-center rounded-md border-2"
+        style={{
+          borderColor: isSelected ? colors.brand.primary : colors.neutral.rule,
+          backgroundColor: isSelected ? colors.brand.primary : 'transparent',
+        }}
+      >
+        {isSelected ? <Ionicons name="checkmark" size={14} color={colors.neutral.white} /> : null}
       </View>
-      <View style={styles.info}>
-        <Text style={styles.name}>{student.name}</Text>
+      <View className="flex-1">
+        <Text className="text-body-lg font-semibold" style={{ color: colors.neutral.ink }}>{student.name}</Text>
         {student.gradeLevel
-          ? <Text style={styles.grade}>{student.gradeLevel}</Text>
+          ? <Text className="mt-px text-xs" style={{ color: colors.neutral.inkMuted }}>{student.gradeLevel}</Text>
           : null}
       </View>
     </Pressable>
+  );
+}
+
+function SelectionCountRow({
+  count,
+  total,
+  onSelectAll,
+  onClear,
+}: {
+  count: number;
+  total: number;
+  onSelectAll: () => void;
+  onClear: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <View className="mb-2 flex-row items-center justify-between px-1">
+      <Text className="text-body font-medium" style={{ color: colors.neutral.inkMuted }}>
+        {t('manager.sessions.selectedCount', { defaultValue: '{{count}} selected', count })}
+      </Text>
+      <View className="flex-row items-center gap-4">
+        {count < total
+          ? (
+              <Pressable onPress={onSelectAll}>
+                <Text className="text-body font-semibold" style={{ color: colors.neutral.ink }}>
+                  {t('manager.sessions.selectAll', { defaultValue: 'Select all' })}
+                </Text>
+              </Pressable>
+            )
+          : null}
+        {count > 0
+          ? (
+              <Pressable onPress={onClear}>
+                <Text className="text-body font-semibold" style={{ color: colors.semantic.absent }}>
+                  {t('manager.sessions.clearAll', { defaultValue: 'Clear all' })}
+                </Text>
+              </Pressable>
+            )
+          : null}
+      </View>
+    </View>
   );
 }
 
@@ -84,13 +128,17 @@ export function OrgStudentSelectSheet({
       snapPoints={['80%']}
       title={t('manager.sessions.fields.students', { defaultValue: 'Assigned students' })}
     >
-      <View style={styles.container}>
-        <View style={styles.search}>
-          <Ionicons name="search-outline" size={16} color="#9CA3AF" />
+      <View className="flex-1 px-4">
+        <View
+          className="mb-2.5 h-[42px] flex-row items-center gap-2 rounded-xl border px-3"
+          style={{ backgroundColor: colors.neutral.paper, borderColor: colors.neutral.rule }}
+        >
+          <Ionicons name="search-outline" size={16} color={colors.neutral.inkMuted} />
           <TextInput
-            style={styles.searchInput}
+            className="flex-1 text-body-lg"
+            style={{ color: colors.neutral.ink }}
             placeholder={t('manager.students.search', { defaultValue: 'Search students...' })}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.neutral.inkMuted}
             value={query}
             onChangeText={setQuery}
             clearButtonMode="while-editing"
@@ -98,31 +146,12 @@ export function OrgStudentSelectSheet({
           />
         </View>
 
-        <View style={styles.countRow}>
-          <Text style={styles.countText}>
-            {t('manager.sessions.selectedCount', { defaultValue: '{{count}} selected', count: draft.length })}
-          </Text>
-          <View style={styles.countActions}>
-            {draft.length < students.length
-              ? (
-                  <Pressable onPress={() => setDraft(students.map(s => s.id))}>
-                    <Text style={styles.selectAllText}>
-                      {t('manager.sessions.selectAll', { defaultValue: 'Select all' })}
-                    </Text>
-                  </Pressable>
-                )
-              : null}
-            {draft.length > 0
-              ? (
-                  <Pressable onPress={() => setDraft([])}>
-                    <Text style={styles.clearText}>
-                      {t('manager.sessions.clearAll', { defaultValue: 'Clear all' })}
-                    </Text>
-                  </Pressable>
-                )
-              : null}
-          </View>
-        </View>
+        <SelectionCountRow
+          count={draft.length}
+          total={students.length}
+          onSelectAll={() => setDraft(students.map(s => s.id))}
+          onClear={() => setDraft([])}
+        />
 
         <FlatList
           data={filtered}
@@ -134,87 +163,27 @@ export function OrgStudentSelectSheet({
               onToggle={() => toggle(item.id)}
             />
           )}
-          style={styles.list}
-          contentContainerStyle={styles.listContent}
+          className="flex-1"
+          contentContainerClassName="gap-1.5 pb-4"
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={(
-            <View style={styles.empty}>
-              <Text style={styles.emptyText}>
+            <View className="items-center py-8">
+              <Text className="text-sm" style={{ color: colors.neutral.inkMuted }}>
                 {t('manager.students.empty', { defaultValue: 'No students found.' })}
               </Text>
             </View>
           )}
         />
 
-        <View style={styles.footer}>
+        <View className="border-t py-4" style={{ borderTopColor: colors.neutral.rule }}>
           <Button
             label={t('manager.sessions.confirmStudents', { defaultValue: 'Confirm ({{count}})', count: draft.length })}
             onPress={handleConfirm}
             variant="default"
-            style={styles.confirmBtn}
+            className="w-full"
           />
         </View>
       </View>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 16 },
-  search: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    height: 42,
-    backgroundColor: '#F5F5F0',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E6E3DB',
-    marginBottom: 10,
-  },
-  searchInput: { flex: 1, fontSize: 15, color: '#0B0D10' },
-  countRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-    paddingHorizontal: 4,
-  },
-  countText: { fontSize: 13, color: '#5C636E', fontWeight: '500' },
-  selectAllText: { fontSize: 13, color: '#0B0D10', fontWeight: '600' },
-  clearText: { fontSize: 13, color: '#FF5B4A', fontWeight: '600' },
-  countActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  list: { flex: 1 },
-  listContent: { gap: 6, paddingBottom: 16 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E6E3DB',
-    gap: 12,
-  },
-  rowPressed: { backgroundColor: '#F5F2EA' },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#E6E3DB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  checkboxActive: { backgroundColor: '#22C572', borderColor: '#22C572' },
-  info: { flex: 1 },
-  name: { fontSize: 15, fontWeight: '600', color: '#0B0D10' },
-  grade: { fontSize: 12, color: '#5C636E', marginTop: 1 },
-  empty: { alignItems: 'center', paddingVertical: 32 },
-  emptyText: { fontSize: 14, color: '#5C636E' },
-  footer: { paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#E6E3DB' },
-  confirmBtn: { width: '100%' },
-});

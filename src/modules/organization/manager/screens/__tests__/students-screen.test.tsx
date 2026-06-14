@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
@@ -34,6 +34,15 @@ jest.mock('@/components/ui', () => {
         <TextInput value={value} onChangeText={onChangeText} />
       </View>
     ),
+    EmptyState: ({ title }: { title?: string }) => (
+      <View>
+        <Text>{title}</Text>
+      </View>
+    ),
+    Modal: ({ children }: { children?: React.ReactNode }) => <View>{children}</View>,
+    Monogram: () => null,
+    OptionPickerSheet: () => null,
+    Pressable,
     SafeAreaView: View,
     ScrollView,
     Select: ({ label, options = [] }: { label: string; options?: Array<{ label: string }> }) => (
@@ -43,9 +52,28 @@ jest.mock('@/components/ui', () => {
       </View>
     ),
     Text,
+    TopBar: ({ title }: { title?: string }) => (
+      <View>
+        <Text>{title}</Text>
+      </View>
+    ),
     View,
   };
 });
+jest.mock('@/components/ui/modal', () => ({
+  useModal: () => ({ ref: { current: null }, present: jest.fn(), dismiss: jest.fn() }),
+  Modal: ({ children }: { children?: React.ReactNode }) => {
+    const { View } = require('react-native');
+    return <View>{children}</View>;
+  },
+}));
+jest.mock('@/components/ui/monogram', () => ({
+  useMonogramTone: () => ({ bg: '#000', fg: '#fff' }),
+  Monogram: () => null,
+}));
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn() }),
+}));
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: jest.fn(() => ({
     top: 0,
@@ -66,6 +94,10 @@ jest.mock('../../store/manager-store', () => ({
   },
 }));
 jest.mock('../../components', () => ({
+  NoOrgEmptyState: () => {
+    const { Text } = require('react-native');
+    return <Text>no-org-empty-state</Text>;
+  },
   LimitReachedError: ({ message }: { message: string | null }) => {
     const { Text } = require('react-native');
     return message ? <Text>{message}</Text> : null;
@@ -132,13 +164,12 @@ describe('studentsScreen', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders the student list and the student limit warning', () => {
+  it('renders the student list and the total count label', () => {
     render(<StudentsScreen />);
 
     expect(screen.getByText('manager.students.title')).toBeTruthy();
     expect(screen.getByText('Ahmed')).toBeTruthy();
-    expect(screen.getByText('CODE1234')).toBeTruthy();
-    expect(screen.getByText('manager.limits.students')).toBeTruthy();
+    expect(screen.getByText('manager.students.countLabel:1')).toBeTruthy();
   });
 
   it('shows an empty state when there are no students', () => {
@@ -159,10 +190,11 @@ describe('studentsScreen', () => {
     expect(screen.getByText('manager.students.empty')).toBeTruthy();
   });
 
-  it('supports connection-code actions without crashing', async () => {
+  it('surfaces the connection code via the student actions sheet', () => {
     render(<StudentsScreen />);
 
     expect(Clipboard.setStringAsync).toBeDefined();
-    expect(screen.getByText(/https:\/\/privatedu\.app/)).toBeTruthy();
+    fireEvent(screen.getByLabelText('Ahmed'), 'longPress');
+    expect(screen.getByText('CODE1234')).toBeTruthy();
   });
 });

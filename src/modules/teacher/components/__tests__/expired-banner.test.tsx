@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import { cleanup, render, screen } from '@/lib/test-utils';
-import { ExpiredBanner } from '../ExpiredBanner';
+import { ExpiredBanner } from '../expired-banner';
 
 const { useTranslation } = jest.requireMock('react-i18next');
 

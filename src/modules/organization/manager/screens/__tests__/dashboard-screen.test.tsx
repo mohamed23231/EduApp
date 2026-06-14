@@ -2,12 +2,47 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useOrganization, useOrganizations, useOrgInstances, useOrgStats } from '../../hooks';
+import {
+  useCloseSession,
+  useOrganization,
+  useOrganizations,
+  useOrgInstances,
+  useOrgStats,
+  useStartSession,
+} from '../../hooks';
 import { DashboardScreen } from '../dashboard-screen';
 
 jest.mock('expo-router');
 jest.mock('react-i18next');
 jest.mock('../../hooks');
+jest.mock('@/components/ui/toast-host', () => ({
+  useToast: () => ({ show: jest.fn() }),
+}));
+jest.mock('@/components/ui/modal', () => {
+  const { View } = require('react-native');
+  return {
+    useModal: () => ({ ref: { current: null }, present: jest.fn(), dismiss: jest.fn() }),
+    Modal: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
+  };
+});
+jest.mock('../../components/dashboard/attendance-hero', () => ({
+  AttendanceHero: () => {
+    const { Text } = require('react-native');
+    return <Text>attendance-hero</Text>;
+  },
+}));
+jest.mock('../../components/dashboard/today-tiles', () => ({
+  TodayTiles: () => {
+    const { Text } = require('react-native');
+    return <Text>today-tiles</Text>;
+  },
+}));
+jest.mock('../../components/dashboard/teacher-leaderboard', () => ({
+  TeacherLeaderboard: () => {
+    const { Text } = require('react-native');
+    return <Text>teacher-leaderboard</Text>;
+  },
+}));
 jest.mock('../../store/manager-store', () => ({
   useManagerStore: {
     use: {
@@ -38,6 +73,7 @@ const mockRouter = {
 
 const mockOverview = {
   activeStudents: 12,
+  averageAttendanceRate: 92,
   todaySessions: 3,
   runningNow: 1,
   absentToday: 2,
@@ -45,8 +81,8 @@ const mockOverview = {
 
 const mockTeacherStats = {
   data: [
-    { memberId: 'member-1', teacherName: 'Sara', attendanceRate: 90 },
-    { memberId: 'member-2', teacherName: 'Omar', attendanceRate: 88 },
+    { memberId: 'member-1', name: 'Sara', assignedSessions: 4, averageAttendanceRate: 90 },
+    { memberId: 'member-2', name: 'Omar', assignedSessions: 3, averageAttendanceRate: 88 },
   ],
 };
 
@@ -67,6 +103,8 @@ const mockInstances = {
   ],
 };
 
+const noopMutation = { mutate: jest.fn(), isPending: false };
+
 describe('dashboardScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -79,6 +117,8 @@ describe('dashboardScreen', () => {
             ? `${options.count} students`
             : key,
     });
+    (useStartSession as jest.Mock).mockReturnValue(noopMutation);
+    (useCloseSession as jest.Mock).mockReturnValue(noopMutation);
     (useOrganizations as jest.Mock).mockReturnValue({
       data: {
         data: [{ id: 'org-1', name: 'Future Academy' }],
@@ -122,10 +162,10 @@ describe('dashboardScreen', () => {
     render(<DashboardScreen />);
 
     expect(screen.getByText('Future Academy')).toBeTruthy();
-    expect(screen.getByText('manager.dashboard.title')).toBeTruthy();
+    expect(screen.getByText('manager.dashboard.headerToday')).toBeTruthy();
     expect(screen.getByText('Math')).toBeTruthy();
 
-    fireEvent.press(screen.getByText('manager.dashboard.openSession'));
+    fireEvent.press(screen.getByLabelText('Math'));
     expect(mockRouter.push).toHaveBeenCalledWith('/(manager)/sessions/template-1');
   });
 
@@ -138,7 +178,7 @@ describe('dashboardScreen', () => {
 
     expect(screen.getByText('manager.dashboard.emptyTitle')).toBeTruthy();
     fireEvent.press(screen.getByText('manager.setup.submit'));
-    expect(mockRouter.push).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith('/(manager)/setup');
   });
 
   it('shows the onboarding wizard and expired banner when the org needs setup and access is expired', () => {

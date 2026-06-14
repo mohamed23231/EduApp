@@ -118,14 +118,9 @@ function getNotificationIconConfig(normalizedTitleKey: string): {
   return { name: 'notifications', color: '#22C572', bgClass: 'bg-[#EDFBF3]' };
 }
 
-export function NotificationItem({ notification, onPress }: NotificationItemProps) {
+function useNotificationContent(notification: Notification): { title: string; body: string } {
   const { t, i18n } = useTranslation();
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
 
-  const isUnread = notification.status === 'UNREAD';
-
-  // Resolve title and body from localization keys
   const resolvedTitleKey = resolveNotificationTranslationKey(notification.titleKey);
   const resolvedBodyKey = resolveNotificationTranslationKey(notification.bodyKey);
 
@@ -135,13 +130,21 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
       ? buildNotificationFallback(notification.titleKey, notification.bodyParams, i18n.language)
       : translatedTitle;
 
-  const translatedBody = t(resolvedBodyKey, {
-    ...notification.bodyParams,
-  });
+  const translatedBody = t(resolvedBodyKey, { ...notification.bodyParams });
   const body
     = translatedBody === resolvedBodyKey
       ? buildNotificationFallback(notification.bodyKey, notification.bodyParams, i18n.language)
       : translatedBody;
+
+  return { title, body };
+}
+
+export function NotificationItem({ notification, onPress }: NotificationItemProps) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  const isUnread = notification.status === 'UNREAD';
+  const { title, body } = useNotificationContent(notification);
 
   const accessibilityLabel = `${body}, ${isUnread ? 'unread' : 'read'}`;
   const isRTL = I18nManager.isRTL;

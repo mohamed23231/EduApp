@@ -18,10 +18,8 @@ export function DayChip({
       onPress={onToggle}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
+      className="rounded-full px-4 py-2"
       style={({ pressed }) => ({
-        borderRadius: 999,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
         backgroundColor: selected
           ? colors.neutral.ink
           : pressed

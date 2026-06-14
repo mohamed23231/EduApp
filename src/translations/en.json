@@ -463,6 +463,8 @@
       "confirmStudents_two": "Confirm ({{count}})",
       "confirmStudents_zero": "Confirm ({{count}})",
       "countLabel": "{{count}} scheduled",
+      "countLabel_one": "{{count}} scheduled",
+      "countLabel_other": "{{count}} scheduled",
       "createScreenTitle": "Create Session",
       "createSuccess": "Session created successfully.",
       "createTitle": "Create session template",
@@ -538,12 +540,6 @@
         "title": "Usage"
       }
     },
-    "trial": {
-      "expiredTitle": "Trial expired",
-      "expiredMessage": "This organization is read-only. Contact support to activate a subscription.",
-      "contactSupport": "Chat on WhatsApp",
-      "createNewOrg": "Create new org"
-    },
     "setup": {
       "address": "Address (optional)",
       "email": "Email (optional)",
@@ -591,10 +587,15 @@
         "regenerate": "Regenerate code",
         "save": "Save changes"
       },
+      "atRisk": {
+        "manualFlag": "Manually flagged"
+      },
       "connectionCode": "Connection code",
       "copiedBody": "The connection code is ready to paste.",
       "copiedTitle": "Copied",
       "countLabel": "{{count}} students",
+      "countLabel_one": "{{count}} student",
+      "countLabel_other": "{{count}} students",
       "createScreenTitle": "Add Student",
       "createSuccess": "Student added successfully",
       "createTitle": "Add student",
@@ -651,9 +652,6 @@
       "title": "Students",
       "validation": {
         "nameRequired": "Student name is required"
-      },
-      "atRisk": {
-        "manualFlag": "Manually flagged"
       }
     },
     "tabs": {
@@ -674,6 +672,8 @@
       "activeSessions_zero": "{{count}} active sessions",
       "cancelMessage": "This invitation will be cancelled immediately.",
       "countLabel": "{{count}} teachers",
+      "countLabel_one": "{{count}} teacher",
+      "countLabel_other": "{{count}} teachers",
       "email": "Email",
       "empty": "No teachers yet.",
       "emptyHint": "Invite your first teacher to get started.",
@@ -701,6 +701,12 @@
       "statusInvited": "INVITED",
       "subtitle": "Invite teachers by phone or email, then remove them cleanly when responsibilities change.",
       "title": "Teachers"
+    },
+    "trial": {
+      "contactSupport": "Chat on WhatsApp",
+      "createNewOrg": "Create new org",
+      "expiredMessage": "This organization is read-only. Contact support to activate a subscription.",
+      "expiredTitle": "Trial expired"
     },
     "trialBanner": {
       "body": "This organization is now read-only until a subscription is activated.",
@@ -908,6 +914,8 @@
       "roleLabel": "Role",
       "roleParent": "Parent",
       "showAllChildren": "Show all ({{count}})",
+      "showAllChildren_one": "Show all ({{count}})",
+      "showAllChildren_other": "Show all ({{count}})",
       "showLessChildren": "Show less",
       "title": "Profile"
     },
@@ -919,6 +927,9 @@
       "upcomingLabel": "UPCOMING"
     },
     "studentDetails": {
+      "accessCodeCopied": "Copied!",
+      "accessCodeCopy": "Copy",
+      "accessCodeLabel": "ACCESS CODE",
       "labels": {
         "email": "Email",
         "enrollmentDate": "Enrollment Date",
@@ -926,9 +937,6 @@
         "phone": "Phone",
         "school": "School"
       },
-      "accessCodeLabel": "ACCESS CODE",
-      "accessCodeCopied": "Copied!",
-      "accessCodeCopy": "Copy",
       "recentLabel": "RECENT",
       "statAttendance": "ATTENDANCE",
       "statRating": "AVG RATING",

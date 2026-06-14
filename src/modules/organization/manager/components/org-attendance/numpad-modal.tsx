@@ -25,11 +25,13 @@ export function NumpadModal({ visible, value, onInput, onConfirm, onCancel, onCl
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable
-        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
+        className="flex-1 items-center justify-center"
+        style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
         onPress={onCancel}
       >
         <Pressable
-          style={{ backgroundColor: c.neutral.card, borderRadius: 16, padding: 20, width: 320 }}
+          className="w-80 rounded-2xl p-5"
+          style={{ backgroundColor: c.neutral.card }}
           onPress={e => e.stopPropagation()}
         >
           {/* Header */}

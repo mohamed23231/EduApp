@@ -25,6 +25,11 @@ jest.mock('@/components/ui', () => {
     SafeAreaView: View,
     ScrollView,
     Text,
+    TopBar: ({ title }: { title?: string }) => (
+      <View>
+        <Text>{title}</Text>
+      </View>
+    ),
     View,
   };
 });

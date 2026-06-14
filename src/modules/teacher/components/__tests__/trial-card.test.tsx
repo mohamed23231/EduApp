@@ -8,7 +8,7 @@
 import type { TrialData } from '../../types';
 import * as React from 'react';
 import { cleanup, render, screen } from '@/lib/test-utils';
-import { TrialCard } from '../TrialCard';
+import { TrialCard } from '../trial-card';
 
 const { useTranslation } = jest.requireMock('react-i18next');
 

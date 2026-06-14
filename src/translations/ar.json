@@ -463,6 +463,8 @@
       "confirmStudents_two": "تأكيد ({{count}})",
       "confirmStudents_zero": "تأكيد (لا يوجد)",
       "countLabel": "{{count}} مجدولة",
+      "countLabel_one": "{{count}} مجدولة",
+      "countLabel_other": "{{count}} مجدولة",
       "createScreenTitle": "إنشاء حصة",
       "createSuccess": "تم إنشاء الحصة بنجاح.",
       "createTitle": "إنشاء قالب حصة",
@@ -538,12 +540,6 @@
         "title": "الاستخدام"
       }
     },
-    "trial": {
-      "expiredTitle": "انتهت الفترة التجريبية",
-      "expiredMessage": "هذه المؤسسة للقراءة فقط. تواصل مع الدعم لتفعيل الاشتراك.",
-      "contactSupport": "تواصل عبر واتساب",
-      "createNewOrg": "إنشاء مؤسسة جديدة"
-    },
     "setup": {
       "address": "العنوان (اختياري)",
       "email": "البريد الإلكتروني (اختياري)",
@@ -591,10 +587,15 @@
         "regenerate": "إعادة إنشاء الرمز",
         "save": "حفظ التغييرات"
       },
+      "atRisk": {
+        "manualFlag": "تم التحديد يدوياً"
+      },
       "connectionCode": "رمز الربط",
       "copiedBody": "رمز الربط جاهز للصق.",
       "copiedTitle": "تم النسخ",
       "countLabel": "{{count}} طالب",
+      "countLabel_one": "{{count}} طالب",
+      "countLabel_other": "{{count}} طالب",
       "createScreenTitle": "إضافة طالب",
       "createSuccess": "تمت إضافة الطالب بنجاح",
       "createTitle": "إضافة طالب",
@@ -651,9 +652,6 @@
       "title": "الطلاب",
       "validation": {
         "nameRequired": "اسم الطالب مطلوب"
-      },
-      "atRisk": {
-        "manualFlag": "تم التحديد يدوياً"
       }
     },
     "tabs": {
@@ -674,6 +672,8 @@
       "activeSessions_zero": "لا توجد حصص نشطة",
       "cancelMessage": "سيتم إلغاء هذه الدعوة فوراً.",
       "countLabel": "{{count}} معلم",
+      "countLabel_one": "{{count}} معلم",
+      "countLabel_other": "{{count}} معلم",
       "email": "البريد الإلكتروني",
       "empty": "لا يوجد معلمون بعد.",
       "emptyHint": "ادعُ أول معلم للبدء.",
@@ -701,6 +701,12 @@
       "statusInvited": "مدعو",
       "subtitle": "ادعُ المعلمين عبر الهاتف أو البريد الإلكتروني، ثم أزلهم بشكل منظم عند تغير المسؤوليات.",
       "title": "المعلمون"
+    },
+    "trial": {
+      "contactSupport": "تواصل عبر واتساب",
+      "createNewOrg": "إنشاء مؤسسة جديدة",
+      "expiredMessage": "هذه المؤسسة للقراءة فقط. تواصل مع الدعم لتفعيل الاشتراك.",
+      "expiredTitle": "انتهت الفترة التجريبية"
     },
     "trialBanner": {
       "body": "أصبحت هذه المؤسسة للقراءة فقط حتى يتم تفعيل الاشتراك.",
@@ -908,6 +914,8 @@
       "roleLabel": "الدور",
       "roleParent": "ولي أمر",
       "showAllChildren": "عرض الكل ({{count}})",
+      "showAllChildren_one": "عرض الكل ({{count}})",
+      "showAllChildren_other": "عرض الكل ({{count}})",
       "showLessChildren": "عرض أقل",
       "title": "الملف الشخصي"
     },
@@ -919,6 +927,9 @@
       "upcomingLabel": "قادم"
     },
     "studentDetails": {
+      "accessCodeCopied": "تم النسخ!",
+      "accessCodeCopy": "نسخ",
+      "accessCodeLabel": "كود الوصول",
       "labels": {
         "email": "البريد الإلكتروني",
         "enrollmentDate": "تاريخ التسجيل",
@@ -926,9 +937,6 @@
         "phone": "رقم الهاتف",
         "school": "المدرسة"
       },
-      "accessCodeLabel": "كود الوصول",
-      "accessCodeCopied": "تم النسخ!",
-      "accessCodeCopy": "نسخ",
       "recentLabel": "الأخيرة",
       "statAttendance": "الحضور",
       "statRating": "متوسط التقييم",

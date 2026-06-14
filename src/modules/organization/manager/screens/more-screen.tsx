@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
+import { I18nManager, Pressable, TouchableOpacity } from 'react-native';
 import { SafeAreaView, ScrollView, Text, View } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { useAuthStore } from '@/features/auth/use-auth-store';
@@ -39,31 +39,57 @@ function LanguageToggle() {
   const isArabic = language === 'ar';
 
   return (
-    <View style={styles.settingsRow}>
-      <View style={styles.settingsRowLeft}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="language-outline" size={20} color="#6B7280" />
-        </View>
-        <Text style={styles.settingsLabel}>
+    <View className="flex-row items-center justify-between px-4 py-3.5">
+      <View className="flex-1 flex-row items-center">
+        <SettingsIcon name="language-outline" />
+        <Text className="text-body-lg font-medium" style={{ color: colors.neutral.inkSoft }}>
           {t('manager.more.languageLabel', { defaultValue: 'Language' })}
         </Text>
       </View>
       <TouchableOpacity
-        style={styles.langToggle}
+        className="flex-row rounded-lg p-0.5"
+        style={{ backgroundColor: colors.neutral.paper }}
         onPress={() => setLanguage(isArabic ? 'en' : 'ar')}
         activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel={t('manager.more.languageLabel', { defaultValue: 'Language' })}
       >
-        <View style={[styles.langOption, !isArabic && styles.langOptionActive]}>
-          <Text style={[styles.langOptionText, !isArabic && styles.langOptionTextActive]}>EN</Text>
-        </View>
-        <View style={[styles.langOption, isArabic && styles.langOptionActive]}>
-          <Text style={[styles.langOptionText, isArabic && styles.langOptionTextActive]}>عربي</Text>
-        </View>
+        <LangOption label="EN" active={!isArabic} />
+        <LangOption label="عربي" active={isArabic} />
       </TouchableOpacity>
     </View>
   );
+}
+
+function LangOption({ label, active }: { label: string; active: boolean }) {
+  return (
+    <View
+      className="rounded-md px-3.5 py-1.5"
+      style={active ? { backgroundColor: colors.neutral.ink } : undefined}
+    >
+      <Text
+        className="text-body font-semibold"
+        style={{ color: active ? colors.neutral.white : colors.neutral.inkMuted }}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+function SettingsIcon({ name, color }: { name: React.ComponentProps<typeof Ionicons>['name']; color?: string }) {
+  return (
+    <View
+      className="me-3 size-8 items-center justify-center rounded-lg"
+      style={{ backgroundColor: colors.neutral.paper }}
+    >
+      <Ionicons name={name} size={20} color={color ?? colors.neutral.inkMuted} />
+    </View>
+  );
+}
+
+function SettingsDivider() {
+  return <View className="ms-[60px] h-px" style={{ backgroundColor: colors.neutral.rule }} />;
 }
 
 function EntitlementSection({ org }: { org: { entitlementSource?: string; trial?: { endDate?: string; startDate?: string }; limits?: { maxStudents?: number | null; maxTeachers?: number | null; maxSessions?: number | null; maxSessionMinutes?: number | null }; currentStudents: number; currentTeachers: number; currentSessions: number; currentSessionMinutes: number } }) {
@@ -80,17 +106,21 @@ function EntitlementSection({ org }: { org: { entitlementSource?: string; trial?
 
   return (
     <View className="rounded-2xl bg-white shadow-sm">
-      <View style={styles.settingsRow}>
-        <View style={styles.settingsRowLeft}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="card-outline" size={20} color="#6B7280" />
-          </View>
-          <Text style={styles.settingsLabel}>
+      <View className="flex-row items-center justify-between px-4 py-3.5">
+        <View className="flex-1 flex-row items-center">
+          <SettingsIcon name="card-outline" />
+          <Text className="text-body-lg font-medium" style={{ color: colors.neutral.inkSoft }}>
             {t('manager.more.planLabel', { defaultValue: 'Plan' })}
           </Text>
         </View>
-        <View style={[styles.statusBadge, isExpired && styles.statusBadgeExpired]}>
-          <Text style={[styles.statusBadgeText, isExpired && styles.statusBadgeTextExpired]}>
+        <View
+          className="rounded-lg px-2.5 py-1"
+          style={{ backgroundColor: isExpired ? colors.semantic.absentSoft : colors.semantic.infoSoft }}
+        >
+          <Text
+            className="text-body font-semibold capitalize"
+            style={{ color: isExpired ? colors.semantic.absent : colors.brand.primary }}
+          >
             {t(`manager.more.planStatus.${source}`, { defaultValue: source })}
           </Text>
         </View>
@@ -98,24 +128,22 @@ function EntitlementSection({ org }: { org: { entitlementSource?: string; trial?
       {org.trial?.endDate
         ? (
             <>
-              <View style={styles.divider} />
-              <View style={styles.settingsRow}>
-                <View style={styles.settingsRowLeft}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name="calendar-outline" size={20} color="#6B7280" />
-                  </View>
-                  <Text style={styles.settingsLabel}>
+              <SettingsDivider />
+              <View className="flex-row items-center justify-between px-4 py-3.5">
+                <View className="flex-1 flex-row items-center">
+                  <SettingsIcon name="calendar-outline" />
+                  <Text className="text-body-lg font-medium" style={{ color: colors.neutral.inkSoft }}>
                     {source === 'trial'
                       ? t('manager.more.trialEnds', { defaultValue: 'Trial ends' })
                       : t('manager.more.subscriptionEnds', { defaultValue: 'Ends' })}
                   </Text>
                 </View>
-                <Text style={styles.settingsValue}>{org.trial.endDate}</Text>
+                <Text className="shrink text-sm" style={{ color: colors.neutral.inkMuted }}>{org.trial.endDate}</Text>
               </View>
             </>
           )
         : null}
-      <View style={styles.divider} />
+      <SettingsDivider />
       <View className="px-4 py-3">
         <Text className="font-inter mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
           {t('manager.more.usage.title', { defaultValue: 'Usage' })}
@@ -142,9 +170,7 @@ function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onRepor
       <Pressable className="rounded-2xl bg-white p-4 shadow-sm" onPress={onSettings}>
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
-            <View style={styles.iconContainer}>
-              <Ionicons name="settings-outline" size={20} color="#6B7280" />
-            </View>
+            <SettingsIcon name="settings-outline" />
             <Text className="font-inter text-base font-medium text-slate-900">
               {t('manager.more.settings.title', { defaultValue: 'Settings' })}
             </Text>
@@ -158,9 +184,7 @@ function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onRepor
       <Pressable className="rounded-2xl bg-white p-4 shadow-sm" onPress={onReports}>
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
-            <View style={styles.iconContainer}>
-              <Ionicons name="bar-chart-outline" size={20} color="#6B7280" />
-            </View>
+            <SettingsIcon name="bar-chart-outline" />
             <Text className="font-inter text-base font-medium text-slate-900">
               {t('manager.more.reports.title', { defaultValue: 'Reports' })}
             </Text>
@@ -175,6 +199,7 @@ function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onRepor
   );
 }
 
+// eslint-disable-next-line max-lines-per-function
 export function MoreScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -196,8 +221,18 @@ export function MoreScreen() {
       <ScrollView contentContainerClassName="px-6 py-6 pb-20" showsVerticalScrollIndicator={false}>
         {/* Profile header */}
         <View className="items-center rounded-[28px] bg-white py-6">
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+          <View
+            className="size-[72px] items-center justify-center rounded-full"
+            style={{
+              backgroundColor: colors.neutral.ink,
+              shadowColor: colors.neutral.ink,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 8,
+            }}
+          >
+            <Text className="text-[26px] font-bold" style={{ color: colors.neutral.white }}>{initials}</Text>
           </View>
           <Text className="font-inter mt-3 text-lg font-semibold text-slate-900">{displayName}</Text>
           <View className="mt-1 rounded-full bg-[#EEF2FF] px-3 py-1">
@@ -217,22 +252,24 @@ export function MoreScreen() {
           {t('manager.more.accountSection', { defaultValue: 'Account' })}
         </Text>
         <View className="rounded-2xl bg-white shadow-sm">
-          <View style={styles.settingsRow}>
-            <View style={styles.settingsRowLeft}>
-              <View style={styles.iconContainer}>
-                <Ionicons name={isPhoneAccount ? 'call-outline' : 'mail-outline'} size={20} color="#6B7280" />
-              </View>
-              <Text style={styles.settingsLabel}>
+          <View className="flex-row items-center justify-between px-4 py-3.5">
+            <View className="flex-1 flex-row items-center">
+              <SettingsIcon name={isPhoneAccount ? 'call-outline' : 'mail-outline'} />
+              <Text className="text-body-lg font-medium" style={{ color: colors.neutral.inkSoft }}>
                 {isPhoneAccount
                   ? t('manager.more.phoneLabel', { defaultValue: 'Phone' })
                   : t('manager.more.emailLabel', { defaultValue: 'Email' })}
               </Text>
             </View>
-            <Text style={[styles.settingsValue, { textAlign: I18nManager.isRTL ? 'left' : 'right' }]} numberOfLines={1}>
+            <Text
+              className="shrink text-sm"
+              style={{ color: colors.neutral.inkMuted, textAlign: I18nManager.isRTL ? 'left' : 'right' }}
+              numberOfLines={1}
+            >
               {accountId}
             </Text>
           </View>
-          <View style={styles.divider} />
+          <SettingsDivider />
           <LanguageToggle />
         </View>
 
@@ -259,81 +296,19 @@ export function MoreScreen() {
 
         {/* Logout */}
         <TouchableOpacity
-          style={styles.logoutButton}
+          className="mt-5 mb-8 min-h-[48px] flex-row items-center justify-center rounded-xl py-3.5"
+          style={{ backgroundColor: colors.semantic.absentSoft }}
           onPress={signOut}
           activeOpacity={0.7}
           accessibilityRole="button"
           accessibilityLabel={t('manager.more.logout', { defaultValue: 'Log Out' })}
         >
-          <Ionicons name="log-out-outline" size={20} color="#DC2626" style={{ marginEnd: 8 }} />
-          <Text style={styles.logoutText}>{t('manager.more.logout', { defaultValue: 'Log Out' })}</Text>
+          <Ionicons name="log-out-outline" size={20} color={colors.semantic.absent} style={{ marginEnd: 8 }} />
+          <Text className="text-base font-semibold" style={{ color: colors.semantic.absent }}>
+            {t('manager.more.logout', { defaultValue: 'Log Out' })}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.neutral.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.neutral.ink,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  avatarText: { fontSize: 26, fontWeight: '700', color: '#FFFFFF' },
-  settingsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  settingsRowLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: colors.neutral.paper,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginEnd: 12,
-  },
-  settingsLabel: { fontSize: 15, color: colors.neutral.inkSoft, fontWeight: '500' },
-  settingsValue: { fontSize: 14, color: colors.neutral.inkMuted, flexShrink: 1 },
-  divider: { height: 1, backgroundColor: colors.neutral.rule, marginStart: 60 },
-  statusBadge: { backgroundColor: colors.semantic.infoSoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  statusBadgeExpired: { backgroundColor: colors.semantic.absentSoft },
-  statusBadgeText: { fontSize: 13, fontWeight: '600', color: colors.brand.primary, textTransform: 'capitalize' },
-  statusBadgeTextExpired: { color: colors.semantic.absent },
-  langToggle: { flexDirection: 'row', backgroundColor: colors.neutral.paper, borderRadius: 8, padding: 2 },
-  langOption: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 6 },
-  langOptionActive: {
-    backgroundColor: colors.neutral.ink,
-    shadowColor: colors.neutral.ink,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  langOptionText: { fontSize: 13, fontWeight: '600', color: colors.neutral.inkMuted },
-  langOptionTextActive: { color: '#FFFFFF' },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    marginTop: 20,
-    marginBottom: 32,
-    backgroundColor: colors.semantic.absentSoft,
-    borderRadius: 12,
-    minHeight: 48,
-  },
-  logoutText: { fontSize: 16, color: colors.semantic.absent, fontWeight: '600' },
-});

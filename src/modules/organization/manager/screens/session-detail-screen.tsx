@@ -206,7 +206,10 @@ export function SessionDetailScreen() {
             {t('manager.trial.expiredMessage', { defaultValue: 'This organization is read-only. Contact support to activate a subscription.' })}
           </Text>
           <Pressable
-            onPress={() => { trialModal.dismiss(); router.push(AppRoute.manager.setup); }}
+            onPress={() => {
+              trialModal.dismiss();
+              router.push(AppRoute.manager.setup);
+            }}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card, borderWidth: 1, borderColor: colors.neutral.rule })}
           >
             <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.ink, textAlign: 'center' }}>
