@@ -354,7 +354,7 @@ export function TeachersScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+    <View className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
       {/* Header */}
       <View style={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flex: 1 }}>

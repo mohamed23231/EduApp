@@ -1,7 +1,7 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { Modal } from '@/components/ui/modal';
@@ -21,27 +21,29 @@ export function CloseConfirmSheet({ modalRef, onCancel, onConfirm }: Props) {
       snapPoints={['30%']}
       title={t('manager.sessionDetail.closeWarningTitle', { defaultValue: 'Close session' })}
     >
-      <View style={styles.body}>
-        <Text style={styles.subtitle}>
+      <View className="gap-1 px-5 pb-4">
+        <Text className="mb-2 text-center text-sm" style={{ color: colors.neutral.inkMuted }}>
           {t('manager.sessionDetail.closeWarningSubtitle', {
             defaultValue: 'Unmarked students will be marked absent.',
           })}
         </Text>
         <Pressable
           onPress={onCancel}
-          style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+          className="items-center rounded-xl px-4 py-3.5"
+          style={({ pressed }) => ({ backgroundColor: colors.neutral.card, opacity: pressed ? 0.75 : 1 })}
           accessibilityRole="button"
         >
-          <Text style={styles.cancelAction}>
+          <Text className="text-body-lg font-semibold" style={{ color: colors.neutral.ink }}>
             {t('manager.common.cancel', { defaultValue: 'Cancel' })}
           </Text>
         </Pressable>
         <Pressable
           onPress={onConfirm}
-          style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+          className="items-center rounded-xl px-4 py-3.5"
+          style={({ pressed }) => ({ backgroundColor: colors.neutral.card, opacity: pressed ? 0.75 : 1 })}
           accessibilityRole="button"
         >
-          <Text style={styles.destructiveAction}>
+          <Text className="text-body-lg font-semibold" style={{ color: colors.semantic.absent }}>
             {t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' })}
           </Text>
         </Pressable>
@@ -49,35 +51,3 @@ export function CloseConfirmSheet({ modalRef, onCancel, onConfirm }: Props) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    gap: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.neutral.inkMuted,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  row: {
-    backgroundColor: colors.neutral.card,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-  },
-  rowPressed: { opacity: 0.75 },
-  cancelAction: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.neutral.ink,
-  },
-  destructiveAction: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.semantic.absent,
-  },
-});

@@ -83,9 +83,9 @@ export function TeacherLeaderboard({ teachers, onViewAll }: Props) {
     return null;
 
   return (
-    <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
+    <View className="mt-5 px-4">
       {/* Section header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+      <View className="mb-1 flex-row items-center">
         <Text
           style={{
             flex: 1,
@@ -107,13 +107,8 @@ export function TeacherLeaderboard({ teachers, onViewAll }: Props) {
 
       {/* Rows */}
       <View
-        style={{
-          backgroundColor: colors.neutral.card,
-          borderRadius: 16,
-          borderWidth: 1,
-          borderColor: colors.neutral.rule,
-          paddingHorizontal: 16,
-        }}
+        className="rounded-2xl border px-4"
+        style={{ backgroundColor: colors.neutral.card, borderColor: colors.neutral.rule }}
       >
         {top3.map((item, idx) => (
           <View key={item.memberId}>

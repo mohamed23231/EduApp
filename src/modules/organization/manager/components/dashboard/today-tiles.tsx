@@ -18,15 +18,11 @@ export function TodayTiles({ todaySessions, runningNow, upcomingCount, atRiskCou
   const { t } = useTranslation();
 
   return (
-    <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: 16, marginTop: 12 }}>
+    <View className="mt-3 flex-row gap-3 px-4">
       {/* Sessions today — lime bg */}
       <View
-        style={{
-          flex: 1,
-          backgroundColor: colors.brand.primary,
-          borderRadius: 20,
-          padding: 16,
-        }}
+        className="flex-1 rounded-[20px] p-4"
+        style={{ backgroundColor: colors.brand.primary }}
       >
         <Text
           style={{
@@ -62,14 +58,8 @@ export function TodayTiles({ todaySessions, runningNow, upcomingCount, atRiskCou
 
       {/* At-risk — white card */}
       <View
-        style={{
-          flex: 1,
-          backgroundColor: colors.neutral.card,
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: colors.neutral.rule,
-        }}
+        className="flex-1 rounded-[20px] border p-4"
+        style={{ backgroundColor: colors.neutral.card, borderColor: colors.neutral.rule }}
       >
         <Text
           style={{

@@ -5,12 +5,31 @@
 
 import type { AttendanceRecord, AttendanceStats, TimelineRecord } from '../types/student.types';
 import { render, screen } from '@testing-library/react-native';
-import { useAttendance, useAttendanceStats, useAttendanceTimeline, useLinkStudent, useStudentDetails, useStudents } from '../hooks';
+import * as React from 'react';
+import { ThemeProvider } from '@/components/ui/theme';
+import { useAttendance, useAttendanceStats, useAttendanceTimeline, useChildSummaryHero, useCurrentSession, useLinkStudent, useStudentDetails, useStudents, useUpcomingSessions } from '../hooks';
 import { ParentDashboardScreen } from '../screens/dashboard-screen';
 import { LinkStudentScreen } from '../screens/link-student-screen';
 import { StudentAttendanceScreen } from '../screens/student-attendance-screen';
 import { StudentDetailsScreen } from '../screens/student-details-screen';
 import { StudentListScreen } from '../screens/student-list-screen';
+
+// The redesigned dashboard renders BigNumber → useReducedMotion → useTheme,
+// which requires a ThemeProvider. Provide it and override only the uniwind
+// runtime hooks the provider reads, keeping the real module (the UI barrel
+// pulls in `withUniwind` via image.tsx, so we can't replace the whole module).
+jest.mock('uniwind', () => {
+  const actual = jest.requireActual('uniwind');
+  return {
+    ...actual,
+    Uniwind: { ...actual.Uniwind, setTheme: jest.fn() },
+    useUniwind: jest.fn(() => ({ theme: 'light', hasAdaptiveThemes: true })),
+  };
+});
+
+function renderWithTheme(ui: React.ReactElement): ReturnType<typeof render> {
+  return render(<ThemeProvider>{ui}</ThemeProvider>);
+}
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -66,6 +85,15 @@ jest.mock('../hooks', () => ({
   useAttendance: jest.fn(),
   useAttendanceStats: jest.fn(),
   useAttendanceTimeline: jest.fn(),
+  useChildSummaryHero: jest.fn(),
+  useCurrentSession: jest.fn(),
+  useUpcomingSessions: jest.fn(),
+}));
+
+// The redesigned student-detail screen reads a feature flag (useQuery-backed).
+// Stub it so the smoke test doesn't need a QueryClientProvider.
+jest.mock('@/core/feature-flags/use-feature-flags', () => ({
+  useFeatureFlags: () => ({ isParentPerformanceEnabled: true }),
 }));
 
 const mockUseStudents = useStudents as jest.MockedFunction<typeof useStudents>;
@@ -74,6 +102,9 @@ const mockUseStudentDetails = useStudentDetails as jest.MockedFunction<typeof us
 const mockUseAttendance = useAttendance as jest.MockedFunction<typeof useAttendance>;
 const mockUseAttendanceStats = useAttendanceStats as jest.MockedFunction<typeof useAttendanceStats>;
 const mockUseAttendanceTimeline = useAttendanceTimeline as jest.MockedFunction<typeof useAttendanceTimeline>;
+const mockUseChildSummaryHero = useChildSummaryHero as jest.MockedFunction<typeof useChildSummaryHero>;
+const mockUseCurrentSession = useCurrentSession as jest.MockedFunction<typeof useCurrentSession>;
+const mockUseUpcomingSessions = useUpcomingSessions as jest.MockedFunction<typeof useUpcomingSessions>;
 
 const defaultStats: AttendanceStats = {
   attendanceRate: 92,
@@ -144,13 +175,36 @@ describe('parent screens smoke test', () => {
       error: null,
       refetch: jest.fn(),
     } as any);
+
+    mockUseChildSummaryHero.mockReturnValue({
+      student: { id: 'student-1', fullName: 'Sara Ali', gradeLevel: 'Grade 5' },
+      attendanceStats: defaultStats,
+      recentTimeline: defaultTimeline,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    mockUseCurrentSession.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
+
+    mockUseUpcomingSessions.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    } as any);
   });
 
   it('renders dashboard in success state', () => {
-    render(<ParentDashboardScreen />);
+    renderWithTheme(<ParentDashboardScreen />);
 
-    expect(screen.getByText('My Students')).toBeTruthy();
-    expect(screen.getByLabelText('Sara Ali, selected')).toBeTruthy();
+    // Redesigned dashboard: ChildSwitcher pill (testID) + child first name.
+    expect(screen.getByTestId('child-pill-student-1')).toBeTruthy();
+    expect(screen.getByText('Sara')).toBeTruthy();
   });
 
   it('renders dashboard loading state', () => {
@@ -161,7 +215,7 @@ describe('parent screens smoke test', () => {
       refetch: jest.fn(),
     } as any);
 
-    render(<ParentDashboardScreen />);
+    renderWithTheme(<ParentDashboardScreen />);
 
     expect(screen.getByTestId('loading-indicator')).toBeTruthy();
   });
@@ -174,33 +228,33 @@ describe('parent screens smoke test', () => {
       refetch: jest.fn(),
     } as any);
 
-    render(<ParentDashboardScreen />);
+    renderWithTheme(<ParentDashboardScreen />);
 
     expect(screen.getByText('No Students Linked')).toBeTruthy();
   });
 
   it('renders link-student screen', () => {
-    render(<LinkStudentScreen />);
+    renderWithTheme(<LinkStudentScreen />);
 
     expect(screen.getByTestId('access-code-input')).toBeTruthy();
     expect(screen.getByText('Link Your Student')).toBeTruthy();
   });
 
   it('renders student list screen', () => {
-    render(<StudentListScreen />);
+    renderWithTheme(<StudentListScreen />);
 
     expect(screen.getByText('Sara Ali')).toBeTruthy();
   });
 
   it('renders student details screen', () => {
-    render(<StudentDetailsScreen />);
+    renderWithTheme(<StudentDetailsScreen />);
 
     expect(screen.getByText('Sara Ali')).toBeTruthy();
     expect(screen.getByText('View Attendance')).toBeTruthy();
   });
 
   it('renders attendance screen', () => {
-    render(<StudentAttendanceScreen />);
+    renderWithTheme(<StudentAttendanceScreen />);
 
     expect(screen.getByText('Math')).toBeTruthy();
     expect(screen.getByText('Present')).toBeTruthy();

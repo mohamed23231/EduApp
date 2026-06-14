@@ -1,192 +1,125 @@
 /**
- * Unit tests for StudentDetailsScreen component
- * Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5
+ * Unit tests for StudentDetailsScreen (Phase 8 redesign composition).
+ * Composes StudentHero + AccessCodeRow + RECENT timeline + attendance CTA,
+ * driven by useStudentDetails + useAttendanceStats + useAttendanceTimeline.
  */
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStudentDetails } from '../../hooks';
+import { useAttendanceStats, useAttendanceTimeline, useStudentDetails } from '../../hooks';
 import { StudentDetailsScreen } from '../student-details-screen';
 
-// Mock dependencies
 jest.mock('expo-router');
 jest.mock('react-i18next');
 jest.mock('../../hooks');
+jest.mock('@/core/feature-flags/use-feature-flags', () => ({
+  useFeatureFlags: () => ({ isParentPerformanceEnabled: false }),
+}));
+jest.mock('../../components/dashboard', () => {
+  const { Text } = require('react-native');
+  return {
+    TimelineRow: ({ record }: any) => <Text testID={`timeline-row-${record.date}`}>{record.status}</Text>,
+  };
+});
+jest.mock('../../components/student', () => {
+  const { Text } = require('react-native');
+  return {
+    StudentHero: ({ student }: any) => <Text testID="student-hero">{student.fullName}</Text>,
+  };
+});
 jest.mock('@/core/navigation/routes', () => ({
   AppRoute: {
     parent: {
       studentAttendance: (id: string) => `/(parent)/students/${id}/attendance`,
+      studentPerformance: (id: string) => `/(parent)/students/${id}/performance`,
     },
   },
 }));
 
-const mockRouter = {
-  push: jest.fn(),
-};
-
-const mockT = (key: string) => key;
+const mockRouter = { push: jest.fn(), back: jest.fn() };
+const mockT = (key: string, fallback?: string) => fallback ?? key;
 
 const mockStudent = {
   id: '1',
   fullName: 'John Doe',
-  email: 'john@example.com',
-  phone: '123-456-7890',
   gradeLevel: 'Grade A',
-  enrollmentDate: '2024-01-01',
+  connectionCode: 'ABC123',
 };
 
-// eslint-disable-next-line max-lines-per-function
+const mockTimeline = [
+  { date: '2024-01-15', time: '08:30', status: 'PRESENT' as const },
+  { date: '2024-01-14', time: '08:30', status: 'ABSENT' as const },
+];
+
 describe('studentDetailsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    (useTranslation as jest.Mock).mockReturnValue({ t: mockT });
+    (useTranslation as jest.Mock).mockReturnValue({ t: mockT, i18n: { language: 'en' } });
     (useLocalSearchParams as jest.Mock).mockReturnValue({ id: '1' });
+    (useAttendanceStats as jest.Mock).mockReturnValue({ data: undefined, isLoading: false, error: null, refetch: jest.fn() });
+    (useAttendanceTimeline as jest.Mock).mockReturnValue({ data: mockTimeline, isLoading: false, error: null, refetch: jest.fn() });
   });
 
   describe('loading State', () => {
     it('should render loading state with spinner', () => {
-      (useStudentDetails as jest.Mock).mockReturnValue({
-        data: undefined,
-        isLoading: true,
-        error: null,
-        refetch: jest.fn(),
-      });
-
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: undefined, isLoading: true, error: null, refetch: jest.fn() });
       render(<StudentDetailsScreen />);
-
-      // Check for ActivityIndicator (rendered as a view with testID)
-      const loadingIndicator = screen.getByTestId('loading-indicator');
-      expect(loadingIndicator).toBeTruthy();
+      expect(screen.getByTestId('loading-indicator')).toBeTruthy();
     });
   });
 
   describe('error State', () => {
-    it('should render error state with error message and retry button', () => {
-      const mockError = new Error('Failed to fetch');
-      const mockRefetch = jest.fn();
-
-      (useStudentDetails as jest.Mock).mockReturnValue({
-        data: undefined,
-        isLoading: false,
-        error: mockError,
-        refetch: mockRefetch,
-      });
-
+    it('should render error state with retry button', () => {
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: undefined, isLoading: false, error: new Error('Failed to fetch'), refetch: jest.fn() });
       render(<StudentDetailsScreen />);
-
-      // Check for error message
-      expect(screen.getByText('parent.common.retry')).toBeTruthy();
+      expect(screen.getByTestId('retry-button')).toBeTruthy();
     });
 
     it('should call refetch when retry button is pressed', async () => {
       const mockRefetch = jest.fn();
-      const mockError = new Error('Failed to fetch');
-
-      (useStudentDetails as jest.Mock).mockReturnValue({
-        data: undefined,
-        isLoading: false,
-        error: mockError,
-        refetch: mockRefetch,
-      });
-
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: undefined, isLoading: false, error: new Error('Failed to fetch'), refetch: mockRefetch });
       render(<StudentDetailsScreen />);
-
-      const retryButton = screen.getByText('parent.common.retry');
-      fireEvent.press(retryButton);
-
-      await waitFor(() => {
-        expect(mockRefetch).toHaveBeenCalled();
-      });
+      fireEvent.press(screen.getByTestId('retry-button'));
+      await waitFor(() => expect(mockRefetch).toHaveBeenCalled());
     });
   });
 
   describe('success State', () => {
-    it('should render student details with all profile information', () => {
-      (useStudentDetails as jest.Mock).mockReturnValue({
-        data: mockStudent,
-        isLoading: false,
-        error: null,
-        refetch: jest.fn(),
-      });
+    beforeEach(() => {
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: mockStudent, isLoading: false, error: null, refetch: jest.fn() });
+    });
 
+    it('should render the student hero with the name', () => {
       render(<StudentDetailsScreen />);
+      expect(screen.getByTestId('student-hero')).toHaveTextContent('John Doe');
+    });
 
-      // Check for student name
-      expect(screen.getByText('John Doe')).toBeTruthy();
-
-      // Check for profile information
-      expect(screen.getByText('john@example.com')).toBeTruthy();
-      expect(screen.getByText('123-456-7890')).toBeTruthy();
-      expect(screen.getByText('Grade A')).toBeTruthy();
-      expect(screen.getByText('2024-01-01')).toBeTruthy();
+    it('should render the recent timeline rows', () => {
+      render(<StudentDetailsScreen />);
+      expect(screen.getByTestId('timeline-row-2024-01-15')).toBeTruthy();
+      expect(screen.getByTestId('timeline-row-2024-01-14')).toBeTruthy();
     });
 
     it('should render attendance navigation button', () => {
-      (useStudentDetails as jest.Mock).mockReturnValue({
-        data: mockStudent,
-        isLoading: false,
-        error: null,
-        refetch: jest.fn(),
-      });
-
       render(<StudentDetailsScreen />);
-
-      // Check for attendance button
-      expect(screen.getByText('parent.studentDetails.viewAttendance')).toBeTruthy();
+      expect(screen.getByTestId('view-attendance-button')).toBeTruthy();
     });
 
     it('should navigate to attendance screen when button is pressed', async () => {
-      (useStudentDetails as jest.Mock).mockReturnValue({
-        data: mockStudent,
-        isLoading: false,
-        error: null,
-        refetch: jest.fn(),
-      });
-
       render(<StudentDetailsScreen />);
-
-      const attendanceButton = screen.getByText('parent.studentDetails.viewAttendance');
-      fireEvent.press(attendanceButton);
-
-      await waitFor(() => {
-        expect(mockRouter.push).toHaveBeenCalledWith('/(parent)/students/1/attendance');
-      });
-    });
-
-    it('should render student details with partial information', () => {
-      const partialStudent = {
-        id: '1',
-        fullName: 'Jane Doe',
-        gradeLevel: 'Grade 5',
-      };
-
-      (useStudentDetails as jest.Mock).mockReturnValue({
-        data: partialStudent,
-        isLoading: false,
-        error: null,
-        refetch: jest.fn(),
-      });
-
-      render(<StudentDetailsScreen />);
-
-      // Check for available information
-      expect(screen.getByText('Jane Doe')).toBeTruthy();
-      expect(screen.getByText('Grade 5')).toBeTruthy();
-
-      // Check that unavailable information is not rendered
-      expect(screen.queryByText('john@example.com')).toBeFalsy();
+      fireEvent.press(screen.getByTestId('view-attendance-button'));
+      await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/(parent)/students/1/attendance'));
     });
   });
 
   describe('missing ID State', () => {
     it('should render error when id is missing', () => {
       (useLocalSearchParams as jest.Mock).mockReturnValue({});
-
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: undefined, isLoading: false, error: null, refetch: jest.fn() });
       render(<StudentDetailsScreen />);
-
       expect(screen.getByText('parent.common.genericError')).toBeTruthy();
     });
   });

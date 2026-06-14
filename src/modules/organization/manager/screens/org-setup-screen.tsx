@@ -58,7 +58,7 @@ export function OrgSetupScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+    <View className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
       <TopBar title={t('manager.setup.screenTitle', { defaultValue: 'New Organization' })} />
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>

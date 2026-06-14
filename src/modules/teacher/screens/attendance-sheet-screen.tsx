@@ -4,18 +4,21 @@
  */
 
 import type { AttendanceStatus } from '../types';
-import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, I18nManager, Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, ConfirmModal, Text, useModal } from '@/components/ui';
-import { AttendanceStatusControl } from '../components';
+import { AttendanceSheetFooter } from '../components/attendance-sheet/attendance-sheet-footer';
+import { AttendanceSheetHeader } from '../components/attendance-sheet/attendance-sheet-header';
+import { AttendanceSheetToolbar } from '../components/attendance-sheet/attendance-sheet-toolbar';
+import { AttendanceStudentList } from '../components/attendance-sheet/attendance-student-list';
 import { BatchRatingSheet } from '../components/batch-rating-sheet';
 import { useAttendance } from '../hooks';
-import { extractErrorMessage } from '../services';
+import { useAttendanceSubmit } from '../hooks/use-attendance-submit';
 
+// eslint-disable-next-line max-lines-per-function
 export function AttendanceSheetScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -24,25 +27,6 @@ export function AttendanceSheetScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const batchRatingModal = useModal();
-
-  // Confirmation modal state
-  const [confirmModal, setConfirmModal] = useState<{
-    visible: boolean;
-    title: string;
-    message: string;
-    variant: 'default' | 'destructive' | 'success';
-    hideCancelButton: boolean;
-    onConfirm: () => void;
-  }>({
-    visible: false,
-    title: '',
-    message: '',
-    variant: 'default',
-    hideCancelButton: false,
-    onConfirm: () => { },
-  });
-
-  const dismissConfirm = () => setConfirmModal(prev => ({ ...prev, visible: false }));
 
   const {
     session,
@@ -59,6 +43,11 @@ export function AttendanceSheetScreen() {
     submitAttendance,
   } = useAttendance(instanceId as string);
 
+  const { confirmModal, dismissConfirm, handleSubmit } = useAttendanceSubmit({
+    session,
+    submitAttendance,
+  });
+
   // Filter students by search query
   const filteredStudents = useMemo(() => {
     if (!searchQuery.trim())
@@ -66,58 +55,6 @@ export function AttendanceSheetScreen() {
     const query = searchQuery.toLowerCase().trim();
     return students.filter(s => s.name.toLowerCase().includes(query));
   }, [students, searchQuery]);
-
-  const handleSubmit = async () => {
-    if (!session) {
-      setConfirmModal({
-        visible: true,
-        title: t('teacher.attendance.error'),
-        message: t('teacher.common.genericError'),
-        variant: 'destructive',
-        hideCancelButton: true,
-        onConfirm: dismissConfirm,
-      });
-      return;
-    }
-
-    if (session.state !== 'ACTIVE') {
-      setConfirmModal({
-        visible: true,
-        title: t('teacher.attendance.error'),
-        message: t('teacher.attendance.sessionNotActive'),
-        variant: 'destructive',
-        hideCancelButton: true,
-        onConfirm: dismissConfirm,
-      });
-      return;
-    }
-
-    try {
-      await submitAttendance();
-      setConfirmModal({
-        visible: true,
-        title: t('teacher.attendance.submitSuccess'),
-        message: '',
-        variant: 'success',
-        hideCancelButton: true,
-        onConfirm: () => {
-          dismissConfirm();
-          router.back();
-        },
-      });
-    }
-    catch (err) {
-      const message = extractErrorMessage(err, t, 'teacher.common.genericError');
-      setConfirmModal({
-        visible: true,
-        title: t('teacher.attendance.error'),
-        message,
-        variant: 'destructive',
-        hideCancelButton: true,
-        onConfirm: dismissConfirm,
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -161,24 +98,11 @@ export function AttendanceSheetScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backButton}>{t('teacher.common.back')}</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>{t('teacher.attendance.title')}</Text>
-      </View>
-
-      {sessionClosed && (
-        <View style={styles.warningBanner}>
-          <Text style={styles.warningText}>{t('teacher.attendance.sessionClosed')}</Text>
-        </View>
-      )}
-
-      {sessionNotActive && !sessionClosed && (
-        <View style={styles.warningBanner}>
-          <Text style={styles.warningText}>{t('teacher.attendance.sessionNotActive')}</Text>
-        </View>
-      )}
+      <AttendanceSheetHeader
+        sessionClosed={sessionClosed}
+        sessionNotActive={sessionNotActive}
+        onBack={() => router.back()}
+      />
 
       {students.length === 0
         ? (
@@ -188,78 +112,30 @@ export function AttendanceSheetScreen() {
           )
         : (
             <>
-              {unratedCount > 0 && !sessionNotActive && (
-                <Pressable
-                  style={styles.batchRatingButton}
-                  onPress={batchRatingModal.present}
-                >
-                  <Ionicons name="flash" size={18} color="#F59E0B" />
-                  <Text style={styles.batchRatingText}>
-                    {t('teacher.attendance.batchRatingButton', { count: unratedCount })}
-                  </Text>
-                  <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color="#6B7280" />
-                </Pressable>
-              )}
+              <AttendanceSheetToolbar
+                showBatchRating={unratedCount > 0 && !sessionNotActive}
+                showSearch={students.length > 2}
+                unratedCount={unratedCount}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onBatchRatingPress={batchRatingModal.present}
+              />
 
-              {students.length > 2 && (
-                <View style={styles.searchContainer}>
-                  <Ionicons name="search" size={18} color="#9CA3AF" />
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder={t('teacher.attendance.searchStudent')}
-                    placeholderTextColor="#9CA3AF"
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                  {searchQuery.length > 0 && (
-                    <Pressable onPress={() => setSearchQuery('')}>
-                      <Ionicons name="close-circle" size={18} color="#9CA3AF" />
-                    </Pressable>
-                  )}
-                </View>
-              )}
+              <AttendanceStudentList
+                students={filteredStudents}
+                attendanceMap={attendanceMap}
+                disabled={sessionNotActive || isSubmitting}
+                onStatusChange={handleStatusChange}
+                onExcuseNoteChange={handleExcuseNoteChange}
+                onRatingChange={handleRatingChange}
+              />
 
-              <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentInner}>
-                {filteredStudents.length === 0
-                  ? (
-                      <View style={styles.noResultsContainer}>
-                        <Text style={styles.noResultsText}>{t('teacher.attendance.noSearchResults')}</Text>
-                      </View>
-                    )
-                  : (
-                      filteredStudents.map((student) => {
-                        const attendance = attendanceMap[student.id];
-                        return (
-                          <AttendanceStatusControl
-                            key={student.id}
-                            student={student}
-                            status={attendance?.status || null}
-                            excuseNote={attendance?.excuseNote || ''}
-                            rating={attendance?.rating ?? null}
-                            onStatusChange={handleStatusChange(student.id)}
-                            onExcuseNoteChange={handleExcuseNoteChange(student.id)}
-                            onRatingChange={handleRatingChange(student.id)}
-                            disabled={sessionNotActive || isSubmitting}
-                          />
-                        );
-                      })
-                    )}
-              </ScrollView>
-
-              <View style={styles.footer}>
-                <Button
-                  label={isSubmitting ? t('teacher.attendance.submitting') : t('teacher.attendance.submitButton')}
-                  onPress={handleSubmit}
-                  loading={isSubmitting}
-                  disabled={sessionNotActive || isSubmitting}
-                  variant="default"
-                />
-                {error && (
-                  <Text style={styles.errorBanner}>{error}</Text>
-                )}
-              </View>
+              <AttendanceSheetFooter
+                isSubmitting={isSubmitting}
+                disabled={sessionNotActive || isSubmitting}
+                error={error}
+                onSubmit={handleSubmit}
+              />
               <BatchRatingSheet
                 ref={batchRatingModal.ref}
                 unmarkedCount={unratedCount}
@@ -294,45 +170,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  backButton: {
-    fontSize: 16,
-    color: '#3B82F6',
-    marginEnd: 12,
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  warningBanner: {
-    backgroundColor: '#FEF08A',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#FCD34D',
-  },
-  warningText: {
-    fontSize: 13,
-    color: '#78350F',
-  },
-  scrollContent: {
-    flex: 1,
-  },
-  scrollContentInner: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    gap: 12,
-  },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
@@ -344,14 +181,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     textAlign: 'center',
   },
-  footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
-    gap: 12,
-  },
   errorContainer: {
     flex: 1,
     alignItems: 'center',
@@ -362,56 +191,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#DC2626',
     textAlign: 'center',
-  },
-  errorBanner: {
-    fontSize: 12,
-    color: '#DC2626',
-    textAlign: 'center',
-  },
-  batchRatingButton: {
-    alignItems: 'center',
-    backgroundColor: '#FFFBEB',
-    borderColor: '#FCD34D',
-    borderRadius: 10,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: 8,
-    marginHorizontal: 20,
-    marginTop: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  batchRatingText: {
-    color: '#92400E',
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  searchContainer: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
-    borderRadius: 10,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: 10,
-    marginHorizontal: 20,
-    marginTop: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  searchInput: {
-    color: '#111827',
-    flex: 1,
-    fontSize: 15,
-    padding: 0,
-  },
-  noResultsContainer: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  noResultsText: {
-    color: '#9CA3AF',
-    fontSize: 15,
   },
 });

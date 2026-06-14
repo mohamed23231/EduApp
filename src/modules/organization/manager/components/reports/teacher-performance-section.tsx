@@ -10,20 +10,16 @@ type TeacherPerformanceSectionProps = {
 export function TeacherPerformanceSection({ teachers }: TeacherPerformanceSectionProps) {
   const { t } = useTranslation();
   return (
-    <View style={{ marginTop: 20, borderRadius: 28, backgroundColor: colors.neutral.card, padding: 20 }}>
-      <Text style={{ fontSize: 18, fontWeight: '600', color: colors.neutral.ink }}>
+    <View className="mt-5 rounded-[28px] p-5" style={{ backgroundColor: colors.neutral.card }}>
+      <Text className="text-lg font-semibold" style={{ color: colors.neutral.ink }}>
         {t('manager.reports.teacherPerformance', { defaultValue: 'Teacher performance' })}
       </Text>
-      <View style={{ marginTop: 16, gap: 12 }}>
+      <View className="mt-4 gap-3">
         {teachers.map(teacher => (
           <View
             key={teacher.memberId}
-            style={{
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: colors.neutral.rule,
-              padding: 16,
-            }}
+            className="rounded-2xl border p-4"
+            style={{ borderColor: colors.neutral.rule }}
           >
             <Text style={{ fontSize: 16, fontWeight: '600', color: colors.neutral.ink }}>
               {teacher.name}

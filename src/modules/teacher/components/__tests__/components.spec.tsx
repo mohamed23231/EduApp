@@ -14,10 +14,10 @@
 import type { SubscriptionData, TrialData } from '../../types';
 import * as React from 'react';
 import { cleanup, render, screen } from '@/lib/test-utils';
-import { ExpiredBanner } from '../ExpiredBanner';
-import { SubscriptionCard } from '../SubscriptionCard';
-import { TeacherStatusBadge } from '../TeacherStatusBadge';
-import { TrialCard } from '../TrialCard';
+import { ExpiredBanner } from '../expired-banner';
+import { SubscriptionCard } from '../subscription-card';
+import { TeacherStatusBadge } from '../teacher-status-badge';
+import { TrialCard } from '../trial-card';
 
 // ─── i18n mock helpers ────────────────────────────────────────────────────────
 

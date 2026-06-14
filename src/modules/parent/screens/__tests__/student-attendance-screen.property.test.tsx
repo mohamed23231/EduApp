@@ -17,6 +17,48 @@ import fc from 'fast-check';
 import { useTranslation } from 'react-i18next';
 import { StudentAttendanceScreen } from '../student-attendance-screen';
 
+// The redesigned screen groups attendance into a virtualized SectionList. In the
+// headless test renderer SectionList only mounts its initial window, so sections
+// beyond the window (out-of-order months) never render. Replace SectionList with
+// an eager, non-virtualizing stub so the "every record renders" property holds —
+// on a real device the remaining cells render on scroll, which is correct.
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  const React = require('react');
+  function EagerSectionList(props: {
+    sections?: { title: string; data: unknown[] }[];
+    renderItem: (info: { item: unknown; index: number; section: unknown }) => React.ReactNode;
+    renderSectionHeader?: (info: { section: unknown }) => React.ReactNode;
+    keyExtractor?: (item: unknown, index: number) => string;
+    ListHeaderComponent?: React.ReactNode;
+    ListEmptyComponent?: React.ReactNode;
+  }) {
+    const { sections = [], renderItem, renderSectionHeader, keyExtractor, ListHeaderComponent, ListEmptyComponent } = props;
+    const children: React.ReactNode[] = [];
+    if (ListHeaderComponent)
+      children.push(React.createElement(React.Fragment, { key: 'header' }, ListHeaderComponent));
+    const isEmpty = sections.every(s => !s.data || s.data.length === 0);
+    if (isEmpty && ListEmptyComponent)
+      children.push(React.createElement(React.Fragment, { key: 'empty' }, ListEmptyComponent));
+    sections.forEach((section, si) => {
+      if (renderSectionHeader)
+        children.push(React.createElement(React.Fragment, { key: `sh-${si}` }, renderSectionHeader({ section })));
+      (section.data || []).forEach((item, ii) => {
+        const k = keyExtractor ? keyExtractor(item, ii) : `i-${si}-${ii}`;
+        children.push(React.createElement(React.Fragment, { key: k }, renderItem({ item, index: ii, section })));
+      });
+    });
+    return React.createElement(RN.View, null, children);
+  }
+  return new Proxy(RN, {
+    get(target, prop) {
+      if (prop === 'SectionList')
+        return EagerSectionList;
+      return Reflect.get(target, prop);
+    },
+  });
+});
+
 // Mock the dependencies
 jest.mock('expo-router', () => ({
   useLocalSearchParams: jest.fn(() => ({ id: 'test-student-id' })),
@@ -28,6 +70,18 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('../../hooks', () => ({
   useAttendance: jest.fn(),
+  useAttendanceStats: jest.fn(() => ({
+    data: undefined,
+    isLoading: false,
+    error: null,
+    refetch: jest.fn(),
+  })),
+  useStudentDetails: jest.fn(() => ({
+    data: undefined,
+    isLoading: false,
+    error: null,
+    refetch: jest.fn(),
+  })),
 }));
 
 jest.mock('../../services/error-utils', () => ({
@@ -53,11 +107,15 @@ describe('Property 10: Attendance Record Rendering', () => {
     (useTranslation as jest.Mock).mockReturnValue({ t: mockT });
   });
 
-  // Generator for valid AttendanceRecord objects
+  // Generator for valid AttendanceRecord objects.
+  // sessionName excludes whitespace-only strings: a pure-whitespace name isn't a
+  // real session title, and `getByText(' ')` matches incidental whitespace nodes
+  // in the rendered tree (section spacing, bullets), breaking the test's own
+  // identity assumption rather than exercising a source defect.
   const attendanceRecordArbitrary = (): fc.Arbitrary<AttendanceRecord> => {
     return fc.tuple(
       fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') }),
-      fc.string({ minLength: 1, maxLength: 100 }),
+      fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
       fc.oneof(
         fc.constant<AttendanceStatus>('PRESENT'),
         fc.constant<AttendanceStatus>('ABSENT'),

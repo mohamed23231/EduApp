@@ -17,10 +17,10 @@ import colors from '@/components/ui/colors';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { validateToken } from '@/modules/auth/services';
-import { ExpiredBanner } from '../components/ExpiredBanner';
-import { SubscriptionCard } from '../components/SubscriptionCard';
-import { TeacherStatusBadge } from '../components/TeacherStatusBadge';
-import { TrialCard } from '../components/TrialCard';
+import { ExpiredBanner } from '../components/expired-banner';
+import { SubscriptionCard } from '../components/subscription-card';
+import { TeacherStatusBadge } from '../components/teacher-status-badge';
+import { TrialCard } from '../components/trial-card';
 import { useTeacherProfile } from '../hooks/use-teacher-profile';
 
 const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';

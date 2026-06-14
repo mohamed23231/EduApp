@@ -217,7 +217,8 @@ export function SessionCreateScreen() {
       router.replace(AppRoute.teacher.sessions as any);
     }
     catch (error) {
-      const ve = parseZodErrors(error, t); setErrors(Object.keys(ve).length
+      const ve = parseZodErrors(error, t);
+      setErrors(Object.keys(ve).length
         ? ve
         : { form: extractErrorMessage(error, t) });
     }

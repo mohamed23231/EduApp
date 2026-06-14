@@ -20,14 +20,9 @@ export function SelectButton({
   return (
     <Pressable
       onPress={onPress}
+      className="flex-row items-center gap-2.5 rounded-2xl px-3.5 py-3"
       style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 13,
         backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card,
-        borderRadius: 14,
         borderWidth: 1.5,
         borderColor: colors.neutral.rule,
       })}

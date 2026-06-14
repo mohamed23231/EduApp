@@ -26,12 +26,39 @@ jest.mock('@/components/ui', () => {
         <Text>{label ?? children}</Text>
       </Pressable>
     ),
+    EmptyState: ({ title }: { title?: string }) => (
+      <View>
+        <Text>{title}</Text>
+      </View>
+    ),
+    Modal: ({ children }: { children?: React.ReactNode }) => <View>{children}</View>,
+    Monogram: () => null,
+    Pressable,
     SafeAreaView: View,
     ScrollView,
     Text,
+    TopBar: ({ title }: { title?: string }) => (
+      <View>
+        <Text>{title}</Text>
+      </View>
+    ),
     View,
   };
 });
+jest.mock('@/components/ui/modal', () => ({
+  useModal: () => ({ ref: { current: null }, present: jest.fn(), dismiss: jest.fn() }),
+  Modal: ({ children }: { children?: React.ReactNode }) => {
+    const { View } = require('react-native');
+    return <View>{children}</View>;
+  },
+}));
+jest.mock('@/components/ui/monogram', () => ({
+  useMonogramTone: () => ({ bg: '#000', fg: '#fff' }),
+  Monogram: () => null,
+}));
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn() }),
+}));
 jest.mock('../../hooks');
 jest.mock('../../store/manager-store', () => ({
   useManagerStore: {
@@ -42,6 +69,10 @@ jest.mock('../../store/manager-store', () => ({
   },
 }));
 jest.mock('../../components', () => ({
+  NoOrgEmptyState: () => {
+    const { Text } = require('react-native');
+    return <Text>no-org-empty-state</Text>;
+  },
   InviteTeacherModal: () => {
     const { Text } = require('react-native');
     return <Text>invite-teacher-modal</Text>;
@@ -110,10 +141,11 @@ describe('teachersScreen', () => {
     expect(screen.getByText('manager.teachers.title')).toBeTruthy();
     expect(screen.getByText('Sara')).toBeTruthy();
     expect(screen.getByText('teacher@example.com')).toBeTruthy();
-    expect(screen.getByText('invite-teacher-modal')).toBeTruthy();
+    expect(screen.getByText('manager.teachers.pendingTitle')).toBeTruthy();
+    expect(screen.getByLabelText('manager.teachers.inviteTitle')).toBeTruthy();
   });
 
-  it('renders the pending empty state when there are no invitations', () => {
+  it('hides the pending section when there are no invitations', () => {
     (useOrgInvitations as jest.Mock).mockReturnValue({
       isLoading: false,
       data: { data: [] },
@@ -121,6 +153,7 @@ describe('teachersScreen', () => {
 
     render(<TeachersScreen />);
 
-    expect(screen.getByText('manager.teachers.pendingEmpty')).toBeTruthy();
+    expect(screen.getByText('Sara')).toBeTruthy();
+    expect(screen.queryByText('manager.teachers.pendingTitle')).toBeNull();
   });
 });
