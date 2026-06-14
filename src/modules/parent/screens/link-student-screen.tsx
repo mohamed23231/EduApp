@@ -81,7 +81,7 @@ function ScreenHeader({
         <Ionicons
           name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'}
           size={24}
-          color="#111827"
+          color="#0B0D10"
         />
       </TouchableOpacity>
       <Text style={s.headerTitle}>{title}</Text>
@@ -95,7 +95,7 @@ function Illustration() {
     <View style={s.illustrationContainer}>
       <View style={s.illustration}>
         <View style={s.illustrationIconWrapper}>
-          <Ionicons name="school" size={44} color="#6366F1" />
+          <Ionicons name="school" size={44} color="#22C572" />
         </View>
         <View style={s.illustrationBadge}>
           <Ionicons name="link" size={18} color="#FFFFFF" />
@@ -133,7 +133,7 @@ function CodeInput({
             },
           ]}
           placeholder={placeholder}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#5C636E"
           value={accessCode}
           onChangeText={onChangeText}
           editable={!isPending}
@@ -142,7 +142,7 @@ function CodeInput({
           autoCorrect={false}
           accessibilityLabel={label}
         />
-        <Ionicons name="qr-code-outline" size={20} color="#9CA3AF" style={s.inputIcon} />
+        <Ionicons name="qr-code-outline" size={20} color="#5C636E" style={s.inputIcon} />
       </View>
     </>
   );
@@ -175,7 +175,7 @@ function SubmitButton({
     scale.value = withSpring(1);
   };
 
-  const iconColor = disabled ? '#9CA3AF' : '#FFFFFF';
+  const iconColor = disabled ? '#5C636E' : '#FFFFFF';
 
   return (
     <AnimatedTouchableOpacity
@@ -307,7 +307,7 @@ export function LinkStudentScreen() {
               accessibilityRole="button"
               accessibilityLabel={t('parent.linkStudent.helpLink')}
             >
-              <Ionicons name="information-circle-outline" size={16} color="#6B7280" />
+              <Ionicons name="information-circle-outline" size={16} color="#5C636E" />
               <Text style={s.helpLink}>{t('parent.linkStudent.helpLink')}</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -344,7 +344,7 @@ const s = StyleSheet.create({
   flex: { flex: 1 },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F5F5F0',
   },
   header: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
@@ -352,13 +352,14 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#E6E3DB',
+    backgroundColor: '#FFFFFF',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#E6E3DB',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -366,7 +367,7 @@ const s = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0B0D10',
     textAlign: 'center',
   },
   headerSpacer: { width: 40 },
@@ -384,7 +385,7 @@ const s = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#EDFBF3',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -399,7 +400,7 @@ const s = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#22C572',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
@@ -408,13 +409,13 @@ const s = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0B0D10',
     textAlign: 'center',
     marginBottom: 12,
   },
   description: {
     fontSize: 15,
-    color: '#6B7280',
+    color: '#5C636E',
     lineHeight: 24,
     textAlign: 'center',
     marginBottom: 32,
@@ -423,34 +424,34 @@ const s = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#0B0D10',
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E6E3DB',
     borderRadius: 12,
     paddingHorizontal: 16,
   },
   inputContainerError: {
-    borderColor: '#DC2626',
-    backgroundColor: '#FEF2F2',
+    borderColor: '#FF5B4A',
+    backgroundColor: '#FFE1DD',
   },
   input: {
     flex: 1,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#111827',
+    color: '#0B0D10',
   },
   inputIcon: {
     marginStart: 8,
   },
   errorText: {
     fontSize: 13,
-    color: '#DC2626',
+    color: '#FF5B4A',
     marginTop: 8,
   },
   helpLinkContainer: {
@@ -463,23 +464,23 @@ const s = StyleSheet.create({
   },
   helpLink: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#5C636E',
   },
   submitButton: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#22C572',
     borderRadius: 16,
     minHeight: 52,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 14,
-    shadowColor: '#6366F1',
+    shadowColor: '#22C572',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
   submitButtonDisabled: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#E6E3DB',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -494,7 +495,7 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
   },
   submitTextDisabled: {
-    color: '#9CA3AF',
+    color: '#5C636E',
   },
   footer: {
     flex: 1,
@@ -505,7 +506,7 @@ const s = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#5C636E',
     textAlign: 'center',
     lineHeight: 18,
     paddingHorizontal: 16,
@@ -516,7 +517,7 @@ const s = StyleSheet.create({
   },
   modalText: {
     fontSize: 15,
-    color: '#374151',
+    color: '#0B0D10',
     lineHeight: 24,
   },
 });

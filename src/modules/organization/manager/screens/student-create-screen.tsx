@@ -1,18 +1,15 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, I18nManager, KeyboardAvoidingView, Platform } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, View } from 'react-native';
 import {
   Button,
   Input,
   PhoneField,
-  Pressable,
-  SafeAreaView,
   ScrollView,
-  Text,
-  View,
+  TopBar,
 } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import {
   buildE164Phone,
@@ -75,7 +72,9 @@ function CreateForm() {
   };
 
   return (
-    <ScrollView contentContainerClassName="px-6 pb-12 pt-4">
+    <ScrollView
+      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100, paddingTop: 4, gap: 4 }}
+    >
       <Input
         label={t('manager.students.fields.name', { defaultValue: 'Student name' })}
         value={values.name}
@@ -104,7 +103,7 @@ function CreateForm() {
       <LimitReachedError message={error ?? limitMessage} />
 
       <Button
-        className="mt-6"
+        style={{ marginTop: 8 }}
         label={t('manager.students.actions.create', { defaultValue: 'Create student' })}
         onPress={submit}
         loading={createMutation.isPending}
@@ -118,36 +117,22 @@ export function StudentCreateScreen() {
   const router = useRouter();
   const activeOrgId = useManagerStore.use.activeOrgId();
 
-  return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
-      <View className="flex-row items-center gap-3 px-6 pt-4 pb-2">
-        <Pressable
-          onPress={() => router.back()}
-          className="size-10 items-center justify-center rounded-full bg-white"
-        >
-          <Ionicons
-            name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'}
-            size={20}
-            color="#0F172A"
-          />
-        </Pressable>
-        <Text className="font-inter flex-1 text-xl font-semibold text-slate-900">
-          {t('manager.students.createScreenTitle', { defaultValue: 'Add Student' })}
-        </Text>
-      </View>
+  if (!activeOrgId) {
+    return <NoOrgEmptyState />;
+  }
 
-      {!activeOrgId
-        ? (
-            <NoOrgEmptyState />
-          )
-        : (
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              className="flex-1"
-            >
-              <CreateForm />
-            </KeyboardAvoidingView>
-          )}
-    </SafeAreaView>
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      <TopBar
+        title={t('manager.students.createScreenTitle', { defaultValue: 'Add Student' })}
+        onBack={() => router.back()}
+      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <CreateForm />
+      </KeyboardAvoidingView>
+    </View>
   );
 }

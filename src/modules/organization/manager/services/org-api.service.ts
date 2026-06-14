@@ -6,6 +6,7 @@ import type {
   MarkAttendanceInput,
   OrganizationDetails,
   OrganizationSummary,
+  OrgAttendanceRecord,
   OrgInvitation,
   OrgMember,
   OrgSessionInstance,
@@ -266,6 +267,13 @@ export async function markOrgAttendance(
   const response = await client.post<
     ApiSuccess<MarkAttendanceResponse> | MarkAttendanceResponse
   >(`/orgs/${orgId}/instances/${instanceId}/attendance`, input);
+  return unwrapData(response.data);
+}
+
+export async function getOrgInstanceAttendance(orgId: string, instanceId: string) {
+  const response = await client.get<
+    ApiSuccess<OrgAttendanceRecord[]> | OrgAttendanceRecord[]
+  >(`/orgs/${orgId}/instances/${instanceId}/attendance`);
   return unwrapData(response.data);
 }
 

@@ -112,10 +112,10 @@ function getNotificationIconConfig(normalizedTitleKey: string): {
       || normalizedTitleKey.includes('low-score');
 
   if (isAbsence)
-    return { name: 'alert-circle', color: '#EF4444', bgClass: 'bg-red-50' };
+    return { name: 'alert-circle', color: '#FF5B4A', bgClass: 'bg-[#FFE1DD]' };
   if (isLowScore)
-    return { name: 'trending-down', color: '#F59E0B', bgClass: 'bg-orange-50' };
-  return { name: 'notifications', color: '#6366F1', bgClass: 'bg-indigo-50' };
+    return { name: 'trending-down', color: '#FFB020', bgClass: 'bg-[#FFF0D5]' };
+  return { name: 'notifications', color: '#22C572', bgClass: 'bg-[#EDFBF3]' };
 }
 
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
@@ -166,7 +166,7 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
 
   const containerClasses = [
     'rounded-2xl p-4 mb-3 min-h-[44px] w-full',
-    isUnread ? 'bg-white shadow-sm border border-gray-100' : 'bg-[#F9FAFB] border border-transparent',
+    isUnread ? 'shadow-sm' : 'border border-transparent',
     isRTL ? 'flex-row-reverse' : 'flex-row',
     'items-start',
   ].filter(Boolean).join(' ');
@@ -188,36 +188,39 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
         accessibilityLabel={accessibilityLabel}
         testID={`notification-item-${notification.id}`}
         className={containerClasses}
+        style={isUnread
+          ? { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E6E3DB' }
+          : { backgroundColor: '#F5F5F0' }}
       >
-        <View className={`size-12 items-center justify-center rounded-full ${iconConfig.bgClass} ${isRTL ? 'ml-3' : 'mr-3'}`}>
+        <View className={`size-12 items-center justify-center rounded-full ${iconConfig.bgClass} ${isRTL ? 'ms-3' : 'me-3'}`}>
           <Ionicons name={iconConfig.name} size={24} color={iconConfig.color} />
         </View>
 
         <View className="flex-1">
           <View className={rowClasses}>
             <Text
-              className={`flex-1 text-sm ${isUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}
+              className={`flex-1 text-sm ${isUnread ? 'font-bold' : 'font-semibold'}`}
               numberOfLines={1}
-              style={{ textAlign: alignment }}
+              style={{ textAlign: alignment, color: isUnread ? '#0B0D10' : '#5C636E' }}
             >
               {title}
             </Text>
             {isUnread && (
-              <View className="mx-2 size-2 rounded-full bg-indigo-500" />
+              <View className="mx-2 size-2 rounded-full" style={{ backgroundColor: '#22C572' }} />
             )}
           </View>
 
           <Text
-            className={`text-sm ${isUnread ? 'font-medium text-gray-800' : 'font-normal text-gray-500'}`}
+            className={`text-sm ${isUnread ? 'font-medium' : 'font-normal'}`}
             numberOfLines={2}
-            style={{ textAlign: alignment, lineHeight: 20 }}
+            style={{ textAlign: alignment, lineHeight: 20, color: isUnread ? '#0B0D10' : '#5C636E' }}
           >
             {body}
           </Text>
 
           <Text
-            className={`mt-2 text-xs font-medium ${isUnread ? 'text-indigo-500' : 'text-gray-400'}`}
-            style={{ textAlign: alignment }}
+            className="mt-2 text-xs font-medium"
+            style={{ textAlign: alignment, color: isUnread ? '#22C572' : '#9CA3AF' }}
           >
             {formatDate(notification.createdAt)}
           </Text>

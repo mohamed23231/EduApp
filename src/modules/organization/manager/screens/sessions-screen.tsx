@@ -3,17 +3,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, I18nManager, RefreshControl, StyleSheet } from 'react-native';
+import { Alert, I18nManager, RefreshControl, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Button,
+  EmptyState,
   Modal,
   Pressable,
-  SafeAreaView,
-  ScrollView,
   Text,
-  View,
 } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { useModal } from '@/components/ui/modal';
 import { AppRoute } from '@/core/navigation/routes';
 import { NoOrgEmptyState } from '../components';
@@ -46,76 +46,68 @@ function formatDaysOfWeek(
     .join(', ');
 }
 
-function SessionCard({
-  session,
-  onPress,
-}: {
-  session: OrgSessionTemplate;
-  onPress: () => void;
-}) {
+function SessionRow({ session, onPress }: { session: OrgSessionTemplate; onPress: () => void }) {
   const { t } = useTranslation();
+  const isPaused = session.isPaused;
+
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        session.isPaused && styles.cardPaused,
-        pressed && styles.cardPressed,
-      ]}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+        padding: 14,
+        backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card,
+        borderWidth: 1.5,
+        borderColor: isPaused ? colors.semantic.excused : colors.neutral.rule,
+        borderRadius: 18,
+        opacity: isPaused ? 0.85 : 1,
+      })}
       accessibilityRole="button"
       accessibilityLabel={session.subject}
     >
-      <View style={styles.cardAccent} />
-      <View style={styles.cardBody}>
-        <View style={styles.cardTopRow}>
-          <Text style={styles.cardSubject} numberOfLines={1}>{session.subject}</Text>
-          {session.isPaused
-            ? (
-                <View style={styles.pausedBadge}>
-                  <Text style={styles.pausedText}>{t('manager.sessions.paused', { defaultValue: 'Paused' })}</Text>
-                </View>
-              )
-            : null}
-          <View style={styles.timePill}>
-            <Ionicons name="time-outline" size={12} color="#6B7280" />
-            <Text style={styles.timePillText}>{session.time}</Text>
-          </View>
-        </View>
-        <View style={styles.cardMeta}>
-          <Ionicons name="calendar-outline" size={13} color="#9CA3AF" />
-          <Text style={styles.cardMetaText}>{formatDaysOfWeek(session.daysOfWeek, t)}</Text>
-        </View>
-        <View style={styles.cardMeta}>
-          <Ionicons name="person-outline" size={13} color="#9CA3AF" />
-          <Text style={styles.cardMetaText}>{session.assignedMember.name}</Text>
-        </View>
-        <View style={styles.cardMeta}>
-          <Ionicons name="people-outline" size={13} color="#9CA3AF" />
-          <Text style={styles.cardMetaText}>
-            {t('manager.sessions.studentCount', {
-              defaultValue: '{{count}} students',
-              count: session.studentCount ?? session.students?.length ?? 0,
-            })}
-          </Text>
-        </View>
+      {/* Time block */}
+      <View style={{ width: 56, alignItems: 'center', paddingVertical: 6, backgroundColor: colors.neutral.paper, borderRadius: 12 }}>
+        <Text style={{ fontSize: 15, fontWeight: '700', color: colors.neutral.ink, letterSpacing: -0.3 }}>
+          {session.time}
+        </Text>
+        <Text style={{ fontSize: 9, color: colors.neutral.inkMuted, fontWeight: '600', marginTop: 2, letterSpacing: 1 }}>
+          {session.durationMinutes ?? 60}
+          M
+        </Text>
       </View>
+
+      <View style={{ flex: 1, gap: 3 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.neutral.ink, letterSpacing: -0.2, flex: 1 }} numberOfLines={1}>
+            {session.subject}
+          </Text>
+          {isPaused && (
+            <View style={{ backgroundColor: colors.semantic.excusedSoft, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 }}>
+              <Text style={{ fontSize: 10, color: colors.semantic.excusedInk, fontWeight: '700' }}>
+                {t('manager.sessions.paused', { defaultValue: 'Paused' })}
+              </Text>
+            </View>
+          )}
+        </View>
+        <Text style={{ fontSize: 12, color: colors.neutral.inkMuted, fontWeight: '500' }}>
+          {session.assignedMember.name}
+          {' · '}
+          {formatDaysOfWeek(session.daysOfWeek, t)}
+        </Text>
+      </View>
+
       <Ionicons
         name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
-        size={18}
-        color="#D1D5DB"
-        style={styles.chevron}
+        size={16}
+        color={colors.neutral.inkMuted}
       />
     </Pressable>
   );
 }
 
-function ActionRow({
-  icon,
-  label,
-  onPress,
-  color = '#374151',
-  danger = false,
-}: {
+function ActionRow({ icon, label, onPress, color = colors.neutral.ink, danger = false }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
@@ -125,21 +117,27 @@ function ActionRow({
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.actionRow,
-        danger && styles.actionRowDanger,
-        pressed && { backgroundColor: danger ? '#FEF2F2' : '#F9FAFB' },
-      ]}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
+        borderRadius: 10,
+        borderTopWidth: danger ? 1 : 0,
+        borderTopColor: colors.neutral.rule,
+        backgroundColor: pressed ? (danger ? colors.semantic.absentSoft : colors.neutral.cardWarm) : 'transparent',
+      })}
       accessibilityRole="button"
     >
-      <View style={[styles.actionIcon, { backgroundColor: danger ? '#FEF2F2' : '#F3F4F6' }]}>
+      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: danger ? colors.semantic.absentSoft : colors.neutral.cardWarm, alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name={icon} size={18} color={color} />
       </View>
-      <Text style={[styles.actionRowLabel, { color }]}>{label}</Text>
+      <Text style={{ flex: 1, fontSize: 15, fontWeight: '500', color }}>{label}</Text>
       <Ionicons
         name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
         size={16}
-        color="#D1D5DB"
+        color={colors.neutral.inkMuted}
       />
     </Pressable>
   );
@@ -163,18 +161,14 @@ function SessionsList() {
 
   const handleDetails = () => {
     actionsSheet.dismiss();
-    if (selectedSession) {
+    if (selectedSession)
       router.push(AppRoute.manager.sessionDetail(selectedSession.id));
-    }
   };
 
   const handlePauseResume = () => {
     actionsSheet.dismiss();
     if (selectedSession) {
-      pauseResumeMutation.mutate({
-        sessionId: selectedSession.id,
-        isPaused: selectedSession.isPaused,
-      });
+      pauseResumeMutation.mutate({ sessionId: selectedSession.id, isPaused: selectedSession.isPaused });
     }
   };
 
@@ -183,10 +177,7 @@ function SessionsList() {
       return;
     Alert.alert(
       t('manager.sessions.deleteTitle', { defaultValue: 'Delete session?' }),
-      t('manager.sessions.deleteMessage', {
-        defaultValue:
-          'This will soft-delete the session template. Existing records are preserved.',
-      }),
+      t('manager.sessions.deleteMessage', { defaultValue: 'This will soft-delete the session template. Existing records are preserved.' }),
       [
         { text: t('manager.common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
         {
@@ -201,34 +192,24 @@ function SessionsList() {
     );
   };
 
-  const onRefresh = useCallback(() => {
-    sessionsQuery.refetch();
-  }, [sessionsQuery]);
+  const onRefresh = useCallback(() => sessionsQuery.refetch(), [sessionsQuery]);
 
   if (sessionsQuery.isLoading) {
     return (
-      <View className="flex-1 items-center justify-center py-10">
-        <ActivityIndicator size="large" color="#3B82F6" />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
+        <ActivityIndicator size="large" color={colors.brand.primary} />
       </View>
     );
   }
 
   if (sessionsQuery.isError) {
     return (
-      <View className="flex-1 items-center gap-3 py-10">
-        <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
-        <Text className="font-inter text-sm text-red-600">
-          {t('manager.sessions.errorLoading', {
-            defaultValue: 'Could not load sessions.',
-          })}
+      <View style={{ alignItems: 'center', gap: 12, paddingVertical: 24 }}>
+        <Ionicons name="alert-circle-outline" size={32} color={colors.semantic.absent} />
+        <Text style={{ fontSize: 13, color: colors.semantic.absent }}>
+          {t('manager.sessions.errorLoading', { defaultValue: 'Could not load sessions.' })}
         </Text>
-        <Button
-          variant="outline"
-          size="sm"
-          label={t('manager.sessions.errorRetry', { defaultValue: 'Retry' })}
-          fullWidth={false}
-          onPress={() => sessionsQuery.refetch()}
-        />
+        <Button variant="outline" size="sm" label={t('manager.sessions.errorRetry', { defaultValue: 'Retry' })} fullWidth={false} onPress={() => sessionsQuery.refetch()} />
       </View>
     );
   }
@@ -238,44 +219,23 @@ function SessionsList() {
   return (
     <>
       <ScrollView
-        contentContainerClassName="px-6 pb-8 pt-2"
-        refreshControl={(
-          <RefreshControl
-            refreshing={sessionsQuery.isRefetching}
-            onRefresh={onRefresh}
-          />
-        )}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120, paddingTop: 4, gap: 8 }}
+        refreshControl={<RefreshControl refreshing={sessionsQuery.isRefetching} onRefresh={onRefresh} />}
       >
         {sessions.length === 0
           ? (
-              <View className="items-center py-16">
-                <Ionicons name="calendar-outline" size={40} color="#9CA3AF" />
-                <Text className="font-inter mt-3 text-sm text-slate-500">
-                  {t('manager.sessions.empty', {
-                    defaultValue: 'No sessions yet.',
-                  })}
-                </Text>
-              </View>
+              <EmptyState
+                title={t('manager.sessions.empty', { defaultValue: 'No sessions yet' })}
+                body={t('manager.sessions.emptyHint', { defaultValue: 'Create your first session template to get started.' })}
+              />
             )
-          : (
-              <View className="gap-3">
-                {sessions.map(session => (
-                  <SessionCard
-                    key={session.id}
-                    session={session}
-                    onPress={() => handleSessionPress(session)}
-                  />
-                ))}
-              </View>
-            )}
+          : sessions.map(session => (
+              <SessionRow key={session.id} session={session} onPress={() => handleSessionPress(session)} />
+            ))}
       </ScrollView>
 
-      <Modal
-        ref={actionsSheet.ref}
-        snapPoints={[280]}
-        title={selectedSession?.subject ?? ''}
-      >
-        <View style={styles.sheetContent}>
+      <Modal ref={actionsSheet.ref} snapPoints={[280]} title={selectedSession?.subject ?? ''}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 4 }}>
           <ActionRow
             icon="open-outline"
             label={t('manager.sessions.actions.details', { defaultValue: 'View details' })}
@@ -283,19 +243,17 @@ function SessionsList() {
           />
           <ActionRow
             icon={selectedSession?.isPaused ? 'play-outline' : 'pause-outline'}
-            label={
-              selectedSession?.isPaused
-                ? t('manager.sessions.actions.resume', { defaultValue: 'Resume' })
-                : t('manager.sessions.actions.pause', { defaultValue: 'Pause' })
-            }
+            label={selectedSession?.isPaused
+              ? t('manager.sessions.actions.resume', { defaultValue: 'Resume' })
+              : t('manager.sessions.actions.pause', { defaultValue: 'Pause' })}
             onPress={handlePauseResume}
-            color="#F59E0B"
+            color={colors.semantic.excused}
           />
           <ActionRow
             icon="trash-outline"
             label={t('manager.sessions.actions.delete', { defaultValue: 'Delete' })}
             onPress={handleDelete}
-            color="#DC2626"
+            color={colors.semantic.absent}
             danger
           />
         </View>
@@ -307,9 +265,12 @@ function SessionsList() {
 export function SessionsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const setActiveOrgId = useManagerStore.use.setActiveOrgId();
   const organizationsQuery = useOrganizations();
+  const sessionsQuery = useOrgSessions(activeOrgId);
+  const totalCount = sessionsQuery.data?.meta?.total ?? sessionsQuery.data?.data?.length ?? 0;
 
   useEffect(() => {
     if (!activeOrgId && organizationsQuery.data?.data[0]) {
@@ -322,100 +283,35 @@ export function SessionsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
-      <View className="flex-row items-center justify-between px-6 pt-6 pb-2">
-        <View className="flex-1">
-          <Text className="font-inter text-3xl font-semibold text-slate-900">
-            {t('manager.sessions.title', { defaultValue: 'Sessions' })}
+    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      {/* Header */}
+      <View style={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 13, color: colors.neutral.inkMuted, fontWeight: '500' }}>
+            {t('manager.sessions.countLabel', { count: totalCount, defaultValue: '{{count}} scheduled' })}
           </Text>
-          <Text className="font-inter mt-1 text-base text-slate-500">
-            {t('manager.sessions.subtitle', {
-              defaultValue:
-                'Build recurring session templates and keep teacher assignments visible.',
-            })}
+          <Text style={{ fontSize: 22, fontWeight: '700', color: colors.neutral.ink, letterSpacing: -0.5, marginTop: 2 }}>
+            {t('manager.sessions.title', { defaultValue: 'Sessions' })}
           </Text>
         </View>
         <Pressable
           onPress={() => router.push(AppRoute.manager.sessionCreate)}
-          className="ms-3 size-10 items-center justify-center rounded-full bg-[#3B82F6]"
-          accessibilityLabel={t('manager.sessions.actions.create', {
-            defaultValue: 'Create session',
+          style={({ pressed }) => ({
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: pressed ? colors.brand.primaryDeep : colors.brand.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
           })}
+          accessibilityLabel={t('manager.sessions.actions.create', { defaultValue: 'Create session' })}
           accessibilityRole="button"
         >
-          <Ionicons name="add" size={24} color="white" />
+          <Ionicons name="add" size={24} color={colors.neutral.ink} />
         </Pressable>
       </View>
 
       <SessionsList />
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  // Card
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E2E8F0',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  cardPaused: { backgroundColor: '#FFFBEB', borderColor: '#FCD34D' },
-  cardPressed: { opacity: 0.85 },
-  cardAccent: { width: 4, alignSelf: 'stretch', backgroundColor: '#3B82F6' },
-  cardBody: { flex: 1, paddingVertical: 14, paddingHorizontal: 12, gap: 5 },
-  cardTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 2,
-  },
-  cardSubject: { flex: 1, fontSize: 16, fontWeight: '700', color: '#0F172A' },
-  pausedBadge: {
-    backgroundColor: '#FEF3C7',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  pausedText: { fontSize: 11, color: '#92400E', fontWeight: '600' },
-  timePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  timePillText: { fontSize: 12, color: '#6B7280', fontWeight: '500' },
-  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  cardMetaText: { fontSize: 13, color: '#64748B' },
-  chevron: { marginEnd: 12, flexShrink: 0 },
-  // Actions sheet
-  sheetContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 4 },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-  },
-  actionRowDanger: { marginTop: 4, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#F3F4F6' },
-  actionRowLabel: { flex: 1, fontSize: 15, fontWeight: '500' },
-  actionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

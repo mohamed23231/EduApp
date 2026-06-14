@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui';
-import { Color } from '@/components/ui/color-utils';
 
 type NotificationBellProps = {
   unreadCount: number;
@@ -21,7 +20,7 @@ export function NotificationBell({ unreadCount, onPress }: NotificationBellProps
       accessibilityLabel={accessibilityLabel}
       testID="notification-bell"
     >
-      <Ionicons name="notifications" size={24} color={Color.blue(500)} />
+      <Ionicons name="notifications" size={24} color="#0B0D10" />
       {unreadCount > 0 && (
         <View style={styles.badge} testID="notification-badge">
           <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
@@ -40,7 +39,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     end: 0,
-    backgroundColor: Color.danger(500),
+    backgroundColor: '#FF5B4A',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
@@ -48,7 +47,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badgeText: {
-    color: Color.white(),
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
   },

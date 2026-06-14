@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView, ScrollView, Text, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { useOrganization } from '../hooks';
@@ -134,6 +135,46 @@ function EntitlementSection({ org }: { org: { entitlementSource?: string; trial?
   );
 }
 
+function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onReports: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <View className="gap-3">
+      <Pressable className="rounded-2xl bg-white p-4 shadow-sm" onPress={onSettings}>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-3">
+            <View style={styles.iconContainer}>
+              <Ionicons name="settings-outline" size={20} color="#6B7280" />
+            </View>
+            <Text className="font-inter text-base font-medium text-slate-900">
+              {t('manager.more.settings.title', { defaultValue: 'Settings' })}
+            </Text>
+          </View>
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
+        </View>
+        <Text className="font-inter ms-11 mt-1 text-sm text-slate-500">
+          {t('manager.more.settings.body', { defaultValue: 'Update contact information and monitor limit usage.' })}
+        </Text>
+      </Pressable>
+      <Pressable className="rounded-2xl bg-white p-4 shadow-sm" onPress={onReports}>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-3">
+            <View style={styles.iconContainer}>
+              <Ionicons name="bar-chart-outline" size={20} color="#6B7280" />
+            </View>
+            <Text className="font-inter text-base font-medium text-slate-900">
+              {t('manager.more.reports.title', { defaultValue: 'Reports' })}
+            </Text>
+          </View>
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
+        </View>
+        <Text className="font-inter ms-11 mt-1 text-sm text-slate-500">
+          {t('manager.more.reports.body', { defaultValue: 'Review attendance, engagement, and teacher performance trends.' })}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
 export function MoreScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -152,7 +193,7 @@ export function MoreScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F9FAFB]">
-      <ScrollView contentContainerClassName="px-6 py-6" showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerClassName="px-6 py-6 pb-20" showsVerticalScrollIndicator={false}>
         {/* Profile header */}
         <View className="items-center rounded-[28px] bg-white py-6">
           <View style={styles.avatar}>
@@ -211,41 +252,10 @@ export function MoreScreen() {
         <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
           {t('manager.more.quickLinksSection', { defaultValue: 'Quick links' })}
         </Text>
-        <View className="gap-3">
-          <Pressable className="rounded-2xl bg-white p-4 shadow-sm" onPress={() => router.push('/(manager)/settings')}>
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-3">
-                <View style={styles.iconContainer}>
-                  <Ionicons name="settings-outline" size={20} color="#6B7280" />
-                </View>
-                <Text className="font-inter text-base font-medium text-slate-900">
-                  {t('manager.more.settings.title', { defaultValue: 'Settings' })}
-                </Text>
-              </View>
-              <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
-            </View>
-            <Text className="font-inter ms-11 mt-1 text-sm text-slate-500">
-              {t('manager.more.settings.body', { defaultValue: 'Update contact information and monitor limit usage.' })}
-            </Text>
-          </Pressable>
-
-          <Pressable className="rounded-2xl bg-white p-4 shadow-sm" onPress={() => router.push('/(manager)/reports')}>
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-3">
-                <View style={styles.iconContainer}>
-                  <Ionicons name="bar-chart-outline" size={20} color="#6B7280" />
-                </View>
-                <Text className="font-inter text-base font-medium text-slate-900">
-                  {t('manager.more.reports.title', { defaultValue: 'Reports' })}
-                </Text>
-              </View>
-              <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
-            </View>
-            <Text className="font-inter ms-11 mt-1 text-sm text-slate-500">
-              {t('manager.more.reports.body', { defaultValue: 'Review attendance, engagement, and teacher performance trends.' })}
-            </Text>
-          </Pressable>
-        </View>
+        <QuickLinks
+          onSettings={() => router.push('/(manager)/settings')}
+          onReports={() => router.push('/(manager)/reports')}
+        />
 
         {/* Logout */}
         <TouchableOpacity
@@ -268,10 +278,10 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#3B82F6',
+    backgroundColor: colors.neutral.ink,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#3B82F6',
+    shadowColor: colors.neutral.ink,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -290,29 +300,29 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.neutral.paper,
     alignItems: 'center',
     justifyContent: 'center',
     marginEnd: 12,
   },
-  settingsLabel: { fontSize: 15, color: '#374151', fontWeight: '500' },
-  settingsValue: { fontSize: 14, color: '#6B7280', flexShrink: 1 },
-  divider: { height: 1, backgroundColor: '#E5E7EB', marginStart: 60 },
-  statusBadge: { backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  statusBadgeExpired: { backgroundColor: '#FEF2F2' },
-  statusBadgeText: { fontSize: 13, fontWeight: '600', color: '#3B82F6', textTransform: 'capitalize' },
-  statusBadgeTextExpired: { color: '#DC2626' },
-  langToggle: { flexDirection: 'row', backgroundColor: '#F3F4F6', borderRadius: 8, padding: 2 },
+  settingsLabel: { fontSize: 15, color: colors.neutral.inkSoft, fontWeight: '500' },
+  settingsValue: { fontSize: 14, color: colors.neutral.inkMuted, flexShrink: 1 },
+  divider: { height: 1, backgroundColor: colors.neutral.rule, marginStart: 60 },
+  statusBadge: { backgroundColor: colors.semantic.infoSoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  statusBadgeExpired: { backgroundColor: colors.semantic.absentSoft },
+  statusBadgeText: { fontSize: 13, fontWeight: '600', color: colors.brand.primary, textTransform: 'capitalize' },
+  statusBadgeTextExpired: { color: colors.semantic.absent },
+  langToggle: { flexDirection: 'row', backgroundColor: colors.neutral.paper, borderRadius: 8, padding: 2 },
   langOption: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 6 },
   langOptionActive: {
-    backgroundColor: '#3B82F6',
-    shadowColor: '#3B82F6',
+    backgroundColor: colors.neutral.ink,
+    shadowColor: colors.neutral.ink,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
   },
-  langOptionText: { fontSize: 13, fontWeight: '600', color: '#6B7280' },
+  langOptionText: { fontSize: 13, fontWeight: '600', color: colors.neutral.inkMuted },
   langOptionTextActive: { color: '#FFFFFF' },
   logoutButton: {
     flexDirection: 'row',
@@ -321,9 +331,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginTop: 20,
     marginBottom: 32,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: colors.semantic.absentSoft,
     borderRadius: 12,
     minHeight: 48,
   },
-  logoutText: { fontSize: 16, color: '#DC2626', fontWeight: '600' },
+  logoutText: { fontSize: 16, color: colors.semantic.absent, fontWeight: '600' },
 });

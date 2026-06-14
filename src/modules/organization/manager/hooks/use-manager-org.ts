@@ -149,8 +149,9 @@ export function useUpdateStudent(orgId?: string | null) {
   return useMutation({
     mutationFn: ({ studentId, input }: { studentId: string; input: UpdateStudentInput }) =>
       updateOrgStudent(orgId!, studentId, input),
-    onSuccess: () => {
+    onSuccess: (_data, { studentId }) => {
       queryClient.invalidateQueries({ queryKey: ManagerQueryKey.students(orgId!) });
+      queryClient.invalidateQueries({ queryKey: ManagerQueryKey.student(orgId!, studentId) });
     },
   });
 }

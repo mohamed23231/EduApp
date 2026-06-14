@@ -240,6 +240,7 @@
       "ok": "OK"
     },
     "dashboard": {
+      "bellA11y": "Announcements",
       "cards": {
         "absentToday": "Absent today",
         "activeTeachers": "Active teachers",
@@ -247,12 +248,21 @@
         "students": "Students",
         "todaySessions": "Today"
       },
+      "cta": {
+        "createSession": "Create a session"
+      },
       "emptyCopy": "Create your first organization to unlock the manager dashboard.",
       "emptyTitle": "No organization yet",
       "endSession": "End Session",
       "goodAfternoon": "Good afternoon",
       "goodEvening": "Good evening",
       "goodMorning": "Good morning",
+      "headerToday": "Today",
+      "hero": {
+        "a11y": "View live attendance",
+        "liveLabel": "Live Attendance",
+        "subStat": "{{present}} present · {{absent}} absent · {{live}} sessions live"
+      },
       "infoAbsent": "{{count}} absent today",
       "infoAbsent_few": "{{count}} absent today",
       "infoAbsent_many": "{{count}} absent today",
@@ -267,6 +277,10 @@
       "infoTeachers_other": "{{count}} teachers",
       "infoTeachers_two": "{{count}} teachers",
       "infoTeachers_zero": "{{count}} teachers",
+      "leaderboard": {
+        "all": "All",
+        "title": "Top teachers · this week"
+      },
       "markAttendance": "Mark Attendance",
       "noSessions": "No sessions scheduled for today yet.",
       "openSession": "Open session",
@@ -283,6 +297,12 @@
       "sessionStudents_zero": "{{count}} students",
       "startSession": "Start Session",
       "subtitle": "Keep today moving, track usage, and unblock your team before sessions start.",
+      "tiles": {
+        "atRiskLabel": "At-risk",
+        "atRiskSub": "need attention",
+        "sessionsLabel": "Sessions today",
+        "sessionsSub": "{{live}} live · {{upcoming}} upcoming"
+      },
       "title": "Manager dashboard",
       "todayTitle": "Today's sessions",
       "viewAll": "View all"
@@ -442,6 +462,7 @@
       "confirmStudents_other": "Confirm ({{count}})",
       "confirmStudents_two": "Confirm ({{count}})",
       "confirmStudents_zero": "Confirm ({{count}})",
+      "countLabel": "{{count}} scheduled",
       "createScreenTitle": "Create Session",
       "createSuccess": "Session created successfully.",
       "createTitle": "Create session template",
@@ -449,6 +470,7 @@
       "deleteMessage": "This will soft-delete the session template. Existing records are preserved.",
       "deleteTitle": "Delete session?",
       "empty": "No sessions yet.",
+      "emptyHint": "Create your first session template to get started.",
       "errorLoading": "Could not load sessions.",
       "errorRetry": "Retry",
       "fields": {
@@ -464,6 +486,8 @@
       "noOrgCopy": "Create an organization first to start adding sessions.",
       "noOrgTitle": "No organization yet",
       "paused": "Paused",
+      "preview": "Preview",
+      "previewAt": "every day at",
       "selectAll": "Select all",
       "selectStudentsPlaceholder": "Select students",
       "selectTeacher": "Select teacher",
@@ -514,6 +538,12 @@
         "title": "Usage"
       }
     },
+    "trial": {
+      "expiredTitle": "Trial expired",
+      "expiredMessage": "This organization is read-only. Contact support to activate a subscription.",
+      "contactSupport": "Chat on WhatsApp",
+      "createNewOrg": "Create new org"
+    },
     "setup": {
       "address": "Address (optional)",
       "email": "Email (optional)",
@@ -521,6 +551,7 @@
       "heroTitle": "Create your organization",
       "name": "Organization name",
       "phone": "Phone (optional)",
+      "screenTitle": "New Organization",
       "submit": "Create organization",
       "submitError": "We could not create your organization right now.",
       "validation": {
@@ -563,6 +594,7 @@
       "connectionCode": "Connection code",
       "copiedBody": "The connection code is ready to paste.",
       "copiedTitle": "Copied",
+      "countLabel": "{{count}} students",
       "createScreenTitle": "Add Student",
       "createSuccess": "Student added successfully",
       "createTitle": "Add student",
@@ -571,6 +603,7 @@
       "deleteTitle": "Delete student?",
       "editTitle": "Edit student",
       "empty": "No students yet.",
+      "emptyHint": "Add your first student to get started.",
       "errorLoading": "Could not load students.",
       "errorRetry": "Retry",
       "fields": {
@@ -618,15 +651,18 @@
       "title": "Students",
       "validation": {
         "nameRequired": "Student name is required"
+      },
+      "atRisk": {
+        "manualFlag": "Manually flagged"
       }
     },
     "tabs": {
       "home": "Home",
       "homeAccessibility": "Manager dashboard",
-      "more": "More",
+      "more": "Me",
       "sessions": "Sessions",
       "students": "Students",
-      "teachers": "Teachers"
+      "teachers": "Team"
     },
     "teachers": {
       "activeSessions": "{{count}} active sessions",
@@ -637,8 +673,10 @@
       "activeSessions_two": "{{count}} active sessions",
       "activeSessions_zero": "{{count}} active sessions",
       "cancelMessage": "This invitation will be cancelled immediately.",
+      "countLabel": "{{count}} teachers",
       "email": "Email",
       "empty": "No teachers yet.",
+      "emptyHint": "Invite your first teacher to get started.",
       "errorLoading": "Could not load members.",
       "errorRetry": "Retry",
       "inviteError": "Unable to send the invitation right now.",
@@ -660,6 +698,7 @@
       "roleOwner": "Owner",
       "roleTeacher": "Teacher",
       "sendInvite": "Send invitation",
+      "statusInvited": "INVITED",
       "subtitle": "Invite teachers by phone or email, then remove them cleanly when responsibilities change.",
       "title": "Teachers"
     },
@@ -887,6 +926,9 @@
         "phone": "Phone",
         "school": "School"
       },
+      "accessCodeLabel": "ACCESS CODE",
+      "accessCodeCopied": "Copied!",
+      "accessCodeCopy": "Copy",
       "recentLabel": "RECENT",
       "statAttendance": "ATTENDANCE",
       "statRating": "AVG RATING",
@@ -1050,14 +1092,19 @@
       "greeting": "Hello, {{name}}! 👋",
       "sessionsTitle": "Today's Sessions",
       "sessionsToday": "Today",
-      "title": "Teacher Dashboard"
+      "title": "Teacher Dashboard",
+      "viewOrgSessions": "View sessions"
     },
     "onboarding": {
+      "avatarToneLabel": "Avatar tone",
       "error": "Setup failed. Please try again.",
+      "headline": "Welcome.\nLet's set up your\nprofile.",
       "nameLabel": "Full Name",
       "namePlaceholder": "Enter your full name",
       "phoneLabel": "Phone Number",
       "phonePlaceholder": "+1 (555) 000-0000",
+      "stepLabel": "Step 1 of 1",
+      "subheadline": "How should parents see you in the app?",
       "submit": "Complete Setup",
       "submitting": "Setting up...",
       "subtitle": "Please provide your contact information",
@@ -1133,8 +1180,11 @@
       "filterLast5": "Last 5",
       "insufficientData": "Insufficient Data",
       "insufficientDataDescription": "Needs at least 1 rated session to rank",
+      "midPack": "Mid pack",
       "noRatings": "No ratings yet for this session",
+      "outOfAvg": "/10 avg",
       "ranking": "Ranking",
+      "ratedLabel": "rated",
       "ratedSessions": "{{count}} rated sessions",
       "ratedSessions_few": "{{count}} rated sessions",
       "ratedSessions_many": "{{count}} rated sessions",

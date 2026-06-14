@@ -78,17 +78,6 @@ export function OrgStudentSelectSheet({
     ref?.current?.dismiss();
   }, [draft, onConfirm, ref]);
 
-  const renderItem = useCallback(
-    ({ item }: { item: OrgStudent }) => (
-      <StudentPickerRow
-        student={item}
-        isSelected={draft.includes(item.id)}
-        onToggle={() => toggle(item.id)}
-      />
-    ),
-    [draft, toggle],
-  );
-
   return (
     <Modal
       ref={ref}
@@ -138,7 +127,13 @@ export function OrgStudentSelectSheet({
         <FlatList
           data={filtered}
           keyExtractor={item => item.id}
-          renderItem={renderItem}
+          renderItem={({ item }) => (
+            <StudentPickerRow
+              student={item}
+              isSelected={draft.includes(item.id)}
+              onToggle={() => toggle(item.id)}
+            />
+          )}
           style={styles.list}
           contentContainerStyle={styles.listContent}
           keyboardShouldPersistTaps="handled"
@@ -172,13 +167,13 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 12,
     height: 42,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F5F5F0',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E6E3DB',
     marginBottom: 10,
   },
-  searchInput: { flex: 1, fontSize: 15, color: '#111827' },
+  searchInput: { flex: 1, fontSize: 15, color: '#0B0D10' },
   countRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -186,9 +181,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingHorizontal: 4,
   },
-  countText: { fontSize: 13, color: '#6B7280', fontWeight: '500' },
-  selectAllText: { fontSize: 13, color: '#3B82F6', fontWeight: '600' },
-  clearText: { fontSize: 13, color: '#EF4444', fontWeight: '600' },
+  countText: { fontSize: 13, color: '#5C636E', fontWeight: '500' },
+  selectAllText: { fontSize: 13, color: '#0B0D10', fontWeight: '600' },
+  clearText: { fontSize: 13, color: '#FF5B4A', fontWeight: '600' },
   countActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   list: { flex: 1 },
   listContent: { gap: 6, paddingBottom: 16 },
@@ -200,26 +195,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E6E3DB',
     gap: 12,
   },
-  rowPressed: { backgroundColor: '#EFF6FF' },
+  rowPressed: { backgroundColor: '#F5F2EA' },
   checkbox: {
     width: 24,
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
+    borderColor: '#E6E3DB',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
-  checkboxActive: { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
+  checkboxActive: { backgroundColor: '#22C572', borderColor: '#22C572' },
   info: { flex: 1 },
-  name: { fontSize: 15, fontWeight: '600', color: '#111827' },
-  grade: { fontSize: 12, color: '#6B7280', marginTop: 1 },
+  name: { fontSize: 15, fontWeight: '600', color: '#0B0D10' },
+  grade: { fontSize: 12, color: '#5C636E', marginTop: 1 },
   empty: { alignItems: 'center', paddingVertical: 32 },
-  emptyText: { fontSize: 14, color: '#9CA3AF' },
-  footer: { paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#E5E7EB' },
+  emptyText: { fontSize: 14, color: '#5C636E' },
+  footer: { paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#E6E3DB' },
   confirmBtn: { width: '100%' },
 });

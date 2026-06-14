@@ -4,20 +4,22 @@ import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, I18nManager, Linking, RefreshControl, StyleSheet } from 'react-native';
+import { Alert, I18nManager, Linking, RefreshControl, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Button,
+  EmptyState,
   Input,
   Modal,
+  Monogram,
   OptionPickerSheet,
   Pressable,
-  SafeAreaView,
-  ScrollView,
   Text,
-  View,
 } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { useModal } from '@/components/ui/modal';
+import { useMonogramTone } from '@/components/ui/monogram';
 import { AppRoute } from '@/core/navigation/routes';
 import { NoOrgEmptyState } from '../components';
 import {
@@ -29,6 +31,7 @@ import { useManagerStore } from '../store/manager-store';
 
 const APP_DOWNLOAD_URL = 'https://privatedu.app';
 const PAGE_LIMIT = 20;
+const DEBOUNCE_MS = 300;
 
 const GRADE_KEYS = [
   'all',
@@ -48,83 +51,51 @@ const GRADE_KEYS = [
   'other',
 ] as const;
 
-function StudentCard({ student, onPress, onLongPress }: { student: OrgStudent; onPress: () => void; onLongPress: () => void }) {
+function StudentRow({ student, onPress, onLongPress }: {
+  student: OrgStudent;
+  onPress: () => void;
+  onLongPress: () => void;
+}) {
   const { t } = useTranslation();
+  const tone = useMonogramTone(student.id);
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       accessibilityRole="button"
       accessibilityLabel={student.name}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        padding: 14,
+        backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card,
+        borderWidth: 1.5,
+        borderColor: colors.neutral.rule,
+        borderRadius: 18,
+      })}
     >
-      <View style={styles.cardBody}>
-        <View style={styles.cardTopRow}>
-          <Text style={styles.cardName} numberOfLines={1}>{student.name}</Text>
-          {student.hasParentLinked
-            ? (
-                <View style={styles.linkedBadge}>
-                  <Ionicons name="link" size={12} color="#3B82F6" />
-                  <Text style={styles.linkedText}>{t('manager.students.parentLinked')}</Text>
-                </View>
-              )
-            : null}
-        </View>
-        <View style={styles.cardMeta}>
-          <Text style={styles.cardMetaText}>
-            {student.gradeLevel || t('manager.students.noGrade')}
-          </Text>
-          {student.assignedSessionsCount !== undefined
-            ? (
-                <Text style={styles.cardMetaText}>
-                  {t('manager.students.sessionsCount', { count: student.assignedSessionsCount })}
-                </Text>
-              )
-            : null}
-        </View>
+      <Monogram name={student.name} tone={tone} size={44} />
+      <View style={{ flex: 1, gap: 3 }}>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: colors.neutral.ink, letterSpacing: -0.1 }}>
+          {student.name}
+        </Text>
+        <Text style={{ fontSize: 12, color: colors.neutral.inkMuted, fontWeight: '500' }}>
+          {student.gradeLevel
+            ? `${student.gradeLevel}${student.assignedSessionsCount !== undefined ? ` · ${t('manager.students.sessionsCount', { count: student.assignedSessionsCount })}` : ''}`
+            : t('manager.students.noGrade')}
+        </Text>
       </View>
       <Ionicons
         name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
-        size={18}
-        color="#D1D5DB"
-        style={styles.chevron}
+        size={16}
+        color={colors.neutral.inkMuted}
       />
     </Pressable>
   );
 }
 
-function ActionChip({
-  icon,
-  label,
-  onPress,
-  color = '#3B82F6',
-  bg = '#EFF6FF',
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  onPress: () => void;
-  color?: string;
-  bg?: string;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.chip, { backgroundColor: bg }, pressed && { opacity: 0.7 }]}
-      accessibilityRole="button"
-    >
-      <Ionicons name={icon} size={14} color={color} />
-      <Text style={[styles.chipLabel, { color }]}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function ActionRow({
-  icon,
-  label,
-  onPress,
-  color = '#374151',
-  danger = false,
-}: {
+function ActionRow({ icon, label, onPress, color = colors.neutral.ink, danger = false }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
@@ -134,46 +105,29 @@ function ActionRow({
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.actionRow,
-        danger && styles.actionRowDanger,
-        pressed && { backgroundColor: danger ? '#FEF2F2' : '#F9FAFB' },
-      ]}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        paddingVertical: 14,
+        paddingHorizontal: 8,
+        borderRadius: 10,
+        borderTopWidth: danger ? 1 : 0,
+        borderTopColor: colors.neutral.rule,
+        backgroundColor: pressed ? (danger ? colors.semantic.absentSoft : colors.neutral.cardWarm) : 'transparent',
+      })}
       accessibilityRole="button"
     >
       <Ionicons name={icon} size={20} color={color} />
-      <Text style={[styles.actionRowLabel, { color }]}>{label}</Text>
+      <Text style={{ flex: 1, fontSize: 15, fontWeight: '500', color }}>{label}</Text>
       <Ionicons
         name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
         size={16}
-        color="#D1D5DB"
+        color={colors.neutral.inkMuted}
       />
     </Pressable>
   );
 }
-
-type PaginationControlsProps = {
-  page: number;
-  totalPages: number;
-  onPrev: () => void;
-  onNext: () => void;
-};
-
-function PaginationControls({ page, totalPages, onPrev, onNext }: PaginationControlsProps) {
-  const { t } = useTranslation();
-  if (totalPages <= 1)
-    return null;
-
-  return (
-    <View className="mt-4 flex-row items-center justify-between">
-      <Button variant="outline" size="sm" label={t('manager.students.prevPage')} fullWidth={false} disabled={page <= 1} onPress={onPrev} />
-      <Text className="font-inter text-sm text-slate-500">{t('manager.students.pageInfo', { page, total: totalPages })}</Text>
-      <Button variant="outline" size="sm" label={t('manager.students.nextPage')} fullWidth={false} disabled={page >= totalPages} onPress={onNext} />
-    </View>
-  );
-}
-
-const DEBOUNCE_MS = 300;
 
 // eslint-disable-next-line max-lines-per-function
 function StudentListSection() {
@@ -212,24 +166,15 @@ function StudentListSection() {
 
   const handleSearchChange = useCallback((text: string) => {
     setSearchInput(text);
-    if (debounceRef.current !== null) {
+    if (debounceRef.current !== null)
       clearTimeout(debounceRef.current);
-    }
     debounceRef.current = setTimeout(() => {
       setSearch(text);
       setPage(1);
     }, DEBOUNCE_MS);
   }, []);
 
-  const handleGradeChange = (val: string | number) => {
-    setGradeLevel(String(val));
-    setPage(1);
-  };
-
-  const handleStudentPress = (student: OrgStudent) => {
-    router.push(AppRoute.manager.studentDetail(student.id));
-  };
-
+  const handleStudentPress = (student: OrgStudent) => router.push(AppRoute.manager.studentDetail(student.id));
   const handleStudentLongPress = (student: OrgStudent) => {
     setSelectedStudent(student);
     actionsSheet.present();
@@ -247,8 +192,7 @@ function StudentListSection() {
       return;
     const message = `${selectedStudent.name} - ${selectedStudent.connectionCode}\n${APP_DOWNLOAD_URL}`;
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    const canOpen = await Linking.canOpenURL(url);
-    if (canOpen) {
+    if (await Linking.canOpenURL(url)) {
       await Linking.openURL(url);
     }
     else {
@@ -299,99 +243,152 @@ function StudentListSection() {
     );
   };
 
-  const renderResults = () => {
-    if (studentsQuery.isLoading) {
-      return (
-        <View className="mt-6 items-center py-10">
-          <ActivityIndicator size="large" color="#6366F1" />
-        </View>
-      );
-    }
-    if (studentsQuery.isError) {
-      return (
-        <View className="mt-6 items-center gap-3 py-6">
-          <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
-          <Text className="font-inter text-sm text-red-600">{t('manager.students.errorLoading')}</Text>
-          <Button variant="outline" size="sm" label={t('manager.students.errorRetry')} fullWidth={false} onPress={() => studentsQuery.refetch()} />
-        </View>
-      );
-    }
-    const students = studentsQuery.data?.data ?? [];
+  if (studentsQuery.isLoading) {
     return (
-      <View className="mt-4 gap-3">
-        {students.map(student => (
-          <StudentCard
-            key={student.id}
-            student={student}
-            onPress={() => handleStudentPress(student)}
-            onLongPress={() => handleStudentLongPress(student)}
-          />
-        ))}
-        {students.length === 0
-          ? <Text className="font-inter text-sm text-slate-500">{t('manager.students.empty')}</Text>
-          : null}
-        <PaginationControls
-          page={page}
-          totalPages={totalPages}
-          onPrev={() => setPage(p => Math.max(1, p - 1))}
-          onNext={() => setPage(p => Math.min(totalPages, p + 1))}
-        />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
+        <ActivityIndicator size="large" color={colors.brand.primary} />
       </View>
     );
-  };
+  }
+
+  if (studentsQuery.isError) {
+    return (
+      <View style={{ alignItems: 'center', gap: 12, paddingVertical: 24 }}>
+        <Ionicons name="alert-circle-outline" size={32} color={colors.semantic.absent} />
+        <Text style={{ fontSize: 13, color: colors.semantic.absent }}>
+          {t('manager.students.errorLoading')}
+        </Text>
+        <Button variant="outline" size="sm" label={t('manager.students.errorRetry')} fullWidth={false} onPress={() => studentsQuery.refetch()} />
+      </View>
+    );
+  }
+
+  const students = studentsQuery.data?.data ?? [];
 
   return (
-    <View className="mt-5 rounded-[28px] bg-white p-5">
-      <Input label={t('manager.students.search')} value={searchInput} onChangeText={handleSearchChange} />
-      <Pressable
-        onPress={gradePicker.present}
-        className="mb-4 flex-row items-center justify-between rounded-xl border border-slate-200 px-4 py-3"
-      >
-        <Text className="font-inter text-sm text-slate-700">
-          {gradeOptions.find(o => o.value === gradeLevel)?.label
-            ?? t('manager.students.grades.label', { defaultValue: 'All grades' })}
-        </Text>
-        <Ionicons name="chevron-down" size={16} color="#9CA3AF" />
-      </Pressable>
-      {renderResults()}
+    <>
+      {/* Search + grade filter */}
+      <View style={{ gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>
+        <Input
+          label={t('manager.students.search')}
+          value={searchInput}
+          onChangeText={handleSearchChange}
+        />
+        <Pressable
+          onPress={gradePicker.present}
+          style={({ pressed }) => ({
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            paddingVertical: 13,
+            backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card,
+            borderWidth: 1.5,
+            borderColor: colors.neutral.rule,
+            borderRadius: 14,
+          })}
+        >
+          <Text style={{ fontSize: 14, color: colors.neutral.ink, fontWeight: '600' }}>
+            {gradeOptions.find(o => o.value === gradeLevel)?.label ?? t('manager.students.grades.label', { defaultValue: 'All grades' })}
+          </Text>
+          <Ionicons name="chevron-down" size={16} color={colors.neutral.inkMuted} />
+        </Pressable>
+      </View>
 
+      {/* Roster rows */}
+      <View style={{ paddingHorizontal: 16, gap: 8 }}>
+        {students.length === 0
+          ? (
+              <EmptyState
+                title={t('manager.students.empty', { defaultValue: 'No students yet' })}
+                body={t('manager.students.emptyHint', { defaultValue: 'Add your first student to get started.' })}
+              />
+            )
+          : students.map(student => (
+              <StudentRow
+                key={student.id}
+                student={student}
+                onPress={() => handleStudentPress(student)}
+                onLongPress={() => handleStudentLongPress(student)}
+              />
+            ))}
+      </View>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 16 }}>
+          <Button variant="outline" size="sm" label={t('manager.students.prevPage')} fullWidth={false} disabled={page <= 1} onPress={() => setPage(p => Math.max(1, p - 1))} />
+          <Text style={{ fontSize: 13, color: colors.neutral.inkMuted }}>
+            {t('manager.students.pageInfo', { page, total: totalPages })}
+          </Text>
+          <Button variant="outline" size="sm" label={t('manager.students.nextPage')} fullWidth={false} disabled={page >= totalPages} onPress={() => setPage(p => Math.min(totalPages, p + 1))} />
+        </View>
+      )}
+
+      {/* Actions sheet */}
       <Modal ref={actionsSheet.ref} snapPoints={['55%']} title={selectedStudent?.name ?? ''}>
-        <View style={styles.sheetContent}>
-          <View style={styles.codeSection}>
-            <View style={styles.codeBox}>
-              <Text style={styles.codeLabel}>{t('manager.students.connectionCode')}</Text>
-              <Text style={styles.codeText}>{selectedStudent?.connectionCode}</Text>
-            </View>
-            <View style={styles.codeChips}>
-              <ActionChip
-                icon="copy-outline"
-                label={t('manager.students.actions.copy')}
+        <View style={{ paddingHorizontal: 20, paddingBottom: 32, gap: 8 }}>
+          <View style={{ backgroundColor: colors.neutral.cardWarm, borderRadius: 14, padding: 16, alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <Text style={{ fontSize: 10, color: colors.neutral.inkMuted, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>
+              {t('manager.students.connectionCode')}
+            </Text>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: colors.neutral.ink, letterSpacing: 4, textAlign: 'center' }}>
+              {selectedStudent?.connectionCode}
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+              <Pressable
                 onPress={handleCopy}
-              />
-              <ActionChip
-                icon="logo-whatsapp"
-                label={t('manager.whatsapp.share', { defaultValue: 'WhatsApp' })}
+                style={({ pressed }) => ({
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  borderRadius: 10,
+                  backgroundColor: pressed ? colors.neutral.rule : colors.neutral.card,
+                  borderWidth: 1,
+                  borderColor: colors.neutral.rule,
+                })}
+              >
+                <Ionicons name="copy-outline" size={14} color={colors.neutral.ink} />
+                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.neutral.ink }}>
+                  {t('manager.students.actions.copy')}
+                </Text>
+              </Pressable>
+              <Pressable
                 onPress={handleWhatsApp}
-                color="#25D366"
-                bg="#F0FDF4"
-              />
+                style={({ pressed }) => ({
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  borderRadius: 10,
+                  backgroundColor: pressed ? '#D1FAE5' : '#F0FDF4',
+                  borderWidth: 1,
+                  borderColor: '#BBF7D0',
+                })}
+              >
+                <Ionicons name="logo-whatsapp" size={14} color="#25D366" />
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#15803D' }}>
+                  {t('manager.whatsapp.share', { defaultValue: 'WhatsApp' })}
+                </Text>
+              </Pressable>
             </View>
           </View>
-          <View style={styles.sheetActions}>
-            <ActionRow
-              icon="refresh-outline"
-              label={t('manager.students.actions.regenerate')}
-              onPress={handleRegenerate}
-              color="#F59E0B"
-            />
-            <ActionRow
-              icon="trash-outline"
-              label={t('manager.students.actions.delete')}
-              onPress={handleDelete}
-              color="#DC2626"
-              danger
-            />
-          </View>
+          <ActionRow
+            icon="refresh-outline"
+            label={t('manager.students.actions.regenerate')}
+            onPress={handleRegenerate}
+            color={colors.semantic.excused}
+          />
+          <ActionRow
+            icon="trash-outline"
+            label={t('manager.students.actions.delete')}
+            onPress={handleDelete}
+            color={colors.semantic.absent}
+            danger
+          />
         </View>
       </Modal>
 
@@ -400,136 +397,67 @@ function StudentListSection() {
         title={t('manager.students.gradeFilter', { defaultValue: 'Filter by grade' })}
         options={gradeOptions}
         value={gradeLevel}
-        onSelect={val => handleGradeChange(val)}
+        onSelect={(val) => {
+          setGradeLevel(String(val));
+          setPage(1);
+        }}
       />
-    </View>
+    </>
   );
 }
 
 export function StudentsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const studentsListQuery = useOrgStudents(activeOrgId);
-
-  const onRefresh = useCallback(() => {
-    studentsListQuery.refetch();
-  }, [studentsListQuery]);
+  const totalCount = studentsListQuery.data?.meta?.total ?? 0;
 
   if (!activeOrgId) {
     return <NoOrgEmptyState />;
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
-      <View className="flex-row items-center justify-between px-6 pt-6 pb-2">
-        <View className="flex-1">
-          <Text className="font-inter text-3xl font-semibold text-slate-900">
-            {t('manager.students.title', { defaultValue: 'Students' })}
+    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      {/* Header */}
+      <View style={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 13, color: colors.neutral.inkMuted, fontWeight: '500' }}>
+            {t('manager.students.countLabel', { count: totalCount, defaultValue: '{{count}} students' })}
           </Text>
-          <Text className="font-inter mt-1 text-base text-slate-500">
-            {t('manager.students.subtitle', {
-              defaultValue:
-                'Search the roster, share connection codes, and keep parent contact details fresh.',
-            })}
+          <Text style={{ fontSize: 22, fontWeight: '700', color: colors.neutral.ink, letterSpacing: -0.5, marginTop: 2 }}>
+            {t('manager.students.title', { defaultValue: 'Roster' })}
           </Text>
         </View>
         <Pressable
           onPress={() => router.push(AppRoute.manager.studentCreate)}
-          className="ms-3 size-10 items-center justify-center rounded-full bg-[#3B82F6]"
-          accessibilityLabel={t('manager.students.actions.create', {
-            defaultValue: 'Create student',
+          style={({ pressed }) => ({
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: pressed ? colors.brand.primaryDeep : colors.brand.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
           })}
+          accessibilityLabel={t('manager.students.actions.create', { defaultValue: 'Add student' })}
           accessibilityRole="button"
         >
-          <Ionicons name="add" size={24} color="white" />
+          <Ionicons name="add" size={24} color={colors.neutral.ink} />
         </Pressable>
       </View>
 
       <ScrollView
-        contentContainerClassName="px-6 pb-8 pt-2"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 80, paddingTop: 4 }}
         refreshControl={(
           <RefreshControl
             refreshing={studentsListQuery.isRefetching}
-            onRefresh={onRefresh}
+            onRefresh={() => studentsListQuery.refetch()}
           />
         )}
       >
         <StudentListSection />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  // Card
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E2E8F0',
-    padding: 14,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  cardPressed: { backgroundColor: '#F8FAFC' },
-  cardBody: { flex: 1, gap: 4 },
-  cardTopRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  cardName: { flex: 1, fontSize: 16, fontWeight: '600', color: '#0F172A' },
-  linkedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#EFF6FF',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  linkedText: { fontSize: 11, color: '#3B82F6', fontWeight: '500' },
-  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  cardMetaText: { fontSize: 13, color: '#64748B' },
-  chevron: { flexShrink: 0 },
-  // Actions sheet
-  sheetContent: { paddingHorizontal: 20, paddingBottom: 32, gap: 16 },
-  codeSection: { alignItems: 'center', gap: 12 },
-  codeBox: {
-    backgroundColor: '#EFF6FF',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#BFDBFE',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    width: '100%',
-    gap: 4,
-  },
-  codeLabel: { fontSize: 11, color: '#93C5FD', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 },
-  codeText: { fontSize: 22, fontWeight: '800', color: '#1D4ED8', letterSpacing: 4, textAlign: 'center' },
-  codeChips: { flexDirection: 'row', gap: 10 },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  chipLabel: { fontSize: 13, fontWeight: '600' },
-  sheetActions: { gap: 2 },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 4,
-    borderRadius: 10,
-  },
-  actionRowDanger: { marginTop: 8, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
-  actionRowLabel: { flex: 1, fontSize: 15, fontWeight: '500' },
-});

@@ -1,0 +1,103 @@
+/**
+ * TodayTiles — 2-column grid: Sessions today (lime) + At-risk (white card).
+ */
+
+import { useTranslation } from 'react-i18next';
+import { View } from 'react-native';
+import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
+
+type Props = {
+  todaySessions: number;
+  runningNow: number;
+  upcomingCount: number;
+  atRiskCount: number;
+};
+
+export function TodayTiles({ todaySessions, runningNow, upcomingCount, atRiskCount }: Props) {
+  const { t } = useTranslation();
+
+  return (
+    <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: 16, marginTop: 12 }}>
+      {/* Sessions today — lime bg */}
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.brand.primary,
+          borderRadius: 20,
+          padding: 16,
+        }}
+      >
+        <Text
+          style={{
+            color: colors.neutral.ink,
+            fontSize: 10,
+            fontWeight: '700',
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+            marginBottom: 4,
+          }}
+        >
+          {t('manager.dashboard.tiles.sessionsLabel', { defaultValue: 'Sessions today' })}
+        </Text>
+        <Text
+          style={{
+            color: colors.neutral.ink,
+            fontSize: 36,
+            fontWeight: '800',
+            letterSpacing: -1,
+            lineHeight: 42,
+          }}
+        >
+          {todaySessions}
+        </Text>
+        <Text style={{ color: colors.neutral.inkMuted, fontSize: 12, fontWeight: '500', marginTop: 2 }}>
+          {t('manager.dashboard.tiles.sessionsSub', {
+            defaultValue: '{{live}} live · {{upcoming}} upcoming',
+            live: runningNow,
+            upcoming: upcomingCount,
+          })}
+        </Text>
+      </View>
+
+      {/* At-risk — white card */}
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.neutral.card,
+          borderRadius: 20,
+          padding: 16,
+          borderWidth: 1,
+          borderColor: colors.neutral.rule,
+        }}
+      >
+        <Text
+          style={{
+            color: colors.semantic.absent,
+            fontSize: 10,
+            fontWeight: '700',
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+            marginBottom: 4,
+          }}
+        >
+          {t('manager.dashboard.tiles.atRiskLabel', { defaultValue: 'At-risk' })}
+        </Text>
+        <Text
+          style={{
+            color: colors.neutral.ink,
+            fontSize: 36,
+            fontWeight: '800',
+            letterSpacing: -1,
+            lineHeight: 42,
+          }}
+        >
+          {atRiskCount}
+        </Text>
+        <Text style={{ color: colors.neutral.inkMuted, fontSize: 12, fontWeight: '500', marginTop: 2 }}>
+          {t('manager.dashboard.tiles.atRiskSub', { defaultValue: 'need attention' })}
+        </Text>
+      </View>
+    </View>
+  );
+}

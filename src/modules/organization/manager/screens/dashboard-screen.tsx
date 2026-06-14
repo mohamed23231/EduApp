@@ -1,7 +1,8 @@
 /**
  * DashboardScreen — Manager
- * Blue hero with greeting + org stats, animated quick actions,
- * info bar, today's sessions, onboarding wizard, and trial banner.
+ * Dark obsidian + lime design system.
+ * Hero, 2-column tiles, CTA, teacher leaderboard,
+ * quick actions, onboarding wizard, trial banner, today's sessions.
  */
 
 import type { OrgSessionInstance, OrgTeacherStatsItem } from '../types/manager.types';
@@ -9,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -18,92 +19,17 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, Button, ScrollView, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
+import { Modal, useModal } from '@/components/ui/modal';
+import { useToast } from '@/components/ui/toast-host';
 import { AppRoute } from '@/core/navigation/routes';
-import { useAuthStore } from '@/features/auth/use-auth-store';
+import { SUPPORT_WHATSAPP_URL } from '@/shared/constants/support';
 import { OnboardingWizard, TrialExpiredBanner } from '../components';
+import { AttendanceHero } from '../components/dashboard/attendance-hero';
+import { TeacherLeaderboard } from '../components/dashboard/teacher-leaderboard';
+import { TodayTiles } from '../components/dashboard/today-tiles';
 import { useCloseSession, useOrganization, useOrganizations, useOrgInstances, useOrgStats, useStartSession } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
-
-const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';
-
-function isGeneratedPhoneEmail(email: string | undefined): boolean {
-  return !!email && email.toLowerCase().endsWith(GENERATED_PHONE_EMAIL_DOMAIN);
-}
-
-function getFirstName(
-  fullName: string | undefined,
-  email: string | undefined,
-  fallback: string,
-): string {
-  if (fullName?.trim()) {
-    const [firstPart] = fullName.trim().split(/\s+/);
-    return firstPart || fullName.trim();
-  }
-  if (email && !isGeneratedPhoneEmail(email)) {
-    const [localPart] = email.split('@');
-    if (localPart)
-      return localPart;
-  }
-  return fallback;
-}
-
-function getGreeting(t: (key: string, opts?: Record<string, unknown>) => string) {
-  const hour = new Date().getHours();
-  if (hour < 12)
-    return t('manager.dashboard.goodMorning', { defaultValue: 'Good morning' });
-  if (hour < 17)
-    return t('manager.dashboard.goodAfternoon', { defaultValue: 'Good afternoon' });
-  return t('manager.dashboard.goodEvening', { defaultValue: 'Good evening' });
-}
-
-function DashboardHero({
-  firstName,
-  orgName,
-  students,
-  todayCount,
-  runningCount,
-  t,
-}: {
-  firstName: string;
-  orgName: string;
-  students: number;
-  todayCount: number;
-  runningCount: number;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  return (
-    <View style={styles.hero}>
-      <View style={styles.heroTop}>
-        <View style={styles.heroLeft}>
-          <Text style={styles.greetingText}>{getGreeting(t)}</Text>
-          <Text style={styles.heroName} numberOfLines={1}>{firstName}</Text>
-          {orgName
-            ? <Text style={styles.orgNameText} numberOfLines={1}>{orgName}</Text>
-            : null}
-        </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{firstName[0]?.toUpperCase() ?? '?'}</Text>
-        </View>
-      </View>
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{students}</Text>
-          <Text style={styles.statLabel}>{t('manager.dashboard.cards.students', { defaultValue: 'Students' })}</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{todayCount}</Text>
-          <Text style={styles.statLabel}>{t('manager.dashboard.cards.todaySessions', { defaultValue: 'Today' })}</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{runningCount}</Text>
-          <Text style={styles.statLabel}>{t('manager.dashboard.cards.runningNow', { defaultValue: 'Running now' })}</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
 
 function QuickActionCard({
   icon,
@@ -188,34 +114,6 @@ function QuickActions({
   );
 }
 
-function InfoBar({
-  absentCount,
-  teacherCount,
-  t,
-}: {
-  absentCount: number;
-  teacherCount: number;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  return (
-    <View style={styles.infoBar}>
-      <View style={styles.infoItem}>
-        <Ionicons name="alert-circle" size={14} color={absentCount > 0 ? '#DC2626' : '#9CA3AF'} />
-        <Text style={[styles.infoText, absentCount > 0 && styles.infoTextAlert]}>
-          {t('manager.dashboard.infoAbsent', { defaultValue: '{{count}} absent today', count: absentCount })}
-        </Text>
-      </View>
-      <View style={styles.infoDot} />
-      <View style={styles.infoItem}>
-        <Ionicons name="people" size={14} color="#6B7280" />
-        <Text style={styles.infoText}>
-          {t('manager.dashboard.infoTeachers', { defaultValue: '{{count}} teachers', count: teacherCount })}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 /** Stripe color per session state — matches teacher card pattern. */
 const STATE_STRIPE: Record<string, string> = {
   DRAFT: '#F59E0B',
@@ -263,10 +161,8 @@ function TodaySessionCard({
       accessibilityRole="button"
       accessibilityLabel={instance.subject}
     >
-      {/* Colored left stripe */}
       <View style={[styles.sessionStripe, { backgroundColor: stripeColor }]} />
       <View style={styles.sessionBody}>
-        {/* Top row: subject + badge */}
         <View style={styles.sessionTopRow}>
           <Text style={styles.sessionSubject} numberOfLines={1}>{instance.subject}</Text>
           <View style={[styles.stateBadge, { backgroundColor: badge.bg }]}>
@@ -277,28 +173,25 @@ function TodaySessionCard({
           </View>
         </View>
 
-        {/* Meta: time + duration */}
         <View style={styles.sessionMeta}>
           <Ionicons name="time-outline" size={13} color="#9CA3AF" />
           <Text style={styles.sessionMetaText}>
             {instance.time}
-            {' \u00B7 '}
+            {' · '}
             {t('manager.dashboard.sessionDuration', { defaultValue: '{{minutes}} min', minutes: instance.durationMinutes })}
           </Text>
         </View>
 
-        {/* Meta: teacher + students */}
         <View style={styles.sessionMeta}>
           <Ionicons name="person-outline" size={13} color="#9CA3AF" />
           <Text style={styles.sessionMetaText}>{instance.assignedTeacher.name}</Text>
-          <Text style={styles.sessionDot}>{'\u00B7'}</Text>
+          <Text style={styles.sessionDot}>·</Text>
           <Ionicons name="people-outline" size={13} color="#9CA3AF" />
           <Text style={styles.sessionMetaText}>
             {t('manager.dashboard.sessionStudents', { defaultValue: '{{count}} students', count: studentCount })}
           </Text>
         </View>
 
-        {/* Action buttons — DRAFT: start session */}
         {stateKey === 'DRAFT' && (
           <View style={styles.actionRow}>
             <Button
@@ -311,7 +204,6 @@ function TodaySessionCard({
           </View>
         )}
 
-        {/* Action buttons — ACTIVE: mark attendance + end session */}
         {stateKey === 'ACTIVE' && (
           <View style={styles.activeActionsRow}>
             <Pressable
@@ -432,7 +324,7 @@ function EmptyOrgState({
           style={({ pressed }) => [styles.emptyOrgBtn, pressed && styles.emptyOrgBtnPressed]}
           accessibilityRole="button"
         >
-          <Ionicons name="add-circle-outline" size={20} color="#2563EB" />
+          <Ionicons name="add-circle-outline" size={20} color={colors.brand.primary} />
           <Text style={styles.emptyOrgBtnText}>
             {t('manager.setup.submit', { defaultValue: 'Create organization' })}
           </Text>
@@ -446,7 +338,7 @@ function EmptyOrgState({
 export function DashboardScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const user = useAuthStore.use.user();
+  const toast = useToast();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const setActiveOrgId = useManagerStore.use.setActiveOrgId();
   const setOrgDetails = useManagerStore.use.setOrgDetails();
@@ -459,6 +351,9 @@ export function DashboardScreen() {
   const closeMutation = useCloseSession(activeOrgId);
   const [startingId, setStartingId] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
+  const [closePendingId, setClosePendingId] = useState<string | null>(null);
+  const trialModal = useModal();
+  const closeModal = useModal();
 
   const onRefresh = useCallback(() => {
     organizationQuery.refetch();
@@ -467,14 +362,33 @@ export function DashboardScreen() {
     instancesQuery.refetch();
   }, [organizationQuery, stats.overview, stats.teachers, instancesQuery]);
 
+  const showMutationError = useCallback(
+    (error: unknown) => {
+      const apiError = error as { response?: { data?: { message?: string; statusCode?: number } } };
+      const apiMessage = apiError?.response?.data?.message;
+      const statusCode = apiError?.response?.data?.statusCode;
+      const isExpired = statusCode === 403 && (apiMessage?.includes('expired') === true || apiMessage?.includes('read-only') === true);
+      if (isExpired) {
+        trialModal.present();
+        return;
+      }
+      toast.show({
+        message: apiMessage ?? t('manager.sessionDetail.actionError', { defaultValue: 'This action could not be completed. Please try again.' }),
+        tone: 'absent',
+      });
+    },
+    [t, toast, trialModal],
+  );
+
   const handleStartSession = useCallback(
     (instanceId: string) => {
       setStartingId(instanceId);
       startMutation.mutate(instanceId, {
         onSettled: () => setStartingId(null),
+        onError: showMutationError,
       });
     },
-    [startMutation],
+    [startMutation, showMutationError],
   );
 
   const handleMarkAttendance = useCallback(
@@ -486,32 +400,34 @@ export function DashboardScreen() {
 
   const handleCloseSession = useCallback(
     (instanceId: string) => {
-      const inst = instancesQuery.data?.data.find(i => i.id === instanceId);
-      const studentCount = inst?.studentCount ?? inst?.students?.length ?? 0;
-
-      Alert.alert(
-        t('manager.sessionDetail.closeWarningTitle', { defaultValue: 'Close session' }),
-        t('manager.sessionDetail.closeWarning', {
-          count: studentCount,
-          defaultValue: '{{count}} unmarked students will be auto-marked as absent. Continue?',
-        }),
-        [
-          { text: t('manager.common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
-          {
-            text: t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' }),
-            style: 'destructive',
-            onPress: () => {
-              setClosingId(instanceId);
-              closeMutation.mutate(instanceId, {
-                onSettled: () => setClosingId(null),
-              });
-            },
-          },
-        ],
-      );
+      setClosePendingId(instanceId);
+      closeModal.present();
     },
-    [closeMutation, instancesQuery.data, t],
+    [closeModal],
   );
+
+  const handleCloseConfirm = useCallback(() => {
+    if (closePendingId === null)
+      return;
+    const instanceId = closePendingId;
+    closeModal.dismiss();
+    setClosingId(instanceId);
+    closeMutation.mutate(instanceId, {
+      onSettled: () => setClosingId(null),
+      onError: showMutationError,
+      onSuccess: () => {
+        toast.show({
+          message: t('manager.dashboard.sessionClosed', { defaultValue: 'Session closed — absent students marked.' }),
+          tone: 'lime',
+          action: {
+            label: t('manager.dashboard.viewAttendance', { defaultValue: 'View' }),
+            onPress: () => router.push(AppRoute.manager.attendance(instanceId)),
+          },
+        });
+      },
+    });
+    setClosePendingId(null);
+  }, [closePendingId, closeModal, closeMutation, showMutationError, toast, t, router]);
 
   useEffect(() => {
     if (!activeOrgId && organizationsQuery.data?.data[0]) {
@@ -532,7 +448,7 @@ export function DashboardScreen() {
   if (organizationQuery.isLoading || stats.overview.isLoading || instancesQuery.isLoading) {
     return (
       <SafeAreaView edges={['top']} style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color={colors.brand.primary} />
       </SafeAreaView>
     );
   }
@@ -541,27 +457,67 @@ export function DashboardScreen() {
   const overview = stats.overview.data;
   const teacherStats = stats.teachers.data?.data ?? [] as OrgTeacherStatsItem[];
   const isRefreshing = organizationQuery.isRefetching || stats.overview.isRefetching || instancesQuery.isRefetching;
-  const firstName = getFirstName(user?.fullName, user?.email, t('manager.more.roleManager', { defaultValue: 'Manager' }));
+  // At-risk = students absent today (absentToday is the clearest proxy from overview)
+  const atRiskCount = overview?.absentToday ?? 0;
+  // Upcoming = scheduled sessions that haven't started yet (todaySessions minus runningNow)
+  const upcomingCount = Math.max(0, (overview?.todaySessions ?? 0) - (overview?.runningNow ?? 0));
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
-      <Animated.View entering={FadeInDown.delay(0).duration(350)}>
-        <DashboardHero
-          firstName={firstName}
-          orgName={organization?.name ?? ''}
-          students={overview?.activeStudents ?? 0}
-          todayCount={overview?.todaySessions ?? 0}
-          runningCount={overview?.runningNow ?? 0}
-          t={t}
-        />
-      </Animated.View>
+      {/* Screen header */}
+      <View style={styles.screenHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>
+            {organization?.name ?? t('manager.more.roleManager', { defaultValue: 'Manager' })}
+          </Text>
+          <Text style={styles.headerTitle}>
+            {t('manager.dashboard.headerToday', { defaultValue: 'Today' })}
+          </Text>
+        </View>
+      </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
       >
-        <Animated.View entering={FadeInDown.delay(100).duration(350)}>
+        {/* Attendance hero card */}
+        <Animated.View entering={FadeInDown.delay(0).duration(350)}>
+          <AttendanceHero
+            attendanceRate={overview?.averageAttendanceRate ?? 0}
+            presentCount={(overview?.activeStudents ?? 0) - atRiskCount}
+            absentCount={atRiskCount}
+            runningNow={overview?.runningNow ?? 0}
+            onPress={() => router.push(AppRoute.manager.sessions)}
+          />
+        </Animated.View>
+
+        {/* 2-column tiles */}
+        <Animated.View entering={FadeInDown.delay(60).duration(350)}>
+          <TodayTiles
+            todaySessions={overview?.todaySessions ?? 0}
+            runningNow={overview?.runningNow ?? 0}
+            upcomingCount={upcomingCount}
+            atRiskCount={atRiskCount}
+          />
+        </Animated.View>
+
+        {/* CTA: Create a session */}
+        <Animated.View entering={FadeInDown.delay(100).duration(350)} style={styles.ctaWrap}>
+          <Pressable
+            onPress={() => router.push(AppRoute.manager.sessionCreate)}
+            style={({ pressed }) => [styles.ctaBtn, pressed && styles.ctaBtnPressed]}
+            accessibilityRole="button"
+          >
+            <Ionicons name="add" size={22} color={colors.neutral.card} />
+            <Text style={styles.ctaBtnText}>
+              {t('manager.dashboard.cta.createSession', { defaultValue: 'Create a session' })}
+            </Text>
+          </Pressable>
+        </Animated.View>
+
+        {/* Quick actions (secondary row: add student, invite) */}
+        <Animated.View entering={FadeInDown.delay(140).duration(350)}>
           <QuickActions
             onAddStudent={() => router.push(AppRoute.manager.studentCreate)}
             onCreateSession={() => router.push(AppRoute.manager.sessionCreate)}
@@ -570,20 +526,24 @@ export function DashboardScreen() {
           />
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(160).duration(350)}>
-          <InfoBar
-            absentCount={overview?.absentToday ?? 0}
-            teacherCount={teacherStats.length}
-            t={t}
-          />
-        </Animated.View>
+        {/* Teacher leaderboard */}
+        {teacherStats.length > 0 && (
+          <Animated.View entering={FadeInDown.delay(180).duration(350)}>
+            <TeacherLeaderboard
+              teachers={teacherStats}
+              onViewAll={() => router.push(AppRoute.manager.teachers)}
+            />
+          </Animated.View>
+        )}
 
+        {/* Trial expired banner */}
         {organization?.entitlementSource === 'expired' && (
           <Animated.View entering={FadeInDown.delay(200).duration(350)} style={styles.bannerWrap}>
             <TrialExpiredBanner visible onCreateNewOrg={() => router.push(AppRoute.manager.setup)} />
           </Animated.View>
         )}
 
+        {/* Onboarding wizard */}
         {organization && (organization.currentStudents === 0 || organization.currentSessions === 0) && (
           <Animated.View entering={FadeInDown.delay(240).duration(350)} style={styles.wizardWrap}>
             <OnboardingWizard steps={[
@@ -595,6 +555,7 @@ export function DashboardScreen() {
           </Animated.View>
         )}
 
+        {/* Today's sessions list */}
         <Animated.View entering={FadeInDown.delay(280).duration(350)}>
           <TodaySessions
             instances={instancesQuery.data?.data ?? []}
@@ -610,68 +571,96 @@ export function DashboardScreen() {
           />
         </Animated.View>
       </ScrollView>
+
+      {/* Trial expired sheet */}
+      <Modal ref={trialModal.ref} snapPoints={['32%']} title={t('manager.trial.expiredTitle', { defaultValue: 'Trial expired' })}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 8, gap: 12 }}>
+          <Text style={{ fontSize: 14, color: colors.neutral.inkMuted, lineHeight: 20 }}>
+            {t('manager.trial.expiredMessage', { defaultValue: 'This organization is read-only. Contact support to activate a subscription.' })}
+          </Text>
+          <Pressable
+            onPress={() => { trialModal.dismiss(); router.push(AppRoute.manager.setup); }}
+            style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card, borderWidth: 1, borderColor: colors.neutral.rule })}
+          >
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.ink, textAlign: 'center' }}>
+              {t('manager.trial.createNewOrg', { defaultValue: 'Create new org' })}
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => { void Linking.openURL(SUPPORT_WHATSAPP_URL); }}
+            style={{ padding: 14, borderRadius: 12, backgroundColor: colors.brand.primary }}
+          >
+            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+              {t('manager.trial.contactSupport', { defaultValue: 'Contact support' })}
+            </Text>
+          </Pressable>
+        </View>
+      </Modal>
+
+      {/* Close session confirm sheet */}
+      <Modal ref={closeModal.ref} snapPoints={['30%']} title={t('manager.sessionDetail.closeWarningTitle', { defaultValue: 'Close session' })}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 8, gap: 12 }}>
+          <Text style={{ fontSize: 14, color: colors.neutral.inkMuted, lineHeight: 20 }}>
+            {t('manager.sessionDetail.closeWarning', { count: 0, defaultValue: 'Unmarked students will be auto-marked as absent.' })}
+          </Text>
+          <Pressable
+            onPress={handleCloseConfirm}
+            style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.semantic.absentSoft : colors.semantic.absent })}
+          >
+            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+              {t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' })}
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={closeModal.dismiss}
+            style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card, borderWidth: 1, borderColor: colors.neutral.rule })}
+          >
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.ink, textAlign: 'center' }}>
+              {t('manager.common.cancel', { defaultValue: 'Cancel' })}
+            </Text>
+          </Pressable>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   // Layout
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
-  loadingContainer: { flex: 1, backgroundColor: '#F9FAFB', alignItems: 'center', justifyContent: 'center' },
-  scrollContent: { paddingBottom: 32 },
+  container: { flex: 1, backgroundColor: colors.neutral.paper },
+  loadingContainer: { flex: 1, backgroundColor: colors.neutral.paper, alignItems: 'center', justifyContent: 'center' },
+  scrollContent: { paddingBottom: 120 },
 
-  // Hero
-  hero: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-    borderBottomStartRadius: 20,
-    borderBottomEndRadius: 20,
-  },
-  heroTop: {
+  // Screen header
+  screenHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 18,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
-  heroLeft: { flex: 1, marginEnd: 12 },
-  greetingText: { fontSize: 14, color: '#BFDBFE', fontWeight: '500', marginBottom: 2 },
-  heroName: { fontSize: 20, fontWeight: '800', color: '#FFFFFF' },
-  orgNameText: { fontSize: 13, color: '#93C5FD', fontWeight: '500', marginTop: 2 },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  headerSubtitle: { fontSize: 12, color: colors.neutral.inkMuted, fontWeight: '600', marginBottom: 1 },
+  headerTitle: { fontSize: 26, fontWeight: '800', color: colors.neutral.ink, letterSpacing: -0.5 },
+  // CTA button
+  ctaWrap: { paddingHorizontal: 16, marginTop: 12 },
+  ctaBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.4)',
+    gap: 8,
+    backgroundColor: colors.neutral.ink,
+    height: 56,
+    borderRadius: 18,
   },
-  avatarText: { fontSize: 17, fontWeight: '700', color: '#FFFFFF' },
-  statsRow: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  statItem: { flex: 1, alignItems: 'center' },
-  statNumber: { fontSize: 24, fontWeight: '800', color: '#FFFFFF' },
-  statLabel: { fontSize: 12, color: '#BFDBFE', fontWeight: '500', marginTop: 2 },
-  statDivider: {
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    marginVertical: 4,
-  },
+  ctaBtnPressed: { opacity: 0.85 },
+  ctaBtnText: { fontSize: 15, fontWeight: '700', color: colors.neutral.card },
 
   // Quick actions
   actionsGrid: {
     flexDirection: 'row',
     gap: 10,
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 12,
     paddingBottom: 4,
   },
   actionCard: {
@@ -680,17 +669,12 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 16,
     paddingHorizontal: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+    borderColor: colors.neutral.rule,
   },
-  actionCardPressed: { backgroundColor: '#F0F7FF', borderColor: '#BFDBFE' },
+  actionCardPressed: { opacity: 0.8 },
   actionIcon: {
     width: 42,
     height: 42,
@@ -698,68 +682,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionLabel: { fontSize: 12, fontWeight: '600', color: '#374151', textAlign: 'center' },
-
-  // Info bar
-  infoBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    gap: 6,
-  },
-  infoItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  infoText: { fontSize: 13, color: '#6B7280', fontWeight: '500' },
-  infoTextAlert: { color: '#DC2626' },
-  infoDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: '#D1D5DB',
-    marginHorizontal: 4,
-  },
+  actionLabel: { fontSize: 12, fontWeight: '600', color: colors.neutral.ink, textAlign: 'center' },
 
   // Banners & wizard
   bannerWrap: { paddingHorizontal: 16, paddingTop: 4 },
   wizardWrap: { paddingHorizontal: 16, paddingTop: 8 },
 
-  // Section header
+  // Section header (today's sessions)
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 20,
     paddingBottom: 8,
   },
   sectionTitle: {
     flex: 1,
     fontSize: 12,
     fontWeight: '700',
-    color: '#6B7280',
+    color: colors.neutral.inkMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
   viewAllBtn: { paddingVertical: 4, paddingHorizontal: 8 },
-  viewAllText: { fontSize: 13, fontWeight: '600', color: '#3B82F6' },
+  viewAllText: { fontSize: 13, fontWeight: '600', color: colors.brand.primary },
 
-  // Session cards — teacher card pattern
+  // Session cards
   sessionsList: { paddingHorizontal: 16, gap: 10 },
   sessionCard: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderRadius: 14,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E5E7EB',
+    borderColor: colors.neutral.rule,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
     elevation: 2,
   },
-  sessionCardPressed: { backgroundColor: '#F0F7FF', borderColor: '#BFDBFE' },
+  sessionCardPressed: { opacity: 0.85 },
   sessionStripe: {
     width: 4,
     borderTopStartRadius: 14,
@@ -767,7 +731,7 @@ const styles = StyleSheet.create({
   },
   sessionBody: { flex: 1, padding: 14, gap: 6 },
   sessionTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  sessionSubject: { flex: 1, fontSize: 16, fontWeight: '700', color: '#111827' },
+  sessionSubject: { flex: 1, fontSize: 16, fontWeight: '700', color: colors.neutral.ink },
   stateBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -779,8 +743,8 @@ const styles = StyleSheet.create({
   stateBadgeDot: { width: 6, height: 6, borderRadius: 3 },
   stateBadgeText: { fontSize: 12, fontWeight: '600', letterSpacing: 0.2 },
   sessionMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  sessionMetaText: { fontSize: 13, color: '#6B7280' },
-  sessionDot: { fontSize: 13, color: '#D1D5DB', marginHorizontal: 2 },
+  sessionMetaText: { fontSize: 13, color: colors.neutral.inkMuted },
+  sessionDot: { fontSize: 13, color: colors.neutral.dim, marginHorizontal: 2 },
   actionRow: { marginTop: 8, alignSelf: 'flex-start' },
   activeActionsRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
   attendanceBtn: {
@@ -803,14 +767,14 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: colors.semantic.absentSoft,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FECACA',
   },
-  endBtnPressed: { backgroundColor: '#FEE2E2' },
+  endBtnPressed: { opacity: 0.85 },
   endBtnDisabled: { opacity: 0.5 },
-  endBtnText: { fontSize: 13, fontWeight: '600', color: '#DC2626' },
+  endBtnText: { fontSize: 13, fontWeight: '600', color: colors.semantic.absent },
 
   // Empty state
   emptyBox: {
@@ -819,12 +783,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     gap: 8,
   },
-  emptyText: { fontSize: 14, color: '#9CA3AF', textAlign: 'center' },
+  emptyText: { fontSize: 14, color: colors.neutral.dim, textAlign: 'center' },
 
   // Empty org
   emptyOrgHero: {
     flex: 1,
-    backgroundColor: '#2563EB',
+    backgroundColor: colors.neutral.ink,
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 24,
@@ -833,18 +797,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     gap: 12,
   },
-  emptyOrgTitle: { fontSize: 24, fontWeight: '800', color: '#FFFFFF', textAlign: 'center' },
-  emptyOrgBody: { fontSize: 15, color: '#BFDBFE', textAlign: 'center', lineHeight: 22 },
+  emptyOrgTitle: { fontSize: 24, fontWeight: '800', color: colors.neutral.card, textAlign: 'center' },
+  emptyOrgBody: { fontSize: 15, color: colors.neutral.dim, textAlign: 'center', lineHeight: 22 },
   emptyOrgBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 14,
     marginTop: 8,
   },
   emptyOrgBtnPressed: { opacity: 0.85 },
-  emptyOrgBtnText: { fontSize: 15, fontWeight: '700', color: '#2563EB' },
+  emptyOrgBtnText: { fontSize: 15, fontWeight: '700', color: colors.brand.primary },
 });

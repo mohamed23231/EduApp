@@ -60,6 +60,9 @@ export type OrgStudent = {
   assignedSessionsCount?: number;
   isDeleted?: boolean;
   createdAt?: string;
+  parentRelationship?: string | null;
+  tone?: string | null;
+  isAtRiskManualFlag?: boolean | null;
 };
 
 export type OrgStudentDetail = OrgStudent & {
@@ -137,6 +140,8 @@ export type OrgAttendanceRecord = {
   excuseNote?: string | null;
   rating?: number | null;
   isSystemGenerated?: boolean;
+  note?: string | null;
+  noteAuthorName?: string | null;
   createdAt?: string;
   updatedAt?: string | null;
 };
@@ -178,6 +183,11 @@ export type OrgStudentStats = {
   attendanceRate: number;
   averageRating: number;
   ratingTrend: number[];
+  ratingDelta: number | null;
+  atRiskReason?: {
+    isAtRisk: boolean;
+    atRiskTriggers: string[];
+  } | null;
   subjects: Array<{
     subject: string;
     teacherName: string;
@@ -200,7 +210,11 @@ export type CreateStudentInput = {
   parentPhone?: string;
 };
 
-export type UpdateStudentInput = Partial<CreateStudentInput>;
+export type UpdateStudentInput = Partial<CreateStudentInput> & {
+  parentRelationship?: string;
+  tone?: string;
+  isAtRiskManualFlag?: boolean;
+};
 
 export type OrgInvitation = {
   id: string;

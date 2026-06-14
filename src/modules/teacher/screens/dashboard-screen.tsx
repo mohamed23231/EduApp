@@ -381,6 +381,29 @@ export function DashboardScreen() {
       <Animated.View entering={FadeInDown.delay(140).duration(350)}>
         <ContextPill onPress={() => setSwitcherVisible(true)} label={pillLabel} />
       </Animated.View>
+      {(contextsData?.organizations.length ?? 0) > 0 && (
+        <Animated.View entering={FadeInDown.delay(160).duration(350)}>
+          <View style={styles.orgCardsRow}>
+            {contextsData!.organizations.map(org => (
+              <Pressable
+                key={org.organizationId}
+                onPress={() => handleSelectOrg(org.organizationId)}
+                style={({ pressed }) => [styles.orgCard, pressed && styles.orgCardPressed]}
+                accessibilityRole="button"
+                accessibilityLabel={org.name}
+              >
+                <View style={styles.orgCardInner}>
+                  <Text style={styles.orgCardName} numberOfLines={1}>{org.name}</Text>
+                  <View style={styles.orgCardAction}>
+                    <Text style={styles.orgCardActionText}>{t('teacher.dashboard.viewOrgSessions', 'View sessions')}</Text>
+                    <Ionicons name="chevron-forward" size={14} color="#6366F1" />
+                  </View>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        </Animated.View>
+      )}
       <Animated.View entering={FadeInDown.delay(180).duration(350)}>
         <View style={styles.sectionHeader}>
           <Ionicons name="today-outline" size={14} color="#6B7280" />
@@ -487,6 +510,24 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
+  orgCardsRow: { paddingHorizontal: 16, paddingTop: 8, gap: 8 },
+  orgCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  orgCardPressed: { opacity: 0.8 },
+  orgCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  orgCardName: { flex: 1, fontSize: 15, fontWeight: '600', color: '#111827', marginEnd: 8 },
+  orgCardAction: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  orgCardActionText: { fontSize: 13, fontWeight: '600', color: '#6366F1' },
   contextPillRow: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 0 },
   contextPill: {
     alignSelf: 'flex-start',

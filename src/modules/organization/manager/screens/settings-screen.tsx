@@ -1,9 +1,11 @@
 import type { OrganizationDetails } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, Platform } from 'react-native';
-import { ActivityIndicator, Button, Input, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
+import { KeyboardAvoidingView, Platform, View as RNView } from 'react-native';
+import { ActivityIndicator, Button, Input, ScrollView, Text, TopBar, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { useOrganization, useOrganizations, useUpdateOrg } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
@@ -21,7 +23,7 @@ function UsageBar({ label, current, limit }: { label: string; current: number; l
         </Text>
       </View>
       <View className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-        <View className="h-2 rounded-full bg-[#3B82F6]" style={{ width: `${percent}%` }} />
+        <View style={{ height: 8, borderRadius: 999, backgroundColor: colors.brand.primary, width: `${percent}%` }} />
       </View>
     </View>
   );
@@ -87,6 +89,7 @@ function OrgEditForm({ org }: { org: OrganizationDetails }) {
 
 export function SettingsScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const activeOrgId = useManagerStore.use.activeOrgId();
   const setActiveOrgId = useManagerStore.use.setActiveOrgId();
   const organizationsQuery = useOrganizations();
@@ -99,36 +102,50 @@ export function SettingsScreen() {
   }, [activeOrgId, organizationsQuery.data, setActiveOrgId]);
 
   if (organizationQuery.isLoading) {
-    return <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAFB]"><ActivityIndicator size="large" /></SafeAreaView>;
+    return (
+      <RNView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+        <TopBar
+          title={t('manager.settings.title', { defaultValue: 'Settings' })}
+          onBack={() => router.back()}
+        />
+        <RNView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" />
+        </RNView>
+      </RNView>
+    );
   }
 
   if (organizationQuery.isError) {
     return (
-      <SafeAreaView className="flex-1 bg-[#F9FAFB]">
-        <ScrollView contentContainerClassName="px-6 py-6">
-          <Text className="font-inter text-3xl font-semibold text-slate-900">{t('manager.settings.title', { defaultValue: 'Settings' })}</Text>
-          <View className="mt-5 items-center gap-3 py-6">
-            <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
-            <Text className="font-inter text-sm text-red-600">{t('manager.settings.errorLoading', { defaultValue: 'Failed to load organization settings.' })}</Text>
-            <Button variant="outline" size="sm" label={t('manager.settings.errorRetry', { defaultValue: 'Retry' })} fullWidth={false} onPress={() => organizationQuery.refetch()} />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      <RNView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+        <TopBar
+          title={t('manager.settings.title', { defaultValue: 'Settings' })}
+          onBack={() => router.back()}
+        />
+        <View className="mt-5 items-center gap-3 py-6">
+          <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
+          <Text className="font-inter text-sm text-red-600">{t('manager.settings.errorLoading', { defaultValue: 'Failed to load organization settings.' })}</Text>
+          <Button variant="outline" size="sm" label={t('manager.settings.errorRetry', { defaultValue: 'Retry' })} fullWidth={false} onPress={() => organizationQuery.refetch()} />
+        </View>
+      </RNView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
+    <RNView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+      <TopBar
+        title={t('manager.settings.title', { defaultValue: 'Settings' })}
+        onBack={() => router.back()}
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
         <ScrollView contentContainerClassName="px-6 py-6">
-          <Text className="font-inter text-3xl font-semibold text-slate-900">{t('manager.settings.title', { defaultValue: 'Settings' })}</Text>
           <Text className="font-inter mt-2 text-base text-slate-500">{t('manager.settings.subtitle', { defaultValue: 'Keep organization details current and watch entitlement usage at a glance.' })}</Text>
           {organizationQuery.data && <OrgEditForm org={organizationQuery.data} />}
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </RNView>
   );
 }

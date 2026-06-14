@@ -240,6 +240,7 @@
       "ok": "حسنًا"
     },
     "dashboard": {
+      "bellA11y": "الإعلانات",
       "cards": {
         "absentToday": "غياب اليوم",
         "activeTeachers": "المعلمون النشطون",
@@ -247,12 +248,21 @@
         "students": "الطلاب",
         "todaySessions": "اليوم"
       },
+      "cta": {
+        "createSession": "إنشاء حصة"
+      },
       "emptyCopy": "أنشئ أول مؤسسة لفتح لوحة المدير.",
       "emptyTitle": "لا توجد مؤسسة بعد",
       "endSession": "إنهاء الحصة",
       "goodAfternoon": "مساء الخير",
       "goodEvening": "مساء الخير",
       "goodMorning": "صباح الخير",
+      "headerToday": "اليوم",
+      "hero": {
+        "a11y": "عرض الحضور المباشر",
+        "liveLabel": "الحضور المباشر",
+        "subStat": "{{present}} حاضر · {{absent}} غائب · {{live}} حصص جارية"
+      },
       "infoAbsent": "{{count}} غائبون اليوم",
       "infoAbsent_few": "{{count}} غيابات اليوم",
       "infoAbsent_many": "{{count}} غياباً اليوم",
@@ -267,6 +277,10 @@
       "infoTeachers_other": "{{count}} معلم",
       "infoTeachers_two": "معلمان",
       "infoTeachers_zero": "لا يوجد معلمون",
+      "leaderboard": {
+        "all": "الكل",
+        "title": "أفضل المعلمين · هذا الأسبوع"
+      },
       "markAttendance": "تسجيل الحضور",
       "noSessions": "لا توجد حصص مجدولة لليوم حتى الآن.",
       "openSession": "فتح الحصة",
@@ -283,6 +297,12 @@
       "sessionStudents_zero": "بدون طلاب",
       "startSession": "ابدأ الحصة",
       "subtitle": "تابع يومك، وراقب الاستهلاك، وأزل العوائق قبل بدء الحصص.",
+      "tiles": {
+        "atRiskLabel": "في خطر",
+        "atRiskSub": "تحتاج متابعة",
+        "sessionsLabel": "حصص اليوم",
+        "sessionsSub": "{{live}} جارية · {{upcoming}} قادمة"
+      },
       "title": "لوحة المدير",
       "todayTitle": "حصص اليوم",
       "viewAll": "عرض الكل"
@@ -442,6 +462,7 @@
       "confirmStudents_other": "تأكيد ({{count}})",
       "confirmStudents_two": "تأكيد ({{count}})",
       "confirmStudents_zero": "تأكيد (لا يوجد)",
+      "countLabel": "{{count}} مجدولة",
       "createScreenTitle": "إنشاء حصة",
       "createSuccess": "تم إنشاء الحصة بنجاح.",
       "createTitle": "إنشاء قالب حصة",
@@ -449,6 +470,7 @@
       "deleteMessage": "سيتم حذف قالب الحصة. السجلات الحالية محفوظة.",
       "deleteTitle": "حذف الحصة؟",
       "empty": "لا توجد حصص بعد.",
+      "emptyHint": "أنشئ أول قالب جلسة للبدء.",
       "errorLoading": "تعذر تحميل الحصص.",
       "errorRetry": "إعادة المحاولة",
       "fields": {
@@ -464,6 +486,8 @@
       "noOrgCopy": "أنشئ مؤسسة أولاً لبدء إضافة الحصص.",
       "noOrgTitle": "لا توجد مؤسسة بعد",
       "paused": "متوقفة",
+      "preview": "معاينة",
+      "previewAt": "كل يوم الساعة",
       "selectAll": "تحديد الكل",
       "selectStudentsPlaceholder": "اختر الطلاب",
       "selectTeacher": "اختر معلماً",
@@ -514,6 +538,12 @@
         "title": "الاستخدام"
       }
     },
+    "trial": {
+      "expiredTitle": "انتهت الفترة التجريبية",
+      "expiredMessage": "هذه المؤسسة للقراءة فقط. تواصل مع الدعم لتفعيل الاشتراك.",
+      "contactSupport": "تواصل عبر واتساب",
+      "createNewOrg": "إنشاء مؤسسة جديدة"
+    },
     "setup": {
       "address": "العنوان (اختياري)",
       "email": "البريد الإلكتروني (اختياري)",
@@ -521,6 +551,7 @@
       "heroTitle": "أنشئ مؤسستك",
       "name": "اسم المؤسسة",
       "phone": "الهاتف (اختياري)",
+      "screenTitle": "منظمة جديدة",
       "submit": "إنشاء المؤسسة",
       "submitError": "تعذر إنشاء المؤسسة الآن.",
       "validation": {
@@ -563,6 +594,7 @@
       "connectionCode": "رمز الربط",
       "copiedBody": "رمز الربط جاهز للصق.",
       "copiedTitle": "تم النسخ",
+      "countLabel": "{{count}} طالب",
       "createScreenTitle": "إضافة طالب",
       "createSuccess": "تمت إضافة الطالب بنجاح",
       "createTitle": "إضافة طالب",
@@ -571,6 +603,7 @@
       "deleteTitle": "حذف الطالب؟",
       "editTitle": "تعديل الطالب",
       "empty": "لا يوجد طلاب بعد.",
+      "emptyHint": "أضف أول طالب للبدء.",
       "errorLoading": "تعذر تحميل الطلاب.",
       "errorRetry": "إعادة المحاولة",
       "fields": {
@@ -618,15 +651,18 @@
       "title": "الطلاب",
       "validation": {
         "nameRequired": "اسم الطالب مطلوب"
+      },
+      "atRisk": {
+        "manualFlag": "تم التحديد يدوياً"
       }
     },
     "tabs": {
       "home": "الرئيسية",
       "homeAccessibility": "لوحة المدير",
-      "more": "المزيد",
+      "more": "أنا",
       "sessions": "الحصص",
       "students": "الطلاب",
-      "teachers": "المعلمون"
+      "teachers": "الفريق"
     },
     "teachers": {
       "activeSessions": "{{count}} حصص نشطة",
@@ -637,8 +673,10 @@
       "activeSessions_two": "حصتان نشطتان",
       "activeSessions_zero": "لا توجد حصص نشطة",
       "cancelMessage": "سيتم إلغاء هذه الدعوة فوراً.",
+      "countLabel": "{{count}} معلم",
       "email": "البريد الإلكتروني",
       "empty": "لا يوجد معلمون بعد.",
+      "emptyHint": "ادعُ أول معلم للبدء.",
       "errorLoading": "تعذر تحميل الأعضاء.",
       "errorRetry": "إعادة المحاولة",
       "inviteError": "تعذر إرسال الدعوة الآن.",
@@ -660,6 +698,7 @@
       "roleOwner": "مالك",
       "roleTeacher": "معلم",
       "sendInvite": "إرسال الدعوة",
+      "statusInvited": "مدعو",
       "subtitle": "ادعُ المعلمين عبر الهاتف أو البريد الإلكتروني، ثم أزلهم بشكل منظم عند تغير المسؤوليات.",
       "title": "المعلمون"
     },
@@ -887,6 +926,9 @@
         "phone": "رقم الهاتف",
         "school": "المدرسة"
       },
+      "accessCodeLabel": "كود الوصول",
+      "accessCodeCopied": "تم النسخ!",
+      "accessCodeCopy": "نسخ",
       "recentLabel": "الأخيرة",
       "statAttendance": "الحضور",
       "statRating": "متوسط التقييم",
@@ -1050,14 +1092,19 @@
       "greeting": "مرحباً، {{name}}! 👋",
       "sessionsTitle": "حصص النهاردة",
       "sessionsToday": "اليوم",
-      "title": "لوحة تحكم المعلم"
+      "title": "لوحة تحكم المعلم",
+      "viewOrgSessions": "عرض الحصص"
     },
     "onboarding": {
+      "avatarToneLabel": "لون الصورة الرمزية",
       "error": "فشل الإعداد. يرجى المحاولة مرة أخرى.",
+      "headline": "مرحباً.\nلنُعِدَّ ملفك\nالشخصي.",
       "nameLabel": "الاسم الكامل",
       "namePlaceholder": "أدخل اسمك الكامل",
       "phoneLabel": "رقم الهاتف",
       "phonePlaceholder": "+1 (555) 000-0000",
+      "stepLabel": "الخطوة 1 من 1",
+      "subheadline": "كيف يراك أولياء الأمور في التطبيق؟",
       "submit": "إكمال الإعداد",
       "submitting": "جاري الإعداد...",
       "subtitle": "يرجى تقديم معلومات الاتصال الخاصة بك",
@@ -1133,8 +1180,11 @@
       "filterLast5": "آخر 5",
       "insufficientData": "بيانات غير كافية",
       "insufficientDataDescription": "محتاج حصة مقيّمة واحدة على الأقل للترتيب",
+      "midPack": "المستوى المتوسط",
       "noRatings": "مفيش تقييمات للحصة دي لسه",
+      "outOfAvg": "/10 متوسط",
       "ranking": "الترتيب",
+      "ratedLabel": "مُقيَّم",
       "ratedSessions": "{{count}} حصص مقيّمة",
       "ratedSessions_few": "{{count}} حصص مقيمة",
       "ratedSessions_many": "{{count}} حصة مقيمة",

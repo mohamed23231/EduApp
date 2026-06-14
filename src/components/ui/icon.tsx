@@ -53,6 +53,7 @@ const ICON_MAP: Record<string, string> = {
   globe: 'globe-outline',
   graduationCap: 'school-outline',
   building: 'business-outline',
+  logOut: 'log-out-outline',
 };
 
 const RTL_FLIP_NAMES = new Set(['chevron', 'chevronL', 'arrowR', 'arrowL', 'arrowUpR']);

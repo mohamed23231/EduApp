@@ -24,36 +24,36 @@ tags:
 - launchApp:
     clearState: false
 - assertVisible:
-    id: "teacher-tab-dashboard"
+    id: teacher-tab-dashboard
     timeout: 10000
 
 # === Step 2: Open the live session attendance sheet ===
 - tapOn:
-    id: "teacher-tab-sessions"
+    id: teacher-tab-sessions
 - tapOn:
-    text: ".*"           # First session row (replace with stable testID once available)
+    text: '.*' # First session row (replace with stable testID once available)
     index: 0
 - assertVisible:
-    id: "attendance-roster"
+    id: attendance-roster
     timeout: 5000
 
 # === Step 3: LTR — swipe a student row "forward" (right) → expect Present ===
 - swipe:
     from:
-      id: "attendance-row-0"
+      id: attendance-row-0
     direction: RIGHT
 - assertVisible:
-    text: "Present"
+    text: Present
     timeout: 3000
 - assertVisible:
-    id: "toast-view"     # ToastHost intent fired
+    id: toast-view # ToastHost intent fired
     timeout: 3000
 
 # === Step 4: Undo via toast action ===
 - tapOn:
-    id: "toast-view"
+    id: toast-view
 - assertNotVisible:
-    text: "Present"
+    text: Present
 
 # === Step 5: RTL — swap locale to Arabic, repeat with mirrored swipe ===
 # In RTL the "forward-reading" direction is LEFT. The brand contract says
@@ -62,22 +62,22 @@ tags:
     output.locale = 'ar';     # Pseudo — locale toggle harness wired in T028
 - swipe:
     from:
-      id: "attendance-row-0"
+      id: attendance-row-0
     direction: LEFT
 - assertVisible:
-    text: "حاضر"
+    text: حاضر
     timeout: 3000
 - assertVisible:
-    id: "toast-view"
+    id: toast-view
     timeout: 3000
 
 # === Step 6: Verify rating selector accepts 0 (per FR-spec rating domain) ===
 - tapOn:
-    id: "rating-input-0"
+    id: rating-input-0
 - tapOn:
-    text: "0"
+    text: '0'
 - assertVisible:
-    text: "0"
+    text: '0'
 
 # === END ===
 # Post-launch follow-up: replace placeholder selectors (text: ".*", index: 0)

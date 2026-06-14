@@ -1,23 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import {
-  Button,
   Input,
   PhoneField,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
+  PressButton,
   Text,
-  View,
+  TopBar,
 } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
-import {
-  buildE164Phone,
-  DEFAULT_COUNTRY_CODE,
-} from '@/shared/utils/phone';
+import { buildE164Phone, DEFAULT_COUNTRY_CODE } from '@/shared/utils/phone';
 import { NoOrgEmptyState } from '../components';
 import { useInviteTeacher } from '../hooks';
 import { useManagerStore } from '../store/manager-store';
@@ -48,10 +42,7 @@ export function TeacherInviteScreen() {
       return;
     }
     try {
-      await inviteMutation.mutateAsync({
-        inviteePhone: phone ?? undefined,
-        inviteeEmail: email || undefined,
-      });
+      await inviteMutation.mutateAsync({ inviteePhone: phone ?? undefined, inviteeEmail: email || undefined });
       setLocalPhone('');
       setInviteeEmail('');
       setMessage(t('manager.teachers.inviteSent', { defaultValue: 'Invitation sent successfully.' }));
@@ -68,68 +59,70 @@ export function TeacherInviteScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
-      <View className="flex-row items-center gap-3 px-6 pt-4 pb-2">
-        <Pressable
-          onPress={() => router.back()}
-          className="size-10 items-center justify-center rounded-full bg-white"
-        >
-          <Ionicons
-            name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'}
-            size={20}
-            color="#0F172A"
-          />
-        </Pressable>
-        <Text className="font-inter flex-1 text-xl font-semibold text-slate-900">
-          {t('manager.teachers.inviteTitle', { defaultValue: 'Invite Teacher' })}
-        </Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      <TopBar
+        title={t('manager.teachers.inviteTitle', { defaultValue: 'Invite Teacher' })}
+        onBack={() => router.back()}
+      />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
-        <ScrollView contentContainerClassName="px-6 pb-12 pt-4">
-          <Text className="font-inter mb-4 text-sm text-slate-500">
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, paddingTop: 16, gap: 0 }}>
+          {/* Hint */}
+          <Text style={{ fontSize: 13, color: colors.neutral.inkMuted, fontWeight: '500', marginBottom: 20, lineHeight: 20 }}>
             {t('manager.teachers.inviteHint', {
               defaultValue: 'Enter a phone number, email address, or both. The teacher will receive an invitation to join your organization.',
             })}
           </Text>
 
-          <PhoneField
-            label={t('manager.teachers.phone', { defaultValue: 'Phone' })}
-            countryCode={countryCode}
-            localNumber={localPhone}
-            onCountryCodeChange={setCountryCode}
-            onLocalNumberChange={setLocalPhone}
-            testIDPrefix="manager-teacher-invite-phone"
-          />
-          <Input
-            label={t('manager.teachers.email', { defaultValue: 'Email' })}
-            value={inviteeEmail}
-            onChangeText={setInviteeEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          {/* Form card */}
+          <View style={{ backgroundColor: colors.neutral.card, borderRadius: 24, padding: 20, borderWidth: 1.5, borderColor: colors.neutral.rule, gap: 4 }}>
+            <PhoneField
+              label={t('manager.teachers.phone', { defaultValue: 'Phone' })}
+              countryCode={countryCode}
+              localNumber={localPhone}
+              onCountryCodeChange={setCountryCode}
+              onLocalNumberChange={setLocalPhone}
+              testIDPrefix="manager-teacher-invite-phone"
+            />
+            <Input
+              label={t('manager.teachers.email', { defaultValue: 'Email' })}
+              value={inviteeEmail}
+              onChangeText={setInviteeEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
 
-          {message
-            ? (
-                <View className={`mt-3 rounded-xl px-4 py-3 ${isSuccess ? 'bg-emerald-50' : 'bg-red-50'}`}>
-                  <Text className={`font-inter text-sm ${isSuccess ? 'text-emerald-700' : 'text-red-600'}`}>
-                    {message}
-                  </Text>
-                </View>
-              )
-            : null}
+          {/* Feedback banner */}
+          {message && (
+            <View style={{
+              marginTop: 12,
+              borderRadius: 14,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              backgroundColor: isSuccess ? colors.semantic.presentSoft : colors.semantic.absentSoft,
+              borderWidth: 1,
+              borderColor: isSuccess ? colors.semantic.present : colors.semantic.absent,
+            }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '600', color: isSuccess ? colors.semantic.presentInk : colors.semantic.absentInk }}>
+                {message}
+              </Text>
+            </View>
+          )}
 
-          <Button
-            className="mt-6"
+          {/* CTA */}
+          <PressButton
+            variant="primary"
+            size="lg"
+            fullWidth
             label={t('manager.teachers.sendInvite', { defaultValue: 'Send invitation' })}
             onPress={submit}
             loading={inviteMutation.isPending}
+            style={{ marginTop: 20 }}
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }

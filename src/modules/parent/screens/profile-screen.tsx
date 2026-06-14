@@ -152,7 +152,7 @@ export function ProfileScreen() {
                     padding: 14,
                     backgroundColor: colors.neutral.card,
                     borderRadius: 18,
-                    borderWidth: 1.5,
+                    borderWidth: 1,
                     borderColor: colors.neutral.rule,
                     borderStyle: 'dashed',
                     flexDirection: 'row',
@@ -221,14 +221,18 @@ export function ProfileScreen() {
             accessibilityLabel={t('parent.profile.logoutButton')}
             style={({ pressed }) => ({
               padding: 14,
-              backgroundColor: colors.neutral.card,
+              backgroundColor: colors.semantic.absentSoft,
               borderRadius: 14,
-              borderWidth: 1.5,
-              borderColor: colors.neutral.rule,
+              borderWidth: 1,
+              borderColor: colors.semantic.absent,
+              flexDirection: 'row',
               alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
               opacity: pressed ? 0.9 : 1,
             })}
           >
+            <Icon name="logOut" size={16} color={colors.semantic.absent} />
             <Text
               style={{
                 color: colors.semantic.absent,

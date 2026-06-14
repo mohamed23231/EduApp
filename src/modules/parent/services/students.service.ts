@@ -7,6 +7,7 @@ type BackendStudent = {
   id: string;
   name: string;
   gradeLevel?: string | null;
+  connectionCode?: string | null;
   teacherProfile?: {
     id: string;
     user?: {
@@ -24,6 +25,7 @@ function mapBackendStudent(student: BackendStudent): Student {
     id: student.id,
     fullName: student.name,
     gradeLevel: student.gradeLevel ?? undefined,
+    connectionCode: student.connectionCode ?? undefined,
     teacherName,
   };
 }

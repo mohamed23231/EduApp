@@ -1,17 +1,19 @@
 /**
- * OnboardingScreen component
- * Teacher onboarding form
+ * OnboardingScreen — Teacher
+ * A6 visual grammar: tone-tinted glow blob, monogram preview, tone picker,
+ * name + phone form, dot strip progress indicator.
+ * Preserves all existing API calls and navigation.
  */
 
 import type { TeacherOnboardingFormValues } from '../validators';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
+import { I18nManager, KeyboardAvoidingView, Pressable, ScrollView, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, PhoneField, Text } from '@/components/ui';
+import { Input, PhoneField, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { getToken, isTokenExpiringWithin } from '@/lib/auth/utils';
 import { refreshToken } from '@/modules/auth/services';
@@ -20,84 +22,27 @@ import {
   DEFAULT_COUNTRY_CODE,
   getPhoneValidationErrorKey,
 } from '@/shared/utils/phone';
+import { DotStrip } from '../components/onboarding/dot-strip';
+import {
+  MonogramPreview,
+  TONE_PALETTE,
+  TonePicker,
+} from '../components/onboarding/monogram-preview';
 import { createTeacherProfile, getTeacherIdHash, trackOnboardingCompleted } from '../services';
 import { getErrorDetails, logError } from '../services/logger';
 import { teacherOnboardingSchema } from '../validators';
 
-/** Handle form validation errors from Zod */
 function extractValidationErrors(error: unknown): Record<string, string> | null {
   if (error && typeof error === 'object' && 'issues' in error) {
-    const validationErrors: Record<string, string> = {};
-    (error as any).issues.forEach((issue: any) => {
-      if (issue.path[0])
-        validationErrors[issue.path[0]] = issue.message;
+    const result: Record<string, string> = {};
+    (error as { issues: Array<{ path: unknown[]; message: string }> }).issues.forEach((issue) => {
+      const key = issue.path[0];
+      if (typeof key === 'string')
+        result[key] = issue.message;
     });
-    return validationErrors;
+    return result;
   }
   return null;
-}
-
-/** Onboarding form fields */
-function OnboardingForm({
-  formData,
-  errors,
-  isSubmitting,
-  onFieldChange,
-  phoneCountryCode,
-  phoneLocalNumber,
-  onPhoneCountryCodeChange,
-  onPhoneLocalNumberChange,
-  onSubmit,
-}: {
-  formData: TeacherOnboardingFormValues;
-  errors: Record<string, string>;
-  isSubmitting: boolean;
-  onFieldChange: (field: keyof TeacherOnboardingFormValues) => (value: any) => void;
-  phoneCountryCode: string;
-  phoneLocalNumber: string;
-  onPhoneCountryCodeChange: (value: string) => void;
-  onPhoneLocalNumberChange: (value: string) => void;
-  onSubmit: () => void;
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <View style={styles.form}>
-      <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.formGroup}>
-        <Text style={styles.label}>{t('teacher.onboarding.nameLabel')}</Text>
-        <Input
-          placeholder={t('teacher.onboarding.namePlaceholder')}
-          value={formData.name}
-          onChangeText={onFieldChange('name')}
-          error={errors.name}
-        />
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(300).duration(400)} style={styles.formGroup}>
-        <PhoneField
-          label={t('teacher.onboarding.phoneLabel')}
-          countryCode={phoneCountryCode}
-          localNumber={phoneLocalNumber}
-          onCountryCodeChange={onPhoneCountryCodeChange}
-          onLocalNumberChange={onPhoneLocalNumberChange}
-          error={errors.phone}
-          testIDPrefix="teacher-onboarding-phone"
-        />
-      </Animated.View>
-
-      {errors.form && <Text style={styles.formError}>{errors.form}</Text>}
-
-      <Animated.View entering={FadeInDown.delay(400).duration(400)}>
-        <Button
-          label={isSubmitting ? t('teacher.onboarding.submitting') : t('teacher.onboarding.submit')}
-          onPress={onSubmit}
-          loading={isSubmitting}
-          variant="default"
-          style={styles.submitButton}
-        />
-      </Animated.View>
-    </View>
-  );
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -108,37 +53,38 @@ export function OnboardingScreen() {
   const user = useAuthStore.use.user();
 
   const [formData, setFormData] = useState<TeacherOnboardingFormValues>({
-    name: onboardingContext?.fullName || '',
+    name: onboardingContext?.fullName ?? '',
     phone: '',
   });
   const [phoneCountryCode, setPhoneCountryCode] = useState(DEFAULT_COUNTRY_CODE);
   const [phoneLocalNumber, setPhoneLocalNumber] = useState('');
+  const [selectedTone, setSelectedTone] = useState('tone3');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleFieldChange = (field: keyof TeacherOnboardingFormValues) => (value: any) => {
+  const canContinue = formData.name.trim().length >= 2 && !isSubmitting;
+  const glowColor = TONE_PALETTE[selectedTone] ?? colors.neutral.paper;
+
+  const handleFieldChange = (field: keyof TeacherOnboardingFormValues) => (value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
+    if (errors[field])
       setErrors(prev => ({ ...prev, [field]: '' }));
-    }
   };
 
   const handlePhoneCountryCodeChange = (value: string) => {
     setPhoneCountryCode(value);
-    const composedPhone = buildE164Phone(value, phoneLocalNumber);
-    setFormData(prev => ({ ...prev, phone: composedPhone ?? '' }));
-    if (errors.phone) {
+    const composed = buildE164Phone(value, phoneLocalNumber);
+    setFormData(prev => ({ ...prev, phone: composed ?? '' }));
+    if (errors.phone)
       setErrors(prev => ({ ...prev, phone: '' }));
-    }
   };
 
   const handlePhoneLocalNumberChange = (value: string) => {
     setPhoneLocalNumber(value);
-    const composedPhone = buildE164Phone(phoneCountryCode, value);
-    setFormData(prev => ({ ...prev, phone: composedPhone ?? '' }));
-    if (errors.phone) {
+    const composed = buildE164Phone(phoneCountryCode, value);
+    setFormData(prev => ({ ...prev, phone: composed ?? '' }));
+    if (errors.phone)
       setErrors(prev => ({ ...prev, phone: '' }));
-    }
   };
 
   const handleSubmit = async () => {
@@ -147,26 +93,16 @@ export function OnboardingScreen() {
       const normalizedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
       const hasPhoneInput = phoneLocalNumber.trim().length > 0;
       if (hasPhoneInput && !normalizedPhone) {
-        setErrors(prev => ({
-          ...prev,
-          phone: getPhoneValidationErrorKey(phoneCountryCode),
-        }));
+        setErrors(prev => ({ ...prev, phone: getPhoneValidationErrorKey(phoneCountryCode) }));
         return;
       }
-
-      const payload = {
-        ...formData,
-        phone: normalizedPhone ?? '',
-      };
-
+      const payload = { ...formData, phone: normalizedPhone ?? '' };
       teacherOnboardingSchema.parse(payload);
 
-      // Preemptive token refresh
       const token = getToken();
       if (token?.access && isTokenExpiringWithin(token.access, 60)) {
         try {
           const result = await refreshToken(token.refresh);
-          // Token is updated via the auth store interceptor
           void result;
         }
         catch {
@@ -174,10 +110,7 @@ export function OnboardingScreen() {
         }
       }
 
-      await createTeacherProfile({
-        name: payload.name,
-        phone: payload.phone || undefined,
-      });
+      await createTeacherProfile({ name: payload.name, phone: payload.phone || undefined });
       if (user?.id)
         trackOnboardingCompleted(getTeacherIdHash(user.id));
       router.replace('/(teacher)/dashboard' as any);
@@ -185,13 +118,12 @@ export function OnboardingScreen() {
     catch (error) {
       const { code, message, status } = getErrorDetails(error);
       logError({ screen: 'OnboardingScreen', action: 'handleSubmit', errorCode: code, statusCode: status, message });
-
       const validationErrors = extractValidationErrors(error);
       if (validationErrors) {
         setErrors(validationErrors);
       }
       else {
-        setErrors({ form: error instanceof Error ? error.message : t('teacher.common.genericError') });
+        setErrors({ form: error instanceof Error ? error.message : t('teacher.common.genericError', 'Something went wrong') });
       }
     }
     finally {
@@ -200,104 +132,116 @@ export function OnboardingScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={styles.keyboardAvoidingView}>
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+      {/* Tone-tinted glow blob */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: -120,
+          [I18nManager.isRTL ? 'left' : 'right']: -120,
+          width: 320,
+          height: 320,
+          borderRadius: 999,
+          backgroundColor: glowColor,
+          opacity: 0.6,
+        }}
+      />
+
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingBottom: 48, paddingTop: 32 }}
+          keyboardShouldPersistTaps="handled"
+        >
           <Animated.View entering={FadeInDown.delay(0).duration(400)}>
-            <View style={styles.illustrationContainer}>
-              <View style={styles.illustration}>
-                <Ionicons name="school" size={44} color="#3B82F6" />
-              </View>
-            </View>
+            <Text className="text-micro font-bold tracking-widest text-ink-muted uppercase">
+              {t('teacher.onboarding.stepLabel', 'Step 1 of 1')}
+            </Text>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.header}>
-            <Text style={styles.title}>{t('teacher.onboarding.title')}</Text>
-            <Text style={styles.subtitle}>{t('teacher.onboarding.subtitle')}</Text>
+          <Animated.View entering={FadeInDown.delay(60).duration(400)} className="mt-2 mb-6">
+            <Text className="font-bold text-ink" style={{ fontSize: 30, letterSpacing: -1, lineHeight: 33 }}>
+              {t('teacher.onboarding.headline', 'Welcome.\nLet\'s set up your\nprofile.')}
+            </Text>
+            <Text className="mt-2 text-body-lg text-ink-muted">
+              {t('teacher.onboarding.subheadline', 'How should parents see you in the app?')}
+            </Text>
           </Animated.View>
 
-          <OnboardingForm
-            formData={formData}
-            errors={errors}
-            isSubmitting={isSubmitting}
-            onFieldChange={handleFieldChange}
-            phoneCountryCode={phoneCountryCode}
-            phoneLocalNumber={phoneLocalNumber}
-            onPhoneCountryCodeChange={handlePhoneCountryCodeChange}
-            onPhoneLocalNumberChange={handlePhoneLocalNumberChange}
-            onSubmit={handleSubmit}
-          />
+          <Animated.View entering={FadeInDown.delay(120).duration(400)} className="mb-5 items-center">
+            <MonogramPreview name={formData.name} tone={selectedTone} />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(180).duration(400)} className="mb-4">
+            <Text className="mb-2 text-caption font-bold tracking-wide text-ink-muted uppercase">
+              {t('teacher.onboarding.nameLabel', 'Your name')}
+            </Text>
+            <Input
+              placeholder={t('teacher.onboarding.namePlaceholder', 'Enter your full name')}
+              value={formData.name}
+              onChangeText={handleFieldChange('name')}
+              error={errors.name}
+            />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(220).duration(400)} className="mb-5">
+            <Text className="mb-2 text-caption font-bold tracking-wide text-ink-muted uppercase">
+              {t('teacher.onboarding.avatarToneLabel', 'Avatar tone')}
+            </Text>
+            <TonePicker selected={selectedTone} onChange={setSelectedTone} />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(260).duration(400)} className="mb-4">
+            <PhoneField
+              label={t('teacher.onboarding.phoneLabel', 'Phone Number')}
+              countryCode={phoneCountryCode}
+              localNumber={phoneLocalNumber}
+              onCountryCodeChange={handlePhoneCountryCodeChange}
+              onLocalNumberChange={handlePhoneLocalNumberChange}
+              error={errors.phone}
+              testIDPrefix="teacher-onboarding-phone"
+            />
+          </Animated.View>
+
+          {errors.form && (
+            <Text className="mb-4 text-center text-body" style={{ color: colors.semantic.absent }}>
+              {errors.form}
+            </Text>
+          )}
+
+          <View className="my-4">
+            <DotStrip step={1} total={1} />
+          </View>
+
+          <Animated.View entering={FadeInDown.delay(320).duration(400)}>
+            <Pressable
+              onPress={canContinue ? handleSubmit : undefined}
+              disabled={!canContinue}
+              accessibilityRole="button"
+              accessibilityLabel={isSubmitting
+                ? t('teacher.onboarding.submitting', 'Setting up...')
+                : t('teacher.onboarding.submit', 'Complete Setup')}
+              className="items-center justify-center rounded-2xl py-4"
+              style={({ pressed }) => [
+                {
+                  backgroundColor: canContinue ? colors.neutral.ink : colors.neutral.rule,
+                  opacity: pressed && canContinue ? 0.85 : 1,
+                },
+              ]}
+            >
+              <Text
+                className="text-body-lg font-bold"
+                style={{ color: canContinue ? '#fff' : colors.neutral.inkMuted }}
+              >
+                {isSubmitting
+                  ? t('teacher.onboarding.submitting', 'Setting up...')
+                  : t('teacher.onboarding.submit', 'Complete Setup')}
+              </Text>
+            </Pressable>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 48,
-    justifyContent: 'center',
-  },
-  illustrationContainer: {
-    alignItems: 'center',
-    marginBottom: 28,
-  },
-  illustration: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#EFF6FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#3B82F6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  header: {
-    marginBottom: 32,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-  },
-  form: {
-    gap: 20,
-  },
-  formGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-  },
-  formError: {
-    fontSize: 14,
-    color: '#DC2626',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  submitButton: {
-    marginTop: 8,
-  },
-});

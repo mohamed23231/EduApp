@@ -1,68 +1,128 @@
-import { Ionicons } from '@expo/vector-icons';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Icon } from '@/components/ui';
 import colors from '@/components/ui/colors';
 
-export default function ManagerTabsLayout() {
+const TAB_ICON: Record<string, string> = {
+  dashboard: 'home',
+  students: 'users',
+  sessions: 'calendar',
+  teachers: 'building',
+  more: 'user',
+};
+
+const TAB_TITLE_KEY: Record<string, string> = {
+  dashboard: 'manager.tabs.home',
+  students: 'manager.tabs.students',
+  sessions: 'manager.tabs.sessions',
+  teachers: 'manager.tabs.teachers',
+  more: 'manager.tabs.more',
+};
+
+function ManagerTabBar({ state, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.brand.primary,
-        tabBarInactiveTintColor: colors.neutral.dim,
+    <View
+      pointerEvents="box-none"
+      style={{
+        position: 'absolute',
+        start: 0,
+        end: 0,
+        bottom: 0,
+        paddingBottom: Math.max(insets.bottom, 14),
+        paddingTop: 8,
       }}
     >
-      <Tabs.Screen
-        name="dashboard"
-        options={{
-          title: t('manager.tabs.home', { defaultValue: 'Home' }),
-          tabBarAccessibilityLabel: t('manager.tabs.homeAccessibility', {
-            defaultValue: 'Manager dashboard',
-          }),
-          tabBarButtonTestID: 'manager-tab-dashboard',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="business" size={size} color={color} />
-          ),
+      <View
+        style={{
+          marginHorizontal: 16,
+          padding: 6,
+          backgroundColor: colors.neutral.card,
+          borderRadius: 18,
+          borderWidth: 1.5,
+          borderColor: colors.neutral.rule,
+          flexDirection: 'row',
+          gap: 2,
+          shadowColor: '#0B0D10',
+          shadowOpacity: 0.08,
+          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 2 },
+          elevation: 6,
         }}
-      />
-      <Tabs.Screen
-        name="students"
-        options={{
-          title: t('manager.tabs.students', { defaultValue: 'Students' }),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="sessions"
-        options={{
-          title: t('manager.tabs.sessions', { defaultValue: 'Sessions' }),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="teachers"
-        options={{
-          title: t('manager.tabs.teachers', { defaultValue: 'Teachers' }),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-add" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="more"
-        options={{
-          title: t('manager.tabs.more', { defaultValue: 'More' }),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="ellipsis-horizontal" size={size} color={color} />
-          ),
-        }}
-      />
+      >
+        {state.routes.map((route, index) => {
+          const isActive = state.index === index;
+          const iconName = TAB_ICON[route.name];
+          const titleKey = TAB_TITLE_KEY[route.name];
+          if (!iconName || !titleKey)
+            return null;
+          return (
+            <Pressable
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityLabel={t(titleKey, { defaultValue: route.name })}
+              accessibilityState={{ selected: isActive }}
+              testID={`manager-tab-${route.name}`}
+              onPress={() => {
+                const event = navigation.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+                if (!isActive && !event.defaultPrevented)
+                  navigation.navigate(route.name as never);
+              }}
+              style={{
+                flex: 1,
+                paddingVertical: 8,
+                paddingHorizontal: 4,
+                backgroundColor: isActive ? colors.neutral.ink : 'transparent',
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2,
+              }}
+            >
+              <Icon
+                name={iconName}
+                size={18}
+                color={isActive ? colors.neutral.paper : colors.neutral.dim}
+              />
+              <Text
+                style={{
+                  fontSize: 9,
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                  fontWeight: '700',
+                  color: isActive ? colors.neutral.paper : colors.neutral.inkMuted,
+                }}
+              >
+                {t(titleKey, { defaultValue: route.name })}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+export default function ManagerTabsLayout() {
+  return (
+    <Tabs
+      screenOptions={{ headerShown: false }}
+      tabBar={props => <ManagerTabBar {...props} />}
+    >
+      <Tabs.Screen name="dashboard" />
+      <Tabs.Screen name="students" />
+      <Tabs.Screen name="sessions" />
+      <Tabs.Screen name="teachers" />
+      <Tabs.Screen name="more" />
     </Tabs>
   );
 }

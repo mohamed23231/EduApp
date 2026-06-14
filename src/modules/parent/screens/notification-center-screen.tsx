@@ -92,14 +92,14 @@ function SkeletonLoader() {
   const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0.8] });
 
   return (
-    <View className="flex-1 bg-[#F9FAFB] p-4">
+    <View className="flex-1 p-4" style={{ backgroundColor: '#F5F5F0' }}>
       {[1, 2, 3, 4, 5].map(i => (
-        <Animated.View key={i} style={{ opacity }} className={`mb-3 flex-row items-start rounded-2xl border border-gray-100 bg-white p-4 shadow-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <View className={`size-12 rounded-full bg-gray-200 ${isRTL ? 'ml-3' : 'mr-3'}`} />
+        <Animated.View key={i} style={{ opacity, backgroundColor: '#FFFFFF', borderColor: '#E6E3DB' }} className={`mb-3 flex-row items-start rounded-2xl border p-4 shadow-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <View className={`size-12 rounded-full ${isRTL ? 'ms-3' : 'me-3'}`} style={{ backgroundColor: '#E6E3DB' }} />
           <View className="flex-1">
-            <View className={`mb-2 h-4 w-2/3 rounded-sm bg-gray-200 ${isRTL ? 'ml-auto' : ''}`} />
-            <View className={`mb-1.5 h-3 w-full rounded-sm bg-gray-200 ${isRTL ? 'ml-auto' : ''}`} />
-            <View className={`h-3 w-4/5 rounded-sm bg-gray-200 ${isRTL ? 'ml-auto' : ''}`} />
+            <View className={`mb-2 h-4 w-2/3 rounded-sm ${isRTL ? 'ms-auto' : ''}`} style={{ backgroundColor: '#E6E3DB' }} />
+            <View className={`mb-1.5 h-3 w-full rounded-sm ${isRTL ? 'ms-auto' : ''}`} style={{ backgroundColor: '#E6E3DB' }} />
+            <View className={`h-3 w-4/5 rounded-sm ${isRTL ? 'ms-auto' : ''}`} style={{ backgroundColor: '#E6E3DB' }} />
           </View>
         </Animated.View>
       ))}
@@ -111,17 +111,17 @@ function NotificationHeader({ isRTL }: { isRTL: boolean }) {
   const { t } = useTranslation();
   const router = useRouter();
   return (
-    <View className={`flex-row items-center border-b border-gray-200 bg-white px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+    <View className={`flex-row items-center px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`} style={{ borderBottomWidth: 1, borderBottomColor: '#E6E3DB', backgroundColor: '#FFFFFF' }}>
       <Pressable
         onPress={() => router.back()}
-        className={`p-2 ${isRTL ? 'ml-2' : 'mr-2'}`}
+        className={`p-2 ${isRTL ? 'ms-2' : 'me-2'}`}
         accessibilityRole="button"
         accessibilityLabel={t('parent.common.back', 'Back')}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
       >
-        <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#111827" />
+        <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#0B0D10" />
       </Pressable>
-      <Text className="flex-1 text-xl font-bold text-gray-900" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+      <Text className="flex-1 text-xl font-bold" style={{ textAlign: isRTL ? 'right' : 'left', color: '#0B0D10' }}>
         {t('parent.notifications.title', 'Notifications')}
       </Text>
     </View>
@@ -133,17 +133,17 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   const isRTL = I18nManager.isRTL;
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: '#F5F5F0' }}>
       <PushDisabledBanner />
       <NotificationHeader isRTL={isRTL} />
       <View className="flex-1 items-center justify-center px-6">
-        <View className="mb-4 size-16 items-center justify-center rounded-full bg-red-100">
-          <Ionicons name="alert" size={32} color="#EF4444" />
+        <View className="mb-4 size-16 items-center justify-center rounded-full" style={{ backgroundColor: '#FFE1DD' }}>
+          <Ionicons name="alert" size={32} color="#FF5B4A" />
         </View>
-        <Text className="mb-2 text-center text-lg font-bold text-gray-900">
+        <Text className="mb-2 text-center text-lg font-bold" style={{ color: '#0B0D10' }}>
           {t('parent.notifications.errorTitle', 'Oops! Something went wrong')}
         </Text>
-        <Text className="mb-6 text-center text-sm text-gray-500">
+        <Text className="mb-6 text-center text-sm" style={{ color: '#5C636E' }}>
           {t('parent.notifications.error', 'We could not load your notifications. Please try again.')}
         </Text>
         <Button label={t('parent.common.retry', 'Retry')} onPress={onRetry} />
@@ -156,17 +156,17 @@ function EmptyState() {
   const { t } = useTranslation();
   const isRTL = I18nManager.isRTL;
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: '#F5F5F0' }}>
       <PushDisabledBanner />
       <NotificationHeader isRTL={isRTL} />
       <View className="flex-1 items-center justify-center px-6">
-        <View className="mb-6 size-20 items-center justify-center rounded-full bg-gray-100">
-          <Ionicons name="notifications-off-outline" size={40} color="#9CA3AF" />
+        <View className="mb-6 size-20 items-center justify-center rounded-full" style={{ backgroundColor: '#E6E3DB' }}>
+          <Ionicons name="notifications-off-outline" size={40} color="#5C636E" />
         </View>
-        <Text className="mb-2 text-center text-xl font-bold text-gray-900">
+        <Text className="mb-2 text-center text-xl font-bold" style={{ color: '#0B0D10' }}>
           {t('parent.notifications.emptyTitle', 'All caught up!')}
         </Text>
-        <Text className="text-center text-base text-gray-500">
+        <Text className="text-center text-base" style={{ color: '#5C636E' }}>
           {t('parent.notifications.empty', 'You have no new notifications at the moment.')}
         </Text>
       </View>
@@ -196,8 +196,8 @@ function MarkAllButton({
       testID="mark-all-as-read-button"
     >
       {isMarkingAll
-        ? <ActivityIndicator size="small" color="#6366F1" />
-        : <Text className="text-sm font-semibold text-indigo-500">{t('parent.notifications.markAllAsRead')}</Text>}
+        ? <ActivityIndicator size="small" color="#22C572" />
+        : <Text className="text-sm font-semibold" style={{ color: '#22C572' }}>{t('parent.notifications.markAllAsRead')}</Text>}
     </TouchableOpacity>
   );
 }
@@ -233,19 +233,19 @@ function NotificationListView({
 }: NotificationListViewProps) {
   const { t } = useTranslation();
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: '#F5F5F0' }}>
       <PushDisabledBanner />
-      <View className={`flex-row items-center border-b border-gray-200 bg-white px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <View className={`flex-row items-center px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`} style={{ borderBottomWidth: 1, borderBottomColor: '#E6E3DB', backgroundColor: '#FFFFFF' }}>
         <Pressable
           onPress={onBack}
-          className={`p-2 ${isRTL ? 'ml-2' : 'mr-2'}`}
+          className={`p-2 ${isRTL ? 'ms-2' : 'me-2'}`}
           accessibilityRole="button"
           accessibilityLabel={t('parent.common.back', 'Back')}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
-          <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#111827" />
+          <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color="#0B0D10" />
         </Pressable>
-        <Text className="flex-1 text-xl font-bold text-gray-900" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+        <Text className="flex-1 text-xl font-bold" style={{ textAlign: isRTL ? 'right' : 'left', color: '#0B0D10' }}>
           {t('parent.notifications.title')}
         </Text>
         <MarkAllButton unreadCount={unreadCount} isMarkingAll={isMarkingAll} onPress={onMarkAllAsRead} />
@@ -255,7 +255,7 @@ function NotificationListView({
         sections={sections}
         keyExtractor={item => item.id}
         renderSectionHeader={({ section: { title } }) => (
-          <Text className="mx-4 mt-4 mb-2 text-sm font-bold tracking-wider text-gray-500 uppercase" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+          <Text className="mx-4 mt-4 mb-2 text-sm font-bold tracking-wider uppercase" style={{ textAlign: isRTL ? 'right' : 'left', color: '#5C636E' }}>
             {title}
           </Text>
         )}
@@ -275,7 +275,7 @@ function NotificationListView({
           isLoading && notifications.length > 0
             ? (
                 <View className="items-center py-4">
-                  <ActivityIndicator size="small" color="#6366F1" />
+                  <ActivityIndicator size="small" color="#22C572" />
                 </View>
               )
             : null
@@ -363,7 +363,7 @@ export function NotificationCenterScreen() {
 
   if (isLoading && notifications.length === 0) {
     return (
-      <SafeAreaView edges={['top']} className="flex-1 bg-[#F9FAFB]">
+      <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: '#F5F5F0' }}>
         <PushDisabledBanner />
         <NotificationHeader isRTL={isRTL} />
         <SkeletonLoader />

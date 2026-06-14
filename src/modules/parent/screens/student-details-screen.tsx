@@ -1,8 +1,10 @@
 import type { TimelineRecord } from '../types';
 import type { SupportedLocale } from '@/lib/date';
+import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Icon, PressButton, SectionLabel } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
@@ -18,6 +20,63 @@ import { extractErrorMessage } from '../services/error-utils';
  * Mirrors `screens-parent.jsx` § PARENT · STUDENT DETAIL, scoped to data the BE
  * already exposes today (attendance stats + timeline + student details).
  */
+
+function AccessCodeRow({ code }: { code: string }) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await Clipboard.setStringAsync(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <View style={{ paddingHorizontal: 16, marginTop: 24 }}>
+      <SectionLabel>{t('parent.studentDetails.accessCodeLabel', 'ACCESS CODE')}</SectionLabel>
+      <View
+        style={{
+          marginTop: 8,
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.neutral.card,
+          borderRadius: 14,
+          borderWidth: 1,
+          borderColor: colors.neutral.rule,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          gap: 12,
+        }}
+      >
+        <Text
+          style={{ flex: 1, fontSize: 18, fontWeight: '700', color: colors.neutral.ink, letterSpacing: 2 }}
+          accessibilityLabel={code}
+        >
+          {code}
+        </Text>
+        <Pressable
+          onPress={handleCopy}
+          accessibilityRole="button"
+          accessibilityLabel={t('parent.studentDetails.accessCodeCopy', 'Copy')}
+          style={({ pressed }) => ({
+            paddingHorizontal: 14,
+            paddingVertical: 7,
+            borderRadius: 10,
+            backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.paper,
+            borderWidth: 1,
+            borderColor: colors.neutral.rule,
+          })}
+        >
+          <Text style={{ fontSize: 13, fontWeight: '600', color: copied ? colors.semantic.present : colors.neutral.ink }}>
+            {copied
+              ? t('parent.studentDetails.accessCodeCopied', 'Copied!')
+              : t('parent.studentDetails.accessCodeCopy', 'Copy')}
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
 
 // eslint-disable-next-line max-lines-per-function
 export function StudentDetailsScreen() {
@@ -80,6 +139,10 @@ export function StudentDetailsScreen() {
           isRTL={isRTL}
           t={t}
         />
+
+        {student.connectionCode
+          ? <AccessCodeRow code={student.connectionCode} />
+          : null}
 
         {timeline && timeline.length > 0
           ? (

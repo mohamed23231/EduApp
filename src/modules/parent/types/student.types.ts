@@ -8,6 +8,7 @@ export type Student = {
   fullName: string;
   gradeLevel?: string;
   teacherName?: string;
+  connectionCode?: string;
 };
 
 export type StudentDetails = Student & {

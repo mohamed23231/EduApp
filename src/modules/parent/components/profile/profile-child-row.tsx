@@ -29,7 +29,7 @@ export function ProfileChildRow({ student, onPress, isRTL, attendanceLabel }: Pr
         padding: 14,
         backgroundColor: colors.neutral.card,
         borderRadius: 18,
-        borderWidth: 1.5,
+        borderWidth: 1,
         borderColor: colors.neutral.rule,
         flexDirection: 'row',
         alignItems: 'center',
@@ -65,7 +65,7 @@ export function ProfileChildRow({ student, onPress, isRTL, attendanceLabel }: Pr
             .join(' · ')}
         </Text>
       </View>
-      <Icon name="arrowR" size={16} color={colors.neutral.inkMuted} />
+      <Icon name="arrowR" size={16} color={colors.neutral.dim} />
     </Pressable>
   );
 }
