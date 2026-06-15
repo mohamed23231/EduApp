@@ -7,6 +7,7 @@ import type { TFunction } from 'i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type ContextPillProps = {
   onPress: () => void;
@@ -47,7 +48,7 @@ export function OrgCards({ orgs, onSelect, t }: OrgCardsProps) {
             <Text style={styles.orgCardName} numberOfLines={1}>{org.name}</Text>
             <View style={styles.orgCardAction}>
               <Text style={styles.orgCardActionText}>{t('teacher.dashboard.viewOrgSessions', 'View sessions')}</Text>
-              <Ionicons name="chevron-forward" size={14} color="#6366F1" />
+              <Ionicons name="chevron-forward" size={14} color={colors.brand.primary} />
             </View>
           </View>
         </Pressable>
@@ -59,10 +60,10 @@ export function OrgCards({ orgs, onSelect, t }: OrgCardsProps) {
 const styles = StyleSheet.create({
   orgCardsRow: { paddingHorizontal: 16, paddingTop: 8, gap: 8 },
   orgCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.neutral.rule,
   },
   orgCardPressed: { opacity: 0.8 },
   orgCardInner: {
@@ -72,16 +73,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  orgCardName: { flex: 1, fontSize: 15, fontWeight: '600', color: '#111827', marginEnd: 8 },
+  orgCardName: { flex: 1, fontSize: 15, fontWeight: '600', color: colors.neutral.ink, marginEnd: 8 },
   orgCardAction: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  orgCardActionText: { fontSize: 13, fontWeight: '600', color: '#6366F1' },
+  orgCardActionText: { fontSize: 13, fontWeight: '600', color: colors.brand.primary },
   contextPillRow: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 0 },
   contextPill: {
     alignSelf: 'flex-start',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.neutral.cardWarm,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 7,
   },
-  contextPillText: { fontSize: 13, fontWeight: '600', color: '#4338CA' },
+  contextPillText: { fontSize: 13, fontWeight: '600', color: colors.brand.primary },
 });

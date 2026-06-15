@@ -6,7 +6,6 @@
 
 import type { Student } from '../types';
 import type { SessionFormValues } from '../validators';
-import { Ionicons } from '@expo/vector-icons';
 import * as Burnt from 'burnt';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -14,16 +13,15 @@ import { useTranslation } from 'react-i18next';
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
-  View,
 } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, Text, useModal } from '@/components/ui';
+import { useModal } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
-import { DayOfWeekPicker, ScreenHeader, StudentSelectSheet, TimePickerSheet } from '../components';
+import { ScreenHeader, StudentSelectSheet, TimePickerSheet } from '../components';
+import { SessionFormCard } from '../components/session-create';
 import { useSessionCrud, useStudentSessions } from '../hooks';
 import { extractErrorMessage, getStudents } from '../services';
 import { sessionSchema } from '../validators';
@@ -75,100 +73,6 @@ function parseZodErrors(error: unknown, t: (key: string) => string): FormErrors 
     return ve;
   }
   return {};
-}
-
-type FormCardProps = {
-  formData: SessionFormValues;
-  errors: FormErrors;
-  availableStudents: Student[];
-  isSubmitting: boolean;
-  selectedStudentNames: string;
-  set: (field: keyof SessionFormValues) => (value: SessionFormValues[keyof SessionFormValues]) => void;
-  onSubmit: () => void;
-  onTimePicker: () => void;
-  onStudentPicker: () => void;
-  t: (key: string, opts?: any) => string;
-};
-
-function SessionFormCard({
-  formData,
-  errors,
-  isSubmitting,
-  selectedStudentNames,
-  set,
-  onSubmit,
-  onTimePicker,
-  onStudentPicker,
-  t,
-}: FormCardProps) {
-  return (
-    <View style={styles.card}>
-      <Animated.View entering={FadeInDown.delay(0).duration(350)} style={styles.formGroup}>
-        <Text style={styles.label}>{t('teacher.sessions.subjectLabel')}</Text>
-        <Input
-          placeholder={t('teacher.sessions.subjectPlaceholder')}
-          value={formData.subject}
-          onChangeText={set('subject') as (v: string) => void}
-          error={errors.subject}
-        />
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(80).duration(350)} style={styles.formGroup}>
-        <Text style={styles.label}>{t('teacher.sessions.daysLabel')}</Text>
-        <DayOfWeekPicker
-          selectedDays={formData.daysOfWeek}
-          onDaysChange={set('daysOfWeek') as (v: number[]) => void}
-        />
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(160).duration(350)} style={styles.formGroup}>
-        <Text style={styles.label}>{t('teacher.sessions.timeLabel')}</Text>
-        <Pressable
-          onPress={onTimePicker}
-          style={({ pressed }) => [styles.selectBtn, pressed && styles.selectBtnPressed, errors.time && styles.selectBtnError]}
-        >
-          <Ionicons name="time-outline" size={18} color={formData.time ? '#111827' : '#9CA3AF'} />
-          <Text style={[styles.selectBtnText, !formData.time && styles.selectBtnPlaceholder]}>
-            {formData.time || 'HH:mm'}
-          </Text>
-          <Ionicons name="chevron-down" size={16} color="#9CA3AF" />
-        </Pressable>
-        {errors.time ? <Text style={styles.fieldError}>{errors.time}</Text> : null}
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(240).duration(350)} style={styles.formGroup}>
-        <Text style={styles.label}>{t('teacher.sessions.studentsLabel')}</Text>
-        <Pressable
-          onPress={onStudentPicker}
-          style={({ pressed }) => [styles.selectBtn, pressed && styles.selectBtnPressed]}
-        >
-          <Ionicons name="people-outline" size={18} color={formData.studentIds.length > 0 ? '#111827' : '#9CA3AF'} />
-          <Text style={[styles.selectBtnText, formData.studentIds.length === 0 && styles.selectBtnPlaceholder]} numberOfLines={1}>
-            {formData.studentIds.length > 0
-              ? selectedStudentNames || t('teacher.sessions.studentCount', { count: formData.studentIds.length })
-              : t('teacher.sessions.selectStudents')}
-          </Text>
-          {formData.studentIds.length > 0 && (
-            <View style={styles.countBadge}>
-              <Text style={styles.countBadgeText}>{formData.studentIds.length}</Text>
-            </View>
-          )}
-          <Ionicons name="chevron-down" size={16} color="#9CA3AF" />
-        </Pressable>
-      </Animated.View>
-
-      {errors.form ? <Text style={styles.formError}>{errors.form}</Text> : null}
-
-      <Animated.View entering={FadeInDown.delay(320).duration(350)}>
-        <Button
-          label={t('teacher.sessions.createButton')}
-          onPress={onSubmit}
-          loading={isSubmitting}
-          variant="default"
-        />
-      </Animated.View>
-    </View>
-  );
 }
 
 export function SessionCreateScreen() {
@@ -245,7 +149,6 @@ export function SessionCreateScreen() {
           <SessionFormCard
             formData={formData}
             errors={errors}
-            availableStudents={availableStudents}
             isSubmitting={isSubmitting}
             selectedStudentNames={selectedStudentNames}
             set={set}
@@ -276,7 +179,7 @@ export function SessionCreateScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
   },
   flex: {
     flex: 1,
@@ -284,68 +187,5 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     flexGrow: 1,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    gap: 20,
-  },
-  formGroup: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  selectBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  selectBtnPressed: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#BFDBFE',
-  },
-  selectBtnError: {
-    borderColor: '#FCA5A5',
-  },
-  selectBtnText: {
-    flex: 1,
-    fontSize: 15,
-    color: '#111827',
-  },
-  selectBtnPlaceholder: {
-    color: '#9CA3AF',
-  },
-  countBadge: {
-    minWidth: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#3B82F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-  },
-  countBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  fieldError: {
-    fontSize: 12,
-    color: '#DC2626',
-  },
-  formError: {
-    fontSize: 13,
-    color: '#DC2626',
-    textAlign: 'center',
   },
 });
