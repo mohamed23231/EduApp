@@ -5,7 +5,10 @@
     },
     "errors": {
       "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "Your Google email is not verified. Please verify it and try again.",
-      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again."
+      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again.",
+      "invalidCredentials": "Incorrect phone/email or password. Please try again.",
+      "network": "Network error. Please check your connection and try again.",
+      "rateLimited": "Too many attempts. Please wait a moment and try again."
     },
     "invite": {
       "acceptButton": "Activate Account",
@@ -781,6 +784,7 @@
       "absentCount": "Absences",
       "emptyMessage": "No attendance records available.",
       "emptyTitle": "No Records Yet",
+      "errorTitle": "Could not load attendance",
       "excused": "Excused",
       "notMarked": "Not Marked",
       "present": "Present",
@@ -805,6 +809,7 @@
     "dashboard": {
       "emptyMessage": "Link a student to get started.",
       "emptyTitle": "No Students Linked",
+      "errorTitle": "Could not load your family",
       "familyLabel": "Family",
       "greeting": "Hi there",
       "hero": {
@@ -821,6 +826,7 @@
       },
       "linkStudentCta": "Link a Student",
       "noTimeline": "No recent attendance records.",
+      "noTimelineTitle": "No recent activity",
       "performanceSubtitle": "View ratings and progress",
       "performanceTitle": "Student Performance",
       "row": {
@@ -841,6 +847,8 @@
     },
     "linkStudent": {
       "description": "Enter the integration code provided by your school to link your child's account.",
+      "errorExpired": "That code has expired. Ask your tutor for a new one.",
+      "errorInvalid": "That code isn't valid. Double-check it and try again.",
       "fallbackHelp": "Don't have a code? Please contact your school's administration office for assistance.",
       "helpContent": "You can find the integration code in the welcome letter from your school, or contact the school administration.",
       "helpLink": "Where do I find the code?",
@@ -883,6 +891,8 @@
       "chartTrendingUp": "Trending up ↗",
       "emptyState": "No performance data yet",
       "emptyStateHint": "Ratings will appear here after sessions are completed",
+      "emptyStateTitle": "No records yet",
+      "errorTitle": "Could not load performance",
       "highest": "Best Rating",
       "lowScoreNote": "Needs attention",
       "lowest": "Lowest",
@@ -891,10 +901,12 @@
       "ratedCount": "Rated",
       "subjectAttendance": "{{rate}}% attendance",
       "subjectsEmpty": "No subjects yet.",
+      "subjectsEmptyTitle": "No subjects yet",
       "tabOverview": "Overview",
       "tabSubjects": "Subjects",
       "tabTimeline": "Timeline",
       "teachersEmpty": "No teachers linked to sessions yet.",
+      "teachersEmptyTitle": "No teachers yet",
       "teachersLabel": "TEACHERS",
       "title": "Performance"
     },
@@ -922,6 +934,7 @@
     "schedule": {
       "emptyMessage": "Upcoming sessions will appear here.",
       "emptyTitle": "Nothing scheduled",
+      "errorTitle": "Could not load the schedule",
       "title": "Schedule",
       "todayLabel": "TODAY",
       "upcomingLabel": "UPCOMING"
@@ -930,6 +943,7 @@
       "accessCodeCopied": "Copied!",
       "accessCodeCopy": "Copy",
       "accessCodeLabel": "ACCESS CODE",
+      "errorTitle": "Could not load this student",
       "labels": {
         "email": "Email",
         "enrollmentDate": "Enrollment Date",
@@ -950,6 +964,7 @@
       "attendanceLabel": "attendance",
       "emptyMessage": "Link a student to see them here.",
       "emptyTitle": "No Students",
+      "errorTitle": "Could not load your students",
       "title": "Students"
     },
     "tabs": {
@@ -1025,6 +1040,7 @@
       "clearRating": "Clear",
       "conflictError": "One or more records were already submitted.",
       "emptyMessage": "No students assigned to this session.",
+      "emptyTitle": "No students assigned",
       "enterRating": "Enter Rating (0-10)",
       "error": "Failed to submit attendance. Please try again.",
       "excuseNote": "Reason",
@@ -1067,7 +1083,9 @@
       "delete": "Delete",
       "edit": "Edit",
       "error": "An error occurred",
+      "errorTitle": "Something went wrong",
       "featureDisabled": "This feature is not available for your account.",
+      "featureDisabledTitle": "Feature unavailable",
       "genericError": "Something went wrong. Please try again.",
       "loading": "Loading...",
       "ok": "OK",
@@ -1123,6 +1141,7 @@
       "emptyState": "No performance data yet",
       "emptyStateHint": "Ratings will appear here after sessions are rated",
       "highest": "Highest",
+      "loadMore": "Load more",
       "lowest": "Lowest",
       "noRatingLabel": "No rating",
       "ratedCount": "Rated",
@@ -1183,6 +1202,7 @@
     },
     "rankings": {
       "averageRating": "Average Rating",
+      "emptyHint": "Rate students after a session to build the leaderboard.",
       "filterAll": "All",
       "filterLast10": "Last 10",
       "filterLast5": "Last 5",

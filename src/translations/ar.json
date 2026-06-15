@@ -5,7 +5,10 @@
     },
     "errors": {
       "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "بريدك الإلكتروني في جوجل غير مُتحقق منه. يرجى التحقق منه والمحاولة مرة أخرى.",
-      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى."
+      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى.",
+      "invalidCredentials": "رقم الهاتف أو البريد الإلكتروني أو كلمة المرور غير صحيحة. يُرجى المحاولة مرة أخرى.",
+      "network": "خطأ في الشبكة. يُرجى التحقق من اتصالك ثم المحاولة مرة أخرى.",
+      "rateLimited": "عدد محاولات كبير جدًا. يُرجى الانتظار قليلًا ثم المحاولة مرة أخرى."
     },
     "invite": {
       "acceptButton": "تفعيل الحساب",
@@ -781,6 +784,7 @@
       "absentCount": "الغيابات",
       "emptyMessage": "لا توجد سجلات حضور متاحة.",
       "emptyTitle": "لا توجد سجلات بعد",
+      "errorTitle": "تعذّر تحميل سجل الحضور",
       "excused": "معذور",
       "notMarked": "لم يُحدَّد",
       "present": "حاضر",
@@ -805,6 +809,7 @@
     "dashboard": {
       "emptyMessage": "ربط طالب للبدء.",
       "emptyTitle": "لم يتم ربط أي طلاب",
+      "errorTitle": "تعذّر تحميل بيانات عائلتك",
       "familyLabel": "العائلة",
       "greeting": "أهلاً",
       "hero": {
@@ -821,6 +826,7 @@
       },
       "linkStudentCta": "ربط طالب",
       "noTimeline": "لا توجد سجلات حضور حديثة.",
+      "noTimelineTitle": "لا يوجد نشاط حديث",
       "performanceSubtitle": "عرض التقييمات والتقدم",
       "performanceTitle": "أداء الطالب",
       "row": {
@@ -841,6 +847,8 @@
     },
     "linkStudent": {
       "description": "أدخل رمز التكامل المقدم من مدرستك لربط حساب طفلك.",
+      "errorExpired": "انتهت صلاحية هذا الرمز. اطلب رمزًا جديدًا من المعلم.",
+      "errorInvalid": "هذا الرمز غير صالح. يُرجى التحقق منه والمحاولة مرة أخرى.",
       "fallbackHelp": "ليس لديك رمز؟ يرجى التواصل مع مكتب إدارة مدرستك للحصول على المساعدة.",
       "helpContent": "يمكنك العثور على رمز التكامل في خطاب الترحيب من مدرستك، أو التواصل مع إدارة المدرسة.",
       "helpLink": "أين أجد الرمز؟",
@@ -883,6 +891,8 @@
       "chartTrendingUp": "في تحسن ↗",
       "emptyState": "لا توجد بيانات أداء بعد",
       "emptyStateHint": "ستظهر التقييمات هنا بعد اكتمال الحصص",
+      "emptyStateTitle": "لا توجد سجلات بعد",
+      "errorTitle": "تعذّر تحميل بيانات الأداء",
       "highest": "أفضل تقييم",
       "lowScoreNote": "يحتاج إلى اهتمام",
       "lowest": "الأدنى",
@@ -891,10 +901,12 @@
       "ratedCount": "مقيّم",
       "subjectAttendance": "{{rate}}٪ حضور",
       "subjectsEmpty": "لا توجد مواد بعد.",
+      "subjectsEmptyTitle": "لا توجد مواد بعد",
       "tabOverview": "نظرة عامة",
       "tabSubjects": "المواد",
       "tabTimeline": "السجل",
       "teachersEmpty": "لا يوجد معلمون مرتبطون بالحصص بعد.",
+      "teachersEmptyTitle": "لا يوجد معلمون بعد",
       "teachersLabel": "المعلمون",
       "title": "الأداء"
     },
@@ -922,6 +934,7 @@
     "schedule": {
       "emptyMessage": "ستظهر الحصص القادمة هنا.",
       "emptyTitle": "لا توجد حصص مجدولة",
+      "errorTitle": "تعذّر تحميل الجدول",
       "title": "الجدول",
       "todayLabel": "اليوم",
       "upcomingLabel": "قادم"
@@ -930,6 +943,7 @@
       "accessCodeCopied": "تم النسخ!",
       "accessCodeCopy": "نسخ",
       "accessCodeLabel": "كود الوصول",
+      "errorTitle": "تعذّر تحميل بيانات الطالب",
       "labels": {
         "email": "البريد الإلكتروني",
         "enrollmentDate": "تاريخ التسجيل",
@@ -950,6 +964,7 @@
       "attendanceLabel": "الحضور",
       "emptyMessage": "ربط طالب لرؤيته هنا.",
       "emptyTitle": "لا توجد طلاب",
+      "errorTitle": "تعذّر تحميل قائمة الأبناء",
       "title": "الطلاب"
     },
     "tabs": {
@@ -1025,6 +1040,7 @@
       "clearRating": "مسح",
       "conflictError": "تم تقديم سجل واحد أو أكثر بالفعل.",
       "emptyMessage": "لا يوجد طلاب مسندين لهذه الحصة.",
+      "emptyTitle": "لا يوجد طلاب معيّنون",
       "enterRating": "أدخل التقييم (0-10)",
       "error": "فشل تقديم الحضور. يرجى المحاولة مرة أخرى.",
       "excuseNote": "السبب",
@@ -1067,7 +1083,9 @@
       "delete": "حذف",
       "edit": "تعديل",
       "error": "حدث خطأ",
+      "errorTitle": "حدث خطأ ما",
       "featureDisabled": "هذه الميزة غير متاحة لحسابك.",
+      "featureDisabledTitle": "الميزة غير متاحة",
       "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
       "loading": "جاري التحميل...",
       "ok": "موافق",
@@ -1123,6 +1141,7 @@
       "emptyState": "لا توجد بيانات أداء بعد",
       "emptyStateHint": "ستظهر التقييمات هنا بعد تقييم الحصص",
       "highest": "الأعلى",
+      "loadMore": "تحميل المزيد",
       "lowest": "الأدنى",
       "noRatingLabel": "بدون تقييم",
       "ratedCount": "مقيّم",
@@ -1183,6 +1202,7 @@
     },
     "rankings": {
       "averageRating": "متوسط التقييم",
+      "emptyHint": "قيّم الطلاب بعد الجلسة لإنشاء قائمة المتصدرين.",
       "filterAll": "الكل",
       "filterLast10": "آخر 10",
       "filterLast5": "آخر 5",
