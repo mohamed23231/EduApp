@@ -14,7 +14,7 @@ export function AttendanceSheetHeader({ sessionClosed, sessionNotActive, onBack 
     <>
       <View className="flex-row items-center border-b border-[#E5E7EB] bg-white px-5 py-4">
         <TouchableOpacity onPress={onBack}>
-          <Text className="me-3 text-base text-[#3B82F6]">{t('teacher.common.back')}</Text>
+          <Text className="me-3 text-base text-brand">{t('teacher.common.back')}</Text>
         </TouchableOpacity>
         <Text className="flex-1 text-lg font-semibold text-[#111827]">{t('teacher.attendance.title')}</Text>
       </View>

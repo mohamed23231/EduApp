@@ -35,6 +35,8 @@ export function AttendanceSheetScreen() {
     students,
     attendanceMap,
     isLoading,
+    isError,
+    refetch,
     error,
     isSubmitting,
     unratedCount,
@@ -67,15 +69,15 @@ export function AttendanceSheetScreen() {
     );
   }
 
-  if (error && students.length === 0) {
+  if (isError || (error && students.length === 0)) {
     return (
       <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
         <AttendanceSheetHeader sessionClosed={false} sessionNotActive={false} onBack={() => router.back()} />
         <View className="flex-1 items-center justify-center">
           <ErrorState
             title={t('teacher.common.errorTitle', 'Something went wrong')}
-            body={error}
-            action={{ label: t('teacher.common.retry'), onPress: () => router.back() }}
+            body={error ?? t('teacher.common.loadError', 'Failed to load. Please try again.')}
+            action={{ label: t('teacher.common.retry'), onPress: () => refetch() }}
           />
         </View>
       </SafeAreaView>

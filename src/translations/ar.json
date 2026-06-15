@@ -46,12 +46,14 @@
       "headline": "الفصل الدراسي،\nفي جيبك.",
       "heroLine1": "الفصل الدراسي،",
       "heroLine2": "في جيبك.",
+      "hidePassword": "إخفاء كلمة المرور",
       "legalLine": "بمتابعتك توافق على شروط طبعني وسياسة الخصوصية.",
       "orConnectWith": "أو الاتصال عبر",
       "orDivider": "أو",
       "passwordLabel": "كلمة المرور",
       "phoneTab": "الهاتف",
       "protectedBy": "محمي بواسطة أمان تابعني",
+      "showPassword": "إظهار كلمة المرور",
       "signInWithGoogle": "تسجيل الدخول عبر Google",
       "subheadline": "سجّل دخولك لمتابعة الحصص والحضور والأداء.",
       "submit": "تسجيل الدخول",
@@ -159,6 +161,9 @@
         "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
         "roleRequired": "يرجى اختيار دور"
       }
+    },
+    "topBar": {
+      "toggleLanguage": "تغيير اللغة"
     }
   },
   "brandVoice": {
@@ -176,6 +181,11 @@
   },
   "common": {
     "back": "رجوع",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "errorTitle": "حدث خطأ ما",
+    "goBack": "العودة",
     "language": "اللغة"
   },
   "contextSwitcher": {
@@ -219,6 +229,7 @@
     "attendance": {
       "absent": "غائب",
       "back": "رجوع",
+      "backspace": "مسح حرف",
       "clearRating": "مسح",
       "emptyStudents": "لا يوجد طلاب مسجلين في هذه الحصة.",
       "enterRating": "أدخل التقييم",
@@ -241,12 +252,14 @@
     },
     "common": {
       "cancel": "إلغاء",
+      "close": "إغلاق",
       "confirm": "تأكيد",
       "errorTitle": "حدث خطأ ما",
       "loading": "جارٍ التحميل...",
       "noOrgCopy": "أنشئ مؤسستك الأولى للبدء.",
       "noOrgTitle": "لا توجد مؤسسة بعد",
-      "ok": "حسنًا"
+      "ok": "حسنًا",
+      "retry": "إعادة المحاولة"
     },
     "dashboard": {
       "bellA11y": "الإعلانات",
@@ -263,6 +276,8 @@
       "emptyCopy": "أنشئ أول مؤسسة لفتح لوحة المدير.",
       "emptyTitle": "لا توجد مؤسسة بعد",
       "endSession": "إنهاء الحصة",
+      "errorBody": "يرجى المحاولة مرة أخرى.",
+      "errorTitle": "تعذّر تحميل لوحة التحكم",
       "goodAfternoon": "مساء الخير",
       "goodEvening": "مساء الخير",
       "goodMorning": "صباح الخير",
@@ -378,6 +393,8 @@
         "excusedCount": "بعذر",
         "totalSessions": "إجمالي الحصص"
       },
+      "errorBody": "يرجى المحاولة مرة أخرى.",
+      "errorTitle": "تعذّر تحميل التقارير",
       "range": {
         "month": "شهر",
         "term": "فصل",
@@ -588,6 +605,7 @@
       "totalSessions": "الحصص"
     },
     "students": {
+      "actionErrorTitle": "فشل الإجراء",
       "actions": {
         "copy": "نسخ الرمز",
         "create": "إنشاء الطالب",
@@ -609,6 +627,7 @@
       "createSuccess": "تمت إضافة الطالب بنجاح",
       "createTitle": "إضافة طالب",
       "deleteConfirm": "حذف",
+      "deleteError": "تعذّر حذف الطالب",
       "deleteMessage": "سيتم إزالة الطالب من الحصص المستقبلية. البيانات التاريخية محفوظة.",
       "deleteTitle": "حذف الطالب؟",
       "editTitle": "تعديل الطالب",
@@ -646,6 +665,7 @@
       "pageInfo": "صفحة {{page}} من {{total}}",
       "parentLinked": "ولي الأمر مرتبط",
       "prevPage": "السابق",
+      "regenerateError": "تعذّر إعادة إنشاء الرمز",
       "regenerateMessage": "الكود القديم سيتوقف عن العمل فوراً.",
       "regenerateTitle": "تجديد الكود؟",
       "search": "ابحث عن الطلاب",
@@ -867,6 +887,8 @@
       }
     },
     "notifications": {
+      "a11yRead": "مقروء",
+      "a11yUnread": "غير مقروء",
       "absence": {
         "body": "تم تحديد {{studentName}} كغائب في {{sessionDate}}",
         "title": "تنبيه غياب"
@@ -888,6 +910,7 @@
         "title": "تنبيه أداء منخفض"
       },
       "markAllAsRead": "وضع علامة على الكل كمقروء",
+      "markReadError": "تعذّر تحديث الإشعارات",
       "openSettings": "فتح الإعدادات",
       "pushDisabled": "الإشعارات الفورية معطلة. الإشعارات داخل التطبيق لا تزال نشطة.",
       "pushUnsupported": "الإشعارات الفورية غير متاحة على المحاكي.",
@@ -1064,6 +1087,7 @@
       "applyToAll_other": "تطبيق {{rating}}/10 على {{count}} طالب",
       "applyToAll_two": "تطبيق {{rating}}/10 على طالبين",
       "applyToAll_zero": "تطبيق {{rating}}/10 على لا أحد",
+      "backspace": "حذف",
       "batchRating": "تقييم سريع للجميع",
       "batchRatingButton": "تقييم {{count}} طالب دفعة واحدة",
       "batchRatingButton_few": "تقييم {{count}} طلاب دفعة واحدة",
@@ -1093,6 +1117,12 @@
       "noRating": "بدون تقييم",
       "noSearchResults": "لم يتم العثور على طلاب",
       "partialFailureError": "فشل حفظ بعض سجلات الحضور.",
+      "partialFailure_few": "فشل حفظ {{count}} سجلات حضور",
+      "partialFailure_many": "فشل حفظ {{count}} سجل حضور",
+      "partialFailure_one": "فشل حفظ سجل حضور واحد",
+      "partialFailure_other": "فشل حفظ {{count}} سجل حضور",
+      "partialFailure_two": "فشل حفظ سجلَّي حضور",
+      "partialFailure_zero": "لم يفشل أي سجل حضور",
       "present": "حاضر",
       "presentLabel": "وضع علامة حاضر",
       "progress": "{{marked}} من {{total}} تم تسجيلهم",
@@ -1113,6 +1143,7 @@
       "studentCount_two": "طالبان",
       "studentCount_zero": "بدون طلاب",
       "submitButton": "تقديم الحضور",
+      "submitFailed": "فشل تقديم الحضور",
       "submitSuccess": "تم تسجيل الحضور بنجاح.",
       "submitWithCount": "تقديم الحضور ({{marked}}/{{total}})",
       "submitting": "جاري التقديم...",
@@ -1130,6 +1161,7 @@
       "featureDisabled": "هذه الميزة غير متاحة لحسابك.",
       "featureDisabledTitle": "الميزة غير متاحة",
       "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "loadError": "فشل التحميل. يرجى المحاولة مرة أخرى.",
       "loading": "جاري التحميل...",
       "ok": "موافق",
       "retry": "إعادة محاولة",
@@ -1463,9 +1495,14 @@
     }
   },
   "teacherOrg": {
+    "actionFailed": "فشل الإجراء",
+    "back": "رجوع",
     "closeSession": "إغلاق الجلسة",
     "duration": "{{min}} دقيقة · {{n}} طالب",
     "empty": "لا توجد جلسات معيّنة لليوم.",
+    "errorBody": "يرجى المحاولة مرة أخرى.",
+    "errorTitle": "تعذّر تحميل الجلسات",
+    "retry": "إعادة المحاولة",
     "startSession": "بدء الجلسة",
     "subtitle": "جلساتك المعيّنة",
     "today": "اليوم",

@@ -9,7 +9,7 @@ afterEach(cleanup);
 describe('errorState', () => {
   it('renders with default title', () => {
     render(<ErrorState testID="error" />);
-    expect(screen.getByText('Something went wrong')).toBeOnTheScreen();
+    expect(screen.getByText('common.errorTitle')).toBeOnTheScreen();
   });
 
   it('renders with custom title and body', () => {
@@ -40,6 +40,6 @@ describe('errorState', () => {
   it('does not render body when not provided', () => {
     render(<ErrorState testID="error" />);
     expect(screen.getByTestId('error')).toBeOnTheScreen();
-    expect(screen.getByText('Something went wrong')).toBeOnTheScreen();
+    expect(screen.getByText('common.errorTitle')).toBeOnTheScreen();
   });
 });

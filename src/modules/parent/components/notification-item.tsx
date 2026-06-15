@@ -148,7 +148,11 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
   const isUnread = notification.status === 'UNREAD';
   const { title, body } = useNotificationContent(notification);
 
-  const accessibilityLabel = `${body}, ${isUnread ? 'unread' : 'read'}`;
+  const readStateLabel = t(
+    isUnread ? 'parent.notifications.a11yUnread' : 'parent.notifications.a11yRead',
+    isUnread ? 'unread' : 'read',
+  );
+  const accessibilityLabel = `${body}, ${readStateLabel}`;
   const isRTL = I18nManager.isRTL;
 
   const handlePressIn = () => {

@@ -7,7 +7,7 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { Student } from '../types';
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import { Button, Modal, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type StudentSelectSheetProps = {
   ref?: React.RefObject<BottomSheetModal | null>;
@@ -25,25 +26,26 @@ type StudentSelectSheetProps = {
   onConfirm: (ids: string[]) => void;
 };
 
-function StudentPickerRow({
+const StudentPickerRow = memo(({
   student,
   isSelected,
   onToggle,
 }: {
   student: Student;
   isSelected: boolean;
-  onToggle: () => void;
-}) {
+  onToggle: (id: string) => void;
+}) => {
+  const handlePress = useCallback(() => onToggle(student.id), [onToggle, student.id]);
   return (
     <Pressable
-      onPress={onToggle}
+      onPress={handlePress}
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: isSelected }}
     >
       <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
         {isSelected
-          ? <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+          ? <Ionicons name="checkmark" size={14} color={colors.neutral.white} />
           : null}
       </View>
 
@@ -55,7 +57,7 @@ function StudentPickerRow({
       </View>
     </Pressable>
   );
-}
+});
 
 export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConfirm }: StudentSelectSheetProps) {
   const { t } = useTranslation();
@@ -68,6 +70,8 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
       return availableStudents;
     return availableStudents.filter(s => s.name.toLowerCase().includes(q));
   }, [availableStudents, query]);
+
+  const selectedSet = useMemo(() => new Set(draft), [draft]);
 
   const toggle = useCallback((id: string) => {
     setDraft(prev =>
@@ -84,11 +88,11 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
     ({ item }: { item: Student }) => (
       <StudentPickerRow
         student={item}
-        isSelected={draft.includes(item.id)}
-        onToggle={() => toggle(item.id)}
+        isSelected={selectedSet.has(item.id)}
+        onToggle={toggle}
       />
     ),
-    [draft, toggle],
+    [selectedSet, toggle],
   );
 
   return (
@@ -136,6 +140,7 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
           data={filtered}
           keyExtractor={item => item.id}
           renderItem={renderItem}
+          extraData={selectedSet}
           style={styles.list}
           contentContainerStyle={styles.listContent}
           keyboardShouldPersistTaps="handled"
@@ -201,7 +206,7 @@ const styles = StyleSheet.create({
   },
   selectAllText: {
     fontSize: 13,
-    color: '#3B82F6',
+    color: colors.brand.primaryInk,
     fontWeight: '600',
   },
   countActions: {
@@ -228,7 +233,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rowPressed: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.neutral.cardWarm,
   },
   checkbox: {
     width: 24,
@@ -241,8 +246,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   checkboxActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: colors.brand.primary,
+    borderColor: colors.brand.primary,
   },
   info: {
     flex: 1,

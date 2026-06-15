@@ -21,6 +21,7 @@ import colors from '@/components/ui/colors';
 import { useModal } from '@/components/ui/modal';
 import { useMonogramTone } from '@/components/ui/monogram';
 import { AppRoute } from '@/core/navigation/routes';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { NoOrgEmptyState } from '../components';
 import {
   useDeleteStudent,
@@ -217,7 +218,12 @@ function StudentListSection() {
           style: 'destructive',
           onPress: () => {
             actionsSheet.dismiss();
-            deleteMutation.mutate(selectedStudent.id);
+            deleteMutation.mutate(selectedStudent.id, {
+              onError: error => Alert.alert(
+                t('manager.students.actionErrorTitle', { defaultValue: 'Action failed' }),
+                getApiErrorMessage(error, t('manager.students.deleteError', { defaultValue: 'Could not delete this student. Please try again.' })),
+              ),
+            });
           },
         },
       ],
@@ -236,7 +242,12 @@ function StudentListSection() {
           text: t('manager.students.actions.regenerate'),
           onPress: () => {
             actionsSheet.dismiss();
-            regenerateMutation.mutate(selectedStudent.id);
+            regenerateMutation.mutate(selectedStudent.id, {
+              onError: error => Alert.alert(
+                t('manager.students.actionErrorTitle', { defaultValue: 'Action failed' }),
+                getApiErrorMessage(error, t('manager.students.regenerateError', { defaultValue: 'Could not regenerate the code. Please try again.' })),
+              ),
+            });
           },
         },
       ],

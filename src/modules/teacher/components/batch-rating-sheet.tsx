@@ -10,6 +10,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Modal, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 // Order: 10 first (best), then descending to 0
 const RATING_OPTIONS = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0] as const;
@@ -110,7 +111,7 @@ export function BatchRatingSheet({
 const styles = StyleSheet.create({
   applyButton: {
     alignItems: 'center',
-    backgroundColor: '#3B82F6',
+    backgroundColor: colors.brand.primary,
     borderRadius: 12,
     flexDirection: 'row',
     gap: 8,
@@ -162,8 +163,8 @@ const styles = StyleSheet.create({
     width: 52,
   },
   ratingOptionSelected: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#3B82F6',
+    backgroundColor: colors.brand.primaryGlow,
+    borderColor: colors.brand.primary,
   },
   ratingText: {
     color: '#6B7280',
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   ratingTextSelected: {
-    color: '#3B82F6',
+    color: colors.brand.primaryInk,
   },
   tipContainer: {
     alignItems: 'center',

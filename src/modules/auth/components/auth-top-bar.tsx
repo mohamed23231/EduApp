@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { Icon, TabaMark } from '@/components/ui';
 import colors from '@/components/ui/colors';
@@ -19,6 +20,7 @@ export type AuthTopBarProps = {
 };
 
 export function AuthTopBar({ onBack, markSize = 48, backTestID, markTestID }: AuthTopBarProps) {
+  const { t } = useTranslation();
   const { language, setLanguage } = useSelectedLanguage();
   const toggleLanguage = () => setLanguage(language === 'en' ? 'ar' : 'en');
 
@@ -39,6 +41,8 @@ export function AuthTopBar({ onBack, markSize = 48, backTestID, markTestID }: Au
                 onPress={onBack}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 testID={backTestID}
+                accessibilityRole="button"
+                accessibilityLabel={t('common.goBack', 'Go back')}
                 style={{
                   width: 40,
                   height: 40,
@@ -59,6 +63,8 @@ export function AuthTopBar({ onBack, markSize = 48, backTestID, markTestID }: Au
       <Pressable
         onPress={toggleLanguage}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        accessibilityRole="button"
+        accessibilityLabel={t('auth.topBar.toggleLanguage', 'Change language')}
         style={{
           flexDirection: 'row',
           alignItems: 'center',

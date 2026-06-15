@@ -67,7 +67,7 @@ type LabelProps = {
 
 function Label({ text, testID, className = '' }: LabelProps) {
   return (
-    <Text testID={testID} className={`${className} pl-2`}>
+    <Text testID={testID} className={`${className} ps-2`}>
       {text}
     </Text>
   );
@@ -132,7 +132,7 @@ function CheckboxBase({
             <Label
               text={label}
               testID={testID ? `${testID}-label` : undefined}
-              className="pr-2"
+              className="pe-2"
             />
           )
         : null}

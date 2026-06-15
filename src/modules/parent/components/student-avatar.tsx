@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { Color } from '@/components/ui/color-utils';
+import colors from '@/components/ui/colors';
 
 export function getInitials(name: string): string {
   const trimmed = name.trim();
@@ -54,7 +55,7 @@ export function StudentAvatar({ name, size = 'md', selected = false, onPress }: 
             width: ring,
             height: ring,
             borderRadius: ring / 2,
-            borderColor: selected ? Color.indigo(500) : 'transparent',
+            borderColor: selected ? colors.brand.primary : 'transparent',
           },
         ]}
       >

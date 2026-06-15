@@ -36,7 +36,12 @@ export function NumpadModal({ visible, value, onInput, onConfirm, onCancel, onCl
         >
           {/* Header */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <Pressable onPress={onCancel} style={{ padding: 4 }}>
+            <Pressable
+              onPress={onCancel}
+              style={{ padding: 4 }}
+              accessibilityRole="button"
+              accessibilityLabel={t('manager.common.close', { defaultValue: 'Close' })}
+            >
               <Ionicons name="close" size={24} color={c.neutral.inkMuted} />
             </Pressable>
             <RNText style={{ fontSize: 16, fontWeight: '600', color: c.neutral.ink }}>
@@ -72,7 +77,12 @@ export function NumpadModal({ visible, value, onInput, onConfirm, onCancel, onCl
             <Pressable onPress={() => onInput('0')} style={({ pressed }) => ({ width: 88, height: 56, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? c.neutral.rule : c.neutral.cardWarm, borderRadius: 10 })}>
               <RNText style={{ fontSize: 22, fontWeight: '600', color: c.neutral.ink }}>0</RNText>
             </Pressable>
-            <Pressable onPress={() => onInput('backspace')} style={({ pressed }) => ({ width: 88, height: 56, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? c.neutral.rule : c.semantic.excusedSoft, borderRadius: 10 })}>
+            <Pressable
+              onPress={() => onInput('backspace')}
+              style={({ pressed }) => ({ width: 88, height: 56, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? c.neutral.rule : c.semantic.excusedSoft, borderRadius: 10 })}
+              accessibilityRole="button"
+              accessibilityLabel={t('manager.attendance.backspace', { defaultValue: 'Backspace' })}
+            >
               <Ionicons name="backspace-outline" size={24} color={c.neutral.inkMuted} />
             </Pressable>
           </View>

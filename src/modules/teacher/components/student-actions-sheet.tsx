@@ -19,6 +19,7 @@ import {
   View,
 } from 'react-native';
 import { ConfirmSheet, Modal, Text, useModal } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { deleteStudent, getAccessCode, regenerateAccessCode } from '../services';
 
 export type StudentActionsSheetRef = {
@@ -131,7 +132,7 @@ function CodeSection({ code, isLoadingCode, onCopy, onShare, t }: {
   t: (key: string) => string;
 }) {
   if (isLoadingCode)
-    return <ActivityIndicator size="small" color="#3B82F6" />;
+    return <ActivityIndicator size="small" color={colors.brand.primary} />;
   if (!code)
     return <Text style={styles.noCode}>{t('teacher.studentActions.noCode')}</Text>;
   return (
@@ -140,8 +141,8 @@ function CodeSection({ code, isLoadingCode, onCopy, onShare, t }: {
         <Text style={styles.codeText}>{code.code}</Text>
       </View>
       <View style={styles.codeActions}>
-        <ActionChip icon="copy-outline" label={t('teacher.studentActions.copyCode')} onPress={onCopy} color="#3B82F6" bg="#EFF6FF" />
-        <ActionChip icon="share-outline" label={t('teacher.studentActions.shareCode')} onPress={onShare} color="#3B82F6" bg="#EFF6FF" />
+        <ActionChip icon="copy-outline" label={t('teacher.studentActions.copyCode')} onPress={onCopy} color={colors.brand.primaryDeep} bg={colors.brand.primaryGlow} />
+        <ActionChip icon="share-outline" label={t('teacher.studentActions.shareCode')} onPress={onShare} color={colors.brand.primaryDeep} bg={colors.brand.primaryGlow} />
       </View>
     </>
   );
@@ -175,7 +176,7 @@ export function StudentActionsSheet({ ref, onEdit, onDeleted, onViewPerformance 
           </View>
           <View style={styles.actions}>
             <ActionRow icon="create-outline" label={t('teacher.studentActions.editStudent')} onPress={handleEditPress} />
-            {onViewPerformance && <ActionRow icon="bar-chart-outline" label={t('teacher.performance.studentPerformance')} onPress={handlePerformancePress} color="#3B82F6" />}
+            {onViewPerformance && <ActionRow icon="bar-chart-outline" label={t('teacher.performance.studentPerformance')} onPress={handlePerformancePress} color={colors.brand.primaryDeep} />}
             {state.code && <ActionRow icon="refresh-outline" label={t('teacher.studentActions.regenerateCode')} onPress={() => state.confirmRegenModal.present()} color="#F59E0B" />}
             <ActionRow icon="trash-outline" label={t('teacher.studentActions.deleteStudent')} onPress={() => state.confirmDeleteModal.present()} color="#DC2626" danger />
           </View>

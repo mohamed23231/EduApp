@@ -235,8 +235,8 @@ export function MoreScreen() {
             <Text className="text-[26px] font-bold" style={{ color: colors.neutral.white }}>{initials}</Text>
           </View>
           <Text className="font-inter mt-3 text-lg font-semibold text-slate-900">{displayName}</Text>
-          <View className="mt-1 rounded-full bg-[#EEF2FF] px-3 py-1">
-            <Text className="font-inter text-xs font-semibold text-[#4338CA]">
+          <View className="mt-1 rounded-full px-3 py-1" style={{ backgroundColor: colors.brand.primaryGlow }}>
+            <Text className="font-inter text-xs font-semibold" style={{ color: colors.brand.primaryInk }}>
               {t('manager.more.roleManager', { defaultValue: 'Manager' })}
             </Text>
           </View>

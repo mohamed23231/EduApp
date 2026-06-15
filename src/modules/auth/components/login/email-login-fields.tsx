@@ -106,6 +106,11 @@ export function EmailLoginFields({
                   onPress={() => setShowPassword(s => !s)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   style={{ marginStart: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(
+                    showPassword ? 'auth.login.hidePassword' : 'auth.login.showPassword',
+                    showPassword ? 'Hide password' : 'Show password',
+                  )}
                 >
                   <Icon name={showPassword ? 'eyeOff' : 'eye'} size={20} color={colors.neutral.dim} />
                 </Pressable>

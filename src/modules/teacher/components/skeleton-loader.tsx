@@ -5,6 +5,7 @@
 
 import { MotiView } from 'moti';
 import { StyleSheet, View } from 'react-native';
+import colors from '@/components/ui/colors';
 
 type SkeletonBoxProps = {
   width?: number | `${number}%`;
@@ -19,7 +20,7 @@ function SkeletonBox({ width = '100%', height = 16, borderRadius = 6, style }: S
       from={{ opacity: 0.4 }}
       animate={{ opacity: 1 }}
       transition={{ type: 'timing', duration: 700, loop: true }}
-      style={[{ width, height, borderRadius, backgroundColor: '#E5E7EB' }, style]}
+      style={[{ width, height, borderRadius, backgroundColor: colors.neutral.rule }, style]}
     />
   );
 }
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E5E7EB',
+    borderColor: colors.neutral.rule,
   },
   rowLeft: {
     flex: 1,
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E5E7EB',
+    borderColor: colors.neutral.rule,
   },
   sessionCardTop: {
     flexDirection: 'row',

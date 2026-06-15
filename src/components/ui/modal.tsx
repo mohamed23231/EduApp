@@ -35,6 +35,7 @@ import type {
 } from '@gorhom/bottom-sheet';
 import { BottomSheetModal, useBottomSheet } from '@gorhom/bottom-sheet';
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -62,6 +63,7 @@ export function useModal() {
 export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | number)[], title, detached = true, children, ...props }: ModalProps & { ref?: ModalRef }) {
   const modal = useModal();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const snapPoints = React.useMemo(() => _snapPoints, [_snapPoints]);
   const bottomInset = detached
     ? (insets.bottom === 0 ? 14 : insets.bottom)
@@ -78,13 +80,13 @@ export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | numb
         onPress={modal.dismiss}
         style={handleStyles.container}
         accessibilityRole="button"
-        accessibilityLabel="close"
+        accessibilityLabel={t('common.close', 'Close')}
         hitSlop={{ top: 10, bottom: 10, left: 40, right: 40 }}
       >
         <View style={handleStyles.notch} />
       </Pressable>
     ),
-    [modal.dismiss],
+    [modal.dismiss, t],
   );
 
   const renderHeader = React.useCallback(

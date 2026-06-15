@@ -35,6 +35,7 @@ function MarkAllButton({
 type NotificationHeaderProps = {
   isRTL: boolean;
   onBack: () => void;
+  showBack?: boolean;
   unreadCount?: number;
   isMarkingAll?: boolean;
   onMarkAllAsRead?: () => void;
@@ -43,6 +44,7 @@ type NotificationHeaderProps = {
 export function NotificationHeader({
   isRTL,
   onBack,
+  showBack = true,
   unreadCount,
   isMarkingAll,
   onMarkAllAsRead,
@@ -53,15 +55,19 @@ export function NotificationHeader({
       className={`flex-row items-center px-5 py-4 ${isRTL ? 'flex-row-reverse' : ''}`}
       style={{ borderBottomWidth: 1, borderBottomColor: colors.neutral.rule, backgroundColor: colors.neutral.card }}
     >
-      <Pressable
-        onPress={onBack}
-        className={`p-2 ${isRTL ? 'ms-2' : 'me-2'}`}
-        accessibilityRole="button"
-        accessibilityLabel={t('parent.common.back', 'Back')}
-        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-      >
-        <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color={colors.neutral.ink} />
-      </Pressable>
+      {showBack
+        ? (
+            <Pressable
+              onPress={onBack}
+              className={`p-2 ${isRTL ? 'ms-2' : 'me-2'}`}
+              accessibilityRole="button"
+              accessibilityLabel={t('parent.common.back', 'Back')}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color={colors.neutral.ink} />
+            </Pressable>
+          )
+        : null}
       <Text className="flex-1 text-xl font-bold" style={{ textAlign: isRTL ? 'right' : 'left', color: colors.neutral.ink }}>
         {t('parent.notifications.title', 'Notifications')}
       </Text>

@@ -5,7 +5,7 @@
 
 import type { TFunction } from 'i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 
@@ -48,7 +48,7 @@ export function OrgCards({ orgs, onSelect, t }: OrgCardsProps) {
             <Text style={styles.orgCardName} numberOfLines={1}>{org.name}</Text>
             <View style={styles.orgCardAction}>
               <Text style={styles.orgCardActionText}>{t('teacher.dashboard.viewOrgSessions', 'View sessions')}</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.brand.primary} />
+              <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color={colors.brand.primary} />
             </View>
           </View>
         </Pressable>

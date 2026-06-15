@@ -1,11 +1,12 @@
 import type { AttendanceRecord } from '../types/student.types';
 import type { SupportedLocale } from '@/lib/date';
-import { useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, SectionList, View } from 'react-native';
 import { EmptyState, ErrorState, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
+import { AppRoute } from '@/core/navigation/routes';
 import { dayjs } from '@/lib/date';
 import {
   AttendanceHeader,
@@ -24,9 +25,15 @@ import { extractErrorMessage } from '../services/error-utils';
  */
 export function StudentAttendanceScreen() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const studentId = typeof id === 'string' ? id : '';
   const isRTL = I18nManager.isRTL;
+
+  const handleBack = useCallback(
+    () => (router.canGoBack() ? router.back() : router.replace(AppRoute.parent.dashboard)),
+    [router],
+  );
   const locale: SupportedLocale = i18n?.language === 'ar' ? 'ar' : 'en';
 
   const { data: records, isLoading: isRecordsLoading, error: recordsError, refetch: refetchRecords } = useAttendance(studentId);
@@ -79,7 +86,7 @@ export function StudentAttendanceScreen() {
         contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
         refreshing={isLoading}
         onRefresh={handleRefetch}
-        ListHeaderComponent={<AttendanceHeader student={student} stats={stats} isRTL={isRTL} t={t} />}
+        ListHeaderComponent={<AttendanceHeader student={student} stats={stats} isRTL={isRTL} t={t} onBack={handleBack} />}
         ListEmptyComponent={(
           <EmptyState
             scope="parentNoAttendance"

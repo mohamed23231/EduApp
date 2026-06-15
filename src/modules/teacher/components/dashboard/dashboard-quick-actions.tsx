@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type QuickActionCardProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -60,15 +61,15 @@ export function DashboardQuickActions({ onCreateStudent, onCreateSession, t }: D
         icon="person-add-outline"
         label={t('teacher.students.createButton')}
         onPress={onCreateStudent}
-        iconBg="#EDE9FE"
-        iconColor="#7C3AED"
+        iconBg={colors.brand.primaryGlow}
+        iconColor={colors.brand.primaryDeep}
       />
       <QuickActionCard
         icon="calendar-outline"
         label={t('teacher.sessions.createTitle')}
         onPress={onCreateSession}
-        iconBg="#DBEAFE"
-        iconColor="#2563EB"
+        iconBg={colors.semantic.presentSoft}
+        iconColor={colors.semantic.presentInk}
       />
     </View>
   );

@@ -6,7 +6,6 @@
 
 import type { Student } from '../types';
 import type { SessionFormValues } from '../validators';
-import * as Burnt from 'burnt';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +16,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useModal } from '@/components/ui';
+import { useModal, useToast } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
 import { ScreenHeader, StudentSelectSheet, TimePickerSheet } from '../components';
@@ -80,6 +79,7 @@ export function SessionCreateScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ studentId?: string }>();
   const { createSession, isSubmitting } = useSessionCrud();
+  const toast = useToast();
   const timePicker = useModal();
   const studentPicker = useModal();
 
@@ -117,7 +117,7 @@ export function SessionCreateScreen() {
     try {
       sessionSchema.parse(formData);
       await createSession(formData);
-      Burnt.toast({ title: t('teacher.sessions.createButton'), preset: 'done', haptic: 'success' });
+      toast.show({ kind: 'success', message: t('teacher.sessions.createButton') });
       router.replace(AppRoute.teacher.sessions as any);
     }
     catch (error) {

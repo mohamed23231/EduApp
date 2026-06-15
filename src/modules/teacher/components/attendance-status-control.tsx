@@ -101,6 +101,9 @@ function StatusButton({
   return (
     <Animated.View style={[{ flex: 1 }, animatedStyle]}>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ selected: isActive, disabled }}
         style={[
           styles.statusButton,
           isActive && { backgroundColor: config.activeBg, borderColor: config.activeBg },

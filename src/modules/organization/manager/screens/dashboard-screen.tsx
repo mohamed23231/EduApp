@@ -19,7 +19,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, Button, ScrollView, Text } from '@/components/ui';
+import { ActivityIndicator, Button, ErrorState, ScrollView, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { Modal, useModal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast-host';
@@ -94,22 +94,22 @@ function QuickActions({
         icon="person-add-outline"
         label={t('manager.dashboard.quickAddStudent', { defaultValue: 'Add student' })}
         onPress={onAddStudent}
-        iconBg="#EDE9FE"
-        iconColor="#7C3AED"
+        iconBg={colors.brand.primaryGlow}
+        iconColor={colors.brand.primaryDeep}
       />
       <QuickActionCard
         icon="calendar-outline"
         label={t('manager.dashboard.quickNewSession', { defaultValue: 'New session' })}
         onPress={onCreateSession}
-        iconBg="#DBEAFE"
-        iconColor="#2563EB"
+        iconBg={colors.semantic.presentSoft}
+        iconColor={colors.semantic.presentInk}
       />
       <QuickActionCard
         icon="mail-outline"
         label={t('manager.dashboard.quickInvite', { defaultValue: 'Invite' })}
         onPress={onInviteTeacher}
-        iconBg="#FEF3C7"
-        iconColor="#D97706"
+        iconBg={colors.semantic.excusedSoft}
+        iconColor={colors.semantic.excusedInk}
       />
     </View>
   );
@@ -117,18 +117,18 @@ function QuickActions({
 
 /** Stripe color per session state — matches teacher card pattern. */
 const STATE_STRIPE: Record<string, string> = {
-  DRAFT: '#F59E0B',
-  ACTIVE: '#10B981',
-  CLOSED: '#9CA3AF',
-  CANCELLED: '#9CA3AF',
+  DRAFT: colors.semantic.excused,
+  ACTIVE: colors.semantic.present,
+  CLOSED: colors.neutral.dim,
+  CANCELLED: colors.neutral.dim,
 };
 
 /** Badge style per session state. */
 const STATE_BADGE: Record<string, { bg: string; text: string; dot: string }> = {
-  DRAFT: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
-  ACTIVE: { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
-  CLOSED: { bg: '#F3F4F6', text: '#374151', dot: '#9CA3AF' },
-  CANCELLED: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
+  DRAFT: { bg: colors.semantic.excusedSoft, text: colors.semantic.excusedInk, dot: colors.semantic.excused },
+  ACTIVE: { bg: colors.semantic.presentSoft, text: colors.semantic.presentInk, dot: colors.semantic.present },
+  CLOSED: { bg: colors.neutral.cardWarm, text: colors.neutral.inkSoft, dot: colors.neutral.dim },
+  CANCELLED: { bg: colors.semantic.excusedSoft, text: colors.semantic.excusedInk, dot: colors.semantic.excused },
 };
 
 function TodaySessionCard({
@@ -212,7 +212,7 @@ function TodaySessionCard({
               style={({ pressed }) => [styles.attendanceBtn, pressed && styles.attendanceBtnPressed]}
               accessibilityRole="button"
             >
-              <Ionicons name="checkmark-done-outline" size={16} color="#FFFFFF" />
+              <Ionicons name="checkmark-done-outline" size={16} color={colors.neutral.white} />
               <Text style={styles.attendanceBtnText}>
                 {t('manager.dashboard.markAttendance', { defaultValue: 'Mark Attendance' })}
               </Text>
@@ -223,7 +223,7 @@ function TodaySessionCard({
               style={({ pressed }) => [styles.endBtn, pressed && styles.endBtnPressed, isClosing && styles.endBtnDisabled]}
               accessibilityRole="button"
             >
-              <Ionicons name="stop-circle-outline" size={16} color="#DC2626" />
+              <Ionicons name="stop-circle-outline" size={16} color={colors.semantic.absent} />
               <Text style={styles.endBtnText}>
                 {isClosing ? '...' : t('manager.dashboard.endSession', { defaultValue: 'End Session' })}
               </Text>
@@ -450,6 +450,18 @@ export function DashboardScreen() {
     return (
       <SafeAreaView edges={['top']} style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.brand.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (organizationQuery.isError || stats.overview.isError || instancesQuery.isError) {
+    return (
+      <SafeAreaView edges={['top']} className="flex-1 items-center justify-center" style={{ backgroundColor: colors.neutral.paper }}>
+        <ErrorState
+          title={t('manager.dashboard.errorTitle', { defaultValue: 'Could not load dashboard' })}
+          body={t('manager.dashboard.errorBody', { defaultValue: 'Something went wrong loading your organization. Please try again.' })}
+          action={{ label: t('manager.common.retry', { defaultValue: 'Retry' }), onPress: onRefresh }}
+        />
       </SafeAreaView>
     );
   }
@@ -759,11 +771,11 @@ const styles = {
     gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#10B981',
+    backgroundColor: colors.semantic.present,
     borderRadius: 10,
   },
-  attendanceBtnPressed: { backgroundColor: '#059669' },
-  attendanceBtnText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
+  attendanceBtnPressed: { backgroundColor: colors.semantic.presentInk },
+  attendanceBtnText: { fontSize: 13, fontWeight: '600', color: colors.neutral.white },
   endBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -774,7 +786,7 @@ const styles = {
     backgroundColor: colors.semantic.absentSoft,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: colors.semantic.absentSoft,
   },
   endBtnPressed: { opacity: 0.85 },
   endBtnDisabled: { opacity: 0.5 },

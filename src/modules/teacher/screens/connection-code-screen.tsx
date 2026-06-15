@@ -4,7 +4,6 @@
  */
 
 import { Ionicons } from '@expo/vector-icons';
-import * as Burnt from 'burnt';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +15,8 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, useModal } from '@/components/ui';
+import { Text, useModal, useToast } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
 import { ConfirmSheet, ScreenHeader } from '../components';
 import { CodeCard, DangerZone } from '../components/connection-code';
@@ -26,6 +26,7 @@ export function ConnectionCodeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const toast = useToast();
   const confirmModal = useModal();
   const [copied, setCopied] = useState(false);
 
@@ -35,14 +36,14 @@ export function ConnectionCodeScreen() {
   const handleCopyPress = async () => {
     await copyToClipboard();
     setCopied(true);
-    Burnt.toast({ title: t('teacher.toast.copied'), preset: 'done', haptic: 'success' });
+    toast.show({ kind: 'success', message: t('teacher.toast.copied') });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleConfirmRegenerate = async () => {
     confirmModal.dismiss();
     await regenerate();
-    Burnt.toast({ title: t('teacher.studentActions.codeRegenerated'), preset: 'done', haptic: 'success' });
+    toast.show({ kind: 'success', message: t('teacher.studentActions.codeRegenerated') });
   };
 
   if (isLoading) {
@@ -50,7 +51,7 @@ export function ConnectionCodeScreen() {
       <SafeAreaView edges={['top']} style={styles.container}>
         <ScreenHeader title={t('teacher.connectionCode.title')} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color={colors.brand.primary} />
         </View>
       </SafeAreaView>
     );

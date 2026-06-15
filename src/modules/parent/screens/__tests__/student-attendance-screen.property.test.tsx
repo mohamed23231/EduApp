@@ -62,6 +62,12 @@ jest.mock('react-native', () => {
 // Mock the dependencies
 jest.mock('expo-router', () => ({
   useLocalSearchParams: jest.fn(() => ({ id: 'test-student-id' })),
+  useRouter: jest.fn(() => ({
+    canGoBack: jest.fn(() => false),
+    back: jest.fn(),
+    replace: jest.fn(),
+    push: jest.fn(),
+  })),
 }));
 
 jest.mock('react-i18next', () => ({

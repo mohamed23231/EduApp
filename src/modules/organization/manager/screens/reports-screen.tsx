@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, View as RNView } from 'react-native';
-import { ActivityIndicator, ScrollView, Text, TopBar } from '@/components/ui';
+import { ActivityIndicator, ErrorState, ScrollView, Text, TopBar } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { ReportRangeSelector } from '../components/reports/report-range-selector';
 import { ReportStatCards } from '../components/reports/report-stat-cards';
@@ -39,6 +39,24 @@ export function ReportsScreen() {
         />
         <RNView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" />
+        </RNView>
+      </RNView>
+    );
+  }
+
+  if (overview.isError || teachers.isError) {
+    return (
+      <RNView style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+        <TopBar
+          title={t('manager.reports.title', { defaultValue: 'Reports' })}
+          onBack={() => router.back()}
+        />
+        <RNView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ErrorState
+            title={t('manager.reports.errorTitle', { defaultValue: 'Could not load reports' })}
+            body={t('manager.reports.errorBody', { defaultValue: 'Something went wrong loading your reports. Please try again.' })}
+            action={{ label: t('manager.common.retry', { defaultValue: 'Retry' }), onPress: onRefresh }}
+          />
         </RNView>
       </RNView>
     );

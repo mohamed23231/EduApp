@@ -7,13 +7,12 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { Student } from '../types';
 import type { SessionFormValues } from '../validators';
-import * as Burnt from 'burnt';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useModal } from '@/components/ui';
+import { useModal, useToast } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { getApiErrorMessage, isApiError } from '@/shared/services/api-utils';
 import {
@@ -47,6 +46,7 @@ function useSessionEditState(id: string) {
   const router = useRouter();
   const { t } = useTranslation();
   const { updateSession, deleteSession, isSubmitting } = useSessionCrud();
+  const toast = useToast();
   const deleteModal = useModal();
   const timePicker = useModal();
   const studentPicker = useModal();
@@ -107,7 +107,7 @@ function useSessionEditState(id: string) {
     try {
       sessionSchema.parse(formData);
       await updateSession(id, formData);
-      Burnt.toast({ title: t('teacher.common.save'), preset: 'done', haptic: 'success' });
+      toast.show({ kind: 'success', message: t('teacher.common.save') });
       router.back();
     }
     catch (error) {
@@ -130,11 +130,11 @@ function useSessionEditState(id: string) {
     try {
       await deleteSession(id);
       deleteModal.dismiss();
-      Burnt.toast({ title: t('teacher.sessions.deleteSuccess'), preset: 'done', haptic: 'success' });
+      toast.show({ kind: 'success', message: t('teacher.sessions.deleteSuccess') });
       router.back();
     }
     catch {
-      Burnt.toast({ title: t('teacher.common.genericError'), preset: 'error', haptic: 'error' });
+      toast.show({ kind: 'error', message: t('teacher.common.genericError') });
       setIsDeleting(false);
       deleteModal.dismiss();
     }

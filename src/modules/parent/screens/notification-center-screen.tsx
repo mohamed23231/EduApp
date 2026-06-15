@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager } from 'react-native';
+import { useToast } from '@/components/ui';
 import {
   buildNotificationSections,
   NotificationEmptyState,
@@ -21,9 +22,11 @@ import { useNotificationStore } from '../store/use-notification-store';
  * cap. Section grouping is in `../components/notifications/notification-sections`.
  */
 
+// eslint-disable-next-line max-lines-per-function
 export function NotificationCenterScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const toast = useToast();
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -57,9 +60,13 @@ export function NotificationCenterScreen() {
       }
       catch (err) {
         console.error('Failed to mark notification as read:', err);
+        toast.show({
+          kind: 'error',
+          message: t('parent.notifications.markReadError', 'Could not update notifications'),
+        });
       }
     },
-    [markAsRead, router],
+    [markAsRead, router, toast, t],
   );
 
   const handleMarkAllAsRead = useCallback(async () => {
@@ -69,11 +76,15 @@ export function NotificationCenterScreen() {
     }
     catch (err) {
       console.error('Failed to mark all as read:', err);
+      toast.show({
+        kind: 'error',
+        message: t('parent.notifications.markReadError', 'Could not update notifications'),
+      });
     }
     finally {
       setIsMarkingAll(false);
     }
-  }, [markAllAsRead]);
+  }, [markAllAsRead, toast, t]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoading && hasMore) {
@@ -124,6 +135,7 @@ export function NotificationCenterScreen() {
       onLoadMore={handleLoadMore}
       onRefresh={onRefresh}
       onBack={handleBack}
+      showBack={router.canGoBack()}
     />
   );
 }

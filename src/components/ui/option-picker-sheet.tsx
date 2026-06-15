@@ -24,6 +24,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Modal, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 export type PickerOption = {
   label: string;
@@ -63,7 +64,7 @@ function OptionRow({
         {option.label}
       </Text>
       {selected && (
-        <Ionicons name="checkmark" size={18} color="#1D4ED8" />
+        <Ionicons name="checkmark" size={18} color={colors.brand.primary} />
       )}
     </Pressable>
   );
@@ -125,26 +126,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.neutral.rule,
   },
   rowSelected: {
-    borderColor: '#3B82F6',
-    backgroundColor: '#EFF6FF',
+    borderColor: colors.brand.primary,
+    backgroundColor: colors.semantic.presentSoft,
   },
   rowPressed: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
   },
   rowLabel: {
     flex: 1,
     fontSize: 15,
-    color: '#374151',
+    color: colors.neutral.inkSoft,
     fontWeight: '500',
   },
   rowLabelSelected: {
-    color: '#1D4ED8',
+    color: colors.brand.primaryInk,
     fontWeight: '600',
   },
 });

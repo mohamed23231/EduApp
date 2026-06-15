@@ -5,7 +5,6 @@
 
 import type { StudentFormValues } from '../validators';
 import { Ionicons } from '@expo/vector-icons';
-import * as Burnt from 'burnt';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +18,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, Text, useModal } from '@/components/ui';
+import { Button, Input, Text, useModal, useToast } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
 import { ConfirmSheet, ScreenHeader } from '../components';
 import { useStudentCrud } from '../hooks';
@@ -45,6 +45,7 @@ function parseZodErrors(error: unknown, t: Translator): FormErrors {
 function useStudentEditState(id: string) {
   const router = useRouter();
   const { t } = useTranslation();
+  const toast = useToast();
   const { updateStudent, deleteStudent, isSubmitting } = useStudentCrud();
   const deleteModal = useModal();
 
@@ -93,7 +94,7 @@ function useStudentEditState(id: string) {
     try {
       studentSchema.parse(formData);
       await updateStudent(id, formData);
-      Burnt.toast({ title: t('teacher.studentActions.studentUpdated'), preset: 'done', haptic: 'success' });
+      toast.show({ kind: 'success', message: t('teacher.studentActions.studentUpdated') });
       router.back();
     }
     catch (error) {
@@ -109,11 +110,11 @@ function useStudentEditState(id: string) {
     try {
       await deleteStudent(id);
       deleteModal.dismiss();
-      Burnt.toast({ title: t('teacher.studentActions.studentDeleted'), preset: 'done', haptic: 'success' });
+      toast.show({ kind: 'success', message: t('teacher.studentActions.studentDeleted') });
       router.back();
     }
     catch {
-      Burnt.toast({ title: t('teacher.common.genericError'), preset: 'error', haptic: 'error' });
+      toast.show({ kind: 'error', message: t('teacher.common.genericError') });
       setIsDeleting(false);
       deleteModal.dismiss();
     }
@@ -146,7 +147,7 @@ export function StudentEditScreen() {
       accessibilityRole="button"
       accessibilityLabel={t('teacher.students.connectionCodeButton')}
     >
-      <Ionicons name="key-outline" size={18} color="#3B82F6" />
+      <Ionicons name="key-outline" size={18} color={colors.brand.primary} />
     </Pressable>
   );
 
@@ -155,7 +156,7 @@ export function StudentEditScreen() {
       <SafeAreaView edges={['top']} style={styles.container}>
         <ScreenHeader title={t('teacher.students.editTitle')} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color={colors.brand.primary} />
         </View>
       </SafeAreaView>
     );

@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from 'react-native';
 import { Pressable, Text, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { useOrgContextStore } from '../store/org-context-store';
 
 type Props = {
@@ -37,48 +38,53 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 bg-black/40" onPress={onClose} />
-      <View className="rounded-t-r5 bg-white px-6 pt-5 pb-10">
+      <View className="rounded-t-r5 px-6 pt-5 pb-10" style={{ backgroundColor: colors.neutral.card }}>
         <View className="mb-1 items-center">
-          <View className="h-1 w-12 rounded-full bg-slate-200" />
+          <View className="h-1 w-12 rounded-full" style={{ backgroundColor: colors.neutral.rule }} />
         </View>
-        <Text className="font-inter mt-3 mb-4 text-xl font-semibold text-slate-900">
+        <Text className="font-inter mt-3 mb-4 text-xl font-semibold" style={{ color: colors.neutral.ink }}>
           {t('contextSwitcher.title')}
         </Text>
         {!isManager && (
           <Pressable
-            className={`mb-2 rounded-2xl p-4 ${activeContext === 'personal' ? 'bg-indigo-50' : 'bg-slate-50'}`}
+            className="mb-2 rounded-2xl p-4"
+            style={{ backgroundColor: activeContext === 'personal' ? colors.brand.primaryGlow : colors.neutral.cardWarm }}
             onPress={handlePersonal}
             accessibilityLabel={t('contextSwitcher.selectPersonal')}
             accessibilityRole="button"
             accessibilityState={{ selected: activeContext === 'personal' }}
           >
-            <Text className={`font-inter text-base font-semibold ${activeContext === 'personal' ? 'text-indigo-700' : 'text-slate-800'}`}>
+            <Text className="font-inter text-base font-semibold" style={{ color: activeContext === 'personal' ? colors.brand.primaryInk : colors.neutral.inkSoft }}>
               {t('contextSwitcher.personal')}
             </Text>
-            <Text className="font-inter mt-0.5 text-sm text-slate-500">
+            <Text className="font-inter mt-0.5 text-sm" style={{ color: colors.neutral.inkMuted }}>
               {t('contextSwitcher.personalDesc')}
             </Text>
           </Pressable>
         )}
-        {orgs.map(org => (
-          <Pressable
-            key={org.organizationId}
-            className={`mb-2 rounded-2xl p-4 ${activeContext === 'org' && activeOrgId === org.organizationId ? 'bg-[#EEF2FF]' : 'bg-slate-50'}`}
-            onPress={() => handleOrg(org.organizationId)}
-            accessibilityLabel={t('contextSwitcher.selectOrg', { name: org.name })}
-            accessibilityRole="button"
-            accessibilityState={{ selected: activeContext === 'org' && activeOrgId === org.organizationId }}
-          >
-            <Text className={`font-inter text-base font-semibold ${activeContext === 'org' && activeOrgId === org.organizationId ? 'text-[#4338CA]' : 'text-slate-800'}`}>
-              {org.name}
-            </Text>
-            <Text className="font-inter mt-0.5 text-sm text-slate-500">
-              {org.role === 'OWNER'
-                ? t('contextSwitcher.roleManager')
-                : t('contextSwitcher.roleTeacher')}
-            </Text>
-          </Pressable>
-        ))}
+        {orgs.map((org) => {
+          const isSelected = activeContext === 'org' && activeOrgId === org.organizationId;
+          return (
+            <Pressable
+              key={org.organizationId}
+              className="mb-2 rounded-2xl p-4"
+              style={{ backgroundColor: isSelected ? colors.brand.primaryGlow : colors.neutral.cardWarm }}
+              onPress={() => handleOrg(org.organizationId)}
+              accessibilityLabel={t('contextSwitcher.selectOrg', { name: org.name })}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected }}
+            >
+              <Text className="font-inter text-base font-semibold" style={{ color: isSelected ? colors.brand.primaryInk : colors.neutral.inkSoft }}>
+                {org.name}
+              </Text>
+              <Text className="font-inter mt-0.5 text-sm" style={{ color: colors.neutral.inkMuted }}>
+                {org.role === 'OWNER'
+                  ? t('contextSwitcher.roleManager')
+                  : t('contextSwitcher.roleTeacher')}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
     </Modal>
   );

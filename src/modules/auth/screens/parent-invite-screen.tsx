@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthShell, LegalNote } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { UserRole } from '@/core/auth/roles';
+import { getHomeRouteForRole } from '@/core/auth/routing';
 import { setOnboardingContext, signIn } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { AuthHero } from '../components/auth-hero';
@@ -71,7 +72,7 @@ export default function ParentInviteScreen() {
         router.replace('/onboarding');
       }
       else {
-        router.replace('/(tabs)');
+        router.replace(getHomeRouteForRole(authUser?.role ?? UserRole.PARENT));
       }
     }
     catch (err: unknown) {

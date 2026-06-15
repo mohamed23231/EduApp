@@ -46,12 +46,14 @@
       "headline": "The classroom,\non your phone.",
       "heroLine1": "The classroom,",
       "heroLine2": "on your phone.",
+      "hidePassword": "Hide password",
       "legalLine": "By continuing you agree to Taba3ny's Terms and Privacy Policy.",
       "orConnectWith": "OR CONNECT WITH",
       "orDivider": "OR",
       "passwordLabel": "Password",
       "phoneTab": "Phone",
       "protectedBy": "PROTECTED BY TABA3NY SECURITY",
+      "showPassword": "Show password",
       "signInWithGoogle": "Sign in with Google",
       "subheadline": "Sign in to track sessions, attendance, and progress.",
       "submit": "Sign In",
@@ -159,6 +161,9 @@
         "passwordTooShort": "Password must be at least 8 characters",
         "roleRequired": "Please select a role"
       }
+    },
+    "topBar": {
+      "toggleLanguage": "Change language"
     }
   },
   "brandVoice": {
@@ -176,6 +181,11 @@
   },
   "common": {
     "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "errorTitle": "Something went wrong",
+    "goBack": "Go back",
     "language": "Language"
   },
   "contextSwitcher": {
@@ -219,6 +229,7 @@
     "attendance": {
       "absent": "Absent",
       "back": "Back",
+      "backspace": "Backspace",
       "clearRating": "Clear",
       "emptyStudents": "No students assigned to this session.",
       "enterRating": "Enter rating",
@@ -241,12 +252,14 @@
     },
     "common": {
       "cancel": "Cancel",
+      "close": "Close",
       "confirm": "Confirm",
       "errorTitle": "Something went wrong",
       "loading": "Loading...",
       "noOrgCopy": "Create your first organization to get started.",
       "noOrgTitle": "No organization yet",
-      "ok": "OK"
+      "ok": "OK",
+      "retry": "Retry"
     },
     "dashboard": {
       "bellA11y": "Announcements",
@@ -263,6 +276,8 @@
       "emptyCopy": "Create your first organization to unlock the manager dashboard.",
       "emptyTitle": "No organization yet",
       "endSession": "End Session",
+      "errorBody": "Please try again.",
+      "errorTitle": "Could not load dashboard",
       "goodAfternoon": "Good afternoon",
       "goodEvening": "Good evening",
       "goodMorning": "Good morning",
@@ -378,6 +393,8 @@
         "excusedCount": "Excused",
         "totalSessions": "Total sessions"
       },
+      "errorBody": "Please try again.",
+      "errorTitle": "Could not load reports",
       "range": {
         "month": "Month",
         "term": "Term",
@@ -588,6 +605,7 @@
       "totalSessions": "Sessions"
     },
     "students": {
+      "actionErrorTitle": "Action failed",
       "actions": {
         "copy": "Copy code",
         "create": "Create student",
@@ -609,6 +627,7 @@
       "createSuccess": "Student added successfully",
       "createTitle": "Add student",
       "deleteConfirm": "Delete",
+      "deleteError": "Could not delete student",
       "deleteMessage": "This will remove the student from future sessions. Historical data is preserved.",
       "deleteTitle": "Delete student?",
       "editTitle": "Edit student",
@@ -646,6 +665,7 @@
       "pageInfo": "Page {{page}} of {{total}}",
       "parentLinked": "Parent linked",
       "prevPage": "Previous",
+      "regenerateError": "Could not regenerate code",
       "regenerateMessage": "The old code will stop working immediately.",
       "regenerateTitle": "Regenerate code?",
       "search": "Search students",
@@ -867,6 +887,8 @@
       }
     },
     "notifications": {
+      "a11yRead": "read",
+      "a11yUnread": "unread",
       "absence": {
         "body": "{{studentName}} was marked absent on {{sessionDate}}",
         "title": "Absence Alert"
@@ -888,6 +910,7 @@
         "title": "Low Performance Alert"
       },
       "markAllAsRead": "Mark all as read",
+      "markReadError": "Could not update notifications",
       "openSettings": "Open Settings",
       "pushDisabled": "Push notifications are off. In-app notifications are still active.",
       "pushUnsupported": "Push notifications are not available on simulator builds.",
@@ -1064,6 +1087,7 @@
       "applyToAll_other": "Apply {{rating}}/10 to {{count}} students",
       "applyToAll_two": "Apply {{rating}}/10 to {{count}} students",
       "applyToAll_zero": "Apply {{rating}}/10 to {{count}} students",
+      "backspace": "Delete",
       "batchRating": "Quick Rate All",
       "batchRatingButton": "Rate {{count}} students at once",
       "batchRatingButton_few": "Rate {{count}} students at once",
@@ -1093,6 +1117,12 @@
       "noRating": "No rating",
       "noSearchResults": "No students found",
       "partialFailureError": "Some attendance records failed to save.",
+      "partialFailure_few": "{{count}} attendance records failed to save",
+      "partialFailure_many": "{{count}} attendance records failed to save",
+      "partialFailure_one": "{{count}} attendance record failed to save",
+      "partialFailure_other": "{{count}} attendance records failed to save",
+      "partialFailure_two": "{{count}} attendance records failed to save",
+      "partialFailure_zero": "{{count}} attendance records failed to save",
       "present": "Present",
       "presentLabel": "Mark Present",
       "progress": "{{marked}} of {{total}} marked",
@@ -1113,6 +1143,7 @@
       "studentCount_two": "{{count}} students",
       "studentCount_zero": "{{count}} students",
       "submitButton": "Submit Attendance",
+      "submitFailed": "Failed to submit attendance",
       "submitSuccess": "Attendance has been recorded successfully.",
       "submitWithCount": "Submit Attendance ({{marked}}/{{total}})",
       "submitting": "Submitting...",
@@ -1130,6 +1161,7 @@
       "featureDisabled": "This feature is not available for your account.",
       "featureDisabledTitle": "Feature unavailable",
       "genericError": "Something went wrong. Please try again.",
+      "loadError": "Failed to load. Please try again.",
       "loading": "Loading...",
       "ok": "OK",
       "retry": "Retry",
@@ -1463,9 +1495,14 @@
     }
   },
   "teacherOrg": {
+    "actionFailed": "Action failed",
+    "back": "Back",
     "closeSession": "Close session",
     "duration": "{{min}} min · {{n}} students",
     "empty": "No sessions assigned for today.",
+    "errorBody": "Please try again.",
+    "errorTitle": "Could not load sessions",
+    "retry": "Retry",
     "startSession": "Start session",
     "subtitle": "Your assigned sessions",
     "today": "Today",

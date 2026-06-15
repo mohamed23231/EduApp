@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Modal,
   Pressable,
@@ -62,8 +63,8 @@ export function ConfirmModal({
   visible,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'default',
   loading = false,
   onConfirm,
@@ -71,7 +72,10 @@ export function ConfirmModal({
   hideCancelButton = false,
   disableAnimations = false,
 }: ConfirmModalProps) {
+  const { t } = useTranslation();
   const colors = VARIANT_COLORS[variant];
+  const resolvedConfirmLabel = confirmLabel ?? t('common.confirm', 'Confirm');
+  const resolvedCancelLabel = cancelLabel ?? t('common.cancel', 'Cancel');
 
   const content = (
     <>
@@ -84,8 +88,9 @@ export function ConfirmModal({
             style={styles.cancelButton}
             onPress={onCancel}
             disabled={loading}
+            accessibilityRole="button"
           >
-            <Text style={styles.cancelLabel}>{cancelLabel}</Text>
+            <Text style={styles.cancelLabel}>{resolvedCancelLabel}</Text>
           </Pressable>
         )}
         <Pressable
@@ -96,9 +101,10 @@ export function ConfirmModal({
           ]}
           onPress={onConfirm}
           disabled={loading}
+          accessibilityRole="button"
         >
           <Text style={[styles.confirmLabel, { color: colors.text }]}>
-            {loading ? '...' : confirmLabel}
+            {loading ? '...' : resolvedConfirmLabel}
           </Text>
         </Pressable>
       </View>
@@ -117,7 +123,7 @@ export function ConfirmModal({
         ? (
             <View style={styles.backdrop}>
               <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
-              <View style={styles.card}>
+              <View style={styles.card} accessibilityViewIsModal>
                 {content}
               </View>
             </View>
@@ -134,6 +140,7 @@ export function ConfirmModal({
                 entering={ZoomIn.duration(250).springify().damping(18)}
                 exiting={ZoomOut.duration(150)}
                 style={styles.card}
+                accessibilityViewIsModal
               >
                 {content}
               </Animated.View>

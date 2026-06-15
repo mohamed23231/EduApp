@@ -7,15 +7,16 @@ import type { SessionState } from '../types';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type StatusBadgeProps = {
   state: SessionState;
 };
 
 const CONFIG: Record<SessionState, { bg: string; text: string; dot: string }> = {
-  DRAFT: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
-  ACTIVE: { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
-  CLOSED: { bg: '#F3F4F6', text: '#374151', dot: '#9CA3AF' },
+  DRAFT: { bg: colors.semantic.excusedSoft, text: colors.semantic.excusedInk, dot: colors.semantic.excused },
+  ACTIVE: { bg: colors.semantic.presentSoft, text: colors.semantic.presentInk, dot: colors.semantic.present },
+  CLOSED: { bg: colors.neutral.cardWarm, text: colors.neutral.inkMuted, dot: colors.neutral.dim },
 };
 
 export function StatusBadge({ state }: StatusBadgeProps) {

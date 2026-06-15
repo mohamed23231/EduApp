@@ -54,7 +54,12 @@ function NumpadModal({
         >
           {/* Header */}
           <View className="mb-4 flex-row items-center justify-between">
-            <Pressable onPress={onCancel} className="p-1">
+            <Pressable
+              onPress={onCancel}
+              className="p-1"
+              accessibilityRole="button"
+              accessibilityLabel={t('manager.common.close', { defaultValue: 'Close' })}
+            >
               <Ionicons name="close" size={24} color={c.neutral.inkMuted} />
             </Pressable>
             <Text style={{ fontSize: 16, fontWeight: '600', color: c.neutral.ink }}>
@@ -84,6 +89,8 @@ function NumpadModal({
                 className="h-14 w-[88px] items-center justify-center rounded-xl"
                 style={({ pressed }) => ({ backgroundColor: pressed ? c.neutral.rule : (d === '10' || d === 'backspace' ? c.semantic.excusedSoft : c.neutral.cardWarm) })}
                 onPress={() => onInput(d)}
+                accessibilityRole="button"
+                accessibilityLabel={d === 'backspace' ? t('manager.attendance.backspace', { defaultValue: 'Backspace' }) : d}
               >
                 {d === 'backspace'
                   ? <Ionicons name="backspace-outline" size={24} color={c.neutral.inkMuted} />
@@ -269,6 +276,9 @@ function StatusButton({ label, icon, isActive, activeBg, activeText, disabled, o
       <Pressable
         onPress={onPress}
         disabled={disabled}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ selected: isActive, disabled }}
         onPressIn={() => {
           if (!disabled)
             // eslint-disable-next-line react-hooks/immutability

@@ -11,7 +11,11 @@ export function FieldErrorText({ message }: { message?: string | null }) {
   if (!message)
     return null;
   return (
-    <Text style={{ color: colors.semantic.absent, fontSize: 12, marginTop: 6, marginStart: 4 }}>
+    <Text
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+      style={{ color: colors.semantic.absent, fontSize: 12, marginTop: 6, marginStart: 4 }}
+    >
       {message}
     </Text>
   );
@@ -26,6 +30,8 @@ export function FormErrorText({ message, style }: { message?: string | null; sty
     return null;
   return (
     <Text
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
       style={[
         {
           color: colors.semantic.absent,

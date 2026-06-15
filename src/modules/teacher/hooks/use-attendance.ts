@@ -10,6 +10,7 @@
 import type { AttendanceStatus, SessionInstance, Student } from '../types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { getInstanceDetail, markAttendance, updateAttendance } from '../services';
 import { getTeacherIdHash, trackAttendanceSubmitted } from '../services/analytics.service';
@@ -22,6 +23,9 @@ type UseAttendanceResult = {
   students: Student[];
   attendanceMap: AttendanceMap;
   isLoading: boolean;
+  isError: boolean;
+  loadError: unknown;
+  refetch: () => void;
   error: string | null;
   isSubmitting: boolean;
   markedCount: number;
@@ -115,6 +119,7 @@ function useAttendanceSetters(setAttendanceMap: React.Dispatch<React.SetStateAct
 }
 
 export function useAttendance(instanceId: string): UseAttendanceResult {
+  const { t } = useTranslation();
   const [attendanceMap, setAttendanceMap] = useState<AttendanceMap>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +127,7 @@ export function useAttendance(instanceId: string): UseAttendanceResult {
   const queryClient = useQueryClient();
   const prevSessionRef = useRef<string | null>(null);
 
-  const { data: session, isLoading } = useQuery({
+  const { data: session, isLoading, isError, error: loadError, refetch } = useQuery({
     queryKey: ['teacher', 'session-instance', instanceId],
     queryFn: () => getInstanceDetail(instanceId),
     enabled: !!instanceId,
@@ -161,7 +166,7 @@ export function useAttendance(instanceId: string): UseAttendanceResult {
       const failed = results.filter(r => r.status === 'rejected');
 
       if (failed.length > 0) {
-        setError(`${failed.length} attendance records failed to save`);
+        setError(t('teacher.attendance.partialFailure', '{{count}} attendance records failed to save', { count: failed.length }));
       }
       else {
         await queryClient.invalidateQueries({ queryKey: ['teacher', 'session-instance', instanceId] });
@@ -176,18 +181,21 @@ export function useAttendance(instanceId: string): UseAttendanceResult {
       }
     }
     catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit attendance');
+      setError(err instanceof Error ? err.message : t('teacher.attendance.submitFailed', 'Failed to submit attendance'));
     }
     finally {
       setIsSubmitting(false);
     }
-  }, [session, attendanceMap, instanceId, user, queryClient]);
+  }, [session, attendanceMap, instanceId, user, queryClient, t]);
 
   return {
     session,
     students,
     attendanceMap,
     isLoading,
+    isError,
+    loadError,
+    refetch,
     error,
     isSubmitting,
     markedCount,

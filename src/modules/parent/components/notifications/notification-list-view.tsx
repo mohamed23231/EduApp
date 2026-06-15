@@ -22,6 +22,7 @@ type NotificationListViewProps = {
   onLoadMore: () => void;
   onRefresh: () => void;
   onBack: () => void;
+  showBack?: boolean;
 };
 
 export function NotificationListView({
@@ -37,6 +38,7 @@ export function NotificationListView({
   onLoadMore,
   onRefresh,
   onBack,
+  showBack,
 }: NotificationListViewProps) {
   return (
     <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
@@ -45,6 +47,7 @@ export function NotificationListView({
       <NotificationHeader
         isRTL={isRTL}
         onBack={onBack}
+        showBack={showBack}
         unreadCount={unreadCount}
         isMarkingAll={isMarkingAll}
         onMarkAllAsRead={onMarkAllAsRead}

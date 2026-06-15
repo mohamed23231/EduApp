@@ -5,7 +5,6 @@
  */
 
 import type { CreateStudentFormValues } from '../validators';
-import * as Burnt from 'burnt';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +15,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useModal } from '@/components/ui';
+import { useModal, useToast } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
 import {
   buildE164Phone,
@@ -34,6 +33,7 @@ export function StudentCreateScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { createStudent, isSubmitting } = useStudentCrud();
+  const toast = useToast();
   const nextStepModal = useModal();
 
   const [formData, setFormData] = useState<CreateStudentFormValues>({
@@ -92,7 +92,7 @@ export function StudentCreateScreen() {
       createStudentSchema.parse(payload);
       const student = await createStudent(payload);
       setCreatedStudentId(student.id);
-      Burnt.toast({ title: t('teacher.students.createdFlowTitle'), preset: 'done', haptic: 'success' });
+      toast.show({ kind: 'success', message: t('teacher.students.createdFlowTitle') });
       nextStepModal.present();
     }
     catch (error) {

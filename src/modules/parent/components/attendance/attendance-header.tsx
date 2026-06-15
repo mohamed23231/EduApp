@@ -1,7 +1,8 @@
 import type { TFunction } from 'i18next';
 import type { AttendanceStats, StudentDetails } from '../../types/student.types';
+import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { View } from 'react-native';
+import { I18nManager, Pressable, View } from 'react-native';
 import { BigNumber, Hairline, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 
@@ -16,6 +17,7 @@ type AttendanceHeaderProps = {
   stats: AttendanceStats | undefined;
   isRTL: boolean;
   t: TFunction;
+  onBack?: () => void;
 };
 
 function StatBlock({ value, label, color }: { value: number | string; label: string; color: string }) {
@@ -38,7 +40,7 @@ function StatBlock({ value, label, color }: { value: number | string; label: str
   );
 }
 
-export function AttendanceHeader({ student, stats, isRTL, t }: AttendanceHeaderProps) {
+export function AttendanceHeader({ student, stats, isRTL, t, onBack }: AttendanceHeaderProps) {
   if (!student && !stats)
     return null;
 
@@ -53,6 +55,27 @@ export function AttendanceHeader({ student, stats, isRTL, t }: AttendanceHeaderP
         padding: 20,
       }}
     >
+      {onBack
+        ? (
+            <Pressable
+              onPress={onBack}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.goBack', 'Go back')}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={{
+                alignSelf: isRTL ? 'flex-end' : 'flex-start',
+                marginBottom: 12,
+                padding: 4,
+              }}
+            >
+              <Ionicons
+                name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'}
+                size={24}
+                color={colors.neutral.ink}
+              />
+            </Pressable>
+          )
+        : null}
       <Text
         style={{
           fontSize: 20,
