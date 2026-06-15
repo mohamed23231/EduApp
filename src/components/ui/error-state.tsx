@@ -82,6 +82,8 @@ export function ErrorState({
             <Pressable
               testID={testID ? `${testID}-action` : undefined}
               onPress={action.onPress}
+              accessibilityRole="button"
+              accessibilityLabel={action.label}
               style={{
                 marginTop: 20,
                 backgroundColor: colors.brand.primary,
