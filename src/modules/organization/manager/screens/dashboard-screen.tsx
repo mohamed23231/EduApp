@@ -375,7 +375,7 @@ export function DashboardScreen() {
       }
       toast.show({
         message: apiMessage ?? t('manager.sessionDetail.actionError', { defaultValue: 'This action could not be completed. Please try again.' }),
-        tone: 'absent',
+        kind: 'error',
       });
     },
     [t, toast, trialModal],
@@ -419,7 +419,7 @@ export function DashboardScreen() {
       onSuccess: () => {
         toast.show({
           message: t('manager.dashboard.sessionClosed', { defaultValue: 'Session closed — absent students marked.' }),
-          tone: 'lime',
+          kind: 'success',
           action: {
             label: t('manager.dashboard.viewAttendance', { defaultValue: 'View' }),
             onPress: () => router.push(AppRoute.manager.attendance(instanceId)),

@@ -1,19 +1,26 @@
 import * as React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import colors from '@/components/ui/colors';
 import { Z_INDEX } from '@/components/ui/theme';
 
-type ToastTone = 'ink' | 'lime' | 'absent';
+export type ToastKind = 'success' | 'error' | 'info' | 'undo';
 
-export type ToastIntent = {
+type ToastAction = { label: string; onPress: () => void };
+
+type ToastCommon = {
   id?: string;
   message: string;
-  tone?: ToastTone;
-  action?: { label: string; onPress: () => void };
   durationMs?: number | null;
   onDismiss?: () => void;
 };
+
+// Semantic kinds (State Kit). `undo` requires an action — it is the only thing
+// that distinguishes it from `info`. success/error/info default to `info` when
+// kind is omitted, so a bare `{ message }` stays valid.
+export type ToastIntent
+  = | (ToastCommon & { kind?: 'success' | 'error' | 'info'; action?: ToastAction })
+    | (ToastCommon & { kind: 'undo'; action: ToastAction });
 
 type ToastHostProps = {
   placement?: 'bottom' | 'top';
@@ -32,25 +39,48 @@ type ToastContextValue = {
 
 const ToastContext = React.createContext<ToastContextValue | null>(null);
 
-const TONE_BG: Record<ToastTone, string> = {
-  ink: colors.neutral.ink,
-  lime: colors.brand.primary,
-  absent: colors.semantic.absent,
+const KIND_BG: Record<ToastKind, string> = {
+  success: colors.brand.primary,
+  error: colors.semantic.absent,
+  info: colors.neutral.ink,
+  undo: colors.neutral.ink,
+};
+
+// On the green success surface the foreground is dark ink (8.6:1 — clears AA);
+// on the dark/red surfaces it is white. The action label echoes the design:
+// dark ink on success, brand green on the dark surfaces.
+const KIND_FG: Record<ToastKind, string> = {
+  success: colors.neutral.ink,
+  error: colors.neutral.card,
+  info: colors.neutral.card,
+  undo: colors.neutral.card,
 };
 
 function ToastView({ toast, testID }: ToastViewProps) {
-  const tone = toast.tone ?? 'ink';
-  const bgColor = TONE_BG[tone];
+  const kind = toast.kind ?? 'info';
+  const bgColor = KIND_BG[kind];
+  const fgColor = KIND_FG[kind];
+  const actionColor = kind === 'success' ? colors.neutral.ink : colors.brand.primary;
 
   return (
-    <View style={[styles.toast, { backgroundColor: bgColor }]} testID={testID}>
-      <Text style={styles.message} numberOfLines={2}>
+    <View
+      style={[styles.toast, { backgroundColor: bgColor }]}
+      testID={testID}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+    >
+      <Text style={[styles.message, { color: fgColor }]} numberOfLines={2}>
         {toast.message}
       </Text>
       {toast.action
         ? (
-            <Pressable onPress={toast.action.onPress} hitSlop={8}>
-              <Text style={styles.actionLabel}>{toast.action.label}</Text>
+            <Pressable
+              onPress={toast.action.onPress}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={toast.action.label}
+            >
+              <Text style={[styles.actionLabel, { color: actionColor }]}>{toast.action.label}</Text>
             </Pressable>
           )
         : null}
@@ -85,6 +115,8 @@ function ToastHost({ placement = 'bottom', children }: ToastHostProps) {
   const show = React.useCallback((toast: ToastIntent) => {
     clearTimer();
     setCurrentToast(toast);
+    // Announce to screen readers (covers iOS, where accessibilityLiveRegion is a no-op).
+    AccessibilityInfo.announceForAccessibility?.(toast.message);
 
     const duration = toast.durationMs === null ? null : (toast.durationMs ?? DEFAULT_DURATION);
     if (duration !== null) {
@@ -161,12 +193,10 @@ const styles = StyleSheet.create({
   },
   message: {
     flex: 1,
-    color: colors.neutral.card,
     fontSize: 14,
     fontWeight: '500',
   },
   actionLabel: {
-    color: colors.neutral.card,
     fontSize: 14,
     fontWeight: '700',
   },
