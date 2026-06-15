@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Button, Input, PhoneField, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type StudentFormProps = {
   formData: CreateStudentFormValues;
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   },
   formError: {
     fontSize: 13,
-    color: '#DC2626',
+    color: colors.semantic.absent,
     textAlign: 'center',
   },
   submitBtn: {

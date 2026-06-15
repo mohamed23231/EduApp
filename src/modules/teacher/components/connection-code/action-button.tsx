@@ -12,6 +12,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type ActionButtonProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -25,12 +26,12 @@ export function ActionButton({ icon, label, onPress, variant }: ActionButtonProp
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
-  const colors = {
-    primary: { bg: '#3B82F6', text: '#FFFFFF', ic: '#FFFFFF' },
-    secondary: { bg: '#F1F5F9', text: '#334155', ic: '#64748B' },
-    success: { bg: '#10B981', text: '#FFFFFF', ic: '#FFFFFF' },
+  const variantColors = {
+    primary: { bg: colors.brand.primary, text: colors.brand.primaryInk, ic: colors.brand.primaryInk },
+    secondary: { bg: colors.neutral.cardWarm, text: colors.neutral.inkSoft, ic: colors.neutral.inkMuted },
+    success: { bg: colors.semantic.present, text: colors.neutral.white, ic: colors.neutral.white },
   };
-  const c = colors[variant];
+  const c = variantColors[variant];
 
   return (
     <Animated.View style={[{ flex: 1 }, animStyle]}>

@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { ActionButton } from './action-button';
 
 type CodeCardProps = {
@@ -48,9 +49,9 @@ export function CodeCard({ code, copied, onCopy, onShare, onAssign, t }: CodeCar
           style={({ pressed }) => [styles.assignBtn, pressed && styles.assignBtnPressed]}
           accessibilityRole="button"
         >
-          <Ionicons name="calendar-outline" size={18} color="#3B82F6" />
+          <Ionicons name="calendar-outline" size={18} color={colors.brand.primary} />
           <Text style={styles.assignLabel}>{t('teacher.connectionCode.assignToSessionButton')}</Text>
-          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color="#93C5FD" />
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color={colors.brand.primaryDeep} />
         </Pressable>
       </View>
     </Animated.View>
@@ -59,7 +60,7 @@ export function CodeCard({ code, copied, onCopy, onShare, onAssign, t }: CodeCar
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderRadius: 20,
     padding: 24,
     gap: 20,
@@ -73,16 +74,16 @@ const styles = StyleSheet.create({
   codeLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#94A3B8',
+    color: colors.neutral.inkMuted,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   codeBox: {
     width: '100%',
-    backgroundColor: '#F0F7FF',
+    backgroundColor: colors.neutral.cardWarm,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: '#DBEAFE',
+    borderColor: colors.brand.primary,
     borderStyle: 'dashed',
     paddingVertical: 22,
     paddingHorizontal: 16,
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   codeText: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#1E40AF',
+    color: colors.neutral.ink,
     letterSpacing: 4,
     textAlign: 'center',
   },
@@ -103,11 +104,11 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.neutral.cardWarm,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: colors.neutral.rule,
   },
-  assignBtnPressed: { backgroundColor: '#DBEAFE' },
-  assignLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#3B82F6' },
+  assignBtnPressed: { backgroundColor: colors.neutral.rule },
+  assignLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: colors.brand.primaryDeep },
 });
