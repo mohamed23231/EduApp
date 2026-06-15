@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -80,7 +81,7 @@ function buildNotificationFallback(
   return isArabic ? 'إشعار جديد' : 'New notification';
 }
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, t: TFunction): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -89,13 +90,13 @@ function formatDate(dateString: string): string {
   const diffDays = Math.floor(diffMs / 86400000);
 
   if (diffMins < 1)
-    return 'Just now';
+    return t('parent.notifications.time.justNow', 'Just now');
   if (diffMins < 60)
-    return `${diffMins}m ago`;
+    return t('parent.notifications.time.minutesAgo', '{{count}}m ago', { count: diffMins });
   if (diffHours < 24)
-    return `${diffHours}h ago`;
+    return t('parent.notifications.time.hoursAgo', '{{count}}h ago', { count: diffHours });
   if (diffDays < 7)
-    return `${diffDays}d ago`;
+    return t('parent.notifications.time.daysAgo', '{{count}}d ago', { count: diffDays });
 
   return date.toLocaleDateString();
 }
@@ -140,6 +141,7 @@ function useNotificationContent(notification: Notification): { title: string; bo
 }
 
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
+  const { t } = useTranslation();
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
@@ -225,7 +227,7 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
             className="mt-2 text-xs font-medium"
             style={{ textAlign: alignment, color: isUnread ? '#22C572' : '#9CA3AF' }}
           >
-            {formatDate(notification.createdAt)}
+            {formatDate(notification.createdAt, t)}
           </Text>
         </View>
       </Pressable>

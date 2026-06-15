@@ -175,6 +175,7 @@
     "undoLabel": "تراجع"
   },
   "common": {
+    "back": "رجوع",
     "language": "اللغة"
   },
   "contextSwitcher": {
@@ -884,6 +885,12 @@
       "pushDisabled": "الإشعارات الفورية معطلة. الإشعارات داخل التطبيق لا تزال نشطة.",
       "pushUnsupported": "الإشعارات الفورية غير متاحة على المحاكي.",
       "thisWeek": "هذا الأسبوع",
+      "time": {
+        "daysAgo": "منذ {{count}} يوم",
+        "hoursAgo": "منذ {{count}} س",
+        "justNow": "الآن",
+        "minutesAgo": "منذ {{count}} د"
+      },
       "title": "الإشعارات",
       "today": "اليوم",
       "yesterday": "أمس"

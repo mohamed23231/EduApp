@@ -175,6 +175,7 @@
     "undoLabel": "Undo"
   },
   "common": {
+    "back": "Back",
     "language": "Language"
   },
   "contextSwitcher": {
@@ -884,6 +885,12 @@
       "pushDisabled": "Push notifications are off. In-app notifications are still active.",
       "pushUnsupported": "Push notifications are not available on simulator builds.",
       "thisWeek": "This Week",
+      "time": {
+        "daysAgo": "{{count}}d ago",
+        "hoursAgo": "{{count}}h ago",
+        "justNow": "Just now",
+        "minutesAgo": "{{count}}m ago"
+      },
       "title": "Notifications",
       "today": "Today",
       "yesterday": "Yesterday"

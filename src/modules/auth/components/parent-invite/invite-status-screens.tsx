@@ -86,7 +86,7 @@ export function InviteErrorScreen({ t, message, onBack }: InviteErrorScreenProps
             size="lg"
             fullWidth
             onPress={onBack}
-            label={t('common.back')}
+            label={t('common.back', 'Back')}
             trailingIcon={<Icon name="arrowR" size={18} color={colors.neutral.white} />}
             testID="invite-back-button"
           />
