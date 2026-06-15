@@ -96,6 +96,7 @@ export function ScheduleScreen() {
                             locale={locale}
                             isRTL={isRTL}
                             t={t}
+                            onPress={() => router.push(AppRoute.parent.studentDetails(student.id))}
                           />
                         ))}
                       </View>

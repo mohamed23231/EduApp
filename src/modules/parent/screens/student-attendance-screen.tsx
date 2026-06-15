@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, SectionList, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyState, ErrorState, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
@@ -29,6 +30,7 @@ export function StudentAttendanceScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const studentId = typeof id === 'string' ? id : '';
   const isRTL = I18nManager.isRTL;
+  const insets = useSafeAreaInsets();
 
   const handleBack = useCallback(
     () => (router.canGoBack() ? router.back() : router.replace(AppRoute.parent.dashboard)),
@@ -83,7 +85,7 @@ export function StudentAttendanceScreen() {
       <SectionList
         sections={groupedRecords}
         keyExtractor={(item, index) => `${item.sessionDate}-${index}`}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: 16, paddingTop: insets.top + 16, paddingBottom: 32 }}
         refreshing={isLoading}
         onRefresh={handleRefetch}
         ListHeaderComponent={<AttendanceHeader student={student} stats={stats} isRTL={isRTL} t={t} onBack={handleBack} />}
