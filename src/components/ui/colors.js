@@ -3,7 +3,10 @@ module.exports = {
   brand: {
     primary: '#22C572',
     primaryDeep: '#0E8B4F',
-    primaryInk: '#FFFFFF',
+    // Foreground for text/icons ON brand-green surfaces. The design renders
+    // dark ink on green (shared.jsx: `fg = tone === 'lime' ? tokens.ink : '#fff'`).
+    // #0B0D10 on #22C572 = 8.61:1 (WCAG AAA). White (#FFFFFF) was 2.26:1 — AA FAIL.
+    primaryInk: '#0B0D10',
     primaryGlow: 'rgba(34, 197, 114, 0.42)',
     blue: '#2D7DE0',
     blueDeep: '#1B5BB8',
@@ -169,7 +172,11 @@ module.exports = {
     amber: '#F59E0B',
     violet: '#A855F7',
     sky: '#0EA5E9',
-    lime: '#84CC16',
+    // Off-brand avatar-only olive. Retuned OFF the old #84CC16 (which sat only
+    // 66° from brand-green #22C572 and gave illegible 1.82:1 initials). This
+    // olive is 80° off brand-green and gives 5.04:1 on avatarBg.lime. Avatar
+    // monogram tone ONLY — never a button/CTA/toast/banner/state surface.
+    lime: '#5F6E1A',
     present: '#00C2A0',
     absent: '#FF5B4A',
     excused: '#FFB020',
@@ -182,7 +189,7 @@ module.exports = {
     amber: '#FFFBEB',
     violet: '#F5F3FF',
     sky: '#F0F9FF',
-    lime: '#ECFCCB',
+    lime: '#F2F4E3', // tint paired with the olive avatar.lime (initials read 5.04:1)
     present: '#CCF1E7',
     absent: '#FFE1DD',
     excused: '#FFF0D5',

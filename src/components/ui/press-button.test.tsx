@@ -10,7 +10,7 @@ afterEach(cleanup);
 describe('pressButton', () => {
   it('renders with testID', () => {
     render(
-      <PressButton testID="press-btn">
+      <PressButton variant="primary" testID="press-btn">
         <Text>Tap me</Text>
       </PressButton>,
     );
@@ -19,7 +19,7 @@ describe('pressButton', () => {
 
   it('renders children', () => {
     render(
-      <PressButton testID="press-btn">
+      <PressButton variant="primary" testID="press-btn">
         <Text>Hello</Text>
       </PressButton>,
     );
@@ -29,7 +29,7 @@ describe('pressButton', () => {
   it('calls onPress when pressed', async () => {
     const onPress = jest.fn();
     const { user } = setup(
-      <PressButton testID="press-btn" onPress={onPress}>
+      <PressButton variant="primary" testID="press-btn" onPress={onPress}>
         <Text>Tap</Text>
       </PressButton>,
     );
@@ -40,7 +40,7 @@ describe('pressButton', () => {
   it('does not call onPress when disabled', async () => {
     const onPress = jest.fn();
     const { user } = setup(
-      <PressButton testID="press-btn" disabled onPress={onPress}>
+      <PressButton variant="primary" testID="press-btn" disabled onPress={onPress}>
         <Text>Tap</Text>
       </PressButton>,
     );
@@ -52,7 +52,7 @@ describe('pressButton', () => {
     const onPressIn = jest.fn();
     const onPressOut = jest.fn();
     const { user } = setup(
-      <PressButton testID="press-btn" onPressIn={onPressIn} onPressOut={onPressOut}>
+      <PressButton variant="primary" testID="press-btn" onPressIn={onPressIn} onPressOut={onPressOut}>
         <Text>Tap</Text>
       </PressButton>,
     );
@@ -63,10 +63,18 @@ describe('pressButton', () => {
 
   it('is disabled when disabled prop is true', () => {
     render(
-      <PressButton testID="press-btn" disabled>
+      <PressButton variant="primary" testID="press-btn" disabled>
         <Text>Tap</Text>
       </PressButton>,
     );
     expect(screen.getByTestId('press-btn')).toBeDisabled();
+  });
+
+  it('renders the gradient variant with a label', () => {
+    render(
+      <PressButton variant="gradient" testID="press-btn" label="Continue" />,
+    );
+    expect(screen.getByTestId('press-btn')).toBeOnTheScreen();
+    expect(screen.getByText('Continue')).toBeOnTheScreen();
   });
 });
