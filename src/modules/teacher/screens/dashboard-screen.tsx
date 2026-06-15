@@ -7,322 +7,27 @@
 import type { SessionInstance } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { MotiView } from 'moti';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
-import Animated, {
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui';
 import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore } from '@/features/auth/use-auth-store';
-import { validateToken } from '@/modules/auth/services';
 import { ContextSwitcher } from '@/modules/organization/shared/components/context-switcher';
 import { useContexts } from '@/modules/organization/shared/hooks/use-contexts';
 import { useOrgContextStore } from '@/modules/organization/shared/store/org-context-store';
-import { ConfirmSheet, DashboardSkeleton, EmptyState, SessionCard } from '../components';
+import { ConfirmSheet } from '../components';
+import { ContextPill, OrgCards } from '../components/dashboard/dashboard-context';
+import { DashboardHero } from '../components/dashboard/dashboard-hero';
+import { DashboardQuickActions } from '../components/dashboard/dashboard-quick-actions';
+import { DashboardSessionItem, DashboardSessionsBody } from '../components/dashboard/dashboard-sessions-body';
 import { useTodaySessions } from '../hooks';
+import { useHydrateTeacherName } from '../hooks/use-hydrate-teacher-name';
 import { useSessionActions } from '../hooks/use-session-actions';
 import { useTeacherStore } from '../store/use-teacher-store';
-
-const GENERATED_PHONE_EMAIL_DOMAIN = '@phone-generated.privatedu';
-
-function isGeneratedPhoneEmail(email: string | undefined): boolean {
-  return !!email && email.toLowerCase().endsWith(GENERATED_PHONE_EMAIL_DOMAIN);
-}
-
-function getDashboardFirstName(
-  fullName: string | undefined,
-  email: string | undefined,
-  t: (key: string) => string,
-): string {
-  if (fullName?.trim()) {
-    const [firstPart] = fullName.trim().split(/\s+/);
-    return firstPart || fullName.trim();
-  }
-
-  if (email && !isGeneratedPhoneEmail(email)) {
-    const [localPart] = email.split('@');
-    if (localPart) {
-      return localPart;
-    }
-  }
-
-  return t('teacher.profile.roleTeacher');
-}
-
-function getGreeting(t: (key: string) => string) {
-  const hour = new Date().getHours();
-  if (hour < 12)
-    return t('teacher.dashboard.goodMorning');
-  if (hour < 17)
-    return t('teacher.dashboard.goodAfternoon');
-  return t('teacher.dashboard.goodEvening');
-}
-
-function useHydrateTeacherName(user: ReturnType<typeof useAuthStore.use.user>) {
-  const token = useAuthStore.use.token();
-  const signIn = useAuthStore.use.signIn();
-  const hasAttemptedHydrationRef = useRef(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function hydrateMissingName() {
-      if (!user || !token) {
-        hasAttemptedHydrationRef.current = false;
-        return;
-      }
-
-      if (user.fullName?.trim()) {
-        hasAttemptedHydrationRef.current = false;
-        return;
-      }
-
-      if (hasAttemptedHydrationRef.current) {
-        return;
-      }
-      hasAttemptedHydrationRef.current = true;
-
-      try {
-        const validatedUser = await validateToken();
-        if (cancelled || !validatedUser.fullName?.trim()) {
-          return;
-        }
-
-        signIn({
-          token,
-          user: {
-            ...user,
-            ...validatedUser,
-          },
-        });
-      }
-      catch {
-        // Best-effort hydration for sessions created before fullName was persisted.
-      }
-    }
-
-    void hydrateMissingName();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [signIn, token, user]);
-}
-
-function DashboardHero({
-  firstName,
-  sessionCount,
-  activeCount,
-  t,
-}: {
-  firstName: string;
-  sessionCount: number;
-  activeCount: number;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  return (
-    <View style={styles.hero}>
-      <View style={styles.heroTop}>
-        <View style={styles.heroLeft}>
-          <Text style={styles.greetingText}>{getGreeting(t)}</Text>
-          <Text style={styles.heroName} numberOfLines={1}>{firstName}</Text>
-        </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{firstName[0]?.toUpperCase() ?? '?'}</Text>
-        </View>
-      </View>
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{sessionCount}</Text>
-          <Text style={styles.statLabel}>{t('teacher.dashboard.sessionsToday')}</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{activeCount}</Text>
-          <Text style={styles.statLabel}>{t('teacher.dashboard.activeSessions')}</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function QuickActions({
-  onCreateStudent,
-  onCreateSession,
-  t,
-}: {
-  onCreateStudent: () => void;
-  onCreateSession: () => void;
-  t: (key: string) => string;
-}) {
-  return (
-    <View style={styles.actionsGrid}>
-      <QuickActionCard
-        icon="person-add-outline"
-        label={t('teacher.students.createButton')}
-        onPress={onCreateStudent}
-        iconBg="#EDE9FE"
-        iconColor="#7C3AED"
-      />
-      <QuickActionCard
-        icon="calendar-outline"
-        label={t('teacher.sessions.createTitle')}
-        onPress={onCreateSession}
-        iconBg="#DBEAFE"
-        iconColor="#2563EB"
-      />
-    </View>
-  );
-}
-
-function QuickActionCard({ icon, label, onPress, iconBg, iconColor }: {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  onPress: () => void;
-  iconBg: string;
-  iconColor: string;
-}) {
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const handlePressIn = () => {
-    // eslint-disable-next-line react-hooks/immutability
-    scale.value = withSpring(0.95, { damping: 15 });
-  };
-
-  const handlePressOut = () => {
-    // eslint-disable-next-line react-hooks/immutability
-    scale.value = withSpring(1, { damping: 15 });
-  };
-
-  return (
-    <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
-        accessibilityRole="button"
-      >
-        <View style={[styles.actionIcon, { backgroundColor: iconBg }]}>
-          <Ionicons name={icon} size={20} color={iconColor} />
-        </View>
-        <Text style={styles.actionLabel} numberOfLines={1}>{label}</Text>
-      </Pressable>
-    </Animated.View>
-  );
-}
-
-function SessionsBody({
-  isInitialLoad,
-  sessionsError,
-  todaySessions,
-  isLoadingSessions,
-  renderItem,
-  onRefetch,
-  onCreateSession,
-  t,
-}: {
-  isInitialLoad: boolean;
-  sessionsError: string | null;
-  todaySessions: SessionInstance[];
-  isLoadingSessions: boolean;
-  renderItem: (info: { item: SessionInstance; index: number }) => React.ReactElement;
-  onRefetch: () => Promise<void>;
-  onCreateSession: () => void;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  if (isInitialLoad)
-    return <DashboardSkeleton />;
-  if (sessionsError) {
-    return (
-      <View style={styles.errorBox}>
-        <Ionicons name="alert-circle-outline" size={36} color="#DC2626" />
-        <Text style={styles.errorText}>{sessionsError}</Text>
-        <Pressable onPress={onRefetch} style={({ pressed }) => [styles.retryBtn, pressed && { opacity: 0.7 }]}>
-          <Text style={styles.retryLabel}>{t('teacher.common.retry')}</Text>
-        </Pressable>
-      </View>
-    );
-  }
-  return (
-    <FlatList
-      data={todaySessions}
-      renderItem={renderItem}
-      keyExtractor={item => item.id}
-      removeClippedSubviews
-      contentContainerStyle={[styles.list, todaySessions.length === 0 && styles.listEmpty]}
-      onRefresh={onRefetch}
-      refreshing={isLoadingSessions && todaySessions.length > 0}
-      ListEmptyComponent={(
-        <EmptyState
-          icon="calendar-outline"
-          title={t('teacher.dashboard.emptyTitle')}
-          message={t('teacher.dashboard.emptyMessage')}
-          actionLabel={t('teacher.sessions.createTitle')}
-          onAction={onCreateSession}
-        />
-      )}
-    />
-  );
-}
-
-type ContextPillProps = {
-  onPress: () => void;
-  label: string;
-};
-
-function ContextPill({ onPress, label }: ContextPillProps) {
-  return (
-    <View style={styles.contextPillRow}>
-      <Pressable onPress={onPress} style={styles.contextPill}>
-        <Text style={styles.contextPillText}>
-          {label}
-          {' \u25BE'}
-        </Text>
-      </Pressable>
-    </View>
-  );
-}
-
-type DashboardSessionItemProps = {
-  item: SessionInstance;
-  index: number;
-  onStart: (id: string) => void;
-  onMarkAttendance: (id: string) => void;
-  onEnd: (id: string) => void;
-  isStartingId: string | null;
-  isEndingId: string | null;
-};
-
-function DashboardSessionItem({ item, index, onStart, onMarkAttendance, onEnd, isStartingId, isEndingId }: DashboardSessionItemProps) {
-  return (
-    <MotiView
-      from={{ opacity: 0, translateY: 8 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: 'timing', duration: 220, delay: Math.min(index * 50, 200) }}
-    >
-      <SessionCard
-        instance={item}
-        onStartSession={onStart}
-        onMarkAttendance={onMarkAttendance}
-        onEndSession={onEnd}
-        isStarting={isStartingId === item.id}
-        isEnding={isEndingId === item.id}
-      />
-    </MotiView>
-  );
-}
+import { getDashboardFirstName } from '../utils/dashboard-name';
 
 export function DashboardScreen() {
   const { t } = useTranslation();
@@ -362,7 +67,8 @@ export function DashboardScreen() {
   const firstName = getDashboardFirstName(user?.fullName, user?.email, t);
   const activeCount = todaySessions.filter(s => s.state === 'ACTIVE').length;
   const isInitialLoad = isLoadingSessions && !hasLoaded;
-  const activeOrgName = contextsData?.organizations.find(o => o.organizationId === activeOrgId)?.name;
+  const orgs = contextsData?.organizations ?? [];
+  const activeOrgName = orgs.find(o => o.organizationId === activeOrgId)?.name;
   const pillLabel = activeContext === 'personal' ? t('contextSwitcher.personal') : (activeOrgName ?? t('contextSwitcher.orgContext'));
 
   const handleSelectOrg = useCallback((orgId: string) => {
@@ -376,32 +82,14 @@ export function DashboardScreen() {
         <DashboardHero firstName={firstName} sessionCount={todaySessions.length} activeCount={activeCount} t={t} />
       </Animated.View>
       <Animated.View entering={FadeInDown.delay(100).duration(350)}>
-        <QuickActions onCreateStudent={() => router.push(AppRoute.teacher.studentCreate as any)} onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)} t={t} />
+        <DashboardQuickActions onCreateStudent={() => router.push(AppRoute.teacher.studentCreate as any)} onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)} t={t} />
       </Animated.View>
       <Animated.View entering={FadeInDown.delay(140).duration(350)}>
         <ContextPill onPress={() => setSwitcherVisible(true)} label={pillLabel} />
       </Animated.View>
-      {(contextsData?.organizations.length ?? 0) > 0 && (
+      {orgs.length > 0 && (
         <Animated.View entering={FadeInDown.delay(160).duration(350)}>
-          <View style={styles.orgCardsRow}>
-            {contextsData!.organizations.map(org => (
-              <Pressable
-                key={org.organizationId}
-                onPress={() => handleSelectOrg(org.organizationId)}
-                style={({ pressed }) => [styles.orgCard, pressed && styles.orgCardPressed]}
-                accessibilityRole="button"
-                accessibilityLabel={org.name}
-              >
-                <View style={styles.orgCardInner}>
-                  <Text style={styles.orgCardName} numberOfLines={1}>{org.name}</Text>
-                  <View style={styles.orgCardAction}>
-                    <Text style={styles.orgCardActionText}>{t('teacher.dashboard.viewOrgSessions', 'View sessions')}</Text>
-                    <Ionicons name="chevron-forward" size={14} color="#6366F1" />
-                  </View>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+          <OrgCards orgs={orgs} onSelect={handleSelectOrg} t={t} />
         </Animated.View>
       )}
       <Animated.View entering={FadeInDown.delay(180).duration(350)}>
@@ -410,91 +98,15 @@ export function DashboardScreen() {
           <Text style={styles.sectionTitle}>{t('teacher.dashboard.sessionsTitle')}</Text>
         </View>
       </Animated.View>
-      <SessionsBody isInitialLoad={isInitialLoad} sessionsError={sessionsError} todaySessions={todaySessions} isLoadingSessions={isLoadingSessions} renderItem={renderItem} onRefetch={refetchSessions} onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)} t={t} />
+      <DashboardSessionsBody isInitialLoad={isInitialLoad} sessionsError={sessionsError} todaySessions={todaySessions} isLoadingSessions={isLoadingSessions} renderItem={renderItem} onRefetch={refetchSessions} onCreateSession={() => router.push(AppRoute.teacher.sessionCreate as any)} t={t} />
       <ConfirmSheet ref={confirmEndModal.ref} title={t('teacher.sessions.endSession')} message={t('teacher.sessions.endSessionConfirm')} confirmLabel={t('teacher.sessions.endSession')} cancelLabel={t('teacher.common.cancel')} onConfirm={handleEndSessionConfirm} onCancel={handleCancelEnd} variant="destructive" />
-      <ContextSwitcher visible={switcherVisible} userRole={user?.role ?? null} orgs={contextsData?.organizations ?? []} onClose={() => setSwitcherVisible(false)} onSelectOrg={handleSelectOrg} onSelectPersonal={() => setSwitcherVisible(false)} />
+      <ContextSwitcher visible={switcherVisible} userRole={user?.role ?? null} orgs={orgs} onClose={() => setSwitcherVisible(false)} onSelectOrg={handleSelectOrg} onSelectPersonal={() => setSwitcherVisible(false)} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F9FAFB' },
-  hero: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  heroTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 18,
-  },
-  heroLeft: { flex: 1, marginEnd: 12 },
-  greetingText: { fontSize: 14, color: '#BFDBFE', fontWeight: '500', marginBottom: 2 },
-  heroName: { fontSize: 20, fontWeight: '800', color: '#FFFFFF' },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.4)',
-  },
-  avatarText: { fontSize: 17, fontWeight: '700', color: '#FFFFFF' },
-  statsRow: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  statItem: { flex: 1, alignItems: 'center' },
-  statNumber: { fontSize: 24, fontWeight: '800', color: '#FFFFFF' },
-  statLabel: { fontSize: 12, color: '#BFDBFE', fontWeight: '500', marginTop: 2 },
-  statDivider: {
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    marginVertical: 4,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  actionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  actionCardPressed: { backgroundColor: '#F0F7FF', borderColor: '#BFDBFE' },
-  actionIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  actionLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#374151' },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -510,48 +122,4 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
-  orgCardsRow: { paddingHorizontal: 16, paddingTop: 8, gap: 8 },
-  orgCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  orgCardPressed: { opacity: 0.8 },
-  orgCardInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  orgCardName: { flex: 1, fontSize: 15, fontWeight: '600', color: '#111827', marginEnd: 8 },
-  orgCardAction: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  orgCardActionText: { fontSize: 13, fontWeight: '600', color: '#6366F1' },
-  contextPillRow: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 0 },
-  contextPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#EEF2FF',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-  },
-  contextPillText: { fontSize: 13, fontWeight: '600', color: '#4338CA' },
-  list: { paddingHorizontal: 16, paddingBottom: 32, gap: 10 },
-  listEmpty: { flexGrow: 1 },
-  errorBox: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 32,
-  },
-  errorText: { fontSize: 15, color: '#DC2626', textAlign: 'center' },
-  retryBtn: {
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    backgroundColor: '#EFF6FF',
-    borderRadius: 10,
-  },
-  retryLabel: { fontSize: 14, fontWeight: '600', color: '#3B82F6' },
 });
