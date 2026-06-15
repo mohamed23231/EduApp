@@ -41,6 +41,7 @@
     "test": "jest",
     "check-redesign": "node scripts/check-redesign.mjs",
     "check-all": "pnpm run lint && pnpm run type-check && pnpm run lint:translations && pnpm run test && pnpm run check-redesign",
+    "gate": "pnpm run lint && pnpm run type-check && pnpm run lint:translations && pnpm run check-redesign && pnpm run test:ci",
     "test:ci": "pnpm run test --coverage",
     "test:watch": "pnpm run test --watch",
     "install-maestro": "curl -Ls 'https://get.maestro.mobile.dev' | bash",
