@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 import colors from '@/components/ui/colors';
@@ -10,12 +11,15 @@ type OfflineBannerProps = {
 };
 
 export function OfflineBanner({ visible, testID }: OfflineBannerProps) {
+  const { t } = useTranslation();
   if (!visible)
     return null;
 
   return (
     <View
       testID={testID}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="assertive"
       style={{
         backgroundColor: colors.semantic.excused,
         paddingVertical: 8,
@@ -37,7 +41,7 @@ export function OfflineBanner({ visible, testID }: OfflineBannerProps) {
           color: colors.semantic.excusedInk,
         }}
       >
-        You're offline
+        {t('common.offline', 'You\'re offline')}
       </Text>
     </View>
   );

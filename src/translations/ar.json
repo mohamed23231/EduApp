@@ -186,7 +186,8 @@
     "confirm": "تأكيد",
     "errorTitle": "حدث خطأ ما",
     "goBack": "العودة",
-    "language": "اللغة"
+    "language": "اللغة",
+    "offline": "أنت غير متصل بالإنترنت"
   },
   "contextSwitcher": {
     "orgContext": "المؤسسة",

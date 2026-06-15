@@ -1,2 +1,3 @@
 /* eslint-disable react-refresh/only-export-components */
+export * from './use-connectivity';
 export * from './use-is-first-time';

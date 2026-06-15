@@ -12,6 +12,7 @@ import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import colors from '@/components/ui/colors';
+import { ConnectivityBanner } from '@/components/ui/connectivity-banner';
 import { ThemeProvider as AppThemeProvider, useTheme } from '@/components/ui/theme';
 import { ToastHost } from '@/components/ui/toast-host';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
@@ -347,6 +348,7 @@ function ThemedRoot({
                 {children}
               </ToastHost>
               <FlashMessage position="top" />
+              <ConnectivityBanner />
             </BottomSheetModalProvider>
           </APIProvider>
         </ThemeProvider>

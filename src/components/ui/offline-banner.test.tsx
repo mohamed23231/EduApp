@@ -10,7 +10,7 @@ describe('offlineBanner', () => {
   it('renders when visible is true', () => {
     render(<OfflineBanner visible={true} testID="offline-banner" />);
     expect(screen.getByTestId('offline-banner')).toBeOnTheScreen();
-    expect(screen.getByText('You\'re offline')).toBeOnTheScreen();
+    expect(screen.getByText('common.offline')).toBeOnTheScreen();
   });
 
   it('renders null when visible is false', () => {

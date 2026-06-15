@@ -186,7 +186,8 @@
     "confirm": "Confirm",
     "errorTitle": "Something went wrong",
     "goBack": "Go back",
-    "language": "Language"
+    "language": "Language",
+    "offline": "You're offline"
   },
   "contextSwitcher": {
     "orgContext": "Organization",
