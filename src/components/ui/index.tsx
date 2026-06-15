@@ -22,6 +22,7 @@ export { IconTile } from './icon-tile';
 export * from './image';
 export * from './input';
 export { LanguageToggle } from './language-toggle';
+export { LegalNote } from './legal-note';
 export * from './list';
 export * from './modal';
 // Phase 4 US7 — additional primitives

@@ -9,6 +9,7 @@ import {
   AuthShell,
   GradientText,
   Icon,
+  LegalNote,
   TabaMark,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
@@ -268,19 +269,7 @@ export function LoginForm({
           </Pressable>
         </View>
 
-        <Text
-          style={{
-            color: colors.neutral.inkMuted,
-            fontSize: 11,
-            lineHeight: 16,
-            fontWeight: '500',
-            textAlign: 'center',
-            marginTop: 16,
-            marginBottom: Math.max(insets.bottom, 12),
-          }}
-        >
-          {t('auth.login.legalLine', 'By continuing you agree to Taba3ny\'s Terms and Privacy Policy.')}
-        </Text>
+        <LegalNote marginTop={16} marginBottom={Math.max(insets.bottom, 12)} />
 
         {Platform.OS === 'ios' ? null : <View style={{ height: 8 }} />}
       </View>

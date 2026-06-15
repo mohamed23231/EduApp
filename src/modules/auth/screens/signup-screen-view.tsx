@@ -18,7 +18,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AuthShell, Icon } from '@/components/ui';
+import { AuthShell, Icon, LegalNote } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
 import { useSelectedLanguage } from '@/lib/i18n';
@@ -41,7 +41,6 @@ export type SignupScreenViewProps = {
   handlePhoneOtpVerify: (values: PhoneSignupVerifyParams) => Promise<PhoneSignupVerifyResponse>;
   handleGoogleSignup: (idToken: string, role: SignupRole) => Promise<void>;
   handleGoogleSignupError: (error: Error) => void;
-  handleTermsPress: () => void;
   isPending: boolean;
   isPhoneSignupPending: boolean;
   isOtpPending: boolean;
@@ -65,7 +64,6 @@ export function SignupScreenView({
   handlePhoneOtpVerify,
   handleGoogleSignup,
   handleGoogleSignupError,
-  handleTermsPress,
   isPending,
   isPhoneSignupPending,
   isOtpPending,
@@ -201,28 +199,11 @@ export function SignupScreenView({
               </Pressable>
             </View>
 
-            <Text
-              style={{
-                color: colors.neutral.inkMuted,
-                fontSize: 11,
-                lineHeight: 16,
-                fontWeight: '500',
-                textAlign: 'center',
-                marginTop: 14,
-                marginBottom: Math.max(insets.bottom, 12),
-                paddingHorizontal: 8,
-              }}
-            >
-              {t('auth.signup.legalLine', 'By creating an account you agree to Taba3ny\'s ')}
-              <Text
-                style={{ color: colors.brand.primary, fontWeight: '700' }}
-                onPress={handleTermsPress}
-                testID="terms-link"
-              >
-                {t('auth.signup.termsLink')}
-              </Text>
-              .
-            </Text>
+            <LegalNote
+              marginTop={14}
+              marginBottom={Math.max(insets.bottom, 12)}
+              paddingHorizontal={8}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

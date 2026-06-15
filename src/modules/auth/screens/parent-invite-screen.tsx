@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AuthShell } from '@/components/ui';
+import { AuthShell, LegalNote } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { UserRole } from '@/core/auth/roles';
 import { setOnboardingContext, signIn } from '@/features/auth/use-auth-store';
@@ -201,19 +201,7 @@ function ParentInviteView({
 
             <View style={{ flex: 1, minHeight: 16 }} />
 
-            <Text
-              style={{
-                color: colors.neutral.inkMuted,
-                fontSize: 11,
-                lineHeight: 16,
-                fontWeight: '500',
-                textAlign: 'center',
-                marginTop: 16,
-                marginBottom: Math.max(insets.bottom, 12),
-              }}
-            >
-              {t('auth.login.legalLine', 'By continuing you agree to Taba3ny\'s Terms and Privacy Policy.')}
-            </Text>
+            <LegalNote marginTop={16} marginBottom={Math.max(insets.bottom, 12)} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -4,7 +4,6 @@ import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking } from 'react-native';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
@@ -170,10 +169,6 @@ export function SignupScreen() {
     }
   };
 
-  const handleTermsPress = () => {
-    Linking.openURL('https://example.com/terms').catch(() => {});
-  };
-
   const handleGoogleSignup = async (idToken: string, role: SignupRole) => {
     setErrorMsg(null);
     setIsGoogleSigningIn(true);
@@ -250,7 +245,6 @@ export function SignupScreen() {
       handlePhoneOtpVerify={handlePhoneOtpVerify}
       handleGoogleSignup={handleGoogleSignup}
       handleGoogleSignupError={handleGoogleSignupError}
-      handleTermsPress={handleTermsPress}
       isPending={isPending}
       isPhoneSignupPending={isPhoneSignupPending}
       isOtpPending={isOtpPending}
