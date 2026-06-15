@@ -7,6 +7,7 @@ import colors from '@/components/ui/colors';
 import { NotificationItem } from '../notification-item';
 import { PushDisabledBanner } from '../push-disabled-banner';
 import { NotificationHeader } from './notification-header';
+import { PermissionPromptSlot } from './permission-prompt-slot';
 
 type NotificationListViewProps = {
   sections: NotificationSection[];
@@ -40,6 +41,7 @@ export function NotificationListView({
   return (
     <SafeAreaView edges={['top']} className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
       <PushDisabledBanner />
+      <PermissionPromptSlot />
       <NotificationHeader
         isRTL={isRTL}
         onBack={onBack}
