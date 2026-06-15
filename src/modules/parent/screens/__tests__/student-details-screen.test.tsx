@@ -4,12 +4,30 @@
  * driven by useStudentDetails + useAttendanceStats + useAttendanceTimeline.
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import type { ReactElement } from 'react';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
+import { ThemeProvider } from '@/components/ui/theme';
 import { useAttendanceStats, useAttendanceTimeline, useStudentDetails } from '../../hooks';
 import { StudentDetailsScreen } from '../student-details-screen';
+
+// The redesigned loading state renders StudentDetailsSkeleton → Skeleton →
+// useReducedMotion → useTheme, which requires a ThemeProvider. Wrap every render
+// in it and stub the uniwind runtime hooks the provider reads.
+jest.mock('uniwind', () => {
+  const actual = jest.requireActual('uniwind');
+  return {
+    ...actual,
+    Uniwind: { ...actual.Uniwind, setTheme: jest.fn() },
+    useUniwind: jest.fn(() => ({ theme: 'light', hasAdaptiveThemes: true })),
+  };
+});
+
+function render(ui: ReactElement): ReturnType<typeof rtlRender> {
+  return rtlRender(<ThemeProvider>{ui}</ThemeProvider>);
+}
 
 jest.mock('expo-router');
 jest.mock('react-i18next');
@@ -82,7 +100,7 @@ describe('studentDetailsScreen', () => {
       const mockRefetch = jest.fn();
       (useStudentDetails as jest.Mock).mockReturnValue({ data: undefined, isLoading: false, error: new Error('Failed to fetch'), refetch: mockRefetch });
       render(<StudentDetailsScreen />);
-      fireEvent.press(screen.getByTestId('retry-button'));
+      fireEvent.press(screen.getByTestId('retry-button-action'));
       await waitFor(() => expect(mockRefetch).toHaveBeenCalled());
     });
   });

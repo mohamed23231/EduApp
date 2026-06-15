@@ -15,6 +15,7 @@ jest.mock('expo-router');
 jest.mock('react-i18next');
 jest.mock('../../hooks/use-link-student');
 jest.mock('../../services/error-utils', () => ({
+  isAxiosError: (error: any) => error?.isAxiosError === true,
   extractErrorMessage: jest.fn((error, t) => {
     if (!error)
       return '';
@@ -208,13 +209,15 @@ describe('linkStudentScreen', () => {
     });
   });
 
-  describe('error state displays backend message', () => {
-    it('should display backend error message when mutation fails', () => {
+  describe('error state distinguishes invalid vs expired codes', () => {
+    it('should display the invalid-code message for PARENT_ACCESS_CODE_INVALID', () => {
       const mockError = {
         isAxiosError: true,
         response: {
+          status: 404,
           data: {
-            message: 'Invalid access code',
+            code: 'PARENT_ACCESS_CODE_INVALID',
+            message: 'Access code not found',
           },
         },
       };
@@ -229,7 +232,32 @@ describe('linkStudentScreen', () => {
 
       const errorMessage = screen.getByTestId('error-message');
       expect(errorMessage).toBeOnTheScreen();
-      expect(screen.getByText('Invalid access code')).toBeOnTheScreen();
+      expect(screen.getByText('parent.linkStudent.errorInvalid')).toBeOnTheScreen();
+    });
+
+    it('should display the expired-code message for PARENT_ACCESS_CODE_REVOKED', () => {
+      const mockError = {
+        isAxiosError: true,
+        response: {
+          status: 409,
+          data: {
+            code: 'PARENT_ACCESS_CODE_REVOKED',
+            message: 'Access code is no longer valid',
+          },
+        },
+      };
+
+      mockUseLinkStudent.mockReturnValue({
+        mutate: jest.fn(),
+        isPending: false,
+        error: mockError as any,
+      } as any);
+
+      renderWithProviders(<LinkStudentScreen />);
+
+      const errorMessage = screen.getByTestId('error-message');
+      expect(errorMessage).toBeOnTheScreen();
+      expect(screen.getByText('parent.linkStudent.errorExpired')).toBeOnTheScreen();
     });
 
     it('should display generic error when backend message is missing', () => {

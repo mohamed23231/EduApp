@@ -52,6 +52,7 @@ jest.mock('../../components', () => {
 jest.mock('../../components/dashboard', () => {
   const { View, Text, Pressable } = require('react-native');
   return {
+    DashboardSkeleton: ({ testID }: { testID?: string }) => <View testID={testID} />,
     ChildSwitcher: ({ students, onSelect }: any) => (
       <View testID="child-switcher">
         {students.map((s: any) => (
@@ -149,7 +150,7 @@ describe('parentDashboardScreen', () => {
       const mockRefetch = jest.fn();
       (useStudents as jest.Mock).mockReturnValue({ data: undefined, isLoading: false, error: new Error('Network error'), refetch: mockRefetch });
       render(<ParentDashboardScreen />);
-      fireEvent.press(screen.getByTestId('retry-button'));
+      fireEvent.press(screen.getByTestId('retry-button-action'));
       await waitFor(() => expect(mockRefetch).toHaveBeenCalled());
     });
   });

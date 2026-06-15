@@ -2,6 +2,7 @@ export { useAttendance } from './use-attendance';
 export { useAttendanceStats } from './use-attendance-stats';
 export { useAttendanceTimeline } from './use-attendance-timeline';
 export { useChildSummaryHero } from './use-child-summary-hero';
+export { useClearLinkErrors } from './use-clear-link-errors';
 export { useCurrentSession } from './use-current-session';
 export { useLinkStudent } from './use-link-student';
 export { useStudentDetails } from './use-student-details';

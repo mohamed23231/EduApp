@@ -3,12 +3,30 @@
  * Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5, 10.6
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import type { ReactElement } from 'react';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
+import { ThemeProvider } from '@/components/ui/theme';
 import { useAttendanceStats, useStudents } from '../../hooks';
 import { StudentListScreen } from '../student-list-screen';
+
+// The redesigned loading state renders Skeleton → useReducedMotion → useTheme,
+// which requires a ThemeProvider. Wrap every render in it and stub the uniwind
+// runtime hooks the provider reads (the UI barrel pulls in `withUniwind`).
+jest.mock('uniwind', () => {
+  const actual = jest.requireActual('uniwind');
+  return {
+    ...actual,
+    Uniwind: { ...actual.Uniwind, setTheme: jest.fn() },
+    useUniwind: jest.fn(() => ({ theme: 'light', hasAdaptiveThemes: true })),
+  };
+});
+
+function render(ui: ReactElement): ReturnType<typeof rtlRender> {
+  return rtlRender(<ThemeProvider>{ui}</ThemeProvider>);
+}
 
 // Mock dependencies
 jest.mock('expo-router');

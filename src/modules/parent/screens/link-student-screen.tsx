@@ -1,234 +1,32 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   I18nManager,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, {
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Modal, Text, useModal } from '@/components/ui';
+import { Modal, PressButton, Text, useModal } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
-import { useLinkStudent } from '../hooks';
-import { extractErrorMessage } from '../services/error-utils';
+import { LinkCodeField, LinkHeader, LinkIllustration } from '../components/link';
+import { useClearLinkErrors, useLinkStudent } from '../hooks';
+import { classifyLinkError, linkErrorMessage } from '../utils/link-error';
 import { linkStudentSchema } from '../validators/link-student.schema';
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
-
-function useClearErrorsOnChange({
-  accessCode,
-  validationError,
-  hasMutationError,
-  resetMutationError,
-  setValidationError,
-}: {
-  accessCode: string;
-  validationError: string | null;
-  hasMutationError: boolean;
-  resetMutationError: (() => void) | undefined;
-  setValidationError: (error: string | null) => void;
-}) {
-  const previousAccessCode = useRef(accessCode);
-
-  useEffect(() => {
-    const hasChanged = accessCode !== previousAccessCode.current;
-    previousAccessCode.current = accessCode;
-    if (!hasChanged) {
-      return;
-    }
-
-    if (validationError) {
-      setValidationError(null);
-    }
-
-    if (hasMutationError) {
-      resetMutationError?.();
-    }
-  }, [accessCode, validationError, hasMutationError, resetMutationError, setValidationError]);
-}
-
-function ScreenHeader({
-  onBack,
-  backLabel,
-  title,
-}: {
-  onBack: () => void;
-  backLabel: string;
-  title: string;
-}) {
-  return (
-    <View style={s.header}>
-      <TouchableOpacity
-        style={s.backButton}
-        onPress={onBack}
-        accessibilityRole="button"
-        accessibilityLabel={backLabel}
-        testID="back-button"
-      >
-        <Ionicons
-          name={I18nManager.isRTL ? 'arrow-forward' : 'arrow-back'}
-          size={24}
-          color="#0B0D10"
-        />
-      </TouchableOpacity>
-      <Text style={s.headerTitle}>{title}</Text>
-      <View style={s.headerSpacer} />
-    </View>
-  );
-}
-
-function Illustration() {
-  return (
-    <View style={s.illustrationContainer}>
-      <View style={s.illustration}>
-        <View style={s.illustrationIconWrapper}>
-          <Ionicons name="school" size={44} color="#22C572" />
-        </View>
-        <View style={s.illustrationBadge}>
-          <Ionicons name="link" size={18} color="#FFFFFF" />
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function CodeInput({
-  accessCode,
-  onChangeText,
-  isPending,
-  hasError,
-  label,
-  placeholder,
-}: {
-  accessCode: string;
-  onChangeText: (text: string) => void;
-  isPending: boolean;
-  hasError: boolean;
-  label: string;
-  placeholder: string;
-}) {
-  return (
-    <>
-      <Text style={s.inputLabel}>{label}</Text>
-      <View style={[s.inputContainer, hasError && s.inputContainerError]}>
-        <TextInput
-          style={[
-            s.input,
-            {
-              textAlign: I18nManager.isRTL ? 'right' : 'left',
-              writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-            },
-          ]}
-          placeholder={placeholder}
-          placeholderTextColor="#5C636E"
-          value={accessCode}
-          onChangeText={onChangeText}
-          editable={!isPending}
-          testID="access-code-input"
-          autoCapitalize="characters"
-          autoCorrect={false}
-          accessibilityLabel={label}
-        />
-        <Ionicons name="qr-code-outline" size={20} color="#5C636E" style={s.inputIcon} />
-      </View>
-    </>
-  );
-}
-
-function SubmitButton({
-  onPress,
-  disabled,
-  isPending,
-  label,
-}: {
-  onPress: () => void;
-  disabled: boolean;
-  isPending: boolean;
-  label: string;
-}) {
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const handlePressIn = () => {
-    // eslint-disable-next-line react-hooks/immutability
-    scale.value = withSpring(0.96);
-  };
-
-  const handlePressOut = () => {
-    // eslint-disable-next-line react-hooks/immutability
-    scale.value = withSpring(1);
-  };
-
-  const iconColor = disabled ? '#5C636E' : '#FFFFFF';
-
-  return (
-    <AnimatedTouchableOpacity
-      style={[s.submitButton, disabled && s.submitButtonDisabled, animatedStyle]}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      disabled={disabled}
-      activeOpacity={0.8}
-      testID="submit-button"
-      accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      accessibilityLabel={label}
-    >
-      {isPending
-        ? <ActivityIndicator color="#FFFFFF" size="small" />
-        : (
-            <View style={s.submitContent}>
-              <Text style={[s.submitText, disabled && s.submitTextDisabled]}>
-                {label}
-              </Text>
-              <Ionicons
-                name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
-                size={18}
-                color={iconColor}
-              />
-            </View>
-          )}
-    </AnimatedTouchableOpacity>
-  );
-}
-
-function ErrorMessages({
-  validationError,
-  errorMessage,
-}: {
-  validationError: string | null;
-  errorMessage: string | null;
-}) {
-  return (
-    <>
-      {validationError && (
-        <Text style={s.errorText} accessibilityRole="alert">{validationError}</Text>
-      )}
-      {errorMessage && (
-        <Text style={s.errorText} testID="error-message" accessibilityRole="alert">
-          {errorMessage}
-        </Text>
-      )}
-    </>
-  );
-}
-
+/**
+ * Link a child to the parent account via an access code. Per `visual-parent.md`
+ * §"Link student" — paper canvas, illustration, code field, gradient CTA. The
+ * Parent States Pass requires distinguishing an *invalid* code from an
+ * expired/revoked* one: see `../utils/link-error.ts`.
+ */
+// eslint-disable-next-line max-lines-per-function -- screen wrapper composes extracted sub-components
 export function LinkStudentScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -236,18 +34,19 @@ export function LinkStudentScreen() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const { mutate, isPending, error, reset } = useLinkStudent();
   const helpModalRef = useRef(useModal());
-  useClearErrorsOnChange({
+
+  useClearLinkErrors({
     accessCode,
     validationError,
     hasMutationError: Boolean(error),
     resetMutationError: reset,
     setValidationError,
   });
+
   const handleSubmit = () => {
     const result = linkStudentSchema.safeParse({ accessCode });
     if (!result.success) {
-      const firstError = result.error.issues[0];
-      setValidationError(t(firstError.message));
+      setValidationError(t(result.error.issues[0].message));
       return;
     }
     mutate(accessCode.trim(), {
@@ -256,73 +55,99 @@ export function LinkStudentScreen() {
   };
 
   const isSubmitDisabled = !accessCode.trim() || isPending;
-  const errorMessage = error ? extractErrorMessage(error, t) : null;
+  const errorMessage = error ? linkErrorMessage(classifyLinkError(error), t) : null;
   const hasInputError = !!validationError || !!errorMessage;
 
   return (
-    <SafeAreaView style={s.container} edges={['top', 'bottom']}>
-      <ScreenHeader
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.neutral.paper }} edges={['top', 'bottom']}>
+      <LinkHeader
         onBack={() => router.back()}
         backLabel={t('parent.common.back')}
         title={t('parent.common.brandName')}
       />
 
       <KeyboardAvoidingView
-        style={s.flex}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          style={s.flex}
-          contentContainerStyle={s.scrollContent}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24, flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           <Animated.View entering={FadeInDown.delay(0).duration(400)}>
-            <Illustration />
+            <LinkIllustration />
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(100).duration(400)}>
-            <Text style={s.title}>{t('parent.linkStudent.title')}</Text>
-            <Text style={s.description}>{t('parent.linkStudent.description')}</Text>
+            <Text className="mb-3 text-center text-2xl font-bold" style={{ color: colors.neutral.ink }}>
+              {t('parent.linkStudent.title')}
+            </Text>
+            <Text
+              className="mb-8 px-2 text-center text-base"
+              style={{ color: colors.neutral.inkMuted, lineHeight: 24 }}
+            >
+              {t('parent.linkStudent.description')}
+            </Text>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(200).duration(400)}>
-            <CodeInput
+            <LinkCodeField
               accessCode={accessCode}
               onChangeText={setAccessCode}
               isPending={isPending}
               hasError={hasInputError}
               label={t('parent.linkStudent.inputLabel')}
               placeholder={t('parent.linkStudent.inputPlaceholder')}
+              validationError={validationError}
+              errorMessage={errorMessage}
             />
-
-            <ErrorMessages validationError={validationError} errorMessage={errorMessage} />
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(300).duration(400)}>
             <TouchableOpacity
-              style={s.helpLinkContainer}
+              className="mt-5 mb-7 flex-row items-center justify-center"
+              style={{ gap: 6 }}
               onPress={() => helpModalRef.current?.present()}
               testID="help-link"
               accessibilityRole="button"
               accessibilityLabel={t('parent.linkStudent.helpLink')}
             >
-              <Ionicons name="information-circle-outline" size={16} color="#5C636E" />
-              <Text style={s.helpLink}>{t('parent.linkStudent.helpLink')}</Text>
+              <Ionicons name="information-circle-outline" size={16} color={colors.neutral.inkMuted} />
+              <Text className="text-sm" style={{ color: colors.neutral.inkMuted }}>
+                {t('parent.linkStudent.helpLink')}
+              </Text>
             </TouchableOpacity>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(400).duration(400)}>
-            <SubmitButton
-              onPress={handleSubmit}
+            <PressButton
+              variant="gradient"
+              size="lg"
+              fullWidth
+              loading={isPending}
               disabled={isSubmitDisabled}
-              isPending={isPending}
+              onPress={handleSubmit}
               label={t('parent.linkStudent.submit')}
+              testID="submit-button"
+              trailingIcon={(
+                <Ionicons
+                  name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
+                  size={18}
+                  color={isSubmitDisabled ? colors.neutral.inkMuted : colors.neutral.white}
+                />
+              )}
             />
           </Animated.View>
 
-          <View style={s.footer}>
-            <Text style={s.footerText}>{t('parent.linkStudent.fallbackHelp')}</Text>
+          <View className="flex-1 items-center justify-end pt-6 pb-2">
+            <Text
+              className="px-4 text-center text-xs"
+              style={{ color: colors.neutral.inkMuted, lineHeight: 18 }}
+            >
+              {t('parent.linkStudent.fallbackHelp')}
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -332,192 +157,12 @@ export function LinkStudentScreen() {
         snapPoints={['50%']}
         title={t('parent.linkStudent.helpLink')}
       >
-        <View style={s.modalContent}>
-          <Text style={s.modalText}>{t('parent.linkStudent.helpContent')}</Text>
+        <View className="px-5 pb-6">
+          <Text className="text-base" style={{ color: colors.neutral.ink, lineHeight: 24 }}>
+            {t('parent.linkStudent.helpContent')}
+          </Text>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  flex: { flex: 1 },
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F0',
-  },
-  header: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E6E3DB',
-    backgroundColor: '#FFFFFF',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E6E3DB',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0B0D10',
-    textAlign: 'center',
-  },
-  headerSpacer: { width: 40 },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    flexGrow: 1,
-  },
-  illustrationContainer: {
-    alignItems: 'center',
-    marginTop: 32,
-    marginBottom: 28,
-  },
-  illustration: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#EDFBF3',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  illustrationIconWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  illustrationBadge: {
-    position: 'absolute',
-    bottom: 4,
-    end: 4,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#22C572',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0B0D10',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 15,
-    color: '#5C636E',
-    lineHeight: 24,
-    textAlign: 'center',
-    marginBottom: 32,
-    paddingHorizontal: 8,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0B0D10',
-    marginBottom: 8,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E6E3DB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-  },
-  inputContainerError: {
-    borderColor: '#FF5B4A',
-    backgroundColor: '#FFE1DD',
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#0B0D10',
-  },
-  inputIcon: {
-    marginStart: 8,
-  },
-  errorText: {
-    fontSize: 13,
-    color: '#FF5B4A',
-    marginTop: 8,
-  },
-  helpLinkContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 28,
-    gap: 6,
-  },
-  helpLink: {
-    fontSize: 14,
-    color: '#5C636E',
-  },
-  submitButton: {
-    backgroundColor: '#22C572',
-    borderRadius: 16,
-    minHeight: 52,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 14,
-    shadowColor: '#22C572',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#E6E3DB',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  submitContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  submitText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  submitTextDisabled: {
-    color: '#5C636E',
-  },
-  footer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingTop: 24,
-    paddingBottom: 8,
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#5C636E',
-    textAlign: 'center',
-    lineHeight: 18,
-    paddingHorizontal: 16,
-  },
-  modalContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-  },
-  modalText: {
-    fontSize: 15,
-    color: '#0B0D10',
-    lineHeight: 24,
-  },
-});

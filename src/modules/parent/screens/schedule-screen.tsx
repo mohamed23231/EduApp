@@ -1,23 +1,28 @@
 import type { SupportedLocale } from '@/lib/date';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SectionLabel } from '@/components/ui';
+import { EmptyState, ErrorState, SectionLabel, Skeleton } from '@/components/ui';
 import colors from '@/components/ui/colors';
+import { AppRoute } from '@/core/navigation/routes';
 import { ScheduleRow } from '../components/schedule';
 import { useStudents } from '../hooks';
+import { extractErrorMessage } from '../services/error-utils';
 
 /**
  * Parent Schedule tab — aggregates the next session per linked student.
- * Per `screens-parent.jsx` design (kid switcher + upcoming list pattern,
- * adapted to one row per kid with their next class).
+ * Per `screens-parent.jsx` design + Parent States Pass (keep-and-finish):
+ * loading → Skeleton rows, error → ErrorState (retry), empty → EmptyState
+ * with a "link a student" CTA. No new-data calendar.
  */
 export function ScheduleScreen() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const isRTL = i18n?.language === 'ar';
   const locale: SupportedLocale = isRTL ? 'ar' : 'en';
-  const { data: students, isLoading } = useStudents();
+  const { data: students, isLoading, error, refetch } = useStudents();
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
@@ -53,56 +58,73 @@ export function ScheduleScreen() {
         </View>
 
         {isLoading
-          ? (
-              <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 40 }}>
-                <ActivityIndicator size="large" color={colors.brand.primary} />
-              </View>
-            )
-          : !students || students.length === 0
-              ? (
-                  <View style={{ paddingHorizontal: 24, paddingVertical: 40, alignItems: 'center' }}>
-                    <Text
-                      style={{
-                        color: colors.neutral.ink,
-                        fontSize: 16,
-                        fontWeight: '700',
-                        textAlign: 'center',
-                      }}
-                    >
-                      {t('parent.schedule.emptyTitle')}
-                    </Text>
-                    <Text
-                      style={{
-                        marginTop: 6,
-                        color: colors.neutral.inkMuted,
-                        fontSize: 13,
-                        fontWeight: '500',
-                        textAlign: 'center',
-                      }}
-                    >
-                      {t('parent.schedule.emptyMessage')}
-                    </Text>
-                  </View>
-                )
-              : (
-                  <>
-                    <View style={{ paddingHorizontal: 16 }}>
-                      <SectionLabel>{t('parent.schedule.upcomingLabel', 'UPCOMING')}</SectionLabel>
+          ? <ScheduleSkeleton />
+          : error
+            ? (
+                <ErrorState
+                  title={t('parent.schedule.errorTitle', 'Could not load the schedule')}
+                  body={extractErrorMessage(error, t)}
+                  action={{ label: t('parent.common.retry', 'Retry'), onPress: () => refetch() }}
+                  testID="schedule-error"
+                />
+              )
+            : !students || students.length === 0
+                ? (
+                    <View style={{ paddingTop: 24 }}>
+                      <EmptyState
+                        scope="parentNoChildren"
+                        title={t('parent.schedule.emptyTitle', 'Nothing scheduled')}
+                        body={t('parent.schedule.emptyMessage', 'Upcoming sessions will appear here once a child is linked.')}
+                        action={{
+                          label: t('parent.dashboard.linkStudentCta', 'Link a Student'),
+                          onPress: () => router.push(AppRoute.parent.linkStudent),
+                        }}
+                        testID="schedule-empty"
+                      />
                     </View>
-                    <View style={{ marginTop: 8 }}>
-                      {students.map(student => (
-                        <ScheduleRow
-                          key={student.id}
-                          student={student}
-                          locale={locale}
-                          isRTL={isRTL}
-                          t={t}
-                        />
-                      ))}
-                    </View>
-                  </>
-                )}
+                  )
+                : (
+                    <>
+                      <View style={{ paddingHorizontal: 16 }}>
+                        <SectionLabel>{t('parent.schedule.upcomingLabel', 'UPCOMING')}</SectionLabel>
+                      </View>
+                      <View style={{ marginTop: 8 }}>
+                        {students.map(student => (
+                          <ScheduleRow
+                            key={student.id}
+                            student={student}
+                            locale={locale}
+                            isRTL={isRTL}
+                            t={t}
+                          />
+                        ))}
+                      </View>
+                    </>
+                  )}
       </ScrollView>
+    </View>
+  );
+}
+
+function ScheduleSkeleton() {
+  return (
+    <View style={{ paddingHorizontal: 16, marginTop: 8, gap: 12 }} testID="schedule-skeleton">
+      {[0, 1, 2].map(i => (
+        <View
+          key={i}
+          style={{
+            backgroundColor: colors.neutral.card,
+            borderColor: colors.neutral.rule,
+            borderWidth: 1,
+            borderRadius: colors.radii.r3,
+            padding: 16,
+            gap: 10,
+          }}
+        >
+          <Skeleton width="55%" height={16} />
+          <Skeleton width="80%" height={12} />
+        </View>
+      ))}
     </View>
   );
 }

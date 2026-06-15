@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
-import { PressButton, SectionLabel, SegTabs } from '@/components/ui';
+import { EmptyState, ErrorState, SectionLabel, SegTabs, Skeleton } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { useStudentPerformance } from '@/shared/performance';
 import {
@@ -67,24 +67,32 @@ export function ParentStudentPerformanceScreen() {
     return 'overview';
   };
 
-  if (!studentId)
-    return <Centered text={t('parent.common.genericError')} />;
+  if (!studentId) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.neutral.paper }}>
+        <ErrorState
+          title={t('parent.performance.errorTitle', 'Could not load performance')}
+          body={t('parent.common.genericError')}
+          action={{ label: t('parent.common.back', 'Back'), onPress: () => router.back() }}
+        />
+      </View>
+    );
+  }
   if (isLoading && !student) {
     return (
-      <View
-        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.neutral.paper }}
-      >
-        <ActivityIndicator size="large" color={colors.brand.primary} />
+      <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+        <PerformanceSkeleton />
       </View>
     );
   }
   if (isError && !student) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 16, backgroundColor: colors.neutral.paper }}>
-        <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
-          {extractErrorMessage(error, t)}
-        </Text>
-        <PressButton variant="gradient" size="md" onPress={() => refetch()} label={t('parent.common.retry')} />
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.neutral.paper }}>
+        <ErrorState
+          title={t('parent.performance.errorTitle', 'Could not load performance')}
+          body={extractErrorMessage(error, t)}
+          action={{ label: t('parent.common.retry', 'Retry'), onPress: () => refetch() }}
+        />
       </View>
     );
   }
@@ -119,18 +127,11 @@ export function ParentStudentPerformanceScreen() {
                 </View>
                 {teachers.length === 0
                   ? (
-                      <Text
-                        style={{
-                          marginHorizontal: 24,
-                          marginTop: 8,
-                          color: colors.neutral.inkMuted,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          textAlign: 'center',
-                        }}
-                      >
-                        {t('parent.performance.teachersEmpty')}
-                      </Text>
+                      <EmptyState
+                        scope="generic"
+                        title={t('parent.performance.teachersEmptyTitle', 'No teachers yet')}
+                        body={t('parent.performance.teachersEmpty')}
+                      />
                     )
                   : (
                       <View style={{ marginTop: 8 }}>
@@ -148,18 +149,11 @@ export function ParentStudentPerformanceScreen() {
               <View style={{ marginTop: 8 }}>
                 {subjects.length === 0
                   ? (
-                      <Text
-                        style={{
-                          marginHorizontal: 24,
-                          marginTop: 8,
-                          color: colors.neutral.inkMuted,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          textAlign: 'center',
-                        }}
-                      >
-                        {t('parent.performance.subjectsEmpty')}
-                      </Text>
+                      <EmptyState
+                        scope="generic"
+                        title={t('parent.performance.subjectsEmptyTitle', 'No subjects yet')}
+                        body={t('parent.performance.subjectsEmpty')}
+                      />
                     )
                   : subjects.map(subject => (
                       <SubjectCard
@@ -179,18 +173,11 @@ export function ParentStudentPerformanceScreen() {
               <View style={{ marginTop: 8 }}>
                 {records.length === 0
                   ? (
-                      <Text
-                        style={{
-                          marginHorizontal: 24,
-                          marginTop: 8,
-                          color: colors.neutral.inkMuted,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          textAlign: 'center',
-                        }}
-                      >
-                        {t('parent.performance.emptyState')}
-                      </Text>
+                      <EmptyState
+                        scope="parentNoAttendance"
+                        title={t('parent.performance.emptyStateTitle', 'No records yet')}
+                        body={t('parent.performance.emptyState')}
+                      />
                     )
                   : records.map(r => (
                       <PerformanceRecordRow
@@ -225,12 +212,36 @@ export function ParentStudentPerformanceScreen() {
   );
 }
 
-function Centered({ text }: { text: string }) {
+function PerformanceSkeleton() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: colors.neutral.paper }}>
-      <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
-        {text}
-      </Text>
+    <View>
+      <View
+        style={{
+          backgroundColor: colors.neutral.ink,
+          paddingHorizontal: 20,
+          paddingTop: 56,
+          paddingBottom: 28,
+          borderBottomLeftRadius: 32,
+          borderBottomRightRadius: 32,
+          gap: 16,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <Skeleton width={72} height={72} radius={36} />
+          <View style={{ flex: 1, gap: 8 }}>
+            <Skeleton width="60%" height={20} />
+            <Skeleton width="40%" height={13} />
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[0, 1, 2].map(i => <Skeleton key={i} width={90} height={56} radius={16} />)}
+        </View>
+      </View>
+      <View style={{ paddingHorizontal: 16, marginTop: 24, gap: 12 }}>
+        <Skeleton width="100%" height={120} radius={22} />
+        <Skeleton width="35%" height={14} />
+        <Skeleton width="100%" height={64} radius={18} />
+      </View>
     </View>
   );
 }
