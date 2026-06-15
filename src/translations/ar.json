@@ -27,6 +27,11 @@
       "validating": "جارٍ التحقق من الدعوة...",
       "validationError": "تعذر التحقق من الدعوة الآن."
     },
+    "legal": {
+      "agreement": "بالمتابعة، فإنك توافق على <terms>الشروط</terms> و<privacy>سياسة الخصوصية</privacy> الخاصة بطبعني.",
+      "privacy": "سياسة الخصوصية",
+      "terms": "الشروط"
+    },
     "login": {
       "createAccount": "إنشاء حساب",
       "dontHaveAccount": "ليس لديك حساب؟",
@@ -909,6 +914,12 @@
       "teachersEmptyTitle": "لا يوجد معلمون بعد",
       "teachersLabel": "المعلمون",
       "title": "الأداء"
+    },
+    "permissionPrompt": {
+      "body": "فعّل الإشعارات لتصلك تنبيهات الحضور والأداء.",
+      "cta": "تفعيل الإشعارات",
+      "dismiss": "ليس الآن",
+      "title": "ابقَ على اطلاع"
     },
     "profile": {
       "accountSection": "الحساب",

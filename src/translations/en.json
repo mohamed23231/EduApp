@@ -27,6 +27,11 @@
       "validating": "Validating invitation...",
       "validationError": "Unable to validate invitation right now."
     },
+    "legal": {
+      "agreement": "By continuing you agree to Taba3ny's <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms"
+    },
     "login": {
       "createAccount": "Create Account",
       "dontHaveAccount": "Don't have an account?",
@@ -909,6 +914,12 @@
       "teachersEmptyTitle": "No teachers yet",
       "teachersLabel": "TEACHERS",
       "title": "Performance"
+    },
+    "permissionPrompt": {
+      "body": "Turn on notifications to get attendance and performance alerts.",
+      "cta": "Enable notifications",
+      "dismiss": "Not now",
+      "title": "Stay in the loop"
     },
     "profile": {
       "accountSection": "Account",
