@@ -1,51 +1,36 @@
 import type { LoginFormValues } from '../types';
-import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Platform,
-  Pressable,
-  Text,
-  View,
-} from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  AuthFieldShell,
-  AuthInput,
   AuthShell,
   GradientText,
   Icon,
-  isoToFlagEmoji,
-  PressButton,
   TabaMark,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
-import { Modal, useModal } from '@/components/ui/modal';
+import { useModal } from '@/components/ui/modal';
 import { AppRoute } from '@/core/navigation/routes';
 import { useSelectedLanguage } from '@/lib/i18n';
 import {
   buildE164Phone,
   DEFAULT_COUNTRY_CODE,
-  getPhoneCountryByDialCode,
-  getSupportedPhoneCountries,
   splitE164Phone,
 } from '@/shared/utils/phone';
-import { loginSchema } from '../validators';
+import { FormErrorText } from './auth-error-text';
 import { GoogleSignInButton } from './google-sign-in-button';
+import { EmailLoginFields } from './login/email-login-fields';
+import { PhoneLoginFields } from './login/phone-login-fields';
+import { CountryPickerSheet } from './phone/country-picker-sheet';
 
 /**
- * LoginForm — Phase 6 rebuild against `contracts/visual-auth.md`.
- *
- * Shell: dark `<AuthShell>` (single full-bleed surface, brand glows).
- * Hero: corner `<TabaMark>`, two-line headline, second line is `<GradientText>`.
- * Primary path: phone number → password → gradient CTA. Email is reachable
- * via "Use email instead" link beneath the OR divider.
- *
- * Behavior preserved verbatim from the previous form: same `onSubmit`,
- * `onPhoneSubmit`, Google sign-in, forgot password, signup link, error
- * surfacing, RTL direction. The visual contract is the only change.
+ * LoginForm — Phase 6 rebuild against `contracts/visual-auth.md` (reconciled to
+ * the password-login model). Dark `<AuthShell>`, corner `<TabaMark>`, gradient
+ * hero second line, gradient CTA. Phone + password is the primary path; email
+ * login is reachable via the toggle link. NO OTP-as-login, NO WhatsApp login.
  */
 
 export type LoginFormProps = {
@@ -63,28 +48,6 @@ export type LoginFormProps = {
   initialMode?: 'email' | 'phone';
   initialPhone?: string;
 };
-
-function getValidationError(
-  t: (key: string) => string,
-  fieldErrors: unknown[],
-): string | undefined {
-  const firstError = fieldErrors[0];
-  if (!firstError)
-    return undefined;
-  if (typeof firstError === 'string')
-    return t(firstError);
-  if (
-    typeof firstError === 'object'
-    && firstError !== null
-    && 'message' in firstError
-    && typeof (firstError as { message: unknown }).message === 'string'
-  ) {
-    return t((firstError as { message: string }).message);
-  }
-  return t('auth.login.genericError');
-}
-
-// ── Main form ────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line max-lines-per-function
 export function LoginForm({
@@ -108,42 +71,20 @@ export function LoginForm({
   const { language, setLanguage } = useSelectedLanguage();
   const isRTL = i18n.language === 'ar' || language === 'ar';
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPhonePassword, setShowPhonePassword] = useState(false);
   const [loginMode, setLoginMode] = useState<'email' | 'phone'>(initialMode);
 
-  const initialPhoneParts = React.useMemo(
-    () => splitE164Phone(initialPhone),
-    [initialPhone],
-  );
+  const initialPhoneParts = React.useMemo(() => splitE164Phone(initialPhone), [initialPhone]);
   const [phoneCountryCode, setPhoneCountryCode] = useState(
     initialPhoneParts.countryCode || DEFAULT_COUNTRY_CODE,
   );
-  const [phoneLocalNumber, setPhoneLocalNumber] = useState(
-    initialPhoneParts.localNumber,
-  );
+  const [phoneLocalNumber, setPhoneLocalNumber] = useState(initialPhoneParts.localNumber);
   const [phonePassword, setPhonePassword] = useState('');
   const countryPickerModal = useModal();
 
-  const phoneCountry = getPhoneCountryByDialCode(phoneCountryCode);
   const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
-  const phoneFlag = isoToFlagEmoji(phoneCountry.iso2);
-  const supportedCountries = React.useMemo(
-    () => getSupportedPhoneCountries(),
-    [],
-  );
+  const phoneCanContinue = !!composedPhone && phonePassword.length >= 6;
 
-  const form = useForm({
-    defaultValues: { email: '', password: '' },
-    validators: { onChange: loginSchema as never },
-    onSubmit: async ({ value }) => {
-      onSubmit(value);
-    },
-  });
-
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'ar' : 'en');
-  };
+  const toggleLanguage = () => setLanguage(language === 'en' ? 'ar' : 'en');
 
   const handlePhoneContinue = () => {
     if (!composedPhone || !phonePassword)
@@ -151,11 +92,8 @@ export function LoginForm({
     onPhoneSubmit?.({ phone: composedPhone, password: phonePassword });
   };
 
-  const phoneCanContinue = !!composedPhone && phonePassword.length >= 6;
-
   return (
     <AuthShell testID="auth-shell">
-      {/* Top bar — corner mark + language switch */}
       <View
         style={{
           paddingHorizontal: 24,
@@ -186,7 +124,6 @@ export function LoginForm({
         </Pressable>
       </View>
 
-      {/* Hero copy */}
       <View style={{ paddingHorizontal: 24, marginTop: 56 }}>
         <Text
           style={{
@@ -217,264 +154,38 @@ export function LoginForm({
             writingDirection: isRTL ? 'rtl' : 'ltr',
           }}
         >
-          {t(
-            'auth.login.subheadline',
-            'Sign in to track sessions, attendance, and progress.',
-          )}
+          {t('auth.login.subheadline', 'Sign in to track sessions, attendance, and progress.')}
         </Text>
       </View>
 
-      {/* Body — phone OR email */}
       <View style={{ paddingHorizontal: 24, marginTop: 24, flex: 1 }}>
-        {error
-          ? (
-              <Text
-                style={{
-                  color: colors.semantic.absent,
-                  fontSize: 13,
-                  fontWeight: '600',
-                  marginBottom: 10,
-                  textAlign: 'center',
-                }}
-              >
-                {error}
-              </Text>
-            )
-          : null}
+        <FormErrorText message={error} style={{ marginBottom: 10 }} />
 
         {loginMode === 'phone'
           ? (
-              <View style={{ gap: 12 }}>
-                {/* Country chip + phone */}
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <Pressable
-                    onPress={() => {
-                      console.log('[login-form] country chip pressed');
-                      countryPickerModal.present();
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
-                    testID="login-country-chip"
-                    style={({ pressed }) => ({
-                      height: 56,
-                      borderRadius: 16,
-                      paddingHorizontal: 14,
-                      backgroundColor: pressed
-                        ? 'rgba(34,197,114,0.30)'
-                        : 'rgba(255,255,255,0.06)',
-                      borderWidth: 1.5,
-                      borderColor: pressed
-                        ? colors.brand.primary
-                        : 'rgba(255,255,255,0.12)',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                    })}
-                  >
-                    <Text style={{ fontSize: 18 }}>{phoneFlag}</Text>
-                    <Text
-                      style={{
-                        color: colors.neutral.white,
-                        fontSize: 15,
-                        fontWeight: '700',
-                      }}
-                    >
-                      {phoneCountryCode}
-                    </Text>
-                    <Text style={{ color: colors.neutral.dim, fontSize: 14, marginStart: 2 }}>
-                      ▾
-                    </Text>
-                  </Pressable>
-                  <AuthFieldShell>
-                    <AuthInput
-                      value={phoneLocalNumber}
-                      onChangeText={setPhoneLocalNumber}
-                      placeholder={t('auth.phone.localPlaceholder', '1XX XXX XXXX')}
-                      keyboardType="phone-pad"
-                      testID="login-phone-input"
-                      textAlign={isRTL ? 'right' : 'left'}
-                    />
-                  </AuthFieldShell>
-                </View>
-
-                {/* Password */}
-                <AuthFieldShell>
-                  <AuthInput
-                    value={phonePassword}
-                    onChangeText={setPhonePassword}
-                    placeholder={t('auth.phone.passwordLabel', 'Password')}
-                    secureTextEntry={!showPhonePassword}
-                    testID="phone-password-input"
-                    textAlign={isRTL ? 'right' : 'left'}
-                    fontSize={16}
-                    letterSpacing={0}
-                  />
-                  <Pressable
-                    onPress={() => setShowPhonePassword(s => !s)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={{ marginStart: 8 }}
-                  >
-                    <Icon
-                      name={showPhonePassword ? 'eyeOff' : 'eye'}
-                      size={20}
-                      color={colors.neutral.dim}
-                    />
-                  </Pressable>
-                </AuthFieldShell>
-
-                <Pressable
-                  onPress={onForgotPhonePassword}
-                  disabled={!onForgotPhonePassword}
-                  style={{ alignSelf: isRTL ? 'flex-start' : 'flex-end', paddingVertical: 4 }}
-                >
-                  <Text style={{ color: colors.neutral.dim, fontSize: 13, fontWeight: '600' }}>
-                    {t('auth.login.forgotPassword')}
-                  </Text>
-                </Pressable>
-
-                <PressButton
-                  variant="gradient"
-                  size="lg"
-                  fullWidth
-                  loading={isPhoneSubmitting}
-                  disabled={!phoneCanContinue}
-                  onPress={handlePhoneContinue}
-                  label={t('auth.login.submit', 'Continue')}
-                  trailingIcon={(
-                    <Icon
-                      name="arrowR"
-                      size={18}
-                      color={colors.neutral.white}
-                    />
-                  )}
-                  testID="phone-login-submit-button"
-                />
-              </View>
+              <PhoneLoginFields
+                isRTL={isRTL}
+                isSubmitting={isPhoneSubmitting}
+                dialCode={phoneCountryCode}
+                localNumber={phoneLocalNumber}
+                password={phonePassword}
+                canContinue={phoneCanContinue}
+                onOpenCountryPicker={() => countryPickerModal.present()}
+                onLocalNumberChange={setPhoneLocalNumber}
+                onPasswordChange={setPhonePassword}
+                onForgotPassword={() => onForgotPhonePassword?.()}
+                onContinue={handlePhoneContinue}
+              />
             )
           : (
-              <View style={{ gap: 12 }}>
-                <form.Field
-                  name="email"
-                  children={(field) => {
-                    const hasError = field.state.meta.errors.length > 0;
-                    const fieldErrorMsg = getValidationError(t, field.state.meta.errors);
-                    return (
-                      <View>
-                        <AuthFieldShell hasError={hasError}>
-                          <AuthInput
-                            value={field.state.value}
-                            onChangeText={field.handleChange}
-                            placeholder={t('auth.login.emailLabel', 'Email')}
-                            keyboardType="email-address"
-                            testID="email-input"
-                            textAlign={isRTL ? 'right' : 'left'}
-                            fontSize={16}
-                            letterSpacing={0}
-                          />
-                        </AuthFieldShell>
-                        {hasError && fieldErrorMsg
-                          ? (
-                              <Text
-                                style={{
-                                  color: colors.semantic.absent,
-                                  fontSize: 12,
-                                  marginTop: 6,
-                                  marginStart: 4,
-                                }}
-                              >
-                                {fieldErrorMsg}
-                              </Text>
-                            )
-                          : null}
-                      </View>
-                    );
-                  }}
-                />
-
-                <form.Field
-                  name="password"
-                  children={(field) => {
-                    const hasError = field.state.meta.errors.length > 0;
-                    const fieldErrorMsg = getValidationError(t, field.state.meta.errors);
-                    return (
-                      <View>
-                        <AuthFieldShell hasError={hasError}>
-                          <AuthInput
-                            value={field.state.value}
-                            onChangeText={field.handleChange}
-                            placeholder={t('auth.login.passwordLabel', 'Password')}
-                            secureTextEntry={!showPassword}
-                            testID="password-input"
-                            textAlign={isRTL ? 'right' : 'left'}
-                            fontSize={16}
-                            letterSpacing={0}
-                          />
-                          <Pressable
-                            onPress={() => setShowPassword(s => !s)}
-                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                            style={{ marginStart: 8 }}
-                          >
-                            <Icon
-                              name={showPassword ? 'eyeOff' : 'eye'}
-                              size={20}
-                              color={colors.neutral.dim}
-                            />
-                          </Pressable>
-                        </AuthFieldShell>
-                        {hasError && fieldErrorMsg
-                          ? (
-                              <Text
-                                style={{
-                                  color: colors.semantic.absent,
-                                  fontSize: 12,
-                                  marginTop: 6,
-                                  marginStart: 4,
-                                }}
-                              >
-                                {fieldErrorMsg}
-                              </Text>
-                            )
-                          : null}
-                      </View>
-                    );
-                  }}
-                />
-
-                <Pressable
-                  onPress={() => onForgotPassword?.(form.state.values.email?.trim() ?? '')}
-                  style={{ alignSelf: isRTL ? 'flex-start' : 'flex-end', paddingVertical: 4 }}
-                >
-                  <Text style={{ color: colors.neutral.dim, fontSize: 13, fontWeight: '600' }}>
-                    {t('auth.login.forgotPassword')}
-                  </Text>
-                </Pressable>
-
-                <form.Subscribe
-                  selector={state => [state.canSubmit, state.isSubmitting]}
-                  children={([canSubmit, validating]) => (
-                    <PressButton
-                      variant="gradient"
-                      size="lg"
-                      fullWidth
-                      loading={isSubmitting || (validating as boolean)}
-                      disabled={!canSubmit}
-                      onPress={() => void form.handleSubmit()}
-                      label={t('auth.login.submit', 'Continue')}
-                      trailingIcon={(
-                        <Icon
-                          name="arrowR"
-                          size={18}
-                          color={colors.neutral.white}
-                        />
-                      )}
-                      testID="login-submit-button"
-                    />
-                  )}
-                />
-              </View>
+              <EmailLoginFields
+                isRTL={isRTL}
+                isSubmitting={isSubmitting}
+                onSubmit={onSubmit}
+                onForgotPassword={email => onForgotPassword?.(email)}
+              />
             )}
 
-        {/* OR divider */}
         <View
           style={{
             flexDirection: 'row',
@@ -497,7 +208,6 @@ export function LoginForm({
           <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.10)' }} />
         </View>
 
-        {/* Mode toggle (text link, not SegTabs) */}
         <Pressable
           onPress={() => setLoginMode(loginMode === 'phone' ? 'email' : 'phone')}
           style={{
@@ -524,7 +234,6 @@ export function LoginForm({
           </Text>
         </Pressable>
 
-        {/* Google */}
         {showGoogleSignIn
           ? (
               <View style={{ marginTop: 10 }}>
@@ -538,10 +247,8 @@ export function LoginForm({
             )
           : null}
 
-        {/* Spacer to push footer to bottom */}
         <View style={{ flex: 1 }} />
 
-        {/* Create account + legal */}
         <View
           style={{
             flexDirection: 'row',
@@ -578,74 +285,15 @@ export function LoginForm({
         {Platform.OS === 'ios' ? null : <View style={{ height: 8 }} />}
       </View>
 
-      {/* Country picker — same Modal/useModal pattern proven by PhoneField. */}
-      <Modal
-        ref={countryPickerModal.ref}
-        snapPoints={['38%']}
-        title={t('auth.phone.countryCodeLabel', 'Country')}
-      >
-        <View style={{ paddingHorizontal: 20, paddingBottom: 22, gap: 8 }}>
-          {supportedCountries.map((country) => {
-            const selected = country.dialCode === phoneCountryCode;
-            const flag = isoToFlagEmoji(country.iso2);
-            const label = t(`auth.phone.countries.${country.iso2.toLowerCase()}`, {
-              dialCode: country.dialCode,
-              defaultValue: `${country.iso2} (${country.dialCode})`,
-            });
-            return (
-              <Pressable
-                key={country.iso2}
-                onPress={() => {
-                  setPhoneCountryCode(country.dialCode);
-                  countryPickerModal.dismiss();
-                }}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                testID={`country-option-${country.iso2.toLowerCase()}`}
-                style={({ pressed }) => ({
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 12,
-                  paddingVertical: 14,
-                  paddingHorizontal: 14,
-                  borderRadius: 14,
-                  backgroundColor: selected
-                    ? colors.brand.primaryGlow
-                    : pressed
-                      ? colors.neutral.paper
-                      : 'transparent',
-                })}
-              >
-                <Text style={{ fontSize: 24 }}>{flag}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={{
-                      color: colors.neutral.ink,
-                      fontSize: 15,
-                      fontWeight: '700',
-                    }}
-                  >
-                    {label}
-                  </Text>
-                  <Text
-                    style={{
-                      color: colors.neutral.inkMuted,
-                      fontSize: 13,
-                      fontWeight: '500',
-                      marginTop: 2,
-                    }}
-                  >
-                    {country.dialCode}
-                  </Text>
-                </View>
-                {selected
-                  ? <Icon name="check" size={20} color={colors.brand.primary} />
-                  : null}
-              </Pressable>
-            );
-          })}
-        </View>
-      </Modal>
+      <CountryPickerSheet
+        modalRef={countryPickerModal.ref}
+        selectedDialCode={phoneCountryCode}
+        onSelect={(dialCode) => {
+          setPhoneCountryCode(dialCode);
+          countryPickerModal.dismiss();
+        }}
+        testIDPrefix="country"
+      />
     </AuthShell>
   );
 }

@@ -10,9 +10,10 @@ import {
   PressButton,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
-import { useSelectedLanguage } from '@/lib/i18n';
 import { SignupSchema } from '../types';
+import { FieldErrorText, FormErrorText } from './auth-error-text';
 import { GoogleSignInButton } from './google-sign-in-button';
+import { RolePill } from './signup/role-pill';
 
 /**
  * SignupForm (email) — dark identity matching login.
@@ -63,58 +64,6 @@ function getValidationError(
   return t('auth.signup.genericError');
 }
 
-type RolePillProps = {
-  selected: boolean;
-  label: string;
-  iconName: 'graduationCap' | 'users' | 'building';
-  onPress: () => void;
-  testID?: string;
-};
-
-function RolePill({ selected, label, iconName, onPress, testID }: RolePillProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="radio"
-      accessibilityState={{ selected }}
-      testID={testID}
-      style={({ pressed }) => ({
-        flex: 1,
-        height: 64,
-        borderRadius: 16,
-        paddingHorizontal: 8,
-        backgroundColor: selected
-          ? 'rgba(34,197,114,0.16)'
-          : pressed
-            ? 'rgba(34,197,114,0.10)'
-            : 'rgba(255,255,255,0.06)',
-        borderWidth: 1.5,
-        borderColor: selected
-          ? colors.brand.primary
-          : 'rgba(255,255,255,0.12)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-      })}
-    >
-      <Icon
-        name={iconName}
-        size={20}
-        color={selected ? colors.brand.primary : colors.neutral.dim}
-      />
-      <Text
-        style={{
-          color: selected ? colors.neutral.white : colors.neutral.dim,
-          fontSize: 12,
-          fontWeight: '700',
-        }}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
 // eslint-disable-next-line max-lines-per-function
 export function SignupForm({
   onSubmit,
@@ -128,8 +77,7 @@ export function SignupForm({
   useExistingGoogleToken = false,
 }: SignupFormProps) {
   const { t, i18n } = useTranslation();
-  const { language } = useSelectedLanguage();
-  const isRTL = i18n.language === 'ar' || language === 'ar';
+  const isRTL = i18n.language === 'ar';
   const [showPassword, setShowPassword] = React.useState(false);
   const [googleRoleError, setGoogleRoleError] = React.useState<string | null>(null);
 
@@ -148,22 +96,8 @@ export function SignupForm({
 
   return (
     <View style={{ gap: 14 }}>
-      {error
-        ? (
-            <Text
-              style={{
-                color: colors.semantic.absent,
-                fontSize: 13,
-                fontWeight: '600',
-                textAlign: 'center',
-              }}
-            >
-              {error}
-            </Text>
-          )
-        : null}
+      <FormErrorText message={error} />
 
-      {/* Role pill row */}
       <form.Field
         name="role"
         children={(field) => {
@@ -202,40 +136,12 @@ export function SignupForm({
                   />
                 ))}
               </View>
-              {hasError && errorMsg
-                ? (
-                    <Text
-                      style={{
-                        color: colors.semantic.absent,
-                        fontSize: 12,
-                        marginTop: 6,
-                        marginStart: 4,
-                      }}
-                    >
-                      {errorMsg}
-                    </Text>
-                  )
-                : null}
-              {!hasError && googleRoleError
-                ? (
-                    <Text
-                      style={{
-                        color: colors.semantic.absent,
-                        fontSize: 12,
-                        marginTop: 6,
-                        marginStart: 4,
-                      }}
-                    >
-                      {googleRoleError}
-                    </Text>
-                  )
-                : null}
+              <FieldErrorText message={hasError ? errorMsg : googleRoleError} />
             </View>
           );
         }}
       />
 
-      {/* Full Name */}
       <form.Field
         name="fullName"
         children={(field) => {
@@ -255,26 +161,12 @@ export function SignupForm({
                   letterSpacing={0}
                 />
               </AuthFieldShell>
-              {hasError && errorMsg
-                ? (
-                    <Text
-                      style={{
-                        color: colors.semantic.absent,
-                        fontSize: 12,
-                        marginTop: 6,
-                        marginStart: 4,
-                      }}
-                    >
-                      {errorMsg}
-                    </Text>
-                  )
-                : null}
+              <FieldErrorText message={hasError ? errorMsg : null} />
             </View>
           );
         }}
       />
 
-      {/* Email */}
       <form.Field
         name="email"
         children={(field) => {
@@ -294,26 +186,12 @@ export function SignupForm({
                   letterSpacing={0}
                 />
               </AuthFieldShell>
-              {hasError && errorMsg
-                ? (
-                    <Text
-                      style={{
-                        color: colors.semantic.absent,
-                        fontSize: 12,
-                        marginTop: 6,
-                        marginStart: 4,
-                      }}
-                    >
-                      {errorMsg}
-                    </Text>
-                  )
-                : null}
+              <FieldErrorText message={hasError ? errorMsg : null} />
             </View>
           );
         }}
       />
 
-      {/* Password */}
       <form.Field
         name="password"
         children={(field) => {
@@ -338,33 +216,15 @@ export function SignupForm({
                   style={{ marginStart: 8 }}
                   testID="password-toggle"
                 >
-                  <Icon
-                    name={showPassword ? 'eyeOff' : 'eye'}
-                    size={20}
-                    color={colors.neutral.dim}
-                  />
+                  <Icon name={showPassword ? 'eyeOff' : 'eye'} size={20} color={colors.neutral.dim} />
                 </Pressable>
               </AuthFieldShell>
-              {hasError && errorMsg
-                ? (
-                    <Text
-                      style={{
-                        color: colors.semantic.absent,
-                        fontSize: 12,
-                        marginTop: 6,
-                        marginStart: 4,
-                      }}
-                    >
-                      {errorMsg}
-                    </Text>
-                  )
-                : null}
+              <FieldErrorText message={hasError ? errorMsg : null} />
             </View>
           );
         }}
       />
 
-      {/* Submit */}
       <form.Subscribe
         selector={state => [state.canSubmit, state.isSubmitting]}
         children={([canSubmit, validating]) => (
@@ -376,13 +236,7 @@ export function SignupForm({
             disabled={!canSubmit}
             onPress={() => void form.handleSubmit()}
             label={t('auth.signup.submit')}
-            trailingIcon={(
-              <Icon
-                name="arrowR"
-                size={18}
-                color={colors.neutral.white}
-              />
-            )}
+            trailingIcon={<Icon name="arrowR" size={18} color={colors.neutral.white} />}
             testID="signup-submit-button"
           />
         )}
