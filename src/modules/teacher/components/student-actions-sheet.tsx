@@ -18,9 +18,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { Modal, Text, useModal } from '@/components/ui';
+import { ConfirmSheet, Modal, Text, useModal } from '@/components/ui';
 import { deleteStudent, getAccessCode, regenerateAccessCode } from '../services';
-import { ConfirmSheet } from './confirm-sheet';
 
 export type StudentActionsSheetRef = {
   open: (student: Student) => void;

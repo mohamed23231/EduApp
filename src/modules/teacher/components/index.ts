@@ -1,5 +1,4 @@
 export { AttendanceStatusControl } from './attendance-status-control';
-export { ConfirmSheet } from './confirm-sheet';
 export { DayOfWeekPicker } from './day-of-week-picker';
 export { EmptyState } from './empty-state';
 export { ErrorBoundary } from './error-boundary';
@@ -23,3 +22,4 @@ export { SuccessSheet } from './success-sheet';
 export { TeacherStatusBadge } from './teacher-status-badge';
 export { TimePickerSheet } from './time-picker-sheet';
 export { TrialCard } from './trial-card';
+export { ConfirmSheet } from '@/components/ui';
