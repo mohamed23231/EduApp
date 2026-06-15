@@ -1,0 +1,40 @@
+appId: ${APP_ID}
+name: teacher-student-list
+tags:
+  - teacher
+# Journey: Teacher student list (header, search, filter chips, cards).
+# Auth-gated: requires a logged-in TEACHER session (see implementation plan).
+# No runtime coverage is claimed.
+---
+- launchApp:
+    clearState: false
+
+# --- Navigate to the Students tab ---
+- assertVisible:
+    id: teacher-tab-students      # app/(teacher)/(tabs)/_layout.tsx:51
+    timeout: 10000
+- tapOn:
+    id: teacher-tab-students
+
+# --- Header ---
+# TODO(testid): teacher-students-header / teacher-students-add-button —
+#   StudentListHeader has no testID (student-list-header.tsx). Anchor on title.
+- assertVisible:
+    text: "Students"              # teacher.students.title
+
+# --- Search bar ---
+# TODO(testid): teacher-students-search-input — StudentSearchBar TextInput has
+#   no testID (student-list-header.tsx:48). Anchor on the placeholder text.
+- tapOn:
+    text: "Type to search..."     # teacher.students.searchPlaceholder
+- inputText: "Ahmed"
+- runFlow: ../utils/hide-keyboard.yaml
+
+# --- Filter chips (All / Assigned / Unassigned) ---
+# TODO(testid): teacher-filter-chip-{all|assigned|unassigned} — FilterChips
+#   renders no per-chip testID. Anchor on the chip labels once finalized.
+# (Chip labels are dynamic; assertion deferred to avoid a brittle text match.)
+
+# --- A student card (only present when the account has students) ---
+# TODO(testid): teacher-student-card-{id} — StudentCard has no testID.
+#   This makes "tap a student to open the actions sheet" un-driveable today.

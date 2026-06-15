@@ -1,0 +1,43 @@
+appId: ${APP_ID}
+name: teacher-dashboard
+tags:
+  - teacher
+# Journey: Teacher dashboard (hero, quick actions, today's sessions).
+# Auth-gated: requires a logged-in TEACHER session (see implementation plan).
+# No runtime coverage is claimed.
+---
+- launchApp:
+    clearState: false
+
+# --- Land on the teacher tab bar (real tabBarButtonTestID values) ---
+- assertVisible:
+    id: teacher-tab-dashboard     # app/(teacher)/(tabs)/_layout.tsx:40
+    timeout: 10000
+- tapOn:
+    id: teacher-tab-dashboard
+
+# --- Hero + counts ---
+# TODO(testid): teacher-dashboard-hero — DashboardHero has no testID
+#   (dashboard-hero.tsx). Anchor on the stat labels instead.
+- assertVisible:
+    text: "Today"                 # teacher.dashboard.sessionsToday
+- assertVisible:
+    text: "Active"                # teacher.dashboard.activeSessions
+
+# --- Quick actions ---
+# TODO(testid): teacher-quick-create-student / teacher-quick-create-session —
+#   QuickActionCard has no testID (dashboard-quick-actions.tsx). Anchor on labels.
+- assertVisible:
+    text: "Create Student"        # teacher.students.createButton
+- assertVisible:
+    text: "New Session"           # teacher.sessions.createTitle
+
+# --- Today's sessions section header ---
+- assertVisible:
+    text: "Today's Sessions"      # teacher.dashboard.sessionsTitle
+
+# --- Open create-student from the quick action ---
+- tapOn:
+    text: "Create Student"
+# TODO(testid): student-create-screen-root — assert a known field once the
+#   create-student screen exposes a stable anchor.

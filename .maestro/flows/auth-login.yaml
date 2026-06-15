@@ -1,0 +1,55 @@
+appId: ${APP_ID}
+name: auth-login
+tags:
+  - auth
+# Journey: Authentication (login screen).
+# Anchors the dark AuthShell, exercises the phone <-> email mode toggle, and
+# fills the email login fields. Stops BEFORE submit — real auth requires an OTP
+# / password against a live backend (see implementation plan). No runtime
+# coverage is claimed.
+---
+- launchApp:
+    clearState: true
+
+# --- Login screen anchors (real testIDs from login-form.tsx) ---
+- assertVisible:
+    id: auth-shell
+    timeout: 10000
+- assertVisible:
+    id: auth-mark
+- assertVisible:
+    text: "The classroom,"        # auth.login.heroLine1
+
+# --- Default mode is phone: phone fields present ---
+- assertVisible:
+    id: login-country-chip        # login/phone-login-fields.tsx:47
+- assertVisible:
+    id: login-phone-input         # login/phone-login-fields.tsx:54
+- assertVisible:
+    id: phone-password-input      # login/phone-login-fields.tsx:66
+
+# --- Toggle to email mode ("Use email instead") ---
+- tapOn:
+    text: "Use email instead"     # auth.login.useEmailInstead
+- assertVisible:
+    id: email-input               # login/email-login-fields.tsx:76
+- assertVisible:
+    id: password-input            # login/email-login-fields.tsx:100
+
+# --- Fill email login fields (does NOT submit — no backend/test account) ---
+- tapOn:
+    id: email-input
+- inputText: "teacher@example.com"
+- runFlow: ../utils/hide-keyboard.yaml
+- tapOn:
+    id: password-input
+- inputText: "password123"
+- runFlow: ../utils/hide-keyboard.yaml
+- assertVisible:
+    id: login-submit-button       # login/email-login-fields.tsx:140
+
+# --- Navigate to signup ("Create Account") ---
+- tapOn:
+    text: "Create Account"        # auth.login.createAccount
+- assertVisible:
+    id: signup-auth-shell         # signup-screen-view.tsx:83
