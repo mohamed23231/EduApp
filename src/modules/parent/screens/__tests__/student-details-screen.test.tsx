@@ -45,6 +45,9 @@ jest.mock('../../components/student', () => {
   const { Text } = require('react-native');
   return {
     StudentHero: ({ student }: any) => <Text testID="student-hero">{student.fullName}</Text>,
+    UnlinkedBanner: ({ studentName }: any) => (
+      <Text testID="unlinked-banner">{`unlinked:${studentName}`}</Text>
+    ),
   };
 });
 jest.mock('@/core/navigation/routes', () => ({
@@ -130,6 +133,37 @@ describe('studentDetailsScreen', () => {
       render(<StudentDetailsScreen />);
       fireEvent.press(screen.getByTestId('view-attendance-button'));
       await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/(parent)/students/1/attendance'));
+    });
+  });
+
+  describe('unlinked child treatment', () => {
+    const unlinkedStudent = { ...mockStudent, linkStatus: 'unlinked' as const };
+
+    it('should render the amber unlinked banner with the student name', () => {
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: unlinkedStudent, isLoading: false, error: null, refetch: jest.fn() });
+      render(<StudentDetailsScreen />);
+      expect(screen.getByTestId('unlinked-banner')).toHaveTextContent('unlinked:John Doe');
+    });
+
+    it('should HIDE the access-code (re-link/share) row for an unlinked child', () => {
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: unlinkedStudent, isLoading: false, error: null, refetch: jest.fn() });
+      render(<StudentDetailsScreen />);
+      expect(screen.queryByText('ACCESS CODE')).toBeNull();
+      expect(screen.queryByText('ABC123')).toBeNull();
+    });
+
+    it('should keep read-only attendance history viewable for an unlinked child', () => {
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: unlinkedStudent, isLoading: false, error: null, refetch: jest.fn() });
+      render(<StudentDetailsScreen />);
+      expect(screen.getByTestId('view-attendance-button')).toBeTruthy();
+      expect(screen.getByTestId('timeline-row-2024-01-15')).toBeTruthy();
+    });
+
+    it('should NOT render the unlinked banner and SHOULD show the access code for a linked child', () => {
+      (useStudentDetails as jest.Mock).mockReturnValue({ data: { ...mockStudent, linkStatus: 'linked' as const }, isLoading: false, error: null, refetch: jest.fn() });
+      render(<StudentDetailsScreen />);
+      expect(screen.queryByTestId('unlinked-banner')).toBeNull();
+      expect(screen.getByText('ABC123')).toBeTruthy();
     });
   });
 

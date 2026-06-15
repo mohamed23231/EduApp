@@ -23,6 +23,7 @@ export function StudentListScreen() {
   const isRTL = i18n?.language === 'ar';
   const { data: students, isLoading, error, refetch } = useStudents();
   const attendanceLabel = t('parent.studentList.attendanceLabel', 'attendance');
+  const unlinkedLabel = t('parent.studentList.unlinkedBadge', 'Unlinked');
 
   if (isLoading) {
     return (
@@ -95,6 +96,7 @@ export function StudentListScreen() {
             student={item}
             isRTL={isRTL}
             attendanceLabel={attendanceLabel}
+            unlinkedLabel={unlinkedLabel}
             onPress={() => router.push(AppRoute.parent.studentDetails(item.id))}
           />
         )}

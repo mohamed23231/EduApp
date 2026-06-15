@@ -10,7 +10,7 @@ import colors from '@/components/ui/colors';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
 import { AppRoute } from '@/core/navigation/routes';
 import { TimelineRow } from '../components/dashboard';
-import { StudentHero } from '../components/student';
+import { StudentHero, UnlinkedBanner } from '../components/student';
 import { useAttendanceStats, useAttendanceTimeline, useStudentDetails } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
 
@@ -127,6 +127,8 @@ export function StudentDetailsScreen() {
   if (!student)
     return null;
 
+  const isUnlinked = student.linkStatus === 'unlinked';
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
       <ScrollView
@@ -142,7 +144,11 @@ export function StudentDetailsScreen() {
           t={t}
         />
 
-        {student.connectionCode
+        {isUnlinked
+          ? <UnlinkedBanner studentName={student.fullName} isRTL={isRTL} t={t} />
+          : null}
+
+        {!isUnlinked && student.connectionCode
           ? <AccessCodeRow code={student.connectionCode} />
           : null}
 

@@ -957,6 +957,8 @@
       "statStreak": "STREAK",
       "statStreakSuffix": "d",
       "title": "Student Details",
+      "unlinkedBody": "{{name}} was unlinked — their teacher removed the connection. You are viewing past records only. Contact the center if this is unexpected.",
+      "unlinkedTitle": "This child is no longer linked",
       "viewAttendance": "View Attendance",
       "viewPerformance": "View performance"
     },
@@ -965,7 +967,8 @@
       "emptyMessage": "Link a student to see them here.",
       "emptyTitle": "No Students",
       "errorTitle": "Could not load your students",
-      "title": "Students"
+      "title": "Students",
+      "unlinkedBadge": "Unlinked"
     },
     "tabs": {
       "dashboard": "Home",

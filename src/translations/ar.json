@@ -957,6 +957,8 @@
       "statStreak": "متواصل",
       "statStreakSuffix": "يوم",
       "title": "تفاصيل الطالب",
+      "unlinkedBody": "تم إلغاء ربط {{name}} — أزال المعلم الاتصال. أنت تطّلع على السجلات السابقة فقط. تواصل مع المركز إن لم يكن ذلك متوقعًا.",
+      "unlinkedTitle": "لم يعد هذا الطفل مرتبطًا",
       "viewAttendance": "عرض الحضور",
       "viewPerformance": "عرض الأداء"
     },
@@ -965,7 +967,8 @@
       "emptyMessage": "ربط طالب لرؤيته هنا.",
       "emptyTitle": "لا توجد طلاب",
       "errorTitle": "تعذّر تحميل قائمة الأبناء",
-      "title": "الطلاب"
+      "title": "الطلاب",
+      "unlinkedBadge": "تم إلغاء الربط"
     },
     "tabs": {
       "dashboard": "الرئيسية",

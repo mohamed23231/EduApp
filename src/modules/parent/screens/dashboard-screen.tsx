@@ -177,6 +177,7 @@ export function ParentDashboardScreen() {
             selectedId={effectiveSelectedId}
             onSelect={setSelectedStudentId}
             onAddChild={() => router.push(AppRoute.parent.linkStudent)}
+            unlinkedLabel={t('parent.studentList.unlinkedBadge', 'Unlinked')}
           />
         </View>
 

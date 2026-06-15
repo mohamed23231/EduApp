@@ -150,6 +150,48 @@ describe('studentListScreen', () => {
     });
   });
 
+  describe('unlinked child treatment', () => {
+    it('should render an amber Unlinked badge for an unlinked child', () => {
+      (useStudents as jest.Mock).mockReturnValue({
+        data: [{ id: '1', fullName: 'John Doe', linkStatus: 'unlinked' }],
+        isLoading: false,
+        error: null,
+        refetch: jest.fn(),
+      });
+
+      render(<StudentListScreen />);
+
+      expect(screen.getByTestId('unlinked-badge')).toBeTruthy();
+      expect(screen.getByText('parent.studentList.unlinkedBadge')).toBeTruthy();
+    });
+
+    it('should NOT render the Unlinked badge for a linked child', () => {
+      (useStudents as jest.Mock).mockReturnValue({
+        data: [{ id: '1', fullName: 'John Doe', linkStatus: 'linked' }],
+        isLoading: false,
+        error: null,
+        refetch: jest.fn(),
+      });
+
+      render(<StudentListScreen />);
+
+      expect(screen.queryByTestId('unlinked-badge')).toBeNull();
+    });
+
+    it('should NOT render the Unlinked badge when linkStatus is undefined (legacy response)', () => {
+      (useStudents as jest.Mock).mockReturnValue({
+        data: [{ id: '1', fullName: 'John Doe' }],
+        isLoading: false,
+        error: null,
+        refetch: jest.fn(),
+      });
+
+      render(<StudentListScreen />);
+
+      expect(screen.queryByTestId('unlinked-badge')).toBeNull();
+    });
+  });
+
   describe('error State', () => {
     it('should render error message when API request fails', () => {
       const mockError = new Error('Network error');
