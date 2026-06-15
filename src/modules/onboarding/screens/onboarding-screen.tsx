@@ -1,3 +1,4 @@
+import type { UserRole } from '@/core/auth/roles';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
@@ -5,22 +6,13 @@ import { useTranslation } from 'react-i18next';
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  GradientText,
-  Icon,
-  PhoneField,
-  PressButton,
-  TabaMark,
-} from '@/components/ui';
+import { Icon, PhoneField, PressButton } from '@/components/ui';
 import colors from '@/components/ui/colors';
-import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import {
   clearDraftData,
@@ -38,7 +30,14 @@ import {
   refreshToken,
   validateToken,
 } from '@/modules/auth/services';
-import { getApiErrorMessage, isApiError } from '@/shared/services/api-utils';
+import {
+  FullNameField,
+  OnboardingHero,
+  OnboardingLegalNote,
+  RolePillRow,
+} from '@/modules/onboarding/components/onboarding';
+import { getJwtExpiry, isProfileAlreadyExistsError } from '@/modules/onboarding/utils/onboarding-helpers';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 import {
   buildE164Phone,
   DEFAULT_COUNTRY_CODE,
@@ -56,102 +55,6 @@ import {
  */
 
 type Role = UserRole.TEACHER | UserRole.PARENT;
-const ROLE_OPTIONS: Array<{ value: Role; labelKey: string; icon: 'graduationCap' | 'users' }> = [
-  { value: UserRole.TEACHER, labelKey: 'auth.signup.teacherLabel', icon: 'graduationCap' },
-  { value: UserRole.PARENT, labelKey: 'auth.signup.parentLabel', icon: 'users' },
-];
-
-function getJwtExpiry(accessToken: string): number | null {
-  const parts = accessToken.split('.');
-  if (parts.length < 2)
-    return null;
-  const base64Url = parts[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = `${base64}${'='.repeat((4 - (base64.length % 4)) % 4)}`;
-  try {
-    if (typeof globalThis.atob !== 'function')
-      return null;
-    const payload = JSON.parse(globalThis.atob(padded)) as { exp?: number };
-    return typeof payload.exp === 'number' ? payload.exp : null;
-  }
-  catch {
-    return null;
-  }
-}
-
-function isProfileAlreadyExistsError(error: unknown): boolean {
-  if (!isApiError(error))
-    return false;
-  const status = error.response?.status;
-  const data = error.response?.data as Record<string, unknown> | undefined;
-  const normalize = (value: unknown): string => {
-    if (typeof value === 'string')
-      return value.toLowerCase();
-    if (Array.isArray(value))
-      return value.filter((item): item is string => typeof item === 'string').join(' ').toLowerCase();
-    if (value && typeof value === 'object' && 'message' in (value as Record<string, unknown>))
-      return normalize((value as Record<string, unknown>).message);
-    return '';
-  };
-  const normalizedMessage = [
-    normalize(data?.message),
-    normalize(data?.error),
-    normalize((error as { message?: unknown }).message),
-  ].filter(Boolean).join(' ');
-  return (status === 400 || status === 409)
-    && (normalizedMessage.includes('profile already exists')
-      || normalizedMessage.includes('الملف الشخصي موجود'));
-}
-
-type RolePillProps = {
-  selected: boolean;
-  label: string;
-  iconName: 'graduationCap' | 'users';
-  onPress: () => void;
-  testID?: string;
-};
-
-function RolePillInk({ selected, label, iconName, onPress, testID }: RolePillProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="radio"
-      accessibilityState={{ selected }}
-      testID={testID}
-      style={({ pressed }) => ({
-        flex: 1,
-        height: 64,
-        borderRadius: 16,
-        paddingHorizontal: 8,
-        backgroundColor: selected
-          ? 'rgba(34,197,114,0.10)'
-          : pressed
-            ? colors.neutral.cardWarm
-            : colors.neutral.card,
-        borderWidth: 1.5,
-        borderColor: selected ? colors.brand.primary : colors.neutral.rule,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-      })}
-    >
-      <Icon
-        name={iconName}
-        size={20}
-        color={selected ? colors.brand.primary : colors.neutral.inkMuted}
-      />
-      <Text
-        style={{
-          color: selected ? colors.neutral.ink : colors.neutral.inkSoft,
-          fontSize: 12,
-          fontWeight: '700',
-        }}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
 
 // eslint-disable-next-line max-lines-per-function
 export function OnboardingScreen() {
@@ -307,52 +210,7 @@ export function OnboardingScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Top bar — small ink mark */}
-          <View
-            style={{
-              paddingHorizontal: 24,
-              paddingTop: 8,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <TabaMark size={48} frame="ink" />
-          </View>
-
-          {/* Hero */}
-          <View style={{ paddingHorizontal: 24, marginTop: 28 }}>
-            <Text
-              style={{
-                color: colors.neutral.ink,
-                fontSize: 30,
-                lineHeight: 34,
-                fontWeight: '700',
-                letterSpacing: -1,
-                textAlign: isRTL ? 'right' : 'left',
-                writingDirection: isRTL ? 'rtl' : 'ltr',
-              }}
-            >
-              {t('auth.onboarding.heroLine1', 'Tell us')}
-            </Text>
-            <View style={{ marginTop: 2, alignSelf: isRTL ? 'flex-end' : 'flex-start' }}>
-              <GradientText size={30} weight="700">
-                {t('auth.onboarding.heroLine2', 'about you.')}
-              </GradientText>
-            </View>
-            <Text
-              style={{
-                color: colors.neutral.inkMuted,
-                fontSize: 14,
-                lineHeight: 22,
-                fontWeight: '500',
-                marginTop: 12,
-                textAlign: isRTL ? 'right' : 'left',
-                writingDirection: isRTL ? 'rtl' : 'ltr',
-              }}
-            >
-              {t('auth.onboarding.subheadline', 'A few details to set up your profile.')}
-            </Text>
-          </View>
+          <OnboardingHero isRTL={isRTL} />
 
           {/* Body */}
           <View style={{ paddingHorizontal: 24, marginTop: 24, flex: 1, gap: 14 }}>
@@ -372,69 +230,15 @@ export function OnboardingScreen() {
                 )
               : null}
 
-            {/* Role pill row (ink variant) */}
             {showRoleSelector && (
-              <View>
-                <Text
-                  style={{
-                    color: colors.neutral.inkMuted,
-                    fontSize: 11,
-                    fontWeight: '700',
-                    letterSpacing: 1.4,
-                    textTransform: 'uppercase',
-                    marginBottom: 8,
-                    marginStart: 2,
-                    textAlign: isRTL ? 'right' : 'left',
-                    writingDirection: isRTL ? 'rtl' : 'ltr',
-                  }}
-                >
-                  {t('auth.signup.roleLabel')}
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  {ROLE_OPTIONS.map(option => (
-                    <RolePillInk
-                      key={option.value}
-                      selected={selectedRole === option.value}
-                      label={t(option.labelKey)}
-                      iconName={option.icon}
-                      onPress={() => setSelectedRole(option.value)}
-                      testID={`role-card-${option.value.toLowerCase()}`}
-                    />
-                  ))}
-                </View>
-              </View>
+              <RolePillRow
+                isRTL={isRTL}
+                selectedRole={selectedRole}
+                onSelect={setSelectedRole}
+              />
             )}
 
-            {/* Full name */}
-            <View
-              style={{
-                height: 56,
-                borderRadius: 16,
-                paddingHorizontal: 16,
-                backgroundColor: colors.neutral.card,
-                borderWidth: 1.5,
-                borderColor: colors.neutral.rule,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              <TextInput
-                value={fullName}
-                onChangeText={setFullName}
-                autoCorrect={false}
-                placeholder={t('auth.signup.fullNamePlaceholder')}
-                placeholderTextColor={colors.neutral.inkMuted}
-                testID="fullName-input"
-                style={{
-                  flex: 1,
-                  color: colors.neutral.ink,
-                  fontSize: 16,
-                  fontWeight: '600',
-                  padding: 0,
-                  textAlign: isRTL ? 'right' : 'left',
-                }}
-              />
-            </View>
+            <FullNameField isRTL={isRTL} value={fullName} onChangeText={setFullName} />
 
             {/* Phone (paper variant — keep PhoneField) */}
             {!knownPhone && !isResolvingKnownPhone && (
@@ -463,19 +267,7 @@ export function OnboardingScreen() {
               testID="onboarding-submit-button"
             />
 
-            <Text
-              style={{
-                color: colors.neutral.inkMuted,
-                fontSize: 11,
-                lineHeight: 16,
-                fontWeight: '500',
-                textAlign: 'center',
-                marginTop: 6,
-                marginBottom: Math.max(insets.bottom, 12),
-              }}
-            >
-              {t('auth.login.legalLine', 'By continuing you agree to Taba3ny\'s Terms and Privacy Policy.')}
-            </Text>
+            <OnboardingLegalNote marginBottom={Math.max(insets.bottom, 12)} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
