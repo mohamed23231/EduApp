@@ -15,6 +15,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Input, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { RatingInputEnhanced } from './rating-input-enhanced';
 
 type AttendanceStatusControlProps = {
@@ -34,9 +35,9 @@ const STATUS_CONFIG: Record<AttendanceStatus, {
   activeBg: string;
   activeText: string;
 }> = {
-  PRESENT: { icon: 'checkmark-circle', bg: '#FFFFFF', activeBg: '#D1FAE5', activeText: '#065F46' },
-  ABSENT: { icon: 'close-circle', bg: '#FFFFFF', activeBg: '#FEE2E2', activeText: '#991B1B' },
-  EXCUSED: { icon: 'time', bg: '#FFFFFF', activeBg: '#FEF3C7', activeText: '#92400E' },
+  PRESENT: { icon: 'checkmark-circle', bg: '#FFFFFF', activeBg: colors.semantic.presentSoft, activeText: colors.semantic.presentInk },
+  ABSENT: { icon: 'close-circle', bg: '#FFFFFF', activeBg: colors.semantic.absentSoft, activeText: colors.semantic.absentInk },
+  EXCUSED: { icon: 'time', bg: '#FFFFFF', activeBg: colors.semantic.excusedSoft, activeText: colors.semantic.excusedInk },
 };
 
 function getInitials(name: string): string {
@@ -48,12 +49,20 @@ function getInitials(name: string): string {
 }
 
 function getAvatarColor(name: string): string {
-  const colors = ['#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#6366F1', '#EF4444', '#14B8A6'];
+  const palette = [
+    colors.avatar.indigo,
+    colors.avatar.violet,
+    colors.avatar.rose,
+    colors.avatar.amber,
+    colors.avatar.teal,
+    colors.avatar.sky,
+    colors.avatar.lime,
+  ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return colors[Math.abs(hash) % colors.length];
+  return palette[Math.abs(hash) % palette.length];
 }
 
 function StatusButton({
@@ -142,7 +151,7 @@ export function AttendanceStatusControl({
         </View>
         <Text style={styles.studentName}>{student.name}</Text>
         {isMarked
-          ? <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+          ? <Ionicons name="checkmark-circle" size={18} color={colors.semantic.present} />
           : <View style={styles.unmarkedDot} />}
       </View>
 

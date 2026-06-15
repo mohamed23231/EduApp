@@ -5,6 +5,7 @@
 
 import { StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { getGreeting } from '../../utils/dashboard-name';
 
 type DashboardHeroProps = {
@@ -43,7 +44,7 @@ export function DashboardHero({ firstName, sessionCount, activeCount, t }: Dashb
 
 const styles = StyleSheet.create({
   hero: {
-    backgroundColor: '#2563EB',
+    backgroundColor: colors.neutral.ink,
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 20,
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   heroLeft: { flex: 1, marginEnd: 12 },
-  greetingText: { fontSize: 14, color: '#BFDBFE', fontWeight: '500', marginBottom: 2 },
+  greetingText: { fontSize: 14, color: colors.neutral.dim, fontWeight: '500', marginBottom: 2 },
   heroName: { fontSize: 20, fontWeight: '800', color: '#FFFFFF' },
   avatar: {
     width: 42,
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   },
   statItem: { flex: 1, alignItems: 'center' },
   statNumber: { fontSize: 24, fontWeight: '800', color: '#FFFFFF' },
-  statLabel: { fontSize: 12, color: '#BFDBFE', fontWeight: '500', marginTop: 2 },
+  statLabel: { fontSize: 12, color: colors.neutral.dim, fontWeight: '500', marginTop: 2 },
   statDivider: {
     width: 1,
     backgroundColor: 'rgba(255,255,255,0.25)',

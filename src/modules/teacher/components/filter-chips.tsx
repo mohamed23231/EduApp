@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 export type FilterOption<T extends string = string> = {
   key: T;
@@ -110,27 +111,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.neutral.rule,
     gap: 6,
   },
   chipActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: colors.brand.primary,
+    borderColor: colors.brand.primary,
   },
-  chipText: { fontSize: 13, fontWeight: '500', color: '#374151' },
-  chipTextActive: { color: '#FFFFFF' },
+  chipText: { fontSize: 13, fontWeight: '500', color: colors.neutral.inkSoft },
+  chipTextActive: { color: colors.brand.primaryInk },
   badge: {
     minWidth: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.neutral.cardWarm,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 6,
   },
-  badgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
-  badgeText: { fontSize: 11, fontWeight: '600', color: '#6B7280' },
-  badgeTextActive: { color: '#FFFFFF' },
+  badgeActive: { backgroundColor: 'rgba(11,13,16,0.12)' },
+  badgeText: { fontSize: 11, fontWeight: '600', color: colors.neutral.inkMuted },
+  badgeTextActive: { color: colors.brand.primaryInk },
 });

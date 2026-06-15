@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type ScreenHeaderProps = {
   title: string;
@@ -39,7 +40,7 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
         <Ionicons
           name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'}
           size={24}
-          color="#3B82F6"
+          color={colors.brand.primary}
         />
       </Pressable>
 
@@ -59,9 +60,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: colors.neutral.rule,
     minHeight: 56,
   },
   backBtn: {
@@ -72,13 +73,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   backBtnPressed: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.neutral.cardWarm,
   },
   title: {
     flex: 1,
     fontSize: 17,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.neutral.ink,
     textAlign: 'center',
     marginHorizontal: 8,
   },

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui';
 
@@ -8,9 +9,10 @@ type NotificationBellProps = {
 };
 
 export function NotificationBell({ unreadCount, onPress }: NotificationBellProps) {
+  const { t } = useTranslation();
   const accessibilityLabel = unreadCount > 0
-    ? `Notifications, ${unreadCount} unread`
-    : 'Notifications';
+    ? t('parent.notifications.bellLabelUnread', '{{count}} unread notifications', { count: unreadCount })
+    : t('parent.notifications.bellLabel', 'Notifications');
 
   return (
     <TouchableOpacity

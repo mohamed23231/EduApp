@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text } from '@/components/ui';
+import { ErrorState, Skeleton, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
@@ -177,13 +177,48 @@ function ProfileHeader({ initials, displayName, role }: { initials: string; disp
   );
 }
 
+function ProfileLoadingState() {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.neutral.paper }} edges={['top']}>
+      <View className="items-center px-6 pt-8 pb-6" style={{ backgroundColor: colors.neutral.card, borderBottomWidth: 1, borderBottomColor: colors.neutral.rule, gap: 12 }}>
+        <View className="mb-2 size-20 items-center justify-center rounded-full" style={{ backgroundColor: colors.neutral.rule }} />
+        <Skeleton width={160} height={18} radius={6} />
+        <Skeleton width={80} height={22} radius={11} />
+      </View>
+      <View className="px-4 pt-6" style={{ gap: 12 }}>
+        <Skeleton width="100%" height={64} radius={16} />
+        <Skeleton width="100%" height={140} radius={16} />
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function ProfileErrorState({ message, onRetry, t }: { message: string; onRetry: () => void; t: TFunction }) {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.neutral.paper }} edges={['top']}>
+      <View className="flex-1 items-center justify-center">
+        <ErrorState
+          title={t('teacher.common.errorTitle', 'Something went wrong')}
+          body={message}
+          action={{ label: t('teacher.common.retry', 'Retry'), onPress: onRetry }}
+        />
+      </View>
+    </SafeAreaView>
+  );
+}
+
 export function TeacherProfileScreen() {
   const { t } = useTranslation();
   const user = useAuthStore.use.user();
   const signOut = useAuthStore.use.signOut();
-  const { profile, isLoading: _isLoading, error: _error } = useTeacherProfile();
+  const { profile, isLoading, error, refetch } = useTeacherProfile();
   const { accountIdentifier, accountLabel, displayName, initials, isPhoneAccount }
     = useTeacherAccountViewModel(user, t);
+
+  if (isLoading && !profile)
+    return <ProfileLoadingState />;
+  if (error && !profile)
+    return <ProfileErrorState message={error} onRetry={refetch} t={t} />;
 
   const teacherStatus = profile?.teacherStatus;
   const isExpired = teacherStatus === 'EXPIRED';

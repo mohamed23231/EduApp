@@ -1,10 +1,12 @@
 import type { AttendanceRecord } from '../types/student.types';
+import type { SupportedLocale } from '@/lib/date';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, SectionList, View } from 'react-native';
 import { EmptyState, ErrorState, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
+import { dayjs } from '@/lib/date';
 import {
   AttendanceHeader,
   AttendanceRecordRow,
@@ -21,10 +23,11 @@ import { extractErrorMessage } from '../services/error-utils';
  * a scannable screen wrapper.
  */
 export function StudentAttendanceScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const studentId = typeof id === 'string' ? id : '';
   const isRTL = I18nManager.isRTL;
+  const locale: SupportedLocale = i18n?.language === 'ar' ? 'ar' : 'en';
 
   const { data: records, isLoading: isRecordsLoading, error: recordsError, refetch: refetchRecords } = useAttendance(studentId);
   const { data: stats, isLoading: isStatsLoading, error: statsError, refetch: refetchStats } = useAttendanceStats(studentId);
@@ -39,7 +42,7 @@ export function StudentAttendanceScreen() {
     refetchStudent();
   };
 
-  const groupedRecords = useMemo(() => buildSections(records, t), [records, t]);
+  const groupedRecords = useMemo(() => buildSections(records, t, locale), [records, t, locale]);
 
   if (!studentId) {
     return (
@@ -109,6 +112,7 @@ export function StudentAttendanceScreen() {
 function buildSections(
   records: AttendanceRecord[] | undefined,
   t: ReturnType<typeof useTranslation>['t'],
+  locale: SupportedLocale,
 ): { title: string; data: AttendanceRecord[] }[] {
   if (!records)
     return [];
@@ -117,7 +121,7 @@ function buildSections(
   records.forEach((r) => {
     let monthYear: string;
     try {
-      monthYear = new Date(r.sessionDate).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      monthYear = dayjs(r.sessionDate).locale(locale).format('MMMM YYYY');
     }
     catch {
       monthYear = t('parent.attendance.unknownDate', 'Unknown Date');
