@@ -148,7 +148,7 @@ export function SignupScreen() {
       const result = await verifyPhoneSignup(values);
       if (result.accountExists || !result.canContinue) {
         setErrorMsg(t('auth.phone.signupExistingAccount'));
-        router.replace({ pathname: AppRoute.auth.login as never, params: { mode: 'phone', phone: values.phone } });
+        router.replace({ pathname: AppRoute.auth.login, params: { mode: 'phone', phone: values.phone } });
       }
       return result;
     }

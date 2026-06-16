@@ -42,12 +42,18 @@ export function useChildSummaryHero(studentId: string): ChildSummaryHero {
   );
 
   const recentTimeline = useMemo(
-    () => (timeline ? timeline.slice(0, 10) : []),
+    () => timeline ?? [],
     [timeline],
   );
 
   const isLoading = studentsLoading || statsLoading || timelineLoading;
-  const error = (studentsError ?? statsError ?? timelineError) as Error | null;
+  const rawError = studentsError ?? statsError ?? timelineError;
+  const error
+    = rawError instanceof Error
+      ? rawError
+      : rawError != null
+        ? new Error(String(rawError))
+        : null;
 
   return {
     student,

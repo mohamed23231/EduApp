@@ -1,8 +1,9 @@
 import type { SvgProps } from 'react-native-svg';
 import * as React from 'react';
 import Svg, { Path } from 'react-native-svg';
+import colors from '@/components/ui/colors';
 
-export function EyeOff({ color = '#9CA3AF', ...props }: SvgProps) {
+export function EyeOff({ color = colors.neutral.dim, ...props }: SvgProps) {
   return (
     <Svg
       width={24}

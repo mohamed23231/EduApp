@@ -178,7 +178,7 @@ export function StudentActionsSheet({ ref, onEdit, onDeleted, onViewPerformance 
             <ActionRow icon="create-outline" label={t('teacher.studentActions.editStudent')} onPress={handleEditPress} />
             {onViewPerformance && <ActionRow icon="bar-chart-outline" label={t('teacher.performance.studentPerformance')} onPress={handlePerformancePress} color={colors.brand.primaryDeep} />}
             {state.code && <ActionRow icon="refresh-outline" label={t('teacher.studentActions.regenerateCode')} onPress={() => state.confirmRegenModal.present()} color="#F59E0B" />}
-            <ActionRow icon="trash-outline" label={t('teacher.studentActions.deleteStudent')} onPress={() => state.confirmDeleteModal.present()} color="#DC2626" danger />
+            <ActionRow icon="trash-outline" label={t('teacher.studentActions.deleteStudent')} onPress={() => state.confirmDeleteModal.present()} color={colors.semantic.absent} danger />
           </View>
         </View>
       </Modal>
@@ -221,7 +221,7 @@ function ActionRow({ icon, label, onPress, color = '#374151', danger = false }: 
       style={({ pressed }) => [
         styles.actionRow,
         danger && styles.actionRowDanger,
-        pressed && { backgroundColor: danger ? '#FEF2F2' : '#F9FAFB' },
+        pressed && { backgroundColor: danger ? '#FEF2F2' : colors.neutral.paper },
       ]}
       accessibilityRole="button"
     >
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   chipLabel: { fontSize: 13, fontWeight: '600' },
-  noCode: { fontSize: 14, color: '#9CA3AF', fontStyle: 'italic' },
+  noCode: { fontSize: 14, color: colors.neutral.dim, fontStyle: 'italic' },
   actions: { gap: 2 },
   actionRow: {
     flexDirection: 'row',

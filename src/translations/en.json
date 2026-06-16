@@ -25,6 +25,11 @@
       "subtitle": "Set your password to activate your account.",
       "title": "Parent Invitation",
       "validating": "Validating invitation...",
+      "validation": {
+        "fullNameRequired": "Please enter your full name.",
+        "passwordMinLength": "Password must be at least 8 characters.",
+        "passwordRequired": "Please enter a password."
+      },
       "validationError": "Unable to validate invitation right now."
     },
     "legal": {
@@ -1177,11 +1182,15 @@
       "copiedMessage": "Access code copied to clipboard",
       "copiedTitle": "Copied",
       "copyButton": "Copy Code",
+      "copyError": "Failed to copy to clipboard",
       "expiresAt": "Expires on {{date}}",
+      "fetchError": "Failed to fetch access code",
       "regenerateButton": "Regenerate Code",
+      "regenerateError": "Failed to regenerate access code",
       "regenerateWarning": "Regenerating will invalidate the current code",
       "regenerating": "Regenerating...",
       "shareButton": "Share Code",
+      "shareError": "Failed to share access code",
       "title": "Student Access Code"
     },
     "dashboard": {

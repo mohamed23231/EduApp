@@ -25,13 +25,16 @@ function RecordRowSkeleton() {
   );
 }
 
+const TILE_IDS = ['t1', 't2', 't3', 't4'];
+
 export function PerformanceListSkeleton({ count = 5 }: { count?: number }) {
+  const rowIds = Array.from({ length: count }, (_, i) => `row-${i}`);
   return (
     <View className="gap-2.5 p-4">
       <View className="mb-2 flex-row gap-2">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {TILE_IDS.map(id => (
           <View
-            key={i}
+            key={id}
             className="min-w-[70px] flex-1 items-center gap-2 rounded-2xl border border-rule p-3"
             style={{ backgroundColor: colors.neutral.card }}
           >
@@ -40,8 +43,8 @@ export function PerformanceListSkeleton({ count = 5 }: { count?: number }) {
           </View>
         ))}
       </View>
-      {Array.from({ length: count }).map((_, i) => (
-        <RecordRowSkeleton key={i} />
+      {rowIds.map(id => (
+        <RecordRowSkeleton key={id} />
       ))}
     </View>
   );

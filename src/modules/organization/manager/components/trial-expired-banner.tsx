@@ -24,11 +24,11 @@ export function TrialExpiredBanner({
   };
 
   return (
-    <View className="mb-4 rounded-3xl border border-amber-300 bg-amber-50 p-4">
-      <Text className="font-inter text-base font-semibold text-amber-900">
+    <View className="mb-4 rounded-3xl border border-excused bg-excused-soft p-4">
+      <Text className="font-inter text-base font-semibold text-excused-ink">
         {t('manager.trialBanner.title', { defaultValue: 'Trial expired' })}
       </Text>
-      <Text className="font-inter mt-1 text-sm text-amber-800">
+      <Text className="mt-1 font-inter text-sm text-excused-ink">
         {t('manager.trialBanner.body', {
           defaultValue: 'This organization is now read-only until a subscription is activated.',
         })}

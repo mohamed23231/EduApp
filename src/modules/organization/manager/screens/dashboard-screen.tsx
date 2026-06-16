@@ -151,7 +151,7 @@ function TodaySessionCard({
   t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   const stateKey = instance.state;
-  const stripeColor = STATE_STRIPE[stateKey] ?? '#9CA3AF';
+  const stripeColor = STATE_STRIPE[stateKey] ?? colors.neutral.dim;
   const badge = STATE_BADGE[stateKey] ?? STATE_BADGE.CLOSED;
   const studentCount = instance.studentCount ?? instance.students?.length ?? 0;
 
@@ -175,7 +175,7 @@ function TodaySessionCard({
         </View>
 
         <View style={styles.sessionMeta}>
-          <Ionicons name="time-outline" size={13} color="#9CA3AF" />
+          <Ionicons name="time-outline" size={13} color={colors.neutral.dim} />
           <Text style={styles.sessionMetaText}>
             {instance.time}
             {' · '}
@@ -184,10 +184,10 @@ function TodaySessionCard({
         </View>
 
         <View style={styles.sessionMeta}>
-          <Ionicons name="person-outline" size={13} color="#9CA3AF" />
+          <Ionicons name="person-outline" size={13} color={colors.neutral.dim} />
           <Text style={styles.sessionMetaText}>{instance.assignedTeacher.name}</Text>
           <Text style={styles.sessionDot}>·</Text>
-          <Ionicons name="people-outline" size={13} color="#9CA3AF" />
+          <Ionicons name="people-outline" size={13} color={colors.neutral.dim} />
           <Text style={styles.sessionMetaText}>
             {t('manager.dashboard.sessionStudents', { defaultValue: '{{count}} students', count: studentCount })}
           </Text>

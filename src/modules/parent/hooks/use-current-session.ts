@@ -6,8 +6,9 @@ import { fetchCurrentSession } from '../services/sessions.service';
  * Polls the live "is my child in class right now?" state for the dashboard hero.
  *
  * 60s refetch interval gives a near-realtime feel without burning radio.
- * Refetches on window focus so the parent gets fresh data when they reopen
- * the app from background.
+ * Matching staleTime avoids a redundant refetch on every remount; React
+ * Query's default refetchOnWindowFocus still refreshes data when the parent
+ * reopens the app from background.
  */
 export function useCurrentSession(studentId: string) {
   return useQuery({
@@ -15,6 +16,6 @@ export function useCurrentSession(studentId: string) {
     queryFn: () => fetchCurrentSession(studentId),
     enabled: Boolean(studentId),
     refetchInterval: 60_000,
-    refetchOnWindowFocus: true,
+    staleTime: 60_000,
   });
 }

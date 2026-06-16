@@ -9,9 +9,10 @@
 
 import type { AttendanceStatus, SessionInstance, Student } from '../types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/features/auth/use-auth-store';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { getInstanceDetail, markAttendance, updateAttendance } from '../services';
 import { getTeacherIdHash, trackAttendanceSubmitted } from '../services/analytics.service';
 
@@ -125,7 +126,7 @@ export function useAttendance(instanceId: string): UseAttendanceResult {
   const [error, setError] = useState<string | null>(null);
   const user = useAuthStore.use.user();
   const queryClient = useQueryClient();
-  const prevSessionRef = useRef<string | null>(null);
+  const [prevSyncKey, setPrevSyncKey] = useState<string | null>(null);
 
   const { data: session, isLoading, isError, error: loadError, refetch } = useQuery({
     queryKey: ['teacher', 'session-instance', instanceId],
@@ -143,15 +144,25 @@ export function useAttendance(instanceId: string): UseAttendanceResult {
     return buildAttendanceMap(students, session.attendanceRecords);
   }, [session?.id, session?.attendanceRecords, students]);
 
-  // Sync derived map to state only when session ID changes (initial load or refresh)
-  useEffect(() => {
-    if (!derivedMap || !session?.id || session.id === prevSessionRef.current)
-      return;
-    prevSessionRef.current = session.id;
-    setAttendanceMap(derivedMap);
-  }, [derivedMap, session?.id]);
+  // Stable key over server records — changes when the session or any server-side
+  // record (id/status) changes, so pull-to-refresh re-syncs even on the same session.
+  const recordsKey = useMemo(
+    () => (session?.attendanceRecords ?? []).map(r => `${r.id}:${r.status}`).join(','),
+    [session?.attendanceRecords],
+  );
 
-  const unratedCount = useMemo(() => Object.values(attendanceMap).filter(a => a.rating === null).length, [attendanceMap]);
+  // Sync derived map to state when session ID OR server records change.
+  // Uses React's "adjust state during render" pattern (not an effect) so we avoid
+  // a direct setState-in-useEffect + the extra commit. The syncKey guard makes the
+  // set run at most once per server change. Re-init reflects server truth — an
+  // unsaved local edit made during a concurrent server-side change is replaced.
+  const syncKey = derivedMap && session?.id ? `${session.id}|${recordsKey}` : null;
+  if (derivedMap && syncKey !== null && syncKey !== prevSyncKey) {
+    setPrevSyncKey(syncKey);
+    setAttendanceMap(derivedMap);
+  }
+
+  const unratedCount = useMemo(() => Object.values(attendanceMap).filter(a => a.status !== null && a.rating === null).length, [attendanceMap]);
   const markedCount = useMemo(() => Object.values(attendanceMap).filter(a => a.status !== null).length, [attendanceMap]);
 
   const submitAttendance = useCallback(async () => {
@@ -181,7 +192,8 @@ export function useAttendance(instanceId: string): UseAttendanceResult {
       }
     }
     catch (err) {
-      setError(err instanceof Error ? err.message : t('teacher.attendance.submitFailed', 'Failed to submit attendance'));
+      console.error('[useAttendance] submit failed', err);
+      setError(getApiErrorMessage(err, t('teacher.attendance.submitFailed', 'Failed to submit attendance')));
     }
     finally {
       setIsSubmitting(false);

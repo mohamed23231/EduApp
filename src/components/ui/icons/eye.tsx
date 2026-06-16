@@ -1,8 +1,9 @@
 import type { SvgProps } from 'react-native-svg';
 import * as React from 'react';
 import Svg, { Path } from 'react-native-svg';
+import colors from '@/components/ui/colors';
 
-export function Eye({ color = '#9CA3AF', ...props }: SvgProps) {
+export function Eye({ color = colors.neutral.dim, ...props }: SvgProps) {
   return (
     <Svg
       width={24}

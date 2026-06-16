@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
   formError: {
     fontSize: 13,
-    color: '#DC2626',
+    color: colors.semantic.absent,
     textAlign: 'center',
   },
   buttonRow: {

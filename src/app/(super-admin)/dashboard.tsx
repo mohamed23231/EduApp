@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Button, Text, View } from '@/components/ui';
+import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore as useAuth } from '@/features/auth/use-auth-store';
 
 export default function SuperAdminDashboardPage() {
@@ -11,12 +12,12 @@ export default function SuperAdminDashboardPage() {
       <Text className="text-lg font-semibold">Super Admin Dashboard</Text>
       <Text className="mt-2 text-sm">Scaffolded route for super admin production flows.</Text>
       <Button
-        className="mt-6 bg-cyan-500"
+        className="mt-6 bg-brand"
         textClassName="text-white"
         label="Go to Login"
         onPress={() => {
           signOut();
-          router.replace('/login');
+          router.replace(AppRoute.auth.login);
         }}
       />
     </View>

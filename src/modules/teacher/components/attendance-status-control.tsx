@@ -117,7 +117,7 @@ function StatusButton({
         <Ionicons
           name={icon}
           size={16}
-          color={isActive ? config.activeText : '#9CA3AF'}
+          color={isActive ? config.activeText : colors.neutral.dim}
         />
         <Text
           style={[

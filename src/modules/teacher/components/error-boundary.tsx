@@ -7,6 +7,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { logError } from '../services/logger';
 
 type Props = {
@@ -68,7 +69,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
   },
   content: {
     flex: 1,

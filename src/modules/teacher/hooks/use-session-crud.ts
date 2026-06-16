@@ -95,12 +95,24 @@ export function useSessionCrud(): UseSessionCrudResult {
       const template = await createMutation.mutateAsync(templateData);
 
       if (studentIds.length > 0) {
-        await assignMutation.mutateAsync({ templateId: template.id, studentIds });
+        try {
+          await assignMutation.mutateAsync({ templateId: template.id, studentIds });
+        }
+        catch (assignErr) {
+          // Compensate: assignment failed, so roll back the orphan template.
+          try {
+            await deleteMutation.mutateAsync(template.id);
+          }
+          catch (rollbackErr) {
+            console.error('[useSessionCrud] rollback delete failed', rollbackErr);
+          }
+          throw assignErr;
+        }
       }
 
       return getTemplate(template.id);
     },
-    [assignMutation, createMutation],
+    [assignMutation, createMutation, deleteMutation],
   );
 
   const handleUpdateSession = useCallback(

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, TouchableOpacity } from 'react-native';
 import { SafeAreaView, ScrollView, Text, View } from '@/components/ui';
 import colors from '@/components/ui/colors';
+import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { useOrganization } from '../hooks';
@@ -145,7 +146,7 @@ function EntitlementSection({ org }: { org: { entitlementSource?: string; trial?
         : null}
       <SettingsDivider />
       <View className="px-4 py-3">
-        <Text className="font-inter mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
+        <Text className="mb-2 font-inter text-xs font-semibold tracking-wider text-ink-muted uppercase">
           {t('manager.more.usage.title', { defaultValue: 'Usage' })}
         </Text>
         {usageRows.map(row => (
@@ -177,7 +178,7 @@ function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onRepor
           </View>
           <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={colors.neutral.inkMuted} />
         </View>
-        <Text className="font-inter ms-11 mt-1 text-sm text-ink-muted">
+        <Text className="ms-11 mt-1 font-inter text-sm text-ink-muted">
           {t('manager.more.settings.body', { defaultValue: 'Update contact information and monitor limit usage.' })}
         </Text>
       </Pressable>
@@ -191,7 +192,7 @@ function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onRepor
           </View>
           <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={colors.neutral.inkMuted} />
         </View>
-        <Text className="font-inter ms-11 mt-1 text-sm text-ink-muted">
+        <Text className="ms-11 mt-1 font-inter text-sm text-ink-muted">
           {t('manager.more.reports.body', { defaultValue: 'Review attendance, engagement, and teacher performance trends.' })}
         </Text>
       </Pressable>
@@ -234,7 +235,7 @@ export function MoreScreen() {
           >
             <Text className="text-[26px] font-bold" style={{ color: colors.neutral.white }}>{initials}</Text>
           </View>
-          <Text className="font-inter mt-3 text-lg font-semibold text-ink">{displayName}</Text>
+          <Text className="mt-3 font-inter text-lg font-semibold text-ink">{displayName}</Text>
           <View className="mt-1 rounded-full px-3 py-1" style={{ backgroundColor: colors.brand.primaryGlow }}>
             <Text className="font-inter text-xs font-semibold" style={{ color: colors.brand.primaryInk }}>
               {t('manager.more.roleManager', { defaultValue: 'Manager' })}
@@ -242,13 +243,13 @@ export function MoreScreen() {
           </View>
           {organizationQuery.data?.name
             ? (
-                <Text className="font-inter mt-2 text-sm text-ink-muted">{organizationQuery.data.name}</Text>
+                <Text className="mt-2 font-inter text-sm text-ink-muted">{organizationQuery.data.name}</Text>
               )
             : null}
         </View>
 
         {/* Account section */}
-        <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
+        <Text className="ms-1 mt-5 mb-2 font-inter text-xs font-semibold tracking-wider text-ink-muted uppercase">
           {t('manager.more.accountSection', { defaultValue: 'Account' })}
         </Text>
         <View className="rounded-2xl bg-white shadow-sm">
@@ -277,7 +278,7 @@ export function MoreScreen() {
         {organizationQuery.data
           ? (
               <>
-                <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
+                <Text className="ms-1 mt-5 mb-2 font-inter text-xs font-semibold tracking-wider text-ink-muted uppercase">
                   {t('manager.more.entitlementSection', { defaultValue: 'Subscription' })}
                 </Text>
                 <EntitlementSection org={{ ...organizationQuery.data, limits: organizationQuery.data.limits ?? undefined }} />
@@ -286,12 +287,12 @@ export function MoreScreen() {
           : null}
 
         {/* Quick links */}
-        <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
+        <Text className="ms-1 mt-5 mb-2 font-inter text-xs font-semibold tracking-wider text-ink-muted uppercase">
           {t('manager.more.quickLinksSection', { defaultValue: 'Quick links' })}
         </Text>
         <QuickLinks
-          onSettings={() => router.push('/(manager)/settings')}
-          onReports={() => router.push('/(manager)/reports')}
+          onSettings={() => router.push(AppRoute.manager.settings)}
+          onReports={() => router.push(AppRoute.manager.reports)}
         />
 
         {/* Logout */}

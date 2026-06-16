@@ -11,6 +11,5 @@ export function useUpcomingSessions(studentId: string, limit: number = 1) {
     queryKey: QueryKey.parent.upcomingSessions(studentId, limit),
     queryFn: () => fetchUpcomingSessions(studentId, limit),
     enabled: Boolean(studentId),
-    refetchOnWindowFocus: true,
   });
 }

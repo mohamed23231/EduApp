@@ -159,10 +159,10 @@ function useDeepLinkHandler() {
         const refreshToken = params.refresh_token;
 
         if (code) {
-          router.push({ pathname: '/reset-password' as any, params: { code } });
+          router.push({ pathname: AppRoute.auth.resetPassword, params: { code } });
         }
         else if (accessToken && refreshToken) {
-          router.push({ pathname: '/reset-password' as any, params: { access_token: accessToken, refresh_token: refreshToken } });
+          router.push({ pathname: AppRoute.auth.resetPassword, params: { access_token: accessToken, refresh_token: refreshToken } });
         }
         return;
       }

@@ -74,13 +74,13 @@ function OrgEditForm({ org }: { org: OrganizationDetails }) {
         <Input label={t('manager.settings.fields.phone', { defaultValue: 'Phone' })} value={values.phoneE164} onChangeText={phoneE164 => setValues(c => ({ ...c, phoneE164 }))} />
         <Input label={t('manager.settings.fields.email', { defaultValue: 'Email' })} value={values.email} onChangeText={email => setValues(c => ({ ...c, email }))} />
         <Input label={t('manager.settings.fields.address', { defaultValue: 'Address' })} value={values.address} onChangeText={address => setValues(c => ({ ...c, address }))} multiline />
-        {message ? <Text className="font-inter mt-2 text-sm text-ink-muted">{message}</Text> : null}
+        {message ? <Text className="mt-2 font-inter text-sm text-ink-muted">{message}</Text> : null}
         <Button className="mt-3" label={t('manager.settings.save', { defaultValue: 'Save settings' })} onPress={submit} loading={updateMutation.isPending} />
       </View>
       <View className="mt-5 rounded-[28px] bg-white p-5">
         <Text className="font-inter text-lg font-semibold text-ink">{t('manager.settings.usage.title', { defaultValue: 'Usage' })}</Text>
-        <Text className="font-inter mt-1 text-sm text-ink-muted">{t('manager.settings.usage.source', { defaultValue: 'Source: {{source}}', source: org.entitlementSource ?? 'trial' })}</Text>
-        {entitlementDateLine ? <Text className="font-inter mt-1 text-sm text-ink-muted">{entitlementDateLine}</Text> : null}
+        <Text className="mt-1 font-inter text-sm text-ink-muted">{t('manager.settings.usage.source', { defaultValue: 'Source: {{source}}', source: org.entitlementSource ?? 'trial' })}</Text>
+        {entitlementDateLine ? <Text className="mt-1 font-inter text-sm text-ink-muted">{entitlementDateLine}</Text> : null}
         {usage.map(item => <UsageBar key={item.label} label={item.label} current={item.current} limit={item.limit} />)}
       </View>
     </>
@@ -142,7 +142,7 @@ export function SettingsScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerClassName="px-6 py-6">
-          <Text className="font-inter mt-2 text-base text-ink-muted">{t('manager.settings.subtitle', { defaultValue: 'Keep organization details current and watch entitlement usage at a glance.' })}</Text>
+          <Text className="mt-2 font-inter text-base text-ink-muted">{t('manager.settings.subtitle', { defaultValue: 'Keep organization details current and watch entitlement usage at a glance.' })}</Text>
           {organizationQuery.data && <OrgEditForm org={organizationQuery.data} />}
         </ScrollView>
       </KeyboardAvoidingView>

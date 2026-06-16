@@ -100,11 +100,11 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
       <View style={styles.container}>
         {/* Search */}
         <View style={styles.search}>
-          <Ionicons name="search-outline" size={16} color="#9CA3AF" />
+          <Ionicons name="search-outline" size={16} color={colors.neutral.dim} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('teacher.students.searchPlaceholder')}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.neutral.dim}
             value={query}
             onChangeText={setQuery}
             clearButtonMode="while-editing"
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 12,
     height: 42,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: colors.neutral.dim,
   },
   footer: {
     paddingVertical: 16,

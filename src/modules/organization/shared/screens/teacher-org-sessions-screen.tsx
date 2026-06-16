@@ -41,13 +41,13 @@ function InstanceCard({ instance, orgName, onStart, onClose, isStarting, isClosi
           <Text className="font-inter text-xs font-medium" style={{ color: badge.text }}>{instance.state}</Text>
         </View>
       </View>
-      <Text className="font-inter mt-1 text-xs font-medium" style={{ color: colors.brand.primaryDeep }}>{orgName}</Text>
-      <Text className="font-inter mt-1 text-sm" style={{ color: colors.neutral.inkMuted }}>
+      <Text className="mt-1 font-inter text-xs font-medium" style={{ color: colors.brand.primaryDeep }}>{orgName}</Text>
+      <Text className="mt-1 font-inter text-sm" style={{ color: colors.neutral.inkMuted }}>
         {instance.date}
         {' · '}
         {instance.time}
       </Text>
-      <Text className="font-inter mt-0.5 text-sm" style={{ color: colors.neutral.inkMuted }}>
+      <Text className="mt-0.5 font-inter text-sm" style={{ color: colors.neutral.inkMuted }}>
         {t('teacherOrg.duration', { min: instance.durationMinutes, n: instance.studentCount })}
       </Text>
       {instance.state === 'DRAFT' && (
@@ -90,7 +90,7 @@ function BackBar({ orgName, onBack }: { orgName: string; onBack: () => void }) {
           color={colors.neutral.ink}
         />
       </Pressable>
-      <Text className="font-inter ms-1 text-base font-semibold" style={{ color: colors.neutral.ink }} numberOfLines={1}>
+      <Text className="ms-1 font-inter text-base font-semibold" style={{ color: colors.neutral.ink }} numberOfLines={1}>
         {orgName}
       </Text>
     </View>
@@ -176,10 +176,10 @@ export function TeacherOrgSessionsScreen({ orgId, orgName, onBack }: Props) {
         refreshControl={<RefreshControl refreshing={isManualRefresh} onRefresh={onRefresh} />}
       >
         <Text className="font-inter text-3xl font-semibold" style={{ color: colors.neutral.ink }}>{orgName}</Text>
-        <Text className="font-inter mt-1 text-base" style={{ color: colors.neutral.inkMuted }}>{t('teacherOrg.subtitle')}</Text>
+        <Text className="mt-1 font-inter text-base" style={{ color: colors.neutral.inkMuted }}>{t('teacherOrg.subtitle')}</Text>
         {todayInstances.length > 0 && (
           <View className="mt-5">
-            <Text className="font-inter mb-3 text-lg font-semibold" style={{ color: colors.neutral.ink }}>{t('teacherOrg.today')}</Text>
+            <Text className="mb-3 font-inter text-lg font-semibold" style={{ color: colors.neutral.ink }}>{t('teacherOrg.today')}</Text>
             {todayInstances.map(i => (
               <InstanceCard
                 key={i.id}
@@ -195,7 +195,7 @@ export function TeacherOrgSessionsScreen({ orgId, orgName, onBack }: Props) {
         )}
         {upcomingInstances.length > 0 && (
           <View className="mt-5">
-            <Text className="font-inter mb-3 text-lg font-semibold" style={{ color: colors.neutral.ink }}>{t('teacherOrg.upcoming')}</Text>
+            <Text className="mb-3 font-inter text-lg font-semibold" style={{ color: colors.neutral.ink }}>{t('teacherOrg.upcoming')}</Text>
             {upcomingInstances.map(i => (
               <InstanceCard
                 key={i.id}
@@ -210,7 +210,7 @@ export function TeacherOrgSessionsScreen({ orgId, orgName, onBack }: Props) {
           </View>
         )}
         {instances.length === 0 && (
-          <Text className="font-inter mt-8 text-center text-base" style={{ color: colors.neutral.inkMuted }}>
+          <Text className="mt-8 text-center font-inter text-base" style={{ color: colors.neutral.inkMuted }}>
             {t('teacherOrg.empty')}
           </Text>
         )}

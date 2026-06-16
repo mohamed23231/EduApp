@@ -1,5 +1,6 @@
 import { Redirect } from 'expo-router';
+import { AppRoute } from '@/core/navigation/routes';
 
 export default function ParentIndexRoute() {
-  return <Redirect href="/(parent)/(tabs)/dashboard" />;
+  return <Redirect href={AppRoute.parent.dashboard} />;
 }

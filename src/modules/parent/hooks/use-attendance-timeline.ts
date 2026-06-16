@@ -10,7 +10,7 @@ import { fetchAttendanceTimeline } from '../services/attendance.service';
  */
 export function useAttendanceTimeline(studentId: string, page: number = 1, limit: number = 5) {
   return useQuery({
-    queryKey: QueryKey.parent.attendanceTimeline(studentId, page),
+    queryKey: QueryKey.parent.attendanceTimeline(studentId, page, limit),
     queryFn: () => fetchAttendanceTimeline(studentId, page, limit),
     enabled: Boolean(studentId),
   });

@@ -116,25 +116,34 @@ function useStudentsLoaders(state: StudentsState) {
 
   // Fetch students when search changes
   useEffect(() => {
+    let cancelled = false;
     const fetchStudents = async () => {
       try {
         if (!hasFetchedOnce.current)
           setIsLoading(true);
         setError(null);
         const result = await fetchStudentPage({ page: 1, limit: DEFAULT_PAGE_SIZE, search: debouncedSearch });
+        if (cancelled)
+          return;
         setStudents(result.students);
         setPagination(result.pagination);
         setPage(1);
         hasFetchedOnce.current = true;
       }
       catch (err) {
+        if (cancelled)
+          return;
         setError(toErrorMessage(err, 'Failed to fetch students'));
       }
       finally {
-        setIsLoading(false);
+        if (!cancelled)
+          setIsLoading(false);
       }
     };
     fetchStudents();
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedSearch, hasFetchedOnce, setError, setIsLoading, setPage, setPagination, setStudents]);
 
   const loadMore = useCallback(async () => {

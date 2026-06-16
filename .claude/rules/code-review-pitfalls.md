@@ -49,3 +49,33 @@ return (data && typeof data === 'object' ? data : {}) as RemoteAppSettings;
 ## 5. Prefer the library hook over a hand-rolled subscription
 
 If a native-module package ships a hook (e.g. `useNetInfo()` from `@react-native-community/netinfo`), use it instead of re-implementing `addEventListener` + `useState` + `useEffect`. Less surface, fewer cleanup bugs. When you swap to a named-export hook, update the matching `jest-setup.ts` mock to expose that export.
+
+## 6. Never hide the backend's user-facing error message
+
+This backend (NestJS) returns controlled, user-safe messages via global exception filters (`{ statusCode, message }`). So:
+- **Show it.** Use `getApiErrorMessage(err, t('...generic...'))` from `@/shared/services/api-utils` — it extracts the backend `message` field (and translates `AUTH_*` codes via the optional `codeTranslator`), falling back to the i18n string. This is the established pattern across the manager screens.
+- ❌ Don't show **raw** `err.message` directly — for an axios error that's `"Request failed with status code 400"`, not the backend message.
+- ❌ Don't replace it with a **generic-only** string — that throws away the actionable backend message (e.g. "Invitation expired"). That over-correction degrades UX.
+- ✅ Do `console.error('[scope] failed', err)` for logging **and** surface `getApiErrorMessage(...)` to the user.
+
+## 7. Routes: always `AppRoute.*`, never strings or casts
+
+- Use `AppRoute.*` constants from `@/core/navigation/routes`. Never hardcode `'/(teacher)/(tabs)/dashboard'` or `'/login'`.
+- Never `as any` / `as never` on a `router.push/replace`/`<Redirect href>` — if a literal needs the cast, the route constant is missing; add it to `AppRoute` instead.
+- ⚠️ Verify the constant resolves to the **intended** path — similarly-named routes can coexist (`(teacher)/dashboard.tsx` vs `(teacher)/(tabs)/dashboard.tsx`). Swapping to the wrong one is a navigation bug, not a cleanup.
+
+## 8. Colors: tokens only, never hex or palette classes
+
+- Never hardcode hex (`#9CA3AF`, `#DC2626`, `#F9FAFB`, `#3B82F6`, …) or raw Tailwind palette classes (`slate-*`, `blue-*`, `cyan-*`, `gray-*`, `amber-N`).
+- Map to tokens: gray→`colors.neutral.dim`/`inkMuted` (or `text-ink-muted`/`text-dim`); red→`colors.semantic.absent`/`text-absent`; warning amber→`excused`/`text-excused-ink bg-excused-soft`; off-white→`colors.neutral.paper`/`bg-paper`.
+- See `styling.md` for the full token list. `better-tailwindcss/no-unknown-classes` + `check-redesign.mjs` enforce this.
+
+## 9. React keys, forms, filenames
+
+- **Keys:** never `key={index}`; use a stable id (`key={item.id}` or a constant id list for static skeletons).
+- **TanStack forms:** always attach a Zod `validators` schema — without it `canSubmit` defaults to `true` and empty submits go through.
+- **Filenames:** Expo Router catch-all is `[...missing].tsx` (not `messing`); files with no JSX use `.ts`, not `.tsx`. On a route rename, update `specs/002-ui-redesign/route-inventory.md` (the `redesign-route-inventory` test enforces it).
+
+## 10. Collapse speculative multi-shape response parsing
+
+When a client normalizes several response shapes (`{ user: {...} }` vs flat `{ userId, ... }`), verify what the backend (`tutoring-backend/`) actually returns and keep only that branch. Don't carry speculative branches "just in case" — they rot and hide the real contract.

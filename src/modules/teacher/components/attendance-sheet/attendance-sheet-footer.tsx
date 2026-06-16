@@ -21,7 +21,7 @@ export function AttendanceSheetFooter({ isSubmitting, disabled, error, onSubmit 
         variant="default"
       />
       {error && (
-        <Text className="text-center text-xs text-[#DC2626]">{error}</Text>
+        <Text className="text-center text-xs text-absent">{error}</Text>
       )}
     </View>
   );

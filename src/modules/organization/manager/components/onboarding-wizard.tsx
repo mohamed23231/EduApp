@@ -23,10 +23,10 @@ export function OnboardingWizard({ steps }: { steps: WizardStep[] }) {
           total: steps.length,
         })}
       </Text>
-      <Text className="font-inter mt-2 text-xl font-semibold text-white">
+      <Text className="mt-2 font-inter text-xl font-semibold text-white">
         {t('manager.wizard.title', { defaultValue: 'Launch checklist' })}
       </Text>
-      <Text className="font-inter mt-1 text-sm text-slate-300">
+      <Text className="mt-1 font-inter text-sm text-dim">
         {t('manager.wizard.subtitle', {
           defaultValue: 'Complete these three steps to get your organization live.',
         })}
@@ -43,10 +43,10 @@ export function OnboardingWizard({ steps }: { steps: WizardStep[] }) {
                 count: index + 1,
               })}
             </Text>
-            <Text className="font-inter mt-1 text-base font-semibold text-white">
+            <Text className="mt-1 font-inter text-base font-semibold text-white">
               {step.title}
             </Text>
-            <Text className="font-inter mt-1 text-sm text-slate-300">
+            <Text className="mt-1 font-inter text-sm text-dim">
               {step.description}
             </Text>
             <Button

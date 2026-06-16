@@ -1,8 +1,10 @@
 export { useAttendance } from './use-attendance';
+export { useAttendanceSubmit } from './use-attendance-submit';
 export { useConnectionCode } from './use-connection-code';
 export { useSessionCrud } from './use-session-crud';
 export { useSessionRankings } from './use-session-rankings';
 export { useStudentCrud } from './use-student-crud';
+export { useStudentFiltering } from './use-student-filtering';
 export { useStudentSessions } from './use-student-sessions';
 export type { StudentSessionInfo } from './use-student-sessions';
 export { useStudents } from './use-students';

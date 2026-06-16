@@ -18,17 +18,20 @@ type UseStudentSessionsResult = {
   /** Set of all student IDs that are assigned to at least one session */
   assignedStudentIds: Set<string>;
   isLoading: boolean;
+  error: unknown;
   refetch: () => Promise<void>;
 };
 
 export function useStudentSessions(): UseStudentSessionsResult {
   const [sessionMap, setSessionMap] = useState<Record<string, StudentSessionInfo>>({});
   const [assignedStudentIds, setAssignedStudentIds] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<unknown>(null);
 
   const fetchTemplates = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const templates = await getTemplates();
       const map: Record<string, StudentSessionInfo> = {};
 
@@ -45,8 +48,10 @@ export function useStudentSessions(): UseStudentSessionsResult {
       setSessionMap(map);
       setAssignedStudentIds(new Set(Object.keys(map)));
     }
-    catch {
-      // Silently fail — session info is supplementary
+    catch (err) {
+      // Session info is supplementary — surface the error but don't throw.
+      console.error('[useStudentSessions] fetch failed', err);
+      setError(err);
     }
     finally {
       setIsLoading(false);
@@ -57,5 +62,5 @@ export function useStudentSessions(): UseStudentSessionsResult {
     fetchTemplates();
   }, [fetchTemplates]);
 
-  return { sessionMap, assignedStudentIds, isLoading, refetch: fetchTemplates };
+  return { sessionMap, assignedStudentIds, isLoading, error, refetch: fetchTemplates };
 }

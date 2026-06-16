@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type AttendanceSheetToolbarProps = {
   showBatchRating: boolean;
@@ -38,11 +39,11 @@ export function AttendanceSheetToolbar({
 
       {showSearch && (
         <View className="mx-5 mt-3 flex-row items-center gap-2.5 rounded-[10px] border border-[#E5E7EB] bg-white px-3.5 py-2.5">
-          <Ionicons name="search" size={18} color="#9CA3AF" />
+          <Ionicons name="search" size={18} color={colors.neutral.dim} />
           <TextInput
             className="flex-1 p-0 text-body-lg text-[#111827]"
             placeholder={t('teacher.attendance.searchStudent')}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.neutral.dim}
             value={searchQuery}
             onChangeText={onSearchChange}
             autoCapitalize="none"
@@ -50,7 +51,7 @@ export function AttendanceSheetToolbar({
           />
           {searchQuery.length > 0 && (
             <Pressable onPress={() => onSearchChange('')}>
-              <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+              <Ionicons name="close-circle" size={18} color={colors.neutral.dim} />
             </Pressable>
           )}
         </View>

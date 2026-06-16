@@ -42,7 +42,7 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
         <View className="mb-1 items-center">
           <View className="h-1 w-12 rounded-full" style={{ backgroundColor: colors.neutral.rule }} />
         </View>
-        <Text className="font-inter mt-3 mb-4 text-xl font-semibold" style={{ color: colors.neutral.ink }}>
+        <Text className="mt-3 mb-4 font-inter text-xl font-semibold" style={{ color: colors.neutral.ink }}>
           {t('contextSwitcher.title')}
         </Text>
         {!isManager && (
@@ -57,7 +57,7 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
             <Text className="font-inter text-base font-semibold" style={{ color: activeContext === 'personal' ? colors.brand.primaryInk : colors.neutral.inkSoft }}>
               {t('contextSwitcher.personal')}
             </Text>
-            <Text className="font-inter mt-0.5 text-sm" style={{ color: colors.neutral.inkMuted }}>
+            <Text className="mt-0.5 font-inter text-sm" style={{ color: colors.neutral.inkMuted }}>
               {t('contextSwitcher.personalDesc')}
             </Text>
           </Pressable>
@@ -77,7 +77,7 @@ export function ContextSwitcher({ visible, userRole, orgs, onClose, onSelectOrg,
               <Text className="font-inter text-base font-semibold" style={{ color: isSelected ? colors.brand.primaryInk : colors.neutral.inkSoft }}>
                 {org.name}
               </Text>
-              <Text className="font-inter mt-0.5 text-sm" style={{ color: colors.neutral.inkMuted }}>
+              <Text className="mt-0.5 font-inter text-sm" style={{ color: colors.neutral.inkMuted }}>
                 {org.role === 'OWNER'
                   ? t('contextSwitcher.roleManager')
                   : t('contextSwitcher.roleTeacher')}

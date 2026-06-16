@@ -59,12 +59,12 @@ export function OrgInvitationScreen({ token, invitation, onAccepted, onDeclined 
           <Text className="font-inter text-sm tracking-[1.6px] uppercase" style={{ color: colors.brand.primaryInk }}>
             {t('orgInvitation.badge')}
           </Text>
-          <Text className="font-inter mt-2 text-3xl font-semibold" style={{ color: colors.brand.primaryInk }}>
+          <Text className="mt-2 font-inter text-3xl font-semibold" style={{ color: colors.brand.primaryInk }}>
             {orgName}
           </Text>
           {managerName
             ? (
-                <Text className="font-inter mt-2 text-base" style={{ color: colors.brand.primaryInk }}>
+                <Text className="mt-2 font-inter text-base" style={{ color: colors.brand.primaryInk }}>
                   {t('orgInvitation.invitedBy', { name: managerName })}
                 </Text>
               )
@@ -77,7 +77,7 @@ export function OrgInvitationScreen({ token, invitation, onAccepted, onDeclined 
         </View>
         {message
           ? (
-              <Text className="font-inter mt-4 text-sm" style={{ color: colors.semantic.absent }}>{message}</Text>
+              <Text className="mt-4 font-inter text-sm" style={{ color: colors.semantic.absent }}>{message}</Text>
             )
           : null}
         {isPending

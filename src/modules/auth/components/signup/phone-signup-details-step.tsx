@@ -1,26 +1,16 @@
+import type { UserRole } from '@/core/auth/roles';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { AuthFieldShell, AuthInput, Icon, PressButton } from '@/components/ui';
 import colors from '@/components/ui/colors';
-import { UserRole } from '@/core/auth/roles';
-import { RolePill } from './role-pill';
+import { PhoneSignupRoleRow } from './phone-signup-role-row';
 
 /**
  * Final "details" step of the phone signup flow: role row + name + password +
  * optional email + submit. Extracted from `phone-signup-form.tsx` to keep that
  * file under the 300-line cap.
  */
-
-const ROLE_OPTIONS: Array<{
-  value: UserRole.TEACHER | UserRole.PARENT | UserRole.MANAGER;
-  labelKey: 'auth.signup.teacherLabel' | 'auth.signup.parentLabel' | 'auth.signup.managerLabel';
-  icon: 'graduationCap' | 'users' | 'building';
-}> = [
-  { value: UserRole.TEACHER, labelKey: 'auth.signup.teacherLabel', icon: 'graduationCap' },
-  { value: UserRole.PARENT, labelKey: 'auth.signup.parentLabel', icon: 'users' },
-  { value: UserRole.MANAGER, labelKey: 'auth.signup.managerLabel', icon: 'building' },
-];
 
 export type PhoneSignupDetailsStepProps = {
   isRTL: boolean;
@@ -57,35 +47,7 @@ export function PhoneSignupDetailsStep({
 
   return (
     <View style={{ gap: 14 }}>
-      <View>
-        <Text
-          style={{
-            color: colors.neutral.dim,
-            fontSize: 11,
-            fontWeight: '700',
-            letterSpacing: 1.4,
-            textTransform: 'uppercase',
-            marginBottom: 8,
-            marginStart: 2,
-            textAlign: isRTL ? 'right' : 'left',
-            writingDirection: isRTL ? 'rtl' : 'ltr',
-          }}
-        >
-          {t('auth.signup.roleLabel')}
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {ROLE_OPTIONS.map(option => (
-            <RolePill
-              key={option.value}
-              selected={role === option.value}
-              label={t(option.labelKey)}
-              iconName={option.icon}
-              onPress={() => onRoleChange(option.value)}
-              testID={`phone-signup-role-${option.value.toLowerCase()}`}
-            />
-          ))}
-        </View>
-      </View>
+      <PhoneSignupRoleRow isRTL={isRTL} role={role} onRoleChange={onRoleChange} />
 
       <AuthFieldShell>
         <AuthInput
@@ -115,6 +77,11 @@ export function PhoneSignupDetailsStep({
           onPress={() => setShowPassword(s => !s)}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           style={{ marginStart: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            showPassword ? 'auth.login.hidePassword' : 'auth.login.showPassword',
+            showPassword ? 'Hide password' : 'Show password',
+          )}
         >
           <Icon name={showPassword ? 'eyeOff' : 'eye'} size={20} color={colors.neutral.dim} />
         </Pressable>

@@ -10,7 +10,6 @@ import {
   GradientText,
   Icon,
   LegalNote,
-  TabaMark,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { useModal } from '@/components/ui/modal';
@@ -22,6 +21,7 @@ import {
   splitE164Phone,
 } from '@/shared/utils/phone';
 import { FormErrorText } from './auth-error-text';
+import { AuthTopBar } from './auth-top-bar';
 import { GoogleSignInButton } from './google-sign-in-button';
 import { EmailLoginFields } from './login/email-login-fields';
 import { PhoneLoginFields } from './login/phone-login-fields';
@@ -29,7 +29,7 @@ import { CountryPickerSheet } from './phone/country-picker-sheet';
 
 /**
  * LoginForm — Phase 6 rebuild against `contracts/visual-auth.md` (reconciled to
- * the password-login model). Dark `<AuthShell>`, corner `<TabaMark>`, gradient
+ * the password-login model). Dark `<AuthShell>`, shared `<AuthTopBar>`, gradient
  * hero second line, gradient CTA. Phone + password is the primary path; email
  * login is reachable via the toggle link. NO OTP-as-login, NO WhatsApp login.
  */
@@ -69,7 +69,7 @@ export function LoginForm({
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { language, setLanguage } = useSelectedLanguage();
+  const { language } = useSelectedLanguage();
   const isRTL = i18n.language === 'ar' || language === 'ar';
 
   const [loginMode, setLoginMode] = useState<'email' | 'phone'>(initialMode);
@@ -85,8 +85,6 @@ export function LoginForm({
   const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
   const phoneCanContinue = !!composedPhone && phonePassword.length >= 6;
 
-  const toggleLanguage = () => setLanguage(language === 'en' ? 'ar' : 'en');
-
   const handlePhoneContinue = () => {
     if (!composedPhone || !phonePassword)
       return;
@@ -95,35 +93,7 @@ export function LoginForm({
 
   return (
     <AuthShell testID="auth-shell">
-      <View
-        style={{
-          paddingHorizontal: 24,
-          paddingTop: 8,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <TabaMark size={56} frame="ink" testID="auth-mark" />
-        <Pressable
-          onPress={toggleLanguage}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderRadius: 999,
-            backgroundColor: 'rgba(255,255,255,0.08)',
-          }}
-        >
-          <Icon name="globe" size={14} color={colors.neutral.dim} />
-          <Text style={{ color: colors.neutral.dim, fontSize: 13, fontWeight: '700' }}>
-            {language === 'en' ? 'العربية' : 'English'}
-          </Text>
-        </Pressable>
-      </View>
+      <AuthTopBar markSize={56} markTestID="auth-mark" />
 
       <View style={{ paddingHorizontal: 24, marginTop: 56 }}>
         <Text

@@ -24,6 +24,7 @@ function RankRowSkeleton() {
 }
 
 export function RankingsSkeleton({ count = 5 }: { count?: number }) {
+  const rowIds = Array.from({ length: count }, (_, i) => `rank-${i}`);
   return (
     <View className="gap-2.5">
       <View
@@ -37,8 +38,8 @@ export function RankingsSkeleton({ count = 5 }: { count?: number }) {
         </View>
       </View>
       <View className="gap-2 px-4">
-        {Array.from({ length: count }).map((_, i) => (
-          <RankRowSkeleton key={i} />
+        {rowIds.map(id => (
+          <RankRowSkeleton key={id} />
         ))}
       </View>
     </View>

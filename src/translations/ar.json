@@ -25,6 +25,11 @@
       "subtitle": "أنشئ كلمة المرور لتفعيل حسابك.",
       "title": "دعوة ولي الأمر",
       "validating": "جارٍ التحقق من الدعوة...",
+      "validation": {
+        "fullNameRequired": "يرجى إدخال اسمك الكامل.",
+        "passwordMinLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+        "passwordRequired": "يرجى إدخال كلمة المرور."
+      },
       "validationError": "تعذر التحقق من الدعوة الآن."
     },
     "legal": {
@@ -1177,11 +1182,15 @@
       "copiedMessage": "تم نسخ رمز الوصول إلى الحافظة",
       "copiedTitle": "تم النسخ",
       "copyButton": "نسخ الرمز",
+      "copyError": "تعذّر النسخ إلى الحافظة",
       "expiresAt": "ينتهي في {{date}}",
+      "fetchError": "تعذّر جلب رمز الوصول",
       "regenerateButton": "إعادة إنشاء الرمز",
+      "regenerateError": "تعذّر إعادة إنشاء رمز الوصول",
       "regenerateWarning": "سيؤدي إعادة الإنشاء إلى إبطال الرمز الحالي",
       "regenerating": "جاري إعادة الإنشاء...",
       "shareButton": "مشاركة الرمز",
+      "shareError": "تعذّر مشاركة رمز الوصول",
       "title": "رمز وصول الطالب"
     },
     "dashboard": {

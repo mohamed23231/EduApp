@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type RatingInputProps = {
   value: number | null;
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   placeholderText: {
-    color: '#9CA3AF',
+    color: colors.neutral.dim,
     fontWeight: '400',
   },
 });

@@ -16,8 +16,10 @@ import { AuthShell, LegalNote } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
+import { AppRoute } from '@/core/navigation/routes';
 import { setOnboardingContext, signIn } from '@/features/auth/use-auth-store';
 import { useSelectedLanguage } from '@/lib/i18n';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { AuthHero } from '../components/auth-hero';
 import { AuthTopBar } from '../components/auth-top-bar';
 import { InviteFormFields } from '../components/parent-invite/invite-form-fields';
@@ -69,15 +71,15 @@ export default function ParentInviteScreen() {
             ...(response.user.fullName ? { fullName: response.user.fullName } : {}),
           });
         }
-        router.replace('/onboarding');
+        router.replace(AppRoute.auth.onboarding);
       }
       else {
         router.replace(getHomeRouteForRole(authUser?.role ?? UserRole.PARENT));
       }
     }
     catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('auth.invite.acceptError');
-      setError(message || t('auth.invite.acceptError'));
+      console.error('[parent-invite] accept failed', err);
+      setError(getApiErrorMessage(err, t('auth.invite.acceptError', 'Unable to activate account. Please try again.')));
     }
     finally {
       setIsSubmitting(false);
@@ -155,7 +157,7 @@ function ParentInviteView({
   }
 
   if (error && !inviteValidation?.valid) {
-    return <InviteErrorScreen t={t} message={error} onBack={() => router.replace('/login')} />;
+    return <InviteErrorScreen t={t} message={error} onBack={() => router.replace(AppRoute.auth.login)} />;
   }
 
   return (

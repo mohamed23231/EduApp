@@ -64,7 +64,7 @@ export function ConnectionCodeScreen() {
         {error && (
           <Animated.View entering={FadeInDown.duration(300)}>
             <View style={styles.errorBanner}>
-              <Ionicons name="alert-circle-outline" size={16} color="#DC2626" />
+              <Ionicons name="alert-circle-outline" size={16} color={colors.semantic.absent} />
               <Text style={styles.errorText}>{error}</Text>
             </View>
           </Animated.View>
@@ -103,7 +103,7 @@ export function ConnectionCodeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  container: { flex: 1, backgroundColor: colors.neutral.paper },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   scroll: { flex: 1 },
   scrollContent: { padding: 20, gap: 16 },

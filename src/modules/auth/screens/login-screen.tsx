@@ -225,7 +225,7 @@ export function LoginScreen() {
       return;
     }
 
-    router.push(AppRoute.auth.resetPassword as any);
+    router.push(AppRoute.auth.resetPassword);
   };
 
   return (
