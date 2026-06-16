@@ -39,5 +39,11 @@ tags:
 # --- Open create-student from the quick action ---
 - tapOn:
     text: Create Student
-# TODO(testid): student-create-screen-root — assert a known field once the
-#   create-student screen exposes a stable anchor.
+# Verify navigation: the create-student ScreenHeader title renders on arrival.
+# StudentCreateScreen has no stable testID; ScreenHeader (screen-header.tsx:47)
+# renders teacher.students.createTitle, so anchor on that title text for now.
+# TODO(testid): student-create-screen-root — add a testID to ScreenHeader (or its
+#   title Text at screen-header.tsx:47) so this anchor is locale-independent.
+- assertVisible:
+    text: Add Student # teacher.students.createTitle = "Add Student" (screen-header.tsx:47)
+    timeout: 10000

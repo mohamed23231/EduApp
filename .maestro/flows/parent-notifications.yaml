@@ -17,6 +17,15 @@ tags:
 - tapOn:
     id: parent-tab-notifications
 
+# --- Stable anchor: NotificationHeader title renders in ALL states (loading /
+#   empty / error / populated). It carries no testID yet, so we anchor on the
+#   always-present title text to prove the Notifications screen rendered.
+# TODO(testid): notification-header-title — add a testID to the title Text in
+#   notification-header.tsx:71 so this anchor is locale-independent.
+- assertVisible:
+    text: Notifications # parent.notifications.title (notification-header.tsx:72)
+    timeout: 10000
+
 # --- One of three states renders. Anchor on whichever is present. ---
 # Populated list -> mark-all-read bar (real testID):
 - assertVisible:

@@ -19,18 +19,22 @@ tags:
     timeout: 10000
 
 # --- Role pill row (shown when no role pre-selected) ---
-# TODO(testid): onboarding-role-teacher / onboarding-role-parent — RolePillRow
-#   exposes no per-role testID. Anchor on visible role labels instead.
+# RolePillRow emits per-role testIDs (role-pill-row.tsx:48): role-card-teacher / role-card-parent.
 - assertVisible:
-    text: Teacher
+    id: role-card-teacher # role-pill-row.tsx:48
 - tapOn:
-    text: Teacher
+    id: role-card-teacher
 
 # --- Full name field ---
-# TODO(testid): onboarding-fullname-input — FullNameField has no testID.
-#   Anchor on the phone field prefix (which DOES have testIDs) for now.
+# FullNameField emits testID="fullName-input" (full-name-field.tsx:33).
 - assertVisible:
-    id: onboarding-phone-input # PhoneField testIDPrefix="onboarding-phone"
+    id: fullName-input # full-name-field.tsx:33
+
+# --- Phone field ---
+# PhoneField (testIDPrefix="onboarding-phone") emits onboarding-phone-local for
+# the local-number TextInput (phone-field.tsx:89). There is no -input child.
+- assertVisible:
+    id: onboarding-phone-local # phone-field.tsx:89
 
 # --- Submit (will surface onboarding-error without a valid session) ---
 - tapOn:

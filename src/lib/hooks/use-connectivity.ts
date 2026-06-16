@@ -1,5 +1,4 @@
-import NetInfo from '@react-native-community/netinfo';
-import { useEffect, useState } from 'react';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 /**
  * Tracks device connectivity via NetInfo. `isOffline` is true only when the
@@ -8,14 +7,6 @@ import { useEffect, useState } from 'react';
  * on a cold start before the first connectivity event resolves.
  */
 export function useConnectivity(): { isOffline: boolean } {
-  const [isOffline, setIsOffline] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      setIsOffline(state.isConnected === false);
-    });
-    return unsubscribe;
-  }, []);
-
-  return { isOffline };
+  const { isConnected } = useNetInfo();
+  return { isOffline: isConnected === false };
 }

@@ -51,7 +51,7 @@ async function fetchAppSettings(): Promise<RemoteAppSettings> {
     ) {
       return (data as { data: RemoteAppSettings }).data;
     }
-    return data as RemoteAppSettings;
+    return (data && typeof data === 'object' ? data : {}) as RemoteAppSettings;
   }
   catch {
     // Endpoint may not exist yet — fall back to configuration defaults.

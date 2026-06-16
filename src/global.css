@@ -53,6 +53,7 @@
   --font-family-ui: 'Geist', 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
   --font-family-display: 'Geist', 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
   --font-family-arabic: 'Rubik', 'SF Arabic', system-ui, sans-serif;
+  --font-inter: 'Inter', -apple-system, 'SF Pro Display', system-ui, sans-serif;
 
   /* ── Type scale ── */
   --text-micro: 10px;

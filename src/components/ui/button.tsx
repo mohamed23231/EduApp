@@ -101,12 +101,12 @@ export function Button({ ref, label: text, loading = false, variant = 'default',
 
   return (
     <Pressable
+      {...props}
       disabled={disabled || loading}
       accessibilityRole="button"
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       accessibilityLabel={props.accessibilityLabel ?? text}
       className={styles.container({ className })}
-      {...props}
       ref={ref}
       testID={testID}
     >
