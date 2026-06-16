@@ -7,7 +7,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -171,7 +171,7 @@ function useDeepLinkHandler() {
         const token = params.token;
         if (token && token.length > 0) {
           void setItem('pendingOrgInviteToken', token);
-          router.push({ pathname: '/org-invite' as any, params: { token } });
+          router.push({ pathname: AppRoute.orgInvite, params: { token } });
         }
         return;
       }
@@ -333,7 +333,7 @@ function ThemedRoot({
   return (
     <GestureHandlerRootView
       onLayout={onLayout}
-      style={styles.container}
+      style={{ flex: 1 }}
       // eslint-disable-next-line better-tailwindcss/no-unknown-classes
       className={navTheme.dark ? `dark` : undefined}
       {...rootDataSet}
@@ -356,9 +356,3 @@ function ThemedRoot({
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

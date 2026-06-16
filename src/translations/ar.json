@@ -1,4 +1,10 @@
 {
+  "admin": {
+    "dashboard": {
+      "subtitle": "مسار مبدئي لتدفقات المشرف.",
+      "title": "لوحة المشرف"
+    }
+  },
   "auth": {
     "common": {
       "optional": "اختياري"
@@ -191,6 +197,7 @@
     "confirm": "تأكيد",
     "errorTitle": "حدث خطأ ما",
     "goBack": "العودة",
+    "goToLogin": "الذهاب إلى تسجيل الدخول",
     "language": "اللغة",
     "offline": "أنت غير متصل بالإنترنت"
   },
@@ -317,7 +324,9 @@
       "quickAddStudent": "إضافة طالب",
       "quickInvite": "دعوة",
       "quickNewSession": "حصة جديدة",
+      "sessionClosed": "تم إغلاق الجلسة — تم تحديد الطلاب الغائبين.",
       "sessionDuration": "{{minutes}} دقيقة",
+      "sessionStarted": "بدأت الجلسة.",
       "sessionStudents": "{{count}} طالب",
       "sessionStudents_few": "{{count}} طلاب",
       "sessionStudents_many": "{{count}} طالباً",
@@ -335,7 +344,8 @@
       },
       "title": "لوحة المدير",
       "todayTitle": "حصص اليوم",
-      "viewAll": "عرض الكل"
+      "viewAll": "عرض الكل",
+      "viewAttendance": "عرض"
     },
     "days": {
       "fri": "الجمعة",
@@ -418,6 +428,7 @@
         "ratingChip": "تقييم {{name}} بدرجة {{score}}",
         "statusChip": "تسجيل {{name}} كـ {{status}}"
       },
+      "actionError": "تعذّر إتمام هذا الإجراء. يرجى المحاولة مرة أخرى.",
       "attendanceError": "تعذر حفظ الحضور الآن.",
       "attendanceTitle": "الحضور",
       "close": "أغلق الحصة",
@@ -550,6 +561,8 @@
       }
     },
     "settings": {
+      "errorLoading": "تعذّر تحميل إعدادات المؤسسة.",
+      "errorRetry": "إعادة المحاولة",
       "fields": {
         "address": "العنوان",
         "email": "البريد الإلكتروني",
@@ -753,6 +766,7 @@
     "whatsapp": {
       "copiedBody": "واتساب غير متاح حالياً، لذلك تم نسخ الرسالة.",
       "copiedTitle": "تم النسخ",
+      "inviteMessage": "{{name}} - {{code}}\n{{url}}",
       "share": "شارك عبر واتساب"
     },
     "wizard": {
@@ -920,6 +934,7 @@
       "openSettings": "فتح الإعدادات",
       "pushDisabled": "الإشعارات الفورية معطلة. الإشعارات داخل التطبيق لا تزال نشطة.",
       "pushUnsupported": "الإشعارات الفورية غير متاحة على المحاكي.",
+      "refreshError": "تعذّر تحديث الإشعارات",
       "thisWeek": "هذا الأسبوع",
       "time": {
         "daysAgo_few": "منذ {{count}} يوم",
@@ -1039,6 +1054,10 @@
       "title": "الطلاب",
       "unlinkedBadge": "تم إلغاء الربط"
     },
+    "students": {
+      "avatarNotSelected": "{{name}}، غير محدد",
+      "avatarSelected": "{{name}}، محدد"
+    },
     "tabs": {
       "dashboard": "الرئيسية",
       "inbox": "الإشعارات",
@@ -1082,6 +1101,12 @@
     "pending": "قيد الانتظار",
     "present": "حاضر"
   },
+  "superAdmin": {
+    "dashboard": {
+      "subtitle": "مسار مبدئي لتدفقات المشرف العام.",
+      "title": "لوحة المشرف العام"
+    }
+  },
   "teacher": {
     "attendance": {
       "absent": "غائب",
@@ -1112,6 +1137,7 @@
       "batchRatingTip": "يمكنك تعديل التقييمات الفردية بعد التطبيق",
       "clearRating": "مسح",
       "conflictError": "تم تقديم سجل واحد أو أكثر بالفعل.",
+      "decreaseRating": "خفض التقييم",
       "emptyMessage": "لا يوجد طلاب مسندين لهذه الحصة.",
       "emptyTitle": "لا يوجد طلاب معيّنون",
       "enterRating": "أدخل التقييم (0-10)",
@@ -1119,6 +1145,7 @@
       "excuseNote": "السبب",
       "excused": "معذور",
       "excusedLabel": "وضع علامة معذور",
+      "increaseRating": "رفع التقييم",
       "markAllPresent": "تحضير الكل",
       "noRating": "بدون تقييم",
       "noSearchResults": "لم يتم العثور على طلاب",

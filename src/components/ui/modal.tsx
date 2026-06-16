@@ -36,7 +36,7 @@ import type {
 import { BottomSheetModal, useBottomSheet } from '@gorhom/bottom-sheet';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -52,7 +52,7 @@ type ModalRef = React.ForwardedRef<BottomSheetModal>;
 
 export function useModal() {
   const ref = React.useRef<BottomSheetModal>(null);
-  const present = React.useCallback((data?: any) => {
+  const present = React.useCallback((data?: Parameters<BottomSheetModal['present']>[0]) => {
     ref.current?.present(data);
   }, []);
   const dismiss = React.useCallback(() => {
@@ -160,11 +160,10 @@ const floatingStyles = StyleSheet.create({
 const handleStyles = StyleSheet.create({
   container: {
     position: 'absolute' as const,
-    left: '50%',
     top: -12,
+    alignSelf: 'center' as const,
     alignItems: 'center',
     justifyContent: 'center',
-    transform: [{ translateX: I18nManager.isRTL ? 20 : -20 }],
   },
   notch: {
     width: 40,

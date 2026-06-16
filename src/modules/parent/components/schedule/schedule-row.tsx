@@ -34,7 +34,7 @@ export function ScheduleRow({ student, locale, isRTL, t, onPress }: ScheduleRowP
         borderWidth: 1.5,
         borderColor: colors.neutral.rule,
         padding: 14,
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         alignItems: 'center',
         gap: 12,
       }}

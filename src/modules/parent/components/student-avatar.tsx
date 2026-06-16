@@ -34,9 +34,10 @@ type StudentAvatarProps = {
   size?: 'sm' | 'md' | 'lg';
   selected?: boolean;
   onPress?: () => void;
+  accessibilityLabel?: string;
 };
 
-export function StudentAvatar({ name, size = 'md', selected = false, onPress }: StudentAvatarProps) {
+export function StudentAvatar({ name, size = 'md', selected = false, onPress, accessibilityLabel }: StudentAvatarProps) {
   const initials = getInitials(name);
   const bgColor = getAvatarColor(name);
   const { container, fontSize, ring } = SIZE_MAP[size];
@@ -45,7 +46,7 @@ export function StudentAvatar({ name, size = 'md', selected = false, onPress }: 
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${name}, ${selected ? 'selected' : 'not selected'}`}
+      accessibilityLabel={accessibilityLabel}
       style={styles.pressable}
     >
       <View

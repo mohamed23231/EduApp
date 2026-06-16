@@ -12,7 +12,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/features/auth/use-auth-store';
-import { getApiErrorMessage } from '@/shared/services/api-utils';
+import { getApiErrorMessage, isApiError } from '@/shared/services/api-utils';
 import { getInstanceDetail, markAttendance, updateAttendance } from '../services';
 import { getTeacherIdHash, trackAttendanceSubmitted } from '../services/analytics.service';
 
@@ -58,7 +58,7 @@ async function submitSingleRecord(
     }
   }
   catch (err) {
-    if (err && typeof err === 'object' && 'response' in err && (err as any).response?.status === 409)
+    if (isApiError(err) && err.response?.status === 409)
       return;
     throw err;
   }

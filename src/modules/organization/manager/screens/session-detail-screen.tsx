@@ -220,7 +220,7 @@ export function SessionDetailScreen() {
             onPress={() => { void Linking.openURL(SUPPORT_WHATSAPP_URL); }}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.brand.primary : colors.brand.primary })}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.trial.contactSupport', { defaultValue: 'Contact support' })}
             </Text>
           </Pressable>
@@ -237,7 +237,7 @@ export function SessionDetailScreen() {
             onPress={handleConfirmClose}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.semantic.absentSoft : colors.semantic.absent })}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' })}
             </Text>
           </Pressable>

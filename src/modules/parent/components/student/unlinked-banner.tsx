@@ -27,7 +27,7 @@ export function UnlinkedBanner({ studentName, isRTL, t }: UnlinkedBannerProps) {
       style={{
         marginHorizontal: 16,
         marginTop: 16,
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         alignItems: 'flex-start',
         gap: 12,
         backgroundColor: colors.semantic.excusedSoft,

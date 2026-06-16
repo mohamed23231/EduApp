@@ -106,7 +106,7 @@ function NumpadModal({
               style={({ pressed }) => ({ backgroundColor: pressed ? c.semantic.info : c.brand.primary, opacity: 1 })}
               onPress={onConfirm}
             >
-              <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff' }}>
+              <Text style={{ fontSize: 15, fontWeight: '600', color: c.neutral.white }}>
                 {t('manager.common.confirm', { defaultValue: 'Confirm' })}
               </Text>
             </Pressable>

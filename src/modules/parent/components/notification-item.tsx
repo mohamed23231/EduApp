@@ -105,7 +105,7 @@ function formatDate(dateString: string, t: TFunction): string {
 function getNotificationIconConfig(normalizedTitleKey: string): {
   name: 'alert-circle' | 'trending-down' | 'notifications';
   color: string;
-  bgClass: string;
+  backgroundColor: string;
 } {
   const isAbsence = normalizedTitleKey.includes('absence');
   const isLowScore
@@ -114,10 +114,10 @@ function getNotificationIconConfig(normalizedTitleKey: string): {
       || normalizedTitleKey.includes('low-score');
 
   if (isAbsence)
-    return { name: 'alert-circle', color: '#FF5B4A', bgClass: 'bg-[#FFE1DD]' };
+    return { name: 'alert-circle', color: colors.semantic.absent, backgroundColor: colors.semantic.absentSoft };
   if (isLowScore)
-    return { name: 'trending-down', color: '#FFB020', bgClass: 'bg-[#FFF0D5]' };
-  return { name: 'notifications', color: '#22C572', bgClass: 'bg-[#EDFBF3]' };
+    return { name: 'trending-down', color: colors.semantic.excused, backgroundColor: colors.semantic.excusedSoft };
+  return { name: 'notifications', color: colors.brand.primary, backgroundColor: colors.semantic.presentSoft };
 }
 
 function useNotificationContent(notification: Notification): { title: string; body: string } {
@@ -202,7 +202,10 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
           ? { backgroundColor: colors.neutral.card, borderWidth: 1, borderColor: colors.neutral.rule }
           : { backgroundColor: colors.neutral.paper }}
       >
-        <View className={`size-12 items-center justify-center rounded-full ${iconConfig.bgClass} ${isRTL ? 'ms-3' : 'me-3'}`}>
+        <View
+          className={`size-12 items-center justify-center rounded-full ${isRTL ? 'ms-3' : 'me-3'}`}
+          style={{ backgroundColor: iconConfig.backgroundColor }}
+        >
           <Ionicons name={iconConfig.name} size={24} color={iconConfig.color} />
         </View>
 

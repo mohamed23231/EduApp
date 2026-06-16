@@ -51,10 +51,10 @@ export function RatingInput({ value, onChange, disabled = false }: RatingInputPr
       style={[styles.stepButton, disabled && styles.stepButtonDisabled]}
       onPress={handleDecrement}
       disabled={disabled}
-      accessibilityLabel="Decrease rating"
+      accessibilityLabel={t('teacher.attendance.decreaseRating')}
       accessibilityRole="button"
     >
-      <Ionicons name="remove" size={20} color={disabled ? '#D1D5DB' : '#6B7280'} />
+      <Ionicons name="remove" size={20} color={disabled ? colors.neutral.border : colors.neutral.inkMuted} />
     </Pressable>
   );
 
@@ -63,10 +63,10 @@ export function RatingInput({ value, onChange, disabled = false }: RatingInputPr
       style={[styles.stepButton, disabled && styles.stepButtonDisabled]}
       onPress={handleIncrement}
       disabled={disabled || value === 10}
-      accessibilityLabel="Increase rating"
+      accessibilityLabel={t('teacher.attendance.increaseRating')}
       accessibilityRole="button"
     >
-      <Ionicons name="add" size={20} color={disabled || value === 10 ? '#D1D5DB' : '#6B7280'} />
+      <Ionicons name="add" size={20} color={disabled || value === 10 ? colors.neutral.border : colors.neutral.inkMuted} />
     </Pressable>
   );
 
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#6B7280',
+    color: colors.neutral.inkMuted,
     marginBottom: 6,
   },
   stepper: {
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.neutral.rule,
     backgroundColor: colors.neutral.paper,
     alignItems: 'center',
     justifyContent: 'center',
@@ -124,15 +124,15 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+    borderColor: colors.neutral.rule,
+    backgroundColor: colors.neutral.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
   valueText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.neutral.ink,
   },
   placeholderText: {
     color: colors.neutral.dim,

@@ -9,7 +9,7 @@ import type { TFunction } from 'i18next';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ErrorState, Skeleton, Text } from '@/components/ui';
@@ -135,22 +135,22 @@ function LanguageToggle() {
         style={{ backgroundColor: colors.neutral.paper }}
       >
         <View className="rounded-lg px-3.5 py-1.5" style={!isArabic ? { backgroundColor: colors.neutral.ink } : undefined}>
-          <Text className="text-body font-semibold" style={{ color: !isArabic ? '#fff' : colors.neutral.inkMuted }}>EN</Text>
+          <Text className="text-body font-semibold" style={{ color: !isArabic ? colors.neutral.white : colors.neutral.inkMuted }}>EN</Text>
         </View>
         <View className="rounded-lg px-3.5 py-1.5" style={isArabic ? { backgroundColor: colors.neutral.ink } : undefined}>
-          <Text className="text-body font-semibold" style={{ color: isArabic ? '#fff' : colors.neutral.inkMuted }}>عربي</Text>
+          <Text className="text-body font-semibold" style={{ color: isArabic ? colors.neutral.white : colors.neutral.inkMuted }}>عربي</Text>
         </View>
       </TouchableOpacity>
     </View>
   );
 }
 
-function SettingsRow({ icon, label, right }: { icon: string; label: string; right: React.ReactNode }) {
+function SettingsRow({ icon, label, right }: { icon: keyof typeof Ionicons.glyphMap; label: string; right: React.ReactNode }) {
   return (
     <View className="flex-row items-center justify-between px-4 py-3.5">
       <View className="flex-1 flex-row items-center">
         <View className="me-3 size-8 items-center justify-center rounded-lg" style={{ backgroundColor: colors.neutral.paper }}>
-          <Ionicons name={icon as any} size={18} color={colors.neutral.inkMuted} />
+          <Ionicons name={icon} size={18} color={colors.neutral.inkMuted} />
         </View>
         <Text className="text-body-lg text-ink" style={{ fontWeight: '500' }}>{label}</Text>
       </View>
@@ -167,7 +167,7 @@ function ProfileHeader({ initials, displayName, role }: { initials: string; disp
         className="mb-4 size-20 items-center justify-center rounded-full"
         style={{ backgroundColor: colors.neutral.ink }}
       >
-        <Text className="text-[28px] font-bold" style={{ color: '#fff' }}>{initials}</Text>
+        <Text className="text-[28px] font-bold" style={{ color: colors.neutral.white }}>{initials}</Text>
       </View>
       <Text className="mb-1 text-center text-title font-bold text-ink">{displayName}</Text>
       <View className="rounded-full px-3 py-1" style={{ backgroundColor: colors.brand.primary }}>
@@ -269,9 +269,8 @@ export function TeacherProfileScreen() {
               label={accountLabel}
               right={(
                 <Text
-                  className="shrink text-[14px] text-ink-muted"
+                  className="shrink text-end text-[14px] text-ink-muted"
                   numberOfLines={1}
-                  style={{ textAlign: I18nManager.isRTL ? 'left' : 'right' }}
                 >
                   {accountIdentifier}
                 </Text>

@@ -33,9 +33,9 @@ export function OtpCells({ value, onChange, isRTL, testID = 'otp-input' }: OtpCe
                 borderRadius: 14,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: filled ? 'rgba(34,197,114,0.18)' : 'rgba(255,255,255,0.06)',
+                backgroundColor: filled ? colors.auth.brandTint18 : colors.auth.fieldFill,
                 borderWidth: 1.5,
-                borderColor: filled ? colors.brand.primary : 'rgba(255,255,255,0.15)',
+                borderColor: filled ? colors.brand.primary : colors.auth.fieldBorderStrong,
               }}
             >
               <Text style={{ color: colors.neutral.white, fontSize: 26, fontWeight: '700' }}>

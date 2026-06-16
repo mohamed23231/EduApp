@@ -83,7 +83,7 @@ function StatusChip({ status, compact = false, dark = false, testID, accessibili
       }}
     >
       {style.showDot && (
-        <Dot size={6} color="#FFFFFF" pulse testID={testID ? `${testID}-dot` : undefined} />
+        <Dot size={6} color={colors.neutral.white} pulse testID={testID ? `${testID}-dot` : undefined} />
       )}
       <Text
         style={{

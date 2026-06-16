@@ -74,7 +74,7 @@ export function useGoogleLogin(setError: (msg: string | null) => void) {
           const prefillEmail = response.data?.prefillEmail ?? '';
           if (prefillEmail)
             setOnboardingContext({ email: prefillEmail });
-          router.push({ pathname: AppRoute.auth.signup as never, params: { prefillEmail, idToken } });
+          router.push({ pathname: AppRoute.auth.signup, params: { prefillEmail, idToken } });
           return;
         }
         if (!response.success || !response.data) {

@@ -39,10 +39,10 @@ type ConfirmSheetProps = {
   variant?: LegacyVariant;
 };
 
-const INTENT_COLOR: Record<ConfirmIntent, string> = {
-  routine: colors.neutral.ink,
-  reversible: colors.semantic.excused,
-  destructive: colors.semantic.absent,
+const INTENT_STYLE: Record<ConfirmIntent, { backgroundColor: string; textClassName: string }> = {
+  routine: { backgroundColor: colors.neutral.ink, textClassName: 'text-white' },
+  reversible: { backgroundColor: colors.semantic.excused, textClassName: 'text-excused-ink' },
+  destructive: { backgroundColor: colors.semantic.absent, textClassName: 'text-white' },
 };
 
 function resolveIntent(intent?: ConfirmIntent, variant?: LegacyVariant): ConfirmIntent {
@@ -67,7 +67,7 @@ export function ConfirmSheet({
 }: ConfirmSheetProps) {
   const { t } = useTranslation();
   const resolvedIntent = resolveIntent(intent, variant);
-  const confirmColor = INTENT_COLOR[resolvedIntent];
+  const confirmStyle = INTENT_STYLE[resolvedIntent];
 
   return (
     <Modal ref={ref} snapPoints={['38%']} title={title}>
@@ -75,15 +75,16 @@ export function ConfirmSheet({
         <Text style={styles.message}>{message}</Text>
         <View style={styles.buttons}>
           <Button
-            label={confirmLabel ?? t('teacher.common.confirm')}
+            label={confirmLabel ?? t('common.confirm')}
             onPress={onConfirm}
             loading={isLoading}
             variant="default"
-            style={[styles.btn, { backgroundColor: confirmColor }]}
+            style={[styles.btn, { backgroundColor: confirmStyle.backgroundColor }]}
+            textClassName={confirmStyle.textClassName}
             testID={`confirm-sheet-confirm-${resolvedIntent}`}
           />
           <Button
-            label={cancelLabel ?? t('teacher.common.cancel')}
+            label={cancelLabel ?? t('common.cancel')}
             onPress={onCancel}
             variant="outline"
             style={styles.btn}

@@ -13,6 +13,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { AppRoute } from '@/core/navigation/routes';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { ContextSwitcher } from '@/modules/organization/shared/components/context-switcher';
@@ -94,7 +95,7 @@ export function DashboardScreen() {
       )}
       <Animated.View entering={FadeInDown.delay(180).duration(350)}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="today-outline" size={14} color="#6B7280" />
+          <Ionicons name="today-outline" size={14} color={colors.neutral.inkMuted} />
           <Text style={styles.sectionTitle}>{t('teacher.dashboard.sessionsTitle')}</Text>
         </View>
       </Animated.View>
@@ -106,7 +107,7 @@ export function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F0' },
+  container: { flex: 1, backgroundColor: colors.neutral.paper },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#6B7280',
+    color: colors.neutral.inkMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },

@@ -98,9 +98,20 @@ export function NotificationCenterScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchNotifications(true);
-    setRefreshing(false);
-  }, [fetchNotifications]);
+    try {
+      await fetchNotifications(true);
+    }
+    catch (err) {
+      console.error('Failed to refresh notifications:', err);
+      toast.show({
+        kind: 'error',
+        message: t('parent.notifications.refreshError', 'Could not refresh notifications'),
+      });
+    }
+    finally {
+      setRefreshing(false);
+    }
+  }, [fetchNotifications, toast, t]);
 
   const groupedNotifications = useMemo(
     () => buildNotificationSections(notifications, t),

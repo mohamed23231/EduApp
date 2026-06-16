@@ -55,9 +55,9 @@ type ConfirmModalProps = {
 };
 
 const VARIANT_COLORS: Record<ConfirmModalVariant, { bg: string; text: string }> = {
-  default: { bg: tokens.neutral.ink, text: '#FFFFFF' },
-  destructive: { bg: tokens.semantic.absent, text: '#FFFFFF' },
-  success: { bg: tokens.semantic.present, text: '#FFFFFF' },
+  default: { bg: tokens.neutral.ink, text: tokens.neutral.white },
+  destructive: { bg: tokens.semantic.absent, text: tokens.neutral.white },
+  success: { bg: tokens.semantic.present, text: tokens.neutral.white },
 };
 
 export function ConfirmModal({
@@ -154,20 +154,20 @@ export function ConfirmModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: tokens.overlay.modal,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.neutral.card,
     borderRadius: 20,
     paddingTop: 28,
     paddingBottom: 20,
     paddingHorizontal: 24,
     width: '100%',
     maxWidth: 340,
-    shadowColor: '#000',
+    shadowColor: tokens.neutral.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 24,
@@ -176,13 +176,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: tokens.neutral.ink,
     textAlign: 'center',
     marginBottom: 8,
   },
   message: {
     fontSize: 15,
-    color: '#6B7280',
+    color: tokens.neutral.inkMuted,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 4,
@@ -198,12 +198,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: tokens.neutral.paper,
   },
   cancelLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
+    color: tokens.neutral.inkSoft,
   },
   confirmButton: {
     flex: 1,

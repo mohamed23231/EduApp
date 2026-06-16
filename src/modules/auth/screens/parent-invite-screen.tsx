@@ -87,6 +87,7 @@ export default function ParentInviteScreen() {
   };
 
   React.useEffect(() => {
+    let cancelled = false;
     const validateInvite = async () => {
       if (!token) {
         setError(t('auth.invite.invalidToken'));
@@ -95,6 +96,8 @@ export default function ParentInviteScreen() {
       }
       try {
         const validation = await validateParentInvite(token);
+        if (cancelled)
+          return;
         setInviteValidation(validation);
         if (!validation.valid) {
           if (validation.expired)
@@ -106,14 +109,20 @@ export default function ParentInviteScreen() {
         }
       }
       catch (err: unknown) {
-        const message = err instanceof Error ? err.message : t('auth.invite.validationError');
-        setError(message || t('auth.invite.validationError'));
+        if (cancelled)
+          return;
+        console.error('[parent-invite] validation failed', err);
+        setError(getApiErrorMessage(err, t('auth.invite.validationError'), code => t(`auth.errors.${code}`, { defaultValue: '' })));
       }
       finally {
-        setIsValidating(false);
+        if (!cancelled)
+          setIsValidating(false);
       }
     };
     validateInvite();
+    return () => {
+      cancelled = true;
+    };
   }, [t, token]);
 
   return (

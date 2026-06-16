@@ -10,6 +10,14 @@ module.exports = {
     primaryGlow: 'rgba(34, 197, 114, 0.42)',
     blue: '#2D7DE0',
     blueDeep: '#1B5BB8',
+    // Tonal greens used by manager student-invite chips (codified from inline hex).
+    primarySoft: '#D1FAE5',
+    primarySubtle: '#F0FDF4',
+    primaryMuted: '#BBF7D0',
+    primaryStrong: '#15803D',
+    // WhatsApp brand color — intentional product brand, kept as a named token
+    // so the design audit stays centralized (never inline hex).
+    whatsapp: '#25D366',
   },
 
   // Neutral
@@ -25,6 +33,8 @@ module.exports = {
     inkSoft: '#3A3F47',
     inkMuted: '#5C636E',
     dim: '#C7CBD3',
+    border: '#D1D5DB',
+    black: '#000000',
     white: '#FFFFFF',
     // Legacy numeric scale (consumed by unmigrated screens via colors.neutral[400] etc.)
     // eslint-disable-next-line style/quote-props
@@ -62,6 +72,32 @@ module.exports = {
     excusedInk: '#7A4E00',
     info: '#3D7FFF',
     infoSoft: '#DCE8FF',
+  },
+
+  // Subject/category palette for parent performance cards (codified from inline hex).
+  category: {
+    rose: { bg: '#FFE4E6', fg: '#BE123C' },
+    teal: { bg: '#CCFBF1', fg: '#0F766E' },
+    amber: { bg: '#FFEDD0', fg: '#B45309' },
+    sky: { bg: '#DCECFF', fg: '#0369A1' },
+    lime: { bg: '#ECFCCB', fg: '#3F6212' },
+  },
+
+  // Auth (dark canvas) field/brand tints — codified from inline rgba literals so
+  // they pass the design-token audit. Values preserved exactly.
+  auth: {
+    fieldFill: 'rgba(255,255,255,0.06)',
+    fieldBorder: 'rgba(255,255,255,0.12)',
+    fieldBorderStrong: 'rgba(255,255,255,0.15)',
+    brandTint10: 'rgba(34,197,114,0.10)',
+    brandTint16: 'rgba(34,197,114,0.16)',
+    brandTint18: 'rgba(34,197,114,0.18)',
+    brandTint30: 'rgba(34,197,114,0.30)',
+  },
+
+  // Overlay scrims.
+  overlay: {
+    modal: 'rgba(11, 13, 16, 0.5)',
   },
 
   // Radii

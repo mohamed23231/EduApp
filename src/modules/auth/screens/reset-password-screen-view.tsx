@@ -25,6 +25,7 @@ import {
   PressButton,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
+import { AppRoute } from '@/core/navigation/routes';
 import { useSelectedLanguage } from '@/lib/i18n';
 import { AuthHero } from '../components/auth-hero';
 import { AuthTopBar } from '../components/auth-top-bar';
@@ -70,7 +71,7 @@ function ResetSuccessView({ t, onContinue }: { t: TFunction; onContinue: () => v
             width: 80,
             height: 80,
             borderRadius: 40,
-            backgroundColor: 'rgba(34,197,114,0.18)',
+            backgroundColor: colors.auth.brandTint18,
             borderWidth: 1.5,
             borderColor: colors.brand.primary,
             alignItems: 'center',
@@ -133,7 +134,7 @@ export function ResetPasswordView({
   const isRTL = language === 'ar';
 
   if (phoneResetSuccess || success) {
-    return <ResetSuccessView t={t} onContinue={() => router.replace('/login' as never)} />;
+    return <ResetSuccessView t={t} onContinue={() => router.replace(AppRoute.auth.login)} />;
   }
 
   const isPhoneFlow = !tokenData || resetMode === 'phone';
@@ -177,9 +178,9 @@ export function ResetPasswordView({
                             style={{
                               height: 50,
                               borderRadius: 14,
-                              backgroundColor: 'rgba(255,255,255,0.06)',
+                              backgroundColor: colors.auth.fieldFill,
                               borderWidth: 1.5,
-                              borderColor: 'rgba(255,255,255,0.12)',
+                              borderColor: colors.auth.fieldBorder,
                               alignItems: 'center',
                               justifyContent: 'center',
                               flexDirection: 'row',

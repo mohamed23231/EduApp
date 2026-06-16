@@ -35,9 +35,9 @@ const STATUS_CONFIG: Record<AttendanceStatus, {
   activeBg: string;
   activeText: string;
 }> = {
-  PRESENT: { icon: 'checkmark-circle', bg: '#FFFFFF', activeBg: colors.semantic.presentSoft, activeText: colors.semantic.presentInk },
-  ABSENT: { icon: 'close-circle', bg: '#FFFFFF', activeBg: colors.semantic.absentSoft, activeText: colors.semantic.absentInk },
-  EXCUSED: { icon: 'time', bg: '#FFFFFF', activeBg: colors.semantic.excusedSoft, activeText: colors.semantic.excusedInk },
+  PRESENT: { icon: 'checkmark-circle', bg: colors.neutral.card, activeBg: colors.semantic.presentSoft, activeText: colors.semantic.presentInk },
+  ABSENT: { icon: 'close-circle', bg: colors.neutral.card, activeBg: colors.semantic.absentSoft, activeText: colors.semantic.absentInk },
+  EXCUSED: { icon: 'time', bg: colors.neutral.card, activeBg: colors.semantic.excusedSoft, activeText: colors.semantic.excusedInk },
 };
 
 function getInitials(name: string): string {
@@ -208,20 +208,20 @@ export function AttendanceStatusControl({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderRadius: 14,
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: colors.neutral.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: '#F3F4F6', // TODO(token): #F3F4F6
   },
   containerUnmarked: {
     borderStyle: 'dashed',
-    borderColor: '#D1D5DB',
+    borderColor: colors.neutral.border,
   },
   header: {
     flexDirection: 'row',
@@ -239,20 +239,20 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.neutral.white,
   },
   studentName: {
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.neutral.ink,
   },
   unmarkedDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
+    borderColor: colors.neutral.border,
   },
   statusButtons: {
     flexDirection: 'row',
@@ -267,8 +267,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+    borderColor: colors.neutral.rule,
+    backgroundColor: colors.neutral.card,
   },
   statusButtonDisabled: {
     opacity: 0.5,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   statusButtonText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#6B7280',
+    color: colors.neutral.inkMuted,
   },
   excuseNoteInput: {
     marginTop: 12,

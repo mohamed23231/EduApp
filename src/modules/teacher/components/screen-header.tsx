@@ -6,6 +6,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
@@ -19,6 +20,7 @@ type ScreenHeaderProps = {
 };
 
 export function ScreenHeader({ title, onBack, right, titleTestID }: ScreenHeaderProps) {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const handleBack = () => {
@@ -37,7 +39,7 @@ export function ScreenHeader({ title, onBack, right, titleTestID }: ScreenHeader
         style={({ pressed }) => [styles.backBtn, pressed && styles.backBtnPressed]}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         accessibilityRole="button"
-        accessibilityLabel="Go back"
+        accessibilityLabel={t('teacher.common.back')}
       >
         <Ionicons
           name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'}

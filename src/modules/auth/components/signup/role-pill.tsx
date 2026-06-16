@@ -32,12 +32,12 @@ export function RolePill({ selected, label, iconName, onPress, testID }: RolePil
         borderRadius: 16,
         paddingHorizontal: 8,
         backgroundColor: selected
-          ? 'rgba(34,197,114,0.16)'
+          ? colors.auth.brandTint16
           : pressed
-            ? 'rgba(34,197,114,0.10)'
-            : 'rgba(255,255,255,0.06)',
+            ? colors.auth.brandTint10
+            : colors.auth.fieldFill,
         borderWidth: 1.5,
-        borderColor: selected ? colors.brand.primary : 'rgba(255,255,255,0.12)',
+        borderColor: selected ? colors.brand.primary : colors.auth.fieldBorder,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 4,

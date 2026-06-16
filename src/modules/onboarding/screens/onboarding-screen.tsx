@@ -179,8 +179,11 @@ export function OnboardingScreen() {
       }
       const validatedUser = await validateToken();
       const currentToken = getToken();
-      if (!currentToken)
-        throw new Error('Missing auth token after onboarding');
+      if (!currentToken) {
+        console.error('[OnboardingScreen] Missing auth token after onboarding');
+        setErrorMsg(t('auth.onboarding.genericError'));
+        return;
+      }
       signIn({ token: currentToken, user: validatedUser });
       clearOnboardingContext();
       clearDraftData();

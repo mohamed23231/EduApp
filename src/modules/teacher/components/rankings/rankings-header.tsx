@@ -4,7 +4,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { I18nManager, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 
@@ -38,7 +38,7 @@ export function RankingsHero({ subject, ratedCount, totalCount, avg }: HeroCardP
         style={{
           position: 'absolute',
           top: -40,
-          [I18nManager.isRTL ? 'left' : 'right']: -40,
+          end: -40,
           width: 160,
           height: 160,
           borderRadius: 999,
@@ -54,12 +54,13 @@ export function RankingsHero({ subject, ratedCount, totalCount, avg }: HeroCardP
       </Text>
       <View className="flex-row items-baseline gap-3">
         <View>
-          <Text className="text-[42px] leading-none font-bold" style={{ color: '#fff' }}>{avg}</Text>
+          <Text className="text-[42px] leading-none font-bold" style={{ color: colors.neutral.white }}>{avg}</Text>
           <Text className="text-body font-semibold" style={{ color: colors.neutral.dim }}>{t('teacher.rankings.outOfAvg', '/10 avg')}</Text>
         </View>
+        {/* TODO(token): rgba(255,255,255,0.15) */}
         <View className="h-9 w-px" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />
         <View>
-          <Text className="text-headline font-bold" style={{ color: '#fff' }}>
+          <Text className="text-headline font-bold" style={{ color: colors.neutral.white }}>
             {ratedCount}
             <Text className="text-[14px]" style={{ color: colors.neutral.dim }}>
               /

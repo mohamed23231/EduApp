@@ -191,7 +191,7 @@ function StudentListSection() {
   const handleWhatsApp = async () => {
     if (!selectedStudent)
       return;
-    const message = `${selectedStudent.name} - ${selectedStudent.connectionCode}\n${APP_DOWNLOAD_URL}`;
+    const message = t('manager.whatsapp.inviteMessage', { name: selectedStudent.name, code: selectedStudent.connectionCode, url: APP_DOWNLOAD_URL });
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     if (await Linking.canOpenURL(url)) {
       await Linking.openURL(url);
@@ -375,13 +375,13 @@ function StudentListSection() {
                   paddingHorizontal: 14,
                   paddingVertical: 8,
                   borderRadius: 10,
-                  backgroundColor: pressed ? '#D1FAE5' : '#F0FDF4',
+                  backgroundColor: pressed ? colors.brand.primarySoft : colors.brand.primarySubtle,
                   borderWidth: 1,
-                  borderColor: '#BBF7D0',
+                  borderColor: colors.brand.primaryMuted,
                 })}
               >
-                <Ionicons name="logo-whatsapp" size={14} color="#25D366" />
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#15803D' }}>
+                <Ionicons name="logo-whatsapp" size={14} color={colors.brand.whatsapp} />
+                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.brand.primaryStrong }}>
                   {t('manager.whatsapp.share', { defaultValue: 'WhatsApp' })}
                 </Text>
               </Pressable>

@@ -263,7 +263,7 @@ function TodaySessions({
   return (
     <>
       <View style={styles.sectionHeader}>
-        <Ionicons name="today-outline" size={14} color="#6B7280" />
+        <Ionicons name="today-outline" size={14} color={colors.neutral.inkMuted} />
         <Text style={styles.sectionTitle}>
           {t('manager.dashboard.todayTitle', { defaultValue: 'Today\'s sessions' })}
         </Text>
@@ -276,7 +276,7 @@ function TodaySessions({
       {todayInstances.length === 0
         ? (
             <View style={styles.emptyBox}>
-              <Ionicons name="calendar-outline" size={32} color="#D1D5DB" />
+              <Ionicons name="calendar-outline" size={32} color={colors.neutral.border} />
               <Text style={styles.emptyText}>
                 {t('manager.dashboard.noSessions', { defaultValue: 'No sessions scheduled for today yet.' })}
               </Text>
@@ -614,7 +614,7 @@ export function DashboardScreen() {
             onPress={() => { void Linking.openURL(SUPPORT_WHATSAPP_URL); }}
             style={{ padding: 14, borderRadius: 12, backgroundColor: colors.brand.primary }}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.trial.contactSupport', { defaultValue: 'Contact support' })}
             </Text>
           </Pressable>
@@ -631,7 +631,7 @@ export function DashboardScreen() {
             onPress={handleCloseConfirm}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.semantic.absentSoft : colors.semantic.absent })}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' })}
             </Text>
           </Pressable>
@@ -741,7 +741,7 @@ const styles = {
     overflow: 'hidden',
     borderWidth: 0.5,
     borderColor: colors.neutral.rule,
-    shadowColor: '#000',
+    shadowColor: colors.neutral.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,

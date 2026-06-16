@@ -206,6 +206,8 @@ export function PhoneResetPasswordForm({
                   onPress={() => setShowPassword(s => !s)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   style={{ marginStart: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(showPassword ? 'auth.login.hidePassword' : 'auth.login.showPassword')}
                 >
                   <Icon
                     name={showPassword ? 'eyeOff' : 'eye'}

@@ -53,7 +53,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
   const { t } = useTranslation();
 
   const onBlur = React.useCallback(
-    (e: any) => {
+    (e: Parameters<NonNullable<TextInputProps['onBlur']>>[0]) => {
       setIsFocussed(false);
       onBlurProp?.(e);
     },
@@ -61,7 +61,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
   );
 
   const onFocus = React.useCallback(
-    (e: any) => {
+    (e: Parameters<NonNullable<TextInputProps['onFocus']>>[0]) => {
       setIsFocussed(true);
       onFocusProp?.(e);
     },
@@ -95,7 +95,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
         {...inputProps}
         style={StyleSheet.flatten([
           { writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' },
-          { textAlign: I18nManager.isRTL ? 'right' : 'left' },
+          { textAlign: 'auto' },
           inputProps.style,
         ])}
       />

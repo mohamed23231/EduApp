@@ -1,4 +1,10 @@
 {
+  "admin": {
+    "dashboard": {
+      "subtitle": "Scaffolded route for admin production flows.",
+      "title": "Admin Dashboard"
+    }
+  },
   "auth": {
     "common": {
       "optional": "optional"
@@ -191,6 +197,7 @@
     "confirm": "Confirm",
     "errorTitle": "Something went wrong",
     "goBack": "Go back",
+    "goToLogin": "Go to Login",
     "language": "Language",
     "offline": "You're offline"
   },
@@ -317,7 +324,9 @@
       "quickAddStudent": "Add student",
       "quickInvite": "Invite",
       "quickNewSession": "New session",
+      "sessionClosed": "Session closed — absent students marked.",
       "sessionDuration": "{{minutes}} min",
+      "sessionStarted": "Session started.",
       "sessionStudents": "{{count}} students",
       "sessionStudents_few": "{{count}} students",
       "sessionStudents_many": "{{count}} students",
@@ -335,7 +344,8 @@
       },
       "title": "Manager dashboard",
       "todayTitle": "Today's sessions",
-      "viewAll": "View all"
+      "viewAll": "View all",
+      "viewAttendance": "View"
     },
     "days": {
       "fri": "Fri",
@@ -418,6 +428,7 @@
         "ratingChip": "Rate {{name}} with score {{score}}",
         "statusChip": "Mark {{name}} as {{status}}"
       },
+      "actionError": "This action could not be completed. Please try again.",
       "attendanceError": "Could not save attendance right now.",
       "attendanceTitle": "Attendance",
       "close": "Close session",
@@ -550,6 +561,8 @@
       }
     },
     "settings": {
+      "errorLoading": "Unable to load organization settings.",
+      "errorRetry": "Retry",
       "fields": {
         "address": "Address",
         "email": "Email",
@@ -753,6 +766,7 @@
     "whatsapp": {
       "copiedBody": "WhatsApp is unavailable, so the message was copied.",
       "copiedTitle": "Copied",
+      "inviteMessage": "{{name}} - {{code}}\n{{url}}",
       "share": "Share via WhatsApp"
     },
     "wizard": {
@@ -920,6 +934,7 @@
       "openSettings": "Open Settings",
       "pushDisabled": "Push notifications are off. In-app notifications are still active.",
       "pushUnsupported": "Push notifications are not available on simulator builds.",
+      "refreshError": "Could not refresh notifications",
       "thisWeek": "This Week",
       "time": {
         "daysAgo_few": "{{count}}d ago",
@@ -1039,6 +1054,10 @@
       "title": "Students",
       "unlinkedBadge": "Unlinked"
     },
+    "students": {
+      "avatarNotSelected": "{{name}}, not selected",
+      "avatarSelected": "{{name}}, selected"
+    },
     "tabs": {
       "dashboard": "Home",
       "inbox": "Inbox",
@@ -1082,6 +1101,12 @@
     "pending": "Pending",
     "present": "Present"
   },
+  "superAdmin": {
+    "dashboard": {
+      "subtitle": "Scaffolded route for super admin production flows.",
+      "title": "Super Admin Dashboard"
+    }
+  },
   "teacher": {
     "attendance": {
       "absent": "Absent",
@@ -1112,6 +1137,7 @@
       "batchRatingTip": "You can still adjust individual ratings after applying",
       "clearRating": "Clear",
       "conflictError": "One or more records were already submitted.",
+      "decreaseRating": "Decrease rating",
       "emptyMessage": "No students assigned to this session.",
       "emptyTitle": "No students assigned",
       "enterRating": "Enter Rating (0-10)",
@@ -1119,6 +1145,7 @@
       "excuseNote": "Reason",
       "excused": "Excused",
       "excusedLabel": "Mark Excused",
+      "increaseRating": "Increase rating",
       "markAllPresent": "Mark All Present",
       "noRating": "No rating",
       "noSearchResults": "No students found",

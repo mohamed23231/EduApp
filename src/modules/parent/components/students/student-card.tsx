@@ -38,7 +38,7 @@ export function StudentCard({ student, onPress, isRTL, attendanceLabel, unlinked
         borderWidth: 1.5,
         borderColor: isUnlinked ? colors.semantic.excused : colors.neutral.rule,
         padding: 14,
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         alignItems: 'center',
         gap: 12,
         opacity: pressed ? 0.9 : isUnlinked ? 0.7 : 1,
@@ -46,7 +46,7 @@ export function StudentCard({ student, onPress, isRTL, attendanceLabel, unlinked
     >
       <Monogram name={student.fullName} tone={tone} size={48} />
       <View style={{ flex: 1, gap: 4 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
           <Text
             style={{
               flexShrink: 1,
