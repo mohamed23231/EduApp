@@ -38,10 +38,15 @@ module.exports = {
   // measured baseline so coverage can never regress; raise them as batches add
   // tests. NOTE: global mobile coverage is ~16% (large untested screen files),
   // so reaching the 80% project target is a separate test-backfill track, not
-  // part of the UI restyle. The State Kit primitives in src/components/ui are
-  // already 80–100% covered and must stay green per batch.
+  // part of the UI restyle.
+  //
+  // The shared UI primitives in src/components/ui carry the highest test
+  // density (State Kit primitives 80–100%; directory aggregate ~58% lines).
+  // A path-specific floor pins that directory so a future PR cannot silently
+  // delete its tests and drop it toward 0% while the global floor still passes.
   coverageThreshold: {
-    global: { lines: 15, statements: 15, functions: 14, branches: 15 },
+    'global': { lines: 15, statements: 15, functions: 14, branches: 15 },
+    './src/components/ui/': { lines: 52, statements: 52, functions: 42, branches: 50 },
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

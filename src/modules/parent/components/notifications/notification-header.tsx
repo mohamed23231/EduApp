@@ -68,7 +68,11 @@ export function NotificationHeader({
             </Pressable>
           )
         : null}
-      <Text className="flex-1 text-xl font-bold" style={{ textAlign: isRTL ? 'right' : 'left', color: colors.neutral.ink }}>
+      <Text
+        testID="notification-header-title"
+        className="flex-1 text-xl font-bold"
+        style={{ textAlign: isRTL ? 'right' : 'left', color: colors.neutral.ink }}
+      >
         {t('parent.notifications.title', 'Notifications')}
       </Text>
       {onMarkAllAsRead

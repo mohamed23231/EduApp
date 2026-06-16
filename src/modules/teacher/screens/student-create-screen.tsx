@@ -134,7 +134,7 @@ export function StudentCreateScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
-      <ScreenHeader title={t('teacher.students.createTitle')} />
+      <ScreenHeader title={t('teacher.students.createTitle')} titleTestID="student-create-screen-title" />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

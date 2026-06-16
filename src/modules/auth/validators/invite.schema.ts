@@ -6,5 +6,6 @@ export const inviteAcceptSchema = z.object({
     .min(1, 'auth.invite.validation.fullNameRequired'),
   password: z
     .string({ message: 'auth.invite.validation.passwordRequired' })
+    .min(1, 'auth.invite.validation.passwordRequired')
     .min(8, 'auth.invite.validation.passwordMinLength'),
 });

@@ -14,9 +14,11 @@ type ScreenHeaderProps = {
   title: string;
   onBack?: () => void;
   right?: React.ReactNode;
+  /** Stable, locale-independent anchor for the title (E2E). */
+  titleTestID?: string;
 };
 
-export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
+export function ScreenHeader({ title, onBack, right, titleTestID }: ScreenHeaderProps) {
   const router = useRouter();
 
   const handleBack = () => {
@@ -44,7 +46,7 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
         />
       </Pressable>
 
-      <Text style={styles.title} numberOfLines={1}>
+      <Text testID={titleTestID} style={styles.title} numberOfLines={1}>
         {title}
       </Text>
 

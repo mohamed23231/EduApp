@@ -18,12 +18,10 @@ tags:
     id: parent-tab-notifications
 
 # --- Stable anchor: NotificationHeader title renders in ALL states (loading /
-#   empty / error / populated). It carries no testID yet, so we anchor on the
-#   always-present title text to prove the Notifications screen rendered.
-# TODO(testid): notification-header-title — add a testID to the title Text in
-#   notification-header.tsx:71 so this anchor is locale-independent.
+#   empty / error / populated). Anchored on a locale-independent testID so the
+#   flow passes on Arabic (RTL) devices, not just English.
 - assertVisible:
-    text: Notifications # parent.notifications.title (notification-header.tsx:72)
+    id: notification-header-title # notification-header.tsx
     timeout: 10000
 
 # --- One of three states renders. Anchor on whichever is present. ---
@@ -47,7 +45,7 @@ tags:
 
 # TODO(testid): parent-notification-item-{id} — NotificationListView rows expose
 #   no per-item testID, so "tap a notification -> deep link" is not driveable.
-#   Anchor on the screen title to confirm we're on the right screen:
+#   Anchor on the screen title testID to confirm we're on the right screen:
 - assertVisible:
-    text: Notifications # parent.notifications.title
+    id: notification-header-title # parent.notifications.title
     optional: true
