@@ -50,7 +50,13 @@ export function useSessionActions(refetchSessions: () => Promise<void>) {
       const updated = await endSession(pendingEndId);
       updateSessionState(pendingEndId, updated.state);
       Burnt.toast({ title: t('teacher.sessions.endSessionSuccess'), preset: 'done', haptic: 'success' });
-      refetchSessions();
+      try {
+        await refetchSessions();
+      }
+      catch (refetchErr) {
+        // Non-critical: the session already ended; the list will reconcile on next focus.
+        console.error('[useSessionActions] refetch after end failed', refetchErr);
+      }
     }
     catch {
       Burnt.toast({ title: t('teacher.common.genericError'), preset: 'error', haptic: 'error' });
@@ -62,7 +68,7 @@ export function useSessionActions(refetchSessions: () => Promise<void>) {
   }, [pendingEndId, confirmEndModal, t, refetchSessions]);
 
   const handleMarkAttendance = useCallback(
-    (instanceId: string) => router.push(AppRoute.teacher.attendance(instanceId) as any),
+    (instanceId: string) => router.push(AppRoute.teacher.attendance(instanceId)),
     [router],
   );
 

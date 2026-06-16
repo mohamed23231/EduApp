@@ -81,6 +81,7 @@ jest.mock('expo-router', () => ({
 jest.mock('../hooks', () => ({
   useStudents: jest.fn(),
   useLinkStudent: jest.fn(),
+  useClearLinkErrors: jest.fn(),
   useStudentDetails: jest.fn(),
   useAttendance: jest.fn(),
   useAttendanceStats: jest.fn(),

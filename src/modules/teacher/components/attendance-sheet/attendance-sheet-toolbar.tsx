@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type AttendanceSheetToolbarProps = {
   showBatchRating: boolean;
@@ -25,24 +26,26 @@ export function AttendanceSheetToolbar({
     <>
       {showBatchRating && (
         <Pressable
-          className="mx-5 mt-3 flex-row items-center gap-2 rounded-[10px] border border-[#FCD34D] bg-[#FFFBEB] px-3.5 py-3"
+          className="mx-5 mt-3 flex-row items-center gap-2 rounded-[10px] border px-3.5 py-3"
+          style={{ borderColor: colors.semantic.excused, backgroundColor: colors.semantic.excusedSoft }}
           onPress={onBatchRatingPress}
         >
-          <Ionicons name="flash" size={18} color="#F59E0B" />
-          <Text className="flex-1 text-sm font-medium text-[#92400E]">
+          <Ionicons name="flash" size={18} color={colors.semantic.excused} />
+          <Text className="flex-1 text-sm font-medium" style={{ color: colors.semantic.excusedInk }}>
             {t('teacher.attendance.batchRatingButton', { count: unratedCount })}
           </Text>
-          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color="#6B7280" />
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={16} color={colors.neutral.inkMuted} />
         </Pressable>
       )}
 
       {showSearch && (
-        <View className="mx-5 mt-3 flex-row items-center gap-2.5 rounded-[10px] border border-[#E5E7EB] bg-white px-3.5 py-2.5">
-          <Ionicons name="search" size={18} color="#9CA3AF" />
+        <View className="mx-5 mt-3 flex-row items-center gap-2.5 rounded-[10px] border px-3.5 py-2.5" style={{ borderColor: colors.neutral.rule, backgroundColor: colors.neutral.card }}>
+          <Ionicons name="search" size={18} color={colors.neutral.dim} />
           <TextInput
-            className="flex-1 p-0 text-body-lg text-[#111827]"
+            className="flex-1 p-0 text-body-lg"
+            style={{ color: colors.neutral.ink }}
             placeholder={t('teacher.attendance.searchStudent')}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.neutral.dim}
             value={searchQuery}
             onChangeText={onSearchChange}
             autoCapitalize="none"
@@ -50,7 +53,7 @@ export function AttendanceSheetToolbar({
           />
           {searchQuery.length > 0 && (
             <Pressable onPress={() => onSearchChange('')}>
-              <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+              <Ionicons name="close-circle" size={18} color={colors.neutral.dim} />
             </Pressable>
           )}
         </View>

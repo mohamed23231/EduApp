@@ -7,6 +7,7 @@
 import type { AccessCode } from '../types';
 import * as ExpoClipboard from 'expo-clipboard';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Share } from 'react-native';
 import { useAuthStore } from '@/features/auth/use-auth-store';
 import { getAccessCode, regenerateAccessCode } from '../services';
@@ -26,6 +27,7 @@ type UseConnectionCodeResult = {
  * Hook to manage student connection code
  */
 export function useConnectionCode(studentId: string): UseConnectionCodeResult {
+  const { t } = useTranslation();
   const [code, setCode] = useState<AccessCode | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -40,13 +42,13 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
       setCode(accessCode);
     }
     catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch access code';
-      setError(errorMessage);
+      console.error('[useConnectionCode] fetch failed', err);
+      setError(t('teacher.connectionCode.fetchError', 'Failed to fetch access code'));
     }
     finally {
       setIsLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, t]);
 
   const regenerate = useCallback(async () => {
     try {
@@ -56,13 +58,13 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
       setCode(accessCode);
     }
     catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to regenerate access code';
-      setError(errorMessage);
+      console.error('[useConnectionCode] regenerate failed', err);
+      setError(t('teacher.connectionCode.regenerateError', 'Failed to regenerate access code'));
     }
     finally {
       setIsRegenerating(false);
     }
-  }, [studentId]);
+  }, [studentId, t]);
 
   const copyToClipboard = useCallback(async () => {
     if (!code) {
@@ -73,10 +75,10 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
       await ExpoClipboard.setStringAsync(code.code);
     }
     catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to copy to clipboard';
-      setError(errorMessage);
+      console.error('[useConnectionCode] copy failed', err);
+      setError(t('teacher.connectionCode.copyError', 'Failed to copy to clipboard'));
     }
-  }, [code]);
+  }, [code, t]);
 
   const share = useCallback(async () => {
     if (!code) {
@@ -84,23 +86,23 @@ export function useConnectionCode(studentId: string): UseConnectionCodeResult {
     }
 
     try {
-      await Share.share({
+      const result = await Share.share({
         message: code.code,
       });
-      // Track analytics on successful share
-      if (user?.id) {
+      // User dismissed the share sheet — not an error, skip analytics
+      if (result.action === Share.dismissedAction) {
+        return;
+      }
+      // Track analytics only on a confirmed share
+      if (result.action === Share.sharedAction && user?.id) {
         trackConnectionCodeShared(getTeacherIdHash(user.id), studentId);
       }
     }
     catch (err) {
-      // User cancelled sharing - not an error
-      if (err && typeof err === 'object' && 'message' in err && err.message === 'User did not share') {
-        return;
-      }
-      const errorMessage = err instanceof Error ? err.message : 'Failed to share access code';
-      setError(errorMessage);
+      console.error('[useConnectionCode] share failed', err);
+      setError(t('teacher.connectionCode.shareError', 'Failed to share access code'));
     }
-  }, [code, user, studentId]);
+  }, [code, user, studentId, t]);
 
   // Fetch code on mount
   useEffect(() => {

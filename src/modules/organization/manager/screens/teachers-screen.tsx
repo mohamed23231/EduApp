@@ -235,10 +235,15 @@ function TeachersList() {
     );
   };
 
-  const isRefreshing = membersQuery.isRefetching || invitationsQuery.isRefetching;
-  const onRefresh = useCallback(() => {
-    membersQuery.refetch();
-    invitationsQuery.refetch();
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await Promise.all([membersQuery.refetch(), invitationsQuery.refetch()]);
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
   }, [membersQuery, invitationsQuery]);
 
   if (membersQuery.isLoading) {
@@ -268,7 +273,7 @@ function TeachersList() {
     <>
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120, paddingTop: 4, gap: 8 }}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isManualRefresh} onRefresh={onRefresh} />}
       >
         {members.length === 0 && invitations.length === 0 && (
           <EmptyState

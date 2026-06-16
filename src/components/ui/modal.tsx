@@ -35,10 +35,12 @@ import type {
 } from '@gorhom/bottom-sheet';
 import { BottomSheetModal, useBottomSheet } from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import tokens from './colors';
 import { Text } from './text';
 
 type ModalProps = Omit<BottomSheetModalProps, 'children'> & {
@@ -50,7 +52,7 @@ type ModalRef = React.ForwardedRef<BottomSheetModal>;
 
 export function useModal() {
   const ref = React.useRef<BottomSheetModal>(null);
-  const present = React.useCallback((data?: any) => {
+  const present = React.useCallback((data?: Parameters<BottomSheetModal['present']>[0]) => {
     ref.current?.present(data);
   }, []);
   const dismiss = React.useCallback(() => {
@@ -62,6 +64,7 @@ export function useModal() {
 export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | number)[], title, detached = true, children, ...props }: ModalProps & { ref?: ModalRef }) {
   const modal = useModal();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const snapPoints = React.useMemo(() => _snapPoints, [_snapPoints]);
   const bottomInset = detached
     ? (insets.bottom === 0 ? 14 : insets.bottom)
@@ -78,13 +81,13 @@ export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | numb
         onPress={modal.dismiss}
         style={handleStyles.container}
         accessibilityRole="button"
-        accessibilityLabel="close"
+        accessibilityLabel={t('common.close', 'Close')}
         hitSlop={{ top: 10, bottom: 10, left: 40, right: 40 }}
       >
         <View style={handleStyles.notch} />
       </Pressable>
     ),
-    [modal.dismiss],
+    [modal.dismiss, t],
   );
 
   const renderHeader = React.useCallback(
@@ -146,7 +149,7 @@ export function renderBackdrop(props: BottomSheetBackdropProps) {
 const floatingStyles = StyleSheet.create({
   background: {
     borderRadius: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.neutral.card,
   },
   container: {
     marginHorizontal: 14,
@@ -157,16 +160,15 @@ const floatingStyles = StyleSheet.create({
 const handleStyles = StyleSheet.create({
   container: {
     position: 'absolute' as const,
-    left: '50%',
     top: -12,
+    alignSelf: 'center' as const,
     alignItems: 'center',
     justifyContent: 'center',
-    transform: [{ translateX: I18nManager.isRTL ? 20 : -20 }],
   },
   notch: {
     width: 40,
     height: 4,
-    backgroundColor: '#9CA3AF',
+    backgroundColor: tokens.neutral.dim,
     borderRadius: 32,
   },
   titleRow: {
@@ -177,7 +179,7 @@ const handleStyles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
+    color: tokens.neutral.ink,
     textAlign: 'center',
   },
 });

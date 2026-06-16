@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next';
 import type { Student } from '../../types';
 import type { SupportedLocale } from '@/lib/date';
 import * as React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { Icon, Monogram, useMonogramTone } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { formatCalendarDay, formatTime } from '@/lib/date';
@@ -13,15 +13,19 @@ export type ScheduleRowProps = {
   locale: SupportedLocale;
   isRTL: boolean;
   t: TFunction;
+  onPress: () => void;
 };
 
-export function ScheduleRow({ student, locale, isRTL, t }: ScheduleRowProps) {
+export function ScheduleRow({ student, locale, isRTL, t, onPress }: ScheduleRowProps) {
   const { data, isLoading } = useUpcomingSessions(student.id, 1);
   const tone = useMonogramTone(student.id);
   const next = data?.[0];
 
   return (
-    <View
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={student.fullName}
       style={{
         marginHorizontal: 16,
         marginBottom: 10,
@@ -30,7 +34,7 @@ export function ScheduleRow({ student, locale, isRTL, t }: ScheduleRowProps) {
         borderWidth: 1.5,
         borderColor: colors.neutral.rule,
         padding: 14,
-        flexDirection: 'row',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
         alignItems: 'center',
         gap: 12,
       }}
@@ -88,6 +92,6 @@ export function ScheduleRow({ student, locale, isRTL, t }: ScheduleRowProps) {
       {next
         ? <Icon name="arrowR" size={18} color={colors.neutral.inkMuted} />
         : null}
-    </View>
+    </Pressable>
   );
 }

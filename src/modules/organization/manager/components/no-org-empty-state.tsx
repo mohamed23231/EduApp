@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Button, SafeAreaView, Text, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
+import { AppRoute } from '@/core/navigation/routes';
 
 /**
  * Shared empty state shown on any manager tab when no organization exists yet.
@@ -11,12 +13,12 @@ export function NoOrgEmptyState() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB] px-6 py-8">
-      <View className="rounded-[28px] bg-[#2563EB] p-6">
-        <Text className="font-inter text-2xl font-semibold text-[#FFFFFF]">
+    <SafeAreaView className="flex-1 px-6 py-8" style={{ backgroundColor: colors.neutral.paper }}>
+      <View className="rounded-[28px] p-6" style={{ backgroundColor: colors.brand.primary }}>
+        <Text className="font-inter text-2xl font-semibold" style={{ color: colors.brand.primaryInk }}>
           {t('manager.common.noOrgTitle', { defaultValue: 'No organization yet' })}
         </Text>
-        <Text className="font-inter mt-2 text-base text-[#BFDBFE]">
+        <Text className="mt-2 font-inter text-base" style={{ color: colors.brand.primaryInk }}>
           {t('manager.common.noOrgCopy', {
             defaultValue: 'Create your first organization to get started.',
           })}
@@ -24,7 +26,7 @@ export function NoOrgEmptyState() {
         <Button
           className="mt-4"
           label={t('manager.setup.submit', { defaultValue: 'Create organization' })}
-          onPress={() => router.push('/(manager)/(tabs)/dashboard')}
+          onPress={() => router.push(AppRoute.manager.dashboard)}
         />
       </View>
     </SafeAreaView>

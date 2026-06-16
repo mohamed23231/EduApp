@@ -6,12 +6,12 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   View,
 } from 'react-native';
+import { useToast } from '@/components/ui/toast-host';
 import { UserRole } from '@/core/auth/roles';
 import { getHomeRouteForRole } from '@/core/auth/routing';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
@@ -20,6 +20,8 @@ import { setOnboardingContext, useAuthStore } from '@/features/auth/use-auth-sto
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 
 import { LoginForm } from '../components/login-form';
+import { useAuthErrorToast } from '../hooks/use-auth-error-toast';
+import { useGoogleLogin } from '../hooks/use-google-login';
 import { useLogin } from '../hooks/use-login';
 import { usePhoneLogin } from '../hooks/use-phone-login';
 import { googleAuthService } from '../services';
@@ -47,8 +49,11 @@ export function LoginScreen() {
   const { mutateAsync: login, isPending } = useLogin();
   const { mutateAsync: phoneLogin, isPending: isPhoneLoginPending } = usePhoneLogin();
   const { isGoogleSigninMobileEnabled, isForgotPasswordEnabled } = useFeatureFlags();
+  const toast = useToast();
+  const showAuthError = useAuthErrorToast();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+  const { handleGoogleSignIn, handleGoogleSignInError, isGoogleSigningIn }
+    = useGoogleLogin(setErrorMsg);
   const modeParam = Array.isArray(params.mode) ? params.mode[0] : params.mode;
   const phoneParam = Array.isArray(params.phone) ? params.phone[0] : params.phone;
   const initialMode = modeParam === 'phone' ? 'phone' : 'email';
@@ -116,98 +121,8 @@ export function LoginScreen() {
       }
     }
     catch (error) {
-      const msg = getApiErrorMessage(error, t('auth.login.genericError'));
-      setErrorMsg(msg);
+      showAuthError(error, 'login');
     }
-  };
-
-  const handleGoogleSignIn = async (idToken: string) => {
-    setErrorMsg(null);
-    setIsGoogleSigningIn(true);
-
-    try {
-      const response = await googleAuthService.googleLogin(idToken);
-
-      if (!response.success && response.code === 'AUTH_SIGNUP_REQUIRED') {
-        const prefillEmail = response.data?.prefillEmail ?? '';
-        if (prefillEmail) {
-          setOnboardingContext({ email: prefillEmail });
-        }
-        router.push({
-          pathname: AppRoute.auth.signup as any,
-          params: {
-            prefillEmail,
-            idToken,
-          },
-        });
-        return;
-      }
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || t('auth.login.genericError'));
-      }
-
-      const authUser = {
-        id: response.data.user.id,
-        email: response.data.user.email,
-        role: response.data.user.role as UserRole,
-        fullName: response.data.user.fullName,
-      };
-
-      if (response.data.onboardingRequired) {
-        const onboardingRole = getSignupRole(authUser.role);
-        if (onboardingRole === UserRole.MANAGER) {
-          setOnboardingContext({
-            email: authUser.email,
-            role: onboardingRole,
-            fullName: response.data.user.fullName,
-          });
-          signIn({
-            token: {
-              access: response.data.accessToken,
-              refresh: response.data.refreshToken,
-            },
-            user: null,
-          });
-          router.replace(AppRoute.manager.setup);
-          return;
-        }
-        setOnboardingContext({
-          email: authUser.email,
-          ...(onboardingRole ? { role: onboardingRole } : {}),
-        });
-        signIn({
-          token: {
-            access: response.data.accessToken,
-            refresh: response.data.refreshToken,
-          },
-          user: null,
-        });
-        router.replace(AppRoute.auth.onboarding);
-        return;
-      }
-
-      signIn({
-        token: {
-          access: response.data.accessToken,
-          refresh: response.data.refreshToken,
-        },
-        user: authUser,
-      });
-      router.replace(getHomeRouteForRole(authUser.role));
-    }
-    catch (error) {
-      const msg = getApiErrorMessage(error, t('auth.login.genericError'), code => t(`auth.errors.${code}`, { defaultValue: '' }));
-      setErrorMsg(msg);
-    }
-    finally {
-      setIsGoogleSigningIn(false);
-    }
-  };
-
-  const handleGoogleSignInError = (error: Error) => {
-    const msg = getApiErrorMessage(error, t('auth.login.genericError'), code => t(`auth.errors.${code}`, { defaultValue: '' }));
-    setErrorMsg(msg);
   };
 
   const handlePhoneLogin = async (values: { phone: string; password: string }) => {
@@ -261,56 +176,56 @@ export function LoginScreen() {
       }
     }
     catch (error) {
-      const msg = getApiErrorMessage(error, t('auth.login.genericError'));
-      setErrorMsg(msg);
+      showAuthError(error, 'login');
     }
   };
 
   const handleForgotPassword = async (email: string) => {
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
-      Alert.alert(
-        t('auth.login.forgotPassword'),
-        t('auth.login.forgotPasswordEmailRequired', 'Please enter your email first.'),
-      );
+      toast.show({
+        kind: 'info',
+        message: t('auth.login.forgotPasswordEmailRequired', 'Please enter your email first.'),
+      });
       return;
     }
 
     if (!isForgotPasswordEnabled) {
-      Alert.alert(
-        t('auth.login.forgotPassword'),
-        t('auth.login.forgotPasswordUnavailable', 'Forgot password is currently unavailable.'),
-      );
+      toast.show({
+        kind: 'info',
+        message: t('auth.login.forgotPasswordUnavailable', 'Forgot password is currently unavailable.'),
+      });
       return;
     }
 
     try {
       const response = await googleAuthService.forgotPassword(trimmedEmail);
-      Alert.alert(
-        t('auth.login.forgotPassword'),
-        response.message
-        || t('auth.login.forgotPasswordSent', 'If an account exists, a password reset email has been sent.'),
-      );
+      toast.show({
+        kind: 'success',
+        message:
+          response.message
+          || t('auth.login.forgotPasswordSent', 'If an account exists, a password reset email has been sent.'),
+      });
     }
     catch (error) {
       const msg = getApiErrorMessage(
         error,
         t('auth.login.forgotPasswordError', 'Unable to request password reset right now.'),
       );
-      Alert.alert(t('auth.login.forgotPassword'), msg);
+      toast.show({ kind: 'error', message: msg });
     }
   };
 
   const handlePhoneForgotPassword = () => {
     if (!isForgotPasswordEnabled) {
-      Alert.alert(
-        t('auth.login.forgotPassword'),
-        t('auth.login.forgotPasswordUnavailable', 'Forgot password is currently unavailable.'),
-      );
+      toast.show({
+        kind: 'info',
+        message: t('auth.login.forgotPasswordUnavailable', 'Forgot password is currently unavailable.'),
+      });
       return;
     }
 
-    router.push(AppRoute.auth.resetPassword as any);
+    router.push(AppRoute.auth.resetPassword);
   };
 
   return (

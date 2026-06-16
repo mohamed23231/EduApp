@@ -10,12 +10,13 @@ describe('emptyState', () => {
   it('renders with a scope', () => {
     render(<EmptyState testID="empty" scope="teacherNoSessions" />);
     expect(screen.getByTestId('empty')).toBeOnTheScreen();
-    expect(screen.getByText('No sessions yet')).toBeOnTheScreen();
+    // Scope defaults now resolve through i18n keys; the test t() mock echoes the key.
+    expect(screen.getByText('emptyState.teacherNoSessions_title')).toBeOnTheScreen();
   });
 
   it('renders with generic scope by default', () => {
     render(<EmptyState testID="empty" />);
-    expect(screen.getByText('Nothing here')).toBeOnTheScreen();
+    expect(screen.getByText('emptyState.generic_title')).toBeOnTheScreen();
   });
 
   it('renders custom title and body', () => {

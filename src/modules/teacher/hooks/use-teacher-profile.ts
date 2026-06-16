@@ -10,8 +10,9 @@
 import type { ProfileResponseDto } from '../types';
 import type { ApiSuccess } from '@/shared/types/api';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { client } from '@/lib/api/client';
-import { unwrapData } from '@/shared/services/api-utils';
+import { getApiErrorMessage, unwrapData } from '@/shared/services/api-utils';
 
 type UseTeacherProfileResult = {
   profile: ProfileResponseDto | null;
@@ -28,6 +29,7 @@ async function fetchTeacherProfile(): Promise<ProfileResponseDto> {
 }
 
 export function useTeacherProfile(): UseTeacherProfileResult {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<ProfileResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,12 +42,13 @@ export function useTeacherProfile(): UseTeacherProfileResult {
       setProfile(data);
     }
     catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load profile');
+      console.error('[useTeacherProfile] load failed', err);
+      setError(getApiErrorMessage(err, t('teacher.common.loadError', 'Failed to load. Please try again.')));
     }
     finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();

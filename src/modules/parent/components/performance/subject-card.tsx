@@ -12,13 +12,13 @@ export type SubjectCardProps = {
 };
 
 const TONE_BG: Record<string, { bg: string; fg: string }> = {
-  indigo: { bg: '#E0E7FF', fg: '#4338CA' },
-  rose: { bg: '#FFE4E6', fg: '#BE123C' },
-  teal: { bg: '#CCFBF1', fg: '#0F766E' },
-  amber: { bg: '#FFEDD0', fg: '#B45309' },
-  violet: { bg: '#EDE4FF', fg: '#6D28D9' },
-  sky: { bg: '#DCECFF', fg: '#0369A1' },
-  lime: { bg: '#ECFCCB', fg: '#3F6212' },
+  indigo: { bg: colors.semantic.infoSoft, fg: colors.semantic.info },
+  rose: colors.category.rose,
+  teal: colors.category.teal,
+  amber: colors.category.amber,
+  violet: { bg: colors.semantic.presentSoft, fg: colors.semantic.presentInk },
+  sky: colors.category.sky,
+  lime: colors.category.lime,
 };
 
 export function SubjectCard({ subject, isRTL, attendanceLabel, outOfTen }: SubjectCardProps) {

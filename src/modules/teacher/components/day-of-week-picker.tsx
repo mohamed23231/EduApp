@@ -7,6 +7,7 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type DayOfWeekPickerProps = {
   selectedDays: number[];
@@ -98,8 +99,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dayButtonSelected: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: colors.brand.primary,
+    borderColor: colors.brand.primary,
   },
   dayButtonRTL: {
     flexDirection: 'row-reverse',
@@ -110,6 +111,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   dayButtonTextSelected: {
-    color: '#FFFFFF',
+    color: colors.brand.primaryInk,
   },
 });

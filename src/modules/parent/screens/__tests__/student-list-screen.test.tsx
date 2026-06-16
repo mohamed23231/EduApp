@@ -3,12 +3,30 @@
  * Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5, 10.6
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import type { ReactElement } from 'react';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
+import { ThemeProvider } from '@/components/ui/theme';
 import { useAttendanceStats, useStudents } from '../../hooks';
 import { StudentListScreen } from '../student-list-screen';
+
+// The redesigned loading state renders Skeleton → useReducedMotion → useTheme,
+// which requires a ThemeProvider. Wrap every render in it and stub the uniwind
+// runtime hooks the provider reads (the UI barrel pulls in `withUniwind`).
+jest.mock('uniwind', () => {
+  const actual = jest.requireActual('uniwind');
+  return {
+    ...actual,
+    Uniwind: { ...actual.Uniwind, setTheme: jest.fn() },
+    useUniwind: jest.fn(() => ({ theme: 'light', hasAdaptiveThemes: true })),
+  };
+});
+
+function render(ui: ReactElement): ReturnType<typeof rtlRender> {
+  return rtlRender(<ThemeProvider>{ui}</ThemeProvider>);
+}
 
 // Mock dependencies
 jest.mock('expo-router');
@@ -129,6 +147,48 @@ describe('studentListScreen', () => {
       await waitFor(() => {
         expect(mockRouter.push).toHaveBeenCalledWith('/(parent)/students/1');
       });
+    });
+  });
+
+  describe('unlinked child treatment', () => {
+    it('should render an amber Unlinked badge for an unlinked child', () => {
+      (useStudents as jest.Mock).mockReturnValue({
+        data: [{ id: '1', fullName: 'John Doe', linkStatus: 'unlinked' }],
+        isLoading: false,
+        error: null,
+        refetch: jest.fn(),
+      });
+
+      render(<StudentListScreen />);
+
+      expect(screen.getByTestId('unlinked-badge')).toBeTruthy();
+      expect(screen.getByText('parent.studentList.unlinkedBadge')).toBeTruthy();
+    });
+
+    it('should NOT render the Unlinked badge for a linked child', () => {
+      (useStudents as jest.Mock).mockReturnValue({
+        data: [{ id: '1', fullName: 'John Doe', linkStatus: 'linked' }],
+        isLoading: false,
+        error: null,
+        refetch: jest.fn(),
+      });
+
+      render(<StudentListScreen />);
+
+      expect(screen.queryByTestId('unlinked-badge')).toBeNull();
+    });
+
+    it('should NOT render the Unlinked badge when linkStatus is undefined (legacy response)', () => {
+      (useStudents as jest.Mock).mockReturnValue({
+        data: [{ id: '1', fullName: 'John Doe' }],
+        isLoading: false,
+        error: null,
+        refetch: jest.fn(),
+      });
+
+      render(<StudentListScreen />);
+
+      expect(screen.queryByTestId('unlinked-badge')).toBeNull();
     });
   });
 

@@ -29,6 +29,7 @@ type UseStudentsResult = {
   setSearch: (search: string) => void;
   loadMore: () => void;
   refetch: () => void;
+  silentRefetch: () => void;
 };
 
 async function fetchStudentPage(params: {
@@ -115,25 +116,34 @@ function useStudentsLoaders(state: StudentsState) {
 
   // Fetch students when search changes
   useEffect(() => {
+    let cancelled = false;
     const fetchStudents = async () => {
       try {
         if (!hasFetchedOnce.current)
           setIsLoading(true);
         setError(null);
         const result = await fetchStudentPage({ page: 1, limit: DEFAULT_PAGE_SIZE, search: debouncedSearch });
+        if (cancelled)
+          return;
         setStudents(result.students);
         setPagination(result.pagination);
         setPage(1);
         hasFetchedOnce.current = true;
       }
       catch (err) {
+        if (cancelled)
+          return;
         setError(toErrorMessage(err, 'Failed to fetch students'));
       }
       finally {
-        setIsLoading(false);
+        if (!cancelled)
+          setIsLoading(false);
       }
     };
     fetchStudents();
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedSearch, hasFetchedOnce, setError, setIsLoading, setPage, setPagination, setStudents]);
 
   const loadMore = useCallback(async () => {
@@ -172,12 +182,27 @@ function useStudentsLoaders(state: StudentsState) {
     }
   }, [debouncedSearch, setError, setIsRefreshing, setPage, setPagination, setStudents]);
 
-  return { loadMore, refetch };
+  // Silent reload for focus/auto refetch — identical to refetch() but never toggles
+  // isRefreshing, so it cannot trigger the iOS RefreshControl spinner.
+  const silentRefetch = useCallback(async () => {
+    try {
+      setError(null);
+      const result = await fetchStudentPage({ page: 1, limit: DEFAULT_PAGE_SIZE, search: debouncedSearch });
+      setStudents(result.students);
+      setPagination(result.pagination);
+      setPage(1);
+    }
+    catch (err) {
+      setError(toErrorMessage(err, 'Failed to fetch students'));
+    }
+  }, [debouncedSearch, setError, setPage, setPagination, setStudents]);
+
+  return { loadMore, refetch, silentRefetch };
 }
 
 export function useStudents(): UseStudentsResult {
   const state = useStudentsState();
-  const { loadMore, refetch } = useStudentsLoaders(state);
+  const { loadMore, refetch, silentRefetch } = useStudentsLoaders(state);
   const { setSearchState } = state;
 
   const setSearch = useCallback((newSearch: string) => {
@@ -195,5 +220,6 @@ export function useStudents(): UseStudentsResult {
     setSearch,
     loadMore,
     refetch,
+    silentRefetch,
   };
 }

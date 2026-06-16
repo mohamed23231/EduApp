@@ -65,17 +65,14 @@ pnpm check-all              # All quality checks
 ### Colors
 | Token | Value | Usage |
 |---|---|---|
-| Primary (brand) | `#FF7B1A` | Orange accent |
-| Indigo | `#6366F1` / `#4F46E5` | Active tab, accent elements |
-| Blue | `#3B82F6` / `#2563EB` | Links, actions |
-| Success | `#22C55E` | Present status |
-| Danger | `#EF4444` | Absent status, errors |
-| Warning | `#F59E0B` | Excused status, warnings |
-| Gray | `#9CA3AF` | Not marked, tertiary text |
-| Text Primary | `#111827` | Headings, body text |
-| Text Secondary | `#6B7280` | Supporting text |
-| Surface | `#FFFFFF` | Cards, containers |
-| Background | `#F9FAFB` | Screen backgrounds |
+| Paper | `#F5F5F0` | Screen backgrounds (light surfaces) |
+| Ink | `#0B0D10` | Headings, body text, dark canvas |
+| Brand (green) | `#22C572` | CTA / brand accent (dark `#0B0D10` ink on top) |
+| Brand blue | `#2D7DE0` | Gradient pair, links |
+| Present | `#00C2A0` | Present status |
+| Absent | `#FF5B4A` | Absent status, errors |
+| Excused | `#FFB020` | Excused status, warnings |
+| Card | `#FFFFFF` | Cards, containers |
 
 Color definitions: `src/components/ui/colors.js` and `src/components/ui/color-utils.ts`
 

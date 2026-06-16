@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Modal,
   Pressable,
@@ -32,6 +33,7 @@ import Animated, {
   ZoomOut,
 } from 'react-native-reanimated';
 
+import tokens from './colors';
 import { Text } from './text';
 
 type ConfirmModalVariant = 'default' | 'destructive' | 'success';
@@ -53,17 +55,17 @@ type ConfirmModalProps = {
 };
 
 const VARIANT_COLORS: Record<ConfirmModalVariant, { bg: string; text: string }> = {
-  default: { bg: '#111827', text: '#FFFFFF' },
-  destructive: { bg: '#DC2626', text: '#FFFFFF' },
-  success: { bg: '#16A34A', text: '#FFFFFF' },
+  default: { bg: tokens.neutral.ink, text: tokens.neutral.white },
+  destructive: { bg: tokens.semantic.absent, text: tokens.neutral.white },
+  success: { bg: tokens.semantic.present, text: tokens.neutral.white },
 };
 
 export function ConfirmModal({
   visible,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'default',
   loading = false,
   onConfirm,
@@ -71,7 +73,10 @@ export function ConfirmModal({
   hideCancelButton = false,
   disableAnimations = false,
 }: ConfirmModalProps) {
+  const { t } = useTranslation();
   const colors = VARIANT_COLORS[variant];
+  const resolvedConfirmLabel = confirmLabel ?? t('common.confirm', 'Confirm');
+  const resolvedCancelLabel = cancelLabel ?? t('common.cancel', 'Cancel');
 
   const content = (
     <>
@@ -84,8 +89,9 @@ export function ConfirmModal({
             style={styles.cancelButton}
             onPress={onCancel}
             disabled={loading}
+            accessibilityRole="button"
           >
-            <Text style={styles.cancelLabel}>{cancelLabel}</Text>
+            <Text style={styles.cancelLabel}>{resolvedCancelLabel}</Text>
           </Pressable>
         )}
         <Pressable
@@ -96,9 +102,10 @@ export function ConfirmModal({
           ]}
           onPress={onConfirm}
           disabled={loading}
+          accessibilityRole="button"
         >
           <Text style={[styles.confirmLabel, { color: colors.text }]}>
-            {loading ? '...' : confirmLabel}
+            {loading ? '...' : resolvedConfirmLabel}
           </Text>
         </Pressable>
       </View>
@@ -117,7 +124,7 @@ export function ConfirmModal({
         ? (
             <View style={styles.backdrop}>
               <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
-              <View style={styles.card}>
+              <View style={styles.card} accessibilityViewIsModal>
                 {content}
               </View>
             </View>
@@ -134,6 +141,7 @@ export function ConfirmModal({
                 entering={ZoomIn.duration(250).springify().damping(18)}
                 exiting={ZoomOut.duration(150)}
                 style={styles.card}
+                accessibilityViewIsModal
               >
                 {content}
               </Animated.View>
@@ -146,20 +154,20 @@ export function ConfirmModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: tokens.overlay.modal,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.neutral.card,
     borderRadius: 20,
     paddingTop: 28,
     paddingBottom: 20,
     paddingHorizontal: 24,
     width: '100%',
     maxWidth: 340,
-    shadowColor: '#000',
+    shadowColor: tokens.neutral.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 24,
@@ -168,13 +176,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: tokens.neutral.ink,
     textAlign: 'center',
     marginBottom: 8,
   },
   message: {
     fontSize: 15,
-    color: '#6B7280',
+    color: tokens.neutral.inkMuted,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 4,
@@ -190,12 +198,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: tokens.neutral.paper,
   },
   cancelLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
+    color: tokens.neutral.inkSoft,
   },
   confirmButton: {
     flex: 1,

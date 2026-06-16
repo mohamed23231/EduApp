@@ -2,6 +2,7 @@ import type { PendingInvitation } from '../services/contexts-api.service';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Button, SafeAreaView, Text, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { useAcceptInvitationById, useAcceptInvitationByToken, useDeclineInvitationById } from '../hooks/use-contexts';
 
@@ -52,31 +53,31 @@ export function OrgInvitationScreen({ token, invitation, onAccepted, onDeclined 
   const isPending = acceptByToken.isPending || acceptById.isPending || declineById.isPending;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
       <View className="flex-1 px-6 py-8">
-        <View className="rounded-r5 bg-[#2563EB] p-6">
-          <Text className="font-inter text-sm tracking-[1.6px] text-[#BFDBFE] uppercase">
+        <View className="rounded-r5 p-6" style={{ backgroundColor: colors.brand.primary }}>
+          <Text className="font-inter text-sm tracking-[1.6px] uppercase" style={{ color: colors.brand.primaryInk }}>
             {t('orgInvitation.badge')}
           </Text>
-          <Text className="font-inter mt-2 text-3xl font-semibold text-[#FFFFFF]">
+          <Text className="mt-2 font-inter text-3xl font-semibold" style={{ color: colors.brand.primaryInk }}>
             {orgName}
           </Text>
           {managerName
             ? (
-                <Text className="font-inter mt-2 text-base text-[#BFDBFE]">
+                <Text className="mt-2 font-inter text-base" style={{ color: colors.brand.primaryInk }}>
                   {t('orgInvitation.invitedBy', { name: managerName })}
                 </Text>
               )
             : null}
         </View>
         <View className="mt-6">
-          <Text className="font-inter text-base text-slate-600">
+          <Text className="font-inter text-base" style={{ color: colors.neutral.inkSoft }}>
             {t('orgInvitation.body', { org: orgName })}
           </Text>
         </View>
         {message
           ? (
-              <Text className="font-inter mt-4 text-sm text-red-500">{message}</Text>
+              <Text className="mt-4 font-inter text-sm" style={{ color: colors.semantic.absent }}>{message}</Text>
             )
           : null}
         {isPending

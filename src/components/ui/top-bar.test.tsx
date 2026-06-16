@@ -16,18 +16,18 @@ describe('topBar', () => {
   it('renders back button when onBack is provided', () => {
     const onBack = jest.fn();
     render(<TopBar title="Back" onBack={onBack} />);
-    expect(screen.getByLabelText('Go back')).toBeOnTheScreen();
+    expect(screen.getByLabelText('common.goBack')).toBeOnTheScreen();
   });
 
   it('does not render back button when onBack is not provided', () => {
     render(<TopBar title="No Back" />);
-    expect(screen.queryByLabelText('Go back')).toBeNull();
+    expect(screen.queryByLabelText('common.goBack')).toBeNull();
   });
 
   it('calls onBack when back button is pressed', async () => {
     const onBack = jest.fn();
     const { user } = setup(<TopBar title="Title" onBack={onBack} />);
-    await user.press(screen.getByLabelText('Go back'));
+    await user.press(screen.getByLabelText('common.goBack'));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 

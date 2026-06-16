@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
+  EmptyState,
+  ErrorState,
   Icon,
   PressButton,
   SectionLabel,
@@ -21,6 +23,7 @@ import { AppRoute } from '@/core/navigation/routes';
 import { EmptyDashboard, NotificationBell } from '../components';
 import {
   ChildSwitcher,
+  DashboardSkeleton,
   ParentHero,
   ThisWeekTiles,
   TimelineRow,
@@ -85,29 +88,19 @@ export function ParentDashboardScreen() {
   if (studentsLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.neutral.paper, paddingTop: insets.top }}>
-        <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-          testID="loading-indicator"
-        >
-          <ActivityIndicator size="large" color={colors.brand.primary} />
-        </View>
+        <DashboardSkeleton testID="loading-indicator" />
       </View>
     );
   }
 
   if (studentsError) {
-    const errorMessage = extractErrorMessage(studentsError, t);
     return (
       <View style={{ flex: 1, backgroundColor: colors.neutral.paper, paddingTop: insets.top }}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 16 }}>
-          <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
-            {errorMessage}
-          </Text>
-          <PressButton
-            variant="gradient"
-            size="md"
-            onPress={() => refetchStudents()}
-            label={t('parent.common.retry')}
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <ErrorState
+            title={t('parent.dashboard.errorTitle', 'Could not load your family')}
+            body={extractErrorMessage(studentsError, t)}
+            action={{ label: t('parent.common.retry', 'Retry'), onPress: () => refetchStudents() }}
             testID="retry-button"
           />
         </View>
@@ -184,6 +177,7 @@ export function ParentDashboardScreen() {
             selectedId={effectiveSelectedId}
             onSelect={setSelectedStudentId}
             onAddChild={() => router.push(AppRoute.parent.linkStudent)}
+            unlinkedLabel={t('parent.studentList.unlinkedBadge', 'Unlinked')}
           />
         </View>
 
@@ -233,17 +227,12 @@ export function ParentDashboardScreen() {
         <View style={{ marginHorizontal: 16, marginTop: 8 }}>
           {recentTimeline.length === 0
             ? (
-                <Text
-                  style={{
-                    color: colors.neutral.inkMuted,
-                    fontSize: 13,
-                    fontWeight: '500',
-                    textAlign: 'center',
-                    paddingVertical: 16,
-                  }}
-                >
-                  {t('parent.dashboard.noTimeline')}
-                </Text>
+                <EmptyState
+                  scope="parentNoAttendance"
+                  title={t('parent.dashboard.noTimelineTitle', 'No recent activity')}
+                  body={t('parent.dashboard.noTimeline', 'No recent attendance records.')}
+                  testID="dashboard-timeline-empty"
+                />
               )
             : (
                 <>

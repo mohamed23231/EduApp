@@ -1,3 +1,4 @@
+export * from './use-auth-error-toast';
 export * from './use-login';
 export * from './use-phone-login';
 export * from './use-phone-reset-password';

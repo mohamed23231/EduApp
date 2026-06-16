@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import colors from './colors';
 
 function luminance(hex: string): number {
   const r = Number.parseInt(hex.slice(1, 3), 16) / 255;
@@ -26,6 +27,9 @@ const TOKENS = {
   card: '#FFFFFF',
   rule: '#E6E3DB',
   brandPrimary: '#22C572',
+  // Foreground rendered on brand-green surfaces (EmptyState/ErrorState CTAs,
+  // SegTabs active tab, lime toast tone). Must clear WCAG AA on green.
+  primaryInk: '#0B0D10',
   brandPrimaryDeep: '#0E8B4F',
   brandBlue: '#2D7DE0',
   brandBlueDeep: '#1B5BB8',
@@ -47,7 +51,9 @@ const TEXT_ON_BG_PAIRS: Array<{
   { fg: 'dim', bg: 'ink', label: 'dim on ink', minRatio: AA_THRESHOLD },
   { fg: 'ink', bg: 'paper', label: 'ink on paper', minRatio: AA_THRESHOLD },
   { fg: 'inkSoft', bg: 'paper', label: 'inkSoft on paper', minRatio: AA_THRESHOLD },
-  { fg: 'card', bg: 'brandPrimary', label: 'white on brand.primary', minRatio: 2.0 },
+  // On-brand-green foreground (brand.primaryInk) must clear WCAG AA. The design
+  // renders dark ink on green; white (the old value) was 2.26:1 — a clear fail.
+  { fg: 'primaryInk', bg: 'brandPrimary', label: 'brand.primaryInk on brand.primary', minRatio: AA_THRESHOLD },
 ];
 
 describe('theme-contrast', () => {
@@ -58,6 +64,16 @@ describe('theme-contrast', () => {
         expect(ratio).toBeGreaterThanOrEqual(pair.minRatio);
       });
     }
+  });
+
+  // Guards against a silent revert of the actual token value (B0 contrast fix).
+  // Reads the LIVE colors.js value, not the local hardcoded copy.
+  describe('live brand.primaryInk on brand.primary (B0 contrast fix)', () => {
+    it('the actual brand.primaryInk token clears WCAG AA on brand.primary', () => {
+      const fg = (colors as unknown as { brand: { primaryInk: string; primary: string } }).brand;
+      const ratio = contrastRatio(fg.primaryInk, fg.primary);
+      expect(ratio).toBeGreaterThanOrEqual(AA_THRESHOLD);
+    });
   });
 
   describe('FR-106 brand.primary vs semantic.present perceptual distance', () => {

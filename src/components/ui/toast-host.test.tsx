@@ -1,6 +1,7 @@
 /* eslint-disable max-lines-per-function */
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import * as React from 'react';
+import { AccessibilityInfo } from 'react-native';
 import colors from '@/components/ui/colors';
 
 import { ToastContext, ToastHost, ToastView, useToast } from '@/components/ui/toast-host';
@@ -20,71 +21,103 @@ function makeGrabContext(ref: ContextRef) {
 describe('ToastHost + ToastView + useToast', () => {
   afterEach(() => {
     cleanup();
+    jest.restoreAllMocks();
   });
 
-  it('ToastView renders message with ink tone by default', () => {
+  it('defaults to info kind (ink bg, white foreground) when kind is omitted', () => {
     render(<ToastView toast={{ message: 'Hello' }} testID="toast" />);
     const el = screen.getByTestId('toast');
-    expect(el).toBeTruthy();
     expect(el.props.style).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ backgroundColor: colors.neutral.ink }),
       ]),
     );
-    expect(screen.getByText('Hello')).toBeTruthy();
+    expect(screen.getByText('Hello').props.style).toEqual(
+      expect.arrayContaining([expect.objectContaining({ color: colors.neutral.card })]),
+    );
   });
 
-  it('ToastView renders with lime tone', () => {
-    render(<ToastView toast={{ message: 'Saved', tone: 'lime' }} testID="toast" />);
-    const el = screen.getByTestId('toast');
-    expect(el.props.style).toEqual(
+  it('success kind renders green bg with DARK ink foreground (WCAG fix)', () => {
+    render(<ToastView toast={{ message: 'Saved', kind: 'success' }} testID="toast" />);
+    expect(screen.getByTestId('toast').props.style).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ backgroundColor: colors.brand.primary }),
       ]),
     );
+    // The whole point of the contrast fix: ink (not white) on green.
+    expect(screen.getByText('Saved').props.style).toEqual(
+      expect.arrayContaining([expect.objectContaining({ color: colors.neutral.ink })]),
+    );
   });
 
-  it('ToastView renders with absent tone', () => {
-    render(<ToastView toast={{ message: 'Error', tone: 'absent' }} testID="toast" />);
-    const el = screen.getByTestId('toast');
-    expect(el.props.style).toEqual(
+  it('error kind renders the absent (red) bg', () => {
+    render(<ToastView toast={{ message: 'Error', kind: 'error' }} testID="toast" />);
+    expect(screen.getByTestId('toast').props.style).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ backgroundColor: colors.semantic.absent }),
       ]),
     );
   });
 
-  it('ToastView renders action button', () => {
+  it('undo kind renders an action whose label is brand green on the dark surface', () => {
     const onPress = jest.fn();
     render(
       <ToastView
-        toast={{ message: 'Undo?', action: { label: 'Undo', onPress } }}
+        toast={{ message: 'Removed', kind: 'undo', action: { label: 'Undo', onPress } }}
         testID="toast"
       />,
     );
-    fireEvent.press(screen.getByText('Undo'));
+    expect(screen.getByTestId('toast').props.style).toEqual(
+      expect.arrayContaining([expect.objectContaining({ backgroundColor: colors.neutral.ink })]),
+    );
+    const action = screen.getByText('Undo');
+    expect(action.props.style).toEqual(
+      expect.arrayContaining([expect.objectContaining({ color: colors.brand.primary })]),
+    );
+    fireEvent.press(action);
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it('ToastHost shows toast when context show() is called', () => {
-    let ctxRef: { show: (toast: Parameters<ReturnType<typeof useToast>['show']>[0]) => void } | null = null;
-
-    function GrabContext() {
-      ctxRef = React.use(ToastContext);
-      return null;
-    }
-
+  it('success action label uses ink (not green) on the green surface', () => {
     render(
-      <ToastHost>
-        <GrabContext />
-      </ToastHost>,
+      <ToastView
+        toast={{ message: 'Saved', kind: 'success', action: { label: 'View', onPress: () => {} } }}
+        testID="toast"
+      />,
     );
+    expect(screen.getByText('View').props.style).toEqual(
+      expect.arrayContaining([expect.objectContaining({ color: colors.neutral.ink })]),
+    );
+  });
 
-    expect(ctxRef).not.toBeNull();
+  it('exposes an alert role + polite live region for screen readers', () => {
+    render(<ToastView toast={{ message: 'Heads up', kind: 'info' }} testID="toast" />);
+    const el = screen.getByTestId('toast');
+    expect(el.props.accessibilityRole).toBe('alert');
+    expect(el.props.accessibilityLiveRegion).toBe('polite');
+  });
+
+  it('announces the message to the accessibility service on show()', () => {
+    const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility');
+    const ref: ContextRef = { current: null };
+    const GrabContext = makeGrabContext(ref);
+    render(<ToastHost><GrabContext /></ToastHost>);
+    act(() => {
+      ref.current!.show({ message: 'Announced', kind: 'success' });
+    });
+    expect(announce).toHaveBeenCalledWith('Announced');
+  });
+
+  it('ToastHost shows toast when context show() is called', () => {
+    const ref: ContextRef = { current: null };
+    const GrabContext = makeGrabContext(ref);
+    render(<ToastHost><GrabContext /></ToastHost>);
+
+    expect(ref.current).not.toBeNull();
     expect(screen.queryByText('Hello')).toBeNull();
 
     act(() => {
-      ctxRef!.show({ message: 'Hello' });
+      ref.current!.show({ message: 'Hello' });
     });
 
     expect(screen.getByText('Hello')).toBeTruthy();
@@ -141,13 +174,8 @@ describe('ToastHost + ToastView + useToast', () => {
   });
 
   it('ToastHost respects placement="top"', () => {
-    let ctxRef: { show: (toast: Parameters<ReturnType<typeof useToast>['show']>[0]) => void } | null = null;
-
-    function GrabContext() {
-      ctxRef = React.use(ToastContext);
-      return null;
-    }
-
+    const ref: ContextRef = { current: null };
+    const GrabContext = makeGrabContext(ref);
     render(
       <ToastHost placement="top">
         <GrabContext />
@@ -155,7 +183,7 @@ describe('ToastHost + ToastView + useToast', () => {
     );
 
     act(() => {
-      ctxRef!.show({ message: 'Top toast' });
+      ref.current!.show({ message: 'Top toast' });
     });
 
     expect(screen.getByText('Top toast')).toBeTruthy();

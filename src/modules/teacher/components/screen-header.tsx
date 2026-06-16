@@ -6,16 +6,21 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type ScreenHeaderProps = {
   title: string;
   onBack?: () => void;
   right?: React.ReactNode;
+  /** Stable, locale-independent anchor for the title (E2E). */
+  titleTestID?: string;
 };
 
-export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
+export function ScreenHeader({ title, onBack, right, titleTestID }: ScreenHeaderProps) {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const handleBack = () => {
@@ -34,16 +39,16 @@ export function ScreenHeader({ title, onBack, right }: ScreenHeaderProps) {
         style={({ pressed }) => [styles.backBtn, pressed && styles.backBtnPressed]}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         accessibilityRole="button"
-        accessibilityLabel="Go back"
+        accessibilityLabel={t('teacher.common.back')}
       >
         <Ionicons
           name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'}
           size={24}
-          color="#3B82F6"
+          color={colors.brand.primary}
         />
       </Pressable>
 
-      <Text style={styles.title} numberOfLines={1}>
+      <Text testID={titleTestID} style={styles.title} numberOfLines={1}>
         {title}
       </Text>
 
@@ -59,9 +64,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: colors.neutral.rule,
     minHeight: 56,
   },
   backBtn: {
@@ -72,13 +77,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   backBtnPressed: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.neutral.cardWarm,
   },
   title: {
     flex: 1,
     fontSize: 17,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.neutral.ink,
     textAlign: 'center',
     marginHorizontal: 8,
   },

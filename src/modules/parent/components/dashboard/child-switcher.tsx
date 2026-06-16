@@ -3,11 +3,13 @@ import * as React from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Icon, Monogram } from '@/components/ui';
 import colors from '@/components/ui/colors';
+import { UnlinkedBadge } from '../student/unlinked-badge';
 
 /**
  * Horizontal pill row of linked children. Selected pill flips to ink fill;
  * unselected pills are paper cards. Trailing dashed circle is the "+ add child"
- * affordance.
+ * affordance. Unlinked children render with an amber tint + "Unlinked" pill
+ * (Parent States Pass — child-unlinked read-only treatment).
  */
 
 export type ChildSwitcherProps = {
@@ -15,9 +17,11 @@ export type ChildSwitcherProps = {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onAddChild: () => void;
+  /** Already-translated "Unlinked" pill label. */
+  unlinkedLabel?: string;
 };
 
-export function ChildSwitcher({ students, selectedId, onSelect, onAddChild }: ChildSwitcherProps) {
+export function ChildSwitcher({ students, selectedId, onSelect, onAddChild, unlinkedLabel }: ChildSwitcherProps) {
   return (
     <ScrollView
       horizontal
@@ -26,6 +30,7 @@ export function ChildSwitcher({ students, selectedId, onSelect, onAddChild }: Ch
     >
       {students.map((student) => {
         const isSelected = student.id === selectedId;
+        const isUnlinked = student.linkStatus === 'unlinked';
         const firstName = student.fullName.split(' ')[0];
         const grade = student.gradeLevel;
         return (
@@ -43,13 +48,20 @@ export function ChildSwitcher({ students, selectedId, onSelect, onAddChild }: Ch
               paddingEnd: 14,
               paddingVertical: 6,
               borderRadius: 999,
+              opacity: !isSelected && isUnlinked ? 0.75 : 1,
               backgroundColor: isSelected
                 ? colors.neutral.ink
-                : pressed
-                  ? colors.neutral.cardWarm
-                  : colors.neutral.card,
+                : isUnlinked
+                  ? colors.semantic.excusedSoft
+                  : pressed
+                    ? colors.neutral.cardWarm
+                    : colors.neutral.card,
               borderWidth: 1.5,
-              borderColor: isSelected ? colors.neutral.ink : colors.neutral.rule,
+              borderColor: isSelected
+                ? colors.neutral.ink
+                : isUnlinked
+                  ? colors.semantic.excused
+                  : colors.neutral.rule,
             })}
           >
             <Monogram name={student.fullName} size={32} ring={isSelected} />
@@ -65,21 +77,27 @@ export function ChildSwitcher({ students, selectedId, onSelect, onAddChild }: Ch
               >
                 {firstName}
               </Text>
-              {grade
+              {isUnlinked && unlinkedLabel
                 ? (
-                    <Text
-                      style={{
-                        color: isSelected ? colors.neutral.dim : colors.neutral.inkMuted,
-                        fontSize: 10,
-                        fontWeight: '500',
-                        marginTop: 1,
-                      }}
-                      numberOfLines={1}
-                    >
-                      {grade}
-                    </Text>
+                    <View style={{ marginTop: 2 }}>
+                      <UnlinkedBadge label={unlinkedLabel} />
+                    </View>
                   )
-                : null}
+                : grade
+                  ? (
+                      <Text
+                        style={{
+                          color: isSelected ? colors.neutral.dim : colors.neutral.inkMuted,
+                          fontSize: 10,
+                          fontWeight: '500',
+                          marginTop: 1,
+                        }}
+                        numberOfLines={1}
+                      >
+                        {grade}
+                      </Text>
+                    )
+                  : null}
             </View>
           </Pressable>
         );

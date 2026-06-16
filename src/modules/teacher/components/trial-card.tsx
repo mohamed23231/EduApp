@@ -12,6 +12,7 @@ import type { TrialData } from '../types';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type TrialCardProps = {
   trial: TrialData;
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   daysRemainingWarning: {
-    color: '#DC2626',
+    color: colors.semantic.absent,
   },
   divider: {
     height: 1,

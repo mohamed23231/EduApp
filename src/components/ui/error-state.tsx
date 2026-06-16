@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import colors from '@/components/ui/colors';
@@ -11,14 +12,18 @@ type ErrorStateProps = {
 };
 
 export function ErrorState({
-  title = 'Something went wrong',
+  title,
   body,
   action,
   testID,
 }: ErrorStateProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t('common.errorTitle', 'Something went wrong');
   return (
     <View
       testID={testID}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
       style={{
         alignItems: 'center',
         justifyContent: 'center',
@@ -56,7 +61,7 @@ export function ErrorState({
           marginBottom: 8,
         }}
       >
-        {title}
+        {resolvedTitle}
       </Text>
 
       {body
@@ -82,6 +87,8 @@ export function ErrorState({
             <Pressable
               testID={testID ? `${testID}-action` : undefined}
               onPress={action.onPress}
+              accessibilityRole="button"
+              accessibilityLabel={action.label}
               style={{
                 marginTop: 20,
                 backgroundColor: colors.brand.primary,

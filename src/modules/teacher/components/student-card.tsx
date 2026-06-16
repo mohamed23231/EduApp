@@ -17,6 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui';
 import { Color } from '@/components/ui/color-utils';
+import colors from '@/components/ui/colors';
 
 type StudentCardProps = {
   student: Student;
@@ -87,7 +88,7 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
               {student.gradeLevel
                 ? (
                     <View style={styles.gradePill}>
-                      <Ionicons name="school-outline" size={11} color={Color.gray(500)} />
+                      <Ionicons name="school-outline" size={11} color={colors.neutral.inkMuted} />
                       <Text style={styles.gradeText}>{student.gradeLevel}</Text>
                     </View>
                   )
@@ -96,7 +97,7 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
               {isAssigned
                 ? (
                     <View style={styles.sessionPill}>
-                      <Ionicons name="calendar-outline" size={11} color={Color.success(600)} />
+                      <Ionicons name="calendar-outline" size={11} color={colors.semantic.presentInk} />
                       <Text style={styles.sessionText}>
                         {t('teacher.students.sessionCount', { count: sessionInfo.sessionCount })}
                       </Text>
@@ -104,7 +105,7 @@ export function StudentCard({ student, index, sessionInfo, onPress }: StudentCar
                   )
                 : (
                     <View style={styles.unassignedPill}>
-                      <Ionicons name="alert-circle-outline" size={11} color={Color.warning(600)} />
+                      <Ionicons name="alert-circle-outline" size={11} color={colors.semantic.excusedInk} />
                       <Text style={styles.unassignedText}>
                         {t('teacher.students.noSessions')}
                       </Text>
@@ -161,31 +162,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Color.gray(100),
+    backgroundColor: colors.neutral.cardWarm,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  gradeText: { fontSize: 11, color: Color.gray(500), fontWeight: '500' },
+  gradeText: { fontSize: 11, color: colors.neutral.ink, fontWeight: '500' },
   sessionPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Color.success(50),
+    backgroundColor: colors.semantic.presentSoft,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  sessionText: { fontSize: 11, color: Color.success(600), fontWeight: '500' },
+  sessionText: { fontSize: 11, color: colors.semantic.presentInk, fontWeight: '500' },
   unassignedPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Color.warning(50),
+    backgroundColor: colors.semantic.excusedSoft,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  unassignedText: { fontSize: 11, color: Color.warning(600), fontWeight: '500' },
+  unassignedText: { fontSize: 11, color: colors.semantic.excusedInk, fontWeight: '500' },
   sessionSubjects: { fontSize: 12, color: Color.gray(400), marginTop: 1 },
 });

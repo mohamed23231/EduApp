@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import colors from '@/components/ui/colors';
@@ -38,6 +39,7 @@ export function TopBar({
 }: TopBarProps) {
   const insets = useSafeAreaInsets();
   const palette = TONE_COLORS[tone];
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.wrapper, { paddingTop: insets.top, backgroundColor: palette.bg }]} testID={testID}>
@@ -49,10 +51,10 @@ export function TopBar({
                   onPress={onBack}
                   hitSlop={12}
                   accessibilityRole="button"
-                  accessibilityLabel="Go back"
+                  accessibilityLabel={t('common.goBack', 'Go back')}
                   style={styles.backButton}
                 >
-                  <Ionicons name="chevron-back" size={24} color={palette.icon} />
+                  <Ionicons name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'} size={24} color={palette.icon} />
                 </Pressable>
               )
             : null}

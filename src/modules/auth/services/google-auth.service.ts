@@ -7,9 +7,6 @@ import type {
 } from '../types/google-auth.types';
 import { authClient } from '@/lib/api/client';
 
-/** Token reuse window: 120 seconds (Requirement 10.7) */
-const TOKEN_REUSE_WINDOW_MS = 120 * 1000;
-
 /**
  * Google Auth Service
  *
@@ -39,25 +36,18 @@ export const googleAuthService = {
   /**
    * Google Signup
    *
-   * Creates a new account or signs in existing user with Google.
-   * Enforces token reuse window: if iat is provided and token is older than
-   * 120 seconds, caller must re-acquire a fresh token before calling this.
+   * Creates a new account or signs in existing user with Google. The token
+   * reuse window (Requirement 10.7) is owned by the screen layer via
+   * `@/lib/auth/token-reuse-window`, which gates re-use before this is called.
    *
    * @param idToken - Google ID token from Google Sign-In
    * @param role - User role (TEACHER, PARENT, or MANAGER)
-   * @param iat - Optional timestamp (ms) when the token was obtained
    * @returns Signup response with tokens and user info
-   * @throws Error if token is expired (older than TOKEN_REUSE_WINDOW_MS)
    */
   async googleSignup(
     idToken: string,
     role: 'TEACHER' | 'PARENT' | 'MANAGER',
-    iat?: number,
   ): Promise<GoogleSignupResponse> {
-    // Enforce token reuse window (Requirement 10.7)
-    if (iat !== undefined && (Date.now() - iat) > TOKEN_REUSE_WINDOW_MS) {
-      throw new Error('TOKEN_REUSE_WINDOW_EXPIRED');
-    }
     const response = await authClient.post<GoogleSignupResponse>(
       '/auth/google/signup',
       { idToken, role },
@@ -99,15 +89,5 @@ export const googleAuthService = {
       payload,
     );
     return response.data;
-  },
-
-  /**
-   * Check if a Google ID token is within the reuse window.
-   *
-   * @param iat - Timestamp (ms) when the token was obtained
-   * @returns true if token is still valid for reuse, false if expired
-   */
-  isTokenFresh(iat: number): boolean {
-    return (Date.now() - iat) <= TOKEN_REUSE_WINDOW_MS;
   },
 };

@@ -4,13 +4,13 @@ import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
-import { Icon, PressButton, SectionLabel } from '@/components/ui';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ErrorState, Icon, PressButton, SectionLabel, Skeleton } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { useFeatureFlags } from '@/core/feature-flags/use-feature-flags';
 import { AppRoute } from '@/core/navigation/routes';
 import { TimelineRow } from '../components/dashboard';
-import { StudentHero } from '../components/student';
+import { StudentHero, UnlinkedBanner } from '../components/student';
 import { useAttendanceStats, useAttendanceTimeline, useStudentDetails } from '../hooks';
 import { extractErrorMessage } from '../services/error-utils';
 
@@ -91,31 +91,33 @@ export function StudentDetailsScreen() {
   const { data: timeline } = useAttendanceTimeline(id || '', 1, 5);
   const { isParentPerformanceEnabled } = useFeatureFlags();
 
-  if (!id || (!isLoading && !student && !error))
-    return <CenterText label={t('parent.common.genericError')} />;
+  if (!id || (!isLoading && !student && !error)) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.neutral.paper }}>
+        <ErrorState
+          title={t('parent.studentDetails.errorTitle', 'Could not load this student')}
+          body={t('parent.common.genericError')}
+          action={{ label: t('parent.common.back', 'Back'), onPress: () => router.back() }}
+        />
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (
-      <View
-        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.neutral.paper }}
-        testID="loading-indicator"
-      >
-        <ActivityIndicator size="large" color={colors.brand.primary} />
+      <View style={{ flex: 1, backgroundColor: colors.neutral.paper }} testID="loading-indicator">
+        <StudentDetailsSkeleton />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 16, backgroundColor: colors.neutral.paper }}>
-        <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
-          {extractErrorMessage(error, t)}
-        </Text>
-        <PressButton
-          variant="gradient"
-          size="md"
-          onPress={() => refetch()}
-          label={t('parent.common.retry')}
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.neutral.paper }}>
+        <ErrorState
+          title={t('parent.studentDetails.errorTitle', 'Could not load this student')}
+          body={extractErrorMessage(error, t)}
+          action={{ label: t('parent.common.retry', 'Retry'), onPress: () => refetch() }}
           testID="retry-button"
         />
       </View>
@@ -124,6 +126,8 @@ export function StudentDetailsScreen() {
 
   if (!student)
     return null;
+
+  const isUnlinked = student.linkStatus === 'unlinked';
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
@@ -140,7 +144,11 @@ export function StudentDetailsScreen() {
           t={t}
         />
 
-        {student.connectionCode
+        {isUnlinked
+          ? <UnlinkedBanner studentName={student.fullName} isRTL={isRTL} t={t} />
+          : null}
+
+        {!isUnlinked && student.connectionCode
           ? <AccessCodeRow code={student.connectionCode} />
           : null}
 
@@ -196,12 +204,36 @@ export function StudentDetailsScreen() {
   );
 }
 
-function CenterText({ label }: { label: string }) {
+function StudentDetailsSkeleton() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: colors.neutral.paper }}>
-      <Text style={{ color: colors.semantic.absent, fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
-        {label}
-      </Text>
+    <View>
+      <View
+        style={{
+          backgroundColor: colors.neutral.ink,
+          paddingHorizontal: 20,
+          paddingTop: 56,
+          paddingBottom: 28,
+          borderBottomLeftRadius: 32,
+          borderBottomRightRadius: 32,
+          gap: 16,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <Skeleton width={72} height={72} radius={36} />
+          <View style={{ flex: 1, gap: 8 }}>
+            <Skeleton width="60%" height={20} />
+            <Skeleton width="40%" height={13} />
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[0, 1, 2].map(i => <Skeleton key={i} width={90} height={56} radius={16} />)}
+        </View>
+      </View>
+      <View style={{ paddingHorizontal: 16, marginTop: 24, gap: 12 }}>
+        <Skeleton width="35%" height={14} />
+        <Skeleton width="100%" height={56} radius={14} />
+        <Skeleton width="100%" height={56} radius={14} />
+      </View>
     </View>
   );
 }

@@ -1,0 +1,41 @@
+appId: ${APP_ID}
+name: parent-dashboard
+tags:
+  - parent
+# Journey: Parent dashboard (hero, this-week tiles, child switcher, timeline).
+# Auth-gated: requires a logged-in PARENT linked to >=1 student (see plan).
+# This journey has the richest existing testID coverage. No runtime coverage claimed.
+---
+- launchApp:
+    clearState: false
+
+# --- Parent tab bar (testID pattern: parent-tab-{route}) ---
+- assertVisible:
+    id: parent-tab-dashboard # app/(parent)/(tabs)/_layout.tsx:73
+    timeout: 10000
+- tapOn:
+    id: parent-tab-dashboard
+
+# --- Hero ---
+- assertVisible:
+    id: parent-hero # parent-hero.tsx:49
+
+# --- This-week tiles (real testIDs) ---
+- assertVisible:
+    id: tile-attendance # this-week-tiles.tsx:40
+- assertVisible:
+    id: tile-streak # this-week-tiles.tsx:78
+- assertVisible:
+    id: tile-rating # this-week-tiles.tsx:119
+
+# --- Child switcher: tap "add child" (always present) ---
+- assertVisible:
+    id: add-child-button # child-switcher.tsx:108
+
+# --- Performance CTA ---
+- assertVisible:
+    id: performance-button # dashboard-screen.tsx:267
+    optional: true # hidden when no performance data
+- tapOn:
+    id: performance-button
+    optional: true

@@ -7,9 +7,11 @@ import type { AttendanceStatus } from '../types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, ConfirmModal, Text, useModal } from '@/components/ui';
+import { ConfirmModal, EmptyState, ErrorState, useModal } from '@/components/ui';
+import colors from '@/components/ui/colors';
+import { StudentListSkeleton } from '../components';
 import { AttendanceSheetFooter } from '../components/attendance-sheet/attendance-sheet-footer';
 import { AttendanceSheetHeader } from '../components/attendance-sheet/attendance-sheet-header';
 import { AttendanceSheetToolbar } from '../components/attendance-sheet/attendance-sheet-toolbar';
@@ -33,6 +35,8 @@ export function AttendanceSheetScreen() {
     students,
     attendanceMap,
     isLoading,
+    isError,
+    refetch,
     error,
     isSubmitting,
     unratedCount,
@@ -58,23 +62,22 @@ export function AttendanceSheetScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
-        <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" />
-        </View>
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+        <AttendanceSheetHeader sessionClosed={false} sessionNotActive={false} onBack={() => router.back()} />
+        <StudentListSkeleton />
       </SafeAreaView>
     );
   }
 
-  if (error && students.length === 0) {
+  if (isError || (error && students.length === 0)) {
     return (
-      <SafeAreaView edges={['top']} style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <Button
-            label={t('teacher.common.retry')}
-            onPress={() => router.back()}
-            style={{ marginTop: 12 }}
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
+        <AttendanceSheetHeader sessionClosed={false} sessionNotActive={false} onBack={() => router.back()} />
+        <View className="flex-1 items-center justify-center">
+          <ErrorState
+            title={t('teacher.common.errorTitle', 'Something went wrong')}
+            body={error ?? t('teacher.common.loadError', 'Failed to load. Please try again.')}
+            action={{ label: t('teacher.common.retry'), onPress: () => refetch() }}
           />
         </View>
       </SafeAreaView>
@@ -97,7 +100,7 @@ export function AttendanceSheetScreen() {
   const sessionNotActive = session?.state !== 'ACTIVE';
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
       <AttendanceSheetHeader
         sessionClosed={sessionClosed}
         sessionNotActive={sessionNotActive}
@@ -106,8 +109,12 @@ export function AttendanceSheetScreen() {
 
       {students.length === 0
         ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>{t('teacher.attendance.emptyMessage')}</Text>
+            <View className="flex-1 items-center justify-center">
+              <EmptyState
+                scope="teacherNoStudents"
+                title={t('teacher.attendance.emptyTitle', 'No students assigned')}
+                body={t('teacher.attendance.emptyMessage')}
+              />
             </View>
           )
         : (
@@ -159,37 +166,3 @@ export function AttendanceSheetScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  centeredContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#DC2626',
-    textAlign: 'center',
-  },
-});

@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Button, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type EmptyStateProps = {
   icon?: ComponentProps<typeof Ionicons>['name'];
@@ -30,7 +31,7 @@ export function EmptyState({
     <View style={styles.container}>
       <Animated.View entering={FadeInDown.duration(400)} style={styles.iconWrap}>
         <View style={styles.circle}>
-          <Ionicons name={icon} size={36} color="#3B82F6" />
+          <Ionicons name={icon} size={36} color={colors.brand.primary} />
         </View>
       </Animated.View>
 
@@ -65,21 +66,21 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.semantic.presentSoft,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: colors.neutral.rule,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: colors.neutral.ink,
     textAlign: 'center',
   },
   message: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: colors.neutral.inkMuted,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 12,

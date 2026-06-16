@@ -6,9 +6,15 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getApiErrorMessage } from '@/shared/services/api-utils';
 import { getTodayInstances } from '../services';
 import { setLoadingSessions, setSessionsError, setTodaySessions, useTeacherStore } from '../store/use-teacher-store';
 
+// Returns today's date (YYYY-MM-DD) in the DEVICE's local timezone.
+// Assumption: the backend interprets this date in the teacher's local day, not UTC.
+// TODO(backend): confirm GET /sessions/instances/today expects a local-tz date —
+// if it expects UTC, a teacher near midnight could see the wrong day's sessions.
 function getTodayDate(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -22,6 +28,7 @@ type UseTodaySessionsResult = {
 };
 
 export function useTodaySessions(): UseTodaySessionsResult {
+  const { t } = useTranslation();
   const isFetchingRef = useRef(false);
 
   const fetchSessions = useCallback(async () => {
@@ -42,14 +49,14 @@ export function useTodaySessions(): UseTodaySessionsResult {
       setTodaySessions(sessions);
     }
     catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch sessions';
-      setSessionsError(errorMessage);
+      console.error('[useTodaySessions] fetch failed', error);
+      setSessionsError(getApiErrorMessage(error, t('teacher.common.loadError', 'Failed to load. Please try again.')));
     }
     finally {
       setLoadingSessions(false);
       isFetchingRef.current = false;
     }
-  }, []);
+  }, [t]);
 
   // Fetch on mount only
   useEffect(() => {

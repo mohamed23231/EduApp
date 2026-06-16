@@ -91,7 +91,7 @@ export function SessionDetailScreen() {
       }
       toast.show({
         message: apiMessage ?? t('manager.sessionDetail.actionError', { defaultValue: 'This action could not be completed. Please try again.' }),
-        tone: 'absent',
+        kind: 'error',
       });
     },
     [t, toast, trialModal],
@@ -115,7 +115,7 @@ export function SessionDetailScreen() {
       onSuccess: () => {
         toast.show({
           message: t('manager.dashboard.sessionClosed', { defaultValue: 'Session closed — absent students marked.' }),
-          tone: 'lime',
+          kind: 'success',
           action: {
             label: t('manager.dashboard.viewAttendance', { defaultValue: 'View' }),
             onPress: () => router.push(AppRoute.manager.attendance(id)),
@@ -191,7 +191,7 @@ export function SessionDetailScreen() {
           groups={groupedInstances}
           onStart={id => startMutation.mutate(id, {
             onError: showMutationError,
-            onSuccess: () => toast.show({ message: t('manager.dashboard.sessionStarted', { defaultValue: 'Session started.' }), tone: 'lime' }),
+            onSuccess: () => toast.show({ message: t('manager.dashboard.sessionStarted', { defaultValue: 'Session started.' }), kind: 'success' }),
           })}
           onClose={handleCloseSession}
           onViewAttendance={handleViewAttendance}
@@ -220,7 +220,7 @@ export function SessionDetailScreen() {
             onPress={() => { void Linking.openURL(SUPPORT_WHATSAPP_URL); }}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.brand.primary : colors.brand.primary })}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.trial.contactSupport', { defaultValue: 'Contact support' })}
             </Text>
           </Pressable>
@@ -237,7 +237,7 @@ export function SessionDetailScreen() {
             onPress={handleConfirmClose}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.semantic.absentSoft : colors.semantic.absent })}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' })}
             </Text>
           </Pressable>

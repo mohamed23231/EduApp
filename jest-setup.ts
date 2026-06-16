@@ -183,3 +183,13 @@ jest.mock('react-i18next', () => ({
     use: jest.fn(function () { return this; }),
   },
 }));
+
+// Mock @react-native-community/netinfo (native module — unavailable in jest)
+jest.mock('@react-native-community/netinfo', () => ({
+  __esModule: true,
+  default: {
+    addEventListener: jest.fn(() => jest.fn()),
+    fetch: jest.fn(() => Promise.resolve({ isConnected: true })),
+  },
+  useNetInfo: jest.fn(() => ({ isConnected: true })),
+}));

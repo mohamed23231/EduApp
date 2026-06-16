@@ -1,8 +1,10 @@
+import type { TFunction } from 'i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Animated, I18nManager, Pressable, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type Notification = {
   id: string;
@@ -80,7 +82,7 @@ function buildNotificationFallback(
   return isArabic ? 'إشعار جديد' : 'New notification';
 }
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, t: TFunction): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -89,13 +91,13 @@ function formatDate(dateString: string): string {
   const diffDays = Math.floor(diffMs / 86400000);
 
   if (diffMins < 1)
-    return 'Just now';
+    return t('parent.notifications.time.justNow', 'Just now');
   if (diffMins < 60)
-    return `${diffMins}m ago`;
+    return t('parent.notifications.time.minutesAgo', '{{count}}m ago', { count: diffMins });
   if (diffHours < 24)
-    return `${diffHours}h ago`;
+    return t('parent.notifications.time.hoursAgo', '{{count}}h ago', { count: diffHours });
   if (diffDays < 7)
-    return `${diffDays}d ago`;
+    return t('parent.notifications.time.daysAgo', '{{count}}d ago', { count: diffDays });
 
   return date.toLocaleDateString();
 }
@@ -103,7 +105,7 @@ function formatDate(dateString: string): string {
 function getNotificationIconConfig(normalizedTitleKey: string): {
   name: 'alert-circle' | 'trending-down' | 'notifications';
   color: string;
-  bgClass: string;
+  backgroundColor: string;
 } {
   const isAbsence = normalizedTitleKey.includes('absence');
   const isLowScore
@@ -112,10 +114,10 @@ function getNotificationIconConfig(normalizedTitleKey: string): {
       || normalizedTitleKey.includes('low-score');
 
   if (isAbsence)
-    return { name: 'alert-circle', color: '#FF5B4A', bgClass: 'bg-[#FFE1DD]' };
+    return { name: 'alert-circle', color: colors.semantic.absent, backgroundColor: colors.semantic.absentSoft };
   if (isLowScore)
-    return { name: 'trending-down', color: '#FFB020', bgClass: 'bg-[#FFF0D5]' };
-  return { name: 'notifications', color: '#22C572', bgClass: 'bg-[#EDFBF3]' };
+    return { name: 'trending-down', color: colors.semantic.excused, backgroundColor: colors.semantic.excusedSoft };
+  return { name: 'notifications', color: colors.brand.primary, backgroundColor: colors.semantic.presentSoft };
 }
 
 function useNotificationContent(notification: Notification): { title: string; body: string } {
@@ -140,13 +142,18 @@ function useNotificationContent(notification: Notification): { title: string; bo
 }
 
 export function NotificationItem({ notification, onPress }: NotificationItemProps) {
+  const { t } = useTranslation();
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
   const isUnread = notification.status === 'UNREAD';
   const { title, body } = useNotificationContent(notification);
 
-  const accessibilityLabel = `${body}, ${isUnread ? 'unread' : 'read'}`;
+  const readStateLabel = t(
+    isUnread ? 'parent.notifications.a11yUnread' : 'parent.notifications.a11yRead',
+    isUnread ? 'unread' : 'read',
+  );
+  const accessibilityLabel = `${body}, ${readStateLabel}`;
   const isRTL = I18nManager.isRTL;
 
   const handlePressIn = () => {
@@ -192,10 +199,13 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
         testID={`notification-item-${notification.id}`}
         className={containerClasses}
         style={isUnread
-          ? { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E6E3DB' }
-          : { backgroundColor: '#F5F5F0' }}
+          ? { backgroundColor: colors.neutral.card, borderWidth: 1, borderColor: colors.neutral.rule }
+          : { backgroundColor: colors.neutral.paper }}
       >
-        <View className={`size-12 items-center justify-center rounded-full ${iconConfig.bgClass} ${isRTL ? 'ms-3' : 'me-3'}`}>
+        <View
+          className={`size-12 items-center justify-center rounded-full ${isRTL ? 'ms-3' : 'me-3'}`}
+          style={{ backgroundColor: iconConfig.backgroundColor }}
+        >
           <Ionicons name={iconConfig.name} size={24} color={iconConfig.color} />
         </View>
 
@@ -204,28 +214,28 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
             <Text
               className={`flex-1 text-sm ${isUnread ? 'font-bold' : 'font-semibold'}`}
               numberOfLines={1}
-              style={{ textAlign: alignment, color: isUnread ? '#0B0D10' : '#5C636E' }}
+              style={{ textAlign: alignment, color: isUnread ? colors.neutral.ink : colors.neutral.inkMuted }}
             >
               {title}
             </Text>
             {isUnread && (
-              <View className="mx-2 size-2 rounded-full" style={{ backgroundColor: '#22C572' }} />
+              <View className="mx-2 size-2 rounded-full" style={{ backgroundColor: colors.brand.primary }} />
             )}
           </View>
 
           <Text
             className={`text-sm ${isUnread ? 'font-medium' : 'font-normal'}`}
             numberOfLines={2}
-            style={{ textAlign: alignment, lineHeight: 20, color: isUnread ? '#0B0D10' : '#5C636E' }}
+            style={{ textAlign: alignment, lineHeight: 20, color: isUnread ? colors.neutral.ink : colors.neutral.inkMuted }}
           >
             {body}
           </Text>
 
           <Text
             className="mt-2 text-xs font-medium"
-            style={{ textAlign: alignment, color: isUnread ? '#22C572' : '#9CA3AF' }}
+            style={{ textAlign: alignment, color: isUnread ? colors.brand.primary : colors.neutral.dim }}
           >
-            {formatDate(notification.createdAt)}
+            {formatDate(notification.createdAt, t)}
           </Text>
         </View>
       </Pressable>

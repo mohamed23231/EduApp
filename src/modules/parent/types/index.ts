@@ -3,6 +3,7 @@ export type {
   AttendanceStats,
   AttendanceStatus,
   CurrentSession,
+  LinkStatus,
   LinkStudentRequest,
   Student,
   StudentDetails,

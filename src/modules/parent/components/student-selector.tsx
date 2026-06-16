@@ -1,5 +1,6 @@
 import type { Student } from '@/modules/parent/types';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { StudentAvatar } from './student-avatar';
@@ -11,6 +12,7 @@ type StudentSelectorProps = {
 };
 
 export function StudentSelector({ students, selectedId, onSelect }: StudentSelectorProps) {
+  const { t } = useTranslation();
   const flatListRef = useRef<FlatList>(null);
 
   const selectedIndex = students.findIndex(s => s.id === selectedId);
@@ -38,6 +40,10 @@ export function StudentSelector({ students, selectedId, onSelect }: StudentSelec
             size="md"
             selected={item.id === selectedId}
             onPress={() => onSelect(item.id)}
+            accessibilityLabel={t(
+              item.id === selectedId ? 'parent.students.avatarSelected' : 'parent.students.avatarNotSelected',
+              { name: item.fullName },
+            )}
           />
           {item.gradeLevel && (
             <Text style={styles.gradeLabel}>

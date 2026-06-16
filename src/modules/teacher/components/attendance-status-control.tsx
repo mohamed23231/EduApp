@@ -15,6 +15,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Input, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { RatingInputEnhanced } from './rating-input-enhanced';
 
 type AttendanceStatusControlProps = {
@@ -34,9 +35,9 @@ const STATUS_CONFIG: Record<AttendanceStatus, {
   activeBg: string;
   activeText: string;
 }> = {
-  PRESENT: { icon: 'checkmark-circle', bg: '#FFFFFF', activeBg: '#D1FAE5', activeText: '#065F46' },
-  ABSENT: { icon: 'close-circle', bg: '#FFFFFF', activeBg: '#FEE2E2', activeText: '#991B1B' },
-  EXCUSED: { icon: 'time', bg: '#FFFFFF', activeBg: '#FEF3C7', activeText: '#92400E' },
+  PRESENT: { icon: 'checkmark-circle', bg: colors.neutral.card, activeBg: colors.semantic.presentSoft, activeText: colors.semantic.presentInk },
+  ABSENT: { icon: 'close-circle', bg: colors.neutral.card, activeBg: colors.semantic.absentSoft, activeText: colors.semantic.absentInk },
+  EXCUSED: { icon: 'time', bg: colors.neutral.card, activeBg: colors.semantic.excusedSoft, activeText: colors.semantic.excusedInk },
 };
 
 function getInitials(name: string): string {
@@ -48,12 +49,20 @@ function getInitials(name: string): string {
 }
 
 function getAvatarColor(name: string): string {
-  const colors = ['#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#6366F1', '#EF4444', '#14B8A6'];
+  const palette = [
+    colors.avatar.indigo,
+    colors.avatar.violet,
+    colors.avatar.rose,
+    colors.avatar.amber,
+    colors.avatar.teal,
+    colors.avatar.sky,
+    colors.avatar.lime,
+  ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return colors[Math.abs(hash) % colors.length];
+  return palette[Math.abs(hash) % palette.length];
 }
 
 function StatusButton({
@@ -92,6 +101,9 @@ function StatusButton({
   return (
     <Animated.View style={[{ flex: 1 }, animatedStyle]}>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ selected: isActive, disabled }}
         style={[
           styles.statusButton,
           isActive && { backgroundColor: config.activeBg, borderColor: config.activeBg },
@@ -105,7 +117,7 @@ function StatusButton({
         <Ionicons
           name={icon}
           size={16}
-          color={isActive ? config.activeText : '#9CA3AF'}
+          color={isActive ? config.activeText : colors.neutral.dim}
         />
         <Text
           style={[
@@ -142,7 +154,7 @@ export function AttendanceStatusControl({
         </View>
         <Text style={styles.studentName}>{student.name}</Text>
         {isMarked
-          ? <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+          ? <Ionicons name="checkmark-circle" size={18} color={colors.semantic.present} />
           : <View style={styles.unmarkedDot} />}
       </View>
 
@@ -196,20 +208,20 @@ export function AttendanceStatusControl({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.card,
     borderRadius: 14,
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: colors.neutral.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: '#F3F4F6', // TODO(token): #F3F4F6
   },
   containerUnmarked: {
     borderStyle: 'dashed',
-    borderColor: '#D1D5DB',
+    borderColor: colors.neutral.rule,
   },
   header: {
     flexDirection: 'row',
@@ -227,20 +239,20 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.neutral.white,
   },
   studentName: {
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.neutral.ink,
   },
   unmarkedDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
+    borderColor: colors.neutral.rule,
   },
   statusButtons: {
     flexDirection: 'row',
@@ -255,8 +267,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+    borderColor: colors.neutral.rule,
+    backgroundColor: colors.neutral.card,
   },
   statusButtonDisabled: {
     opacity: 0.5,
@@ -264,7 +276,7 @@ const styles = StyleSheet.create({
   statusButtonText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#6B7280',
+    color: colors.neutral.inkMuted,
   },
   excuseNoteInput: {
     marginTop: 12,

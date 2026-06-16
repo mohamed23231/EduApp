@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { I18nManager, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { Color, withOpacity } from '@/components/ui/color-utils';
+import colors from '@/components/ui/colors';
 
 const STATUS_ICON: Record<AttendanceStatus, keyof typeof Ionicons.glyphMap> = {
   PRESENT: 'checkmark-circle',
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: Color.gray(100),
+    borderBottomColor: colors.neutral.rule,
     gap: 12,
   },
   iconCircle: {
@@ -125,16 +126,16 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 14,
     fontWeight: '600',
-    color: Color.gray(700),
+    color: colors.neutral.ink,
   },
   time: {
     fontSize: 12,
-    color: Color.gray(400),
+    color: colors.neutral.inkMuted,
     marginTop: 2,
   },
   excuseNote: {
     fontSize: 12,
-    color: Color.gray(500),
+    color: colors.neutral.inkMuted,
     marginTop: 3,
     fontStyle: 'italic',
   },

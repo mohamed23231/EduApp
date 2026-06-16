@@ -18,9 +18,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { Modal, Text, useModal } from '@/components/ui';
+import { ConfirmSheet, Modal, Text, useModal } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { deleteStudent, getAccessCode, regenerateAccessCode } from '../services';
-import { ConfirmSheet } from './confirm-sheet';
 
 export type StudentActionsSheetRef = {
   open: (student: Student) => void;
@@ -132,7 +132,7 @@ function CodeSection({ code, isLoadingCode, onCopy, onShare, t }: {
   t: (key: string) => string;
 }) {
   if (isLoadingCode)
-    return <ActivityIndicator size="small" color="#3B82F6" />;
+    return <ActivityIndicator size="small" color={colors.brand.primary} />;
   if (!code)
     return <Text style={styles.noCode}>{t('teacher.studentActions.noCode')}</Text>;
   return (
@@ -141,8 +141,8 @@ function CodeSection({ code, isLoadingCode, onCopy, onShare, t }: {
         <Text style={styles.codeText}>{code.code}</Text>
       </View>
       <View style={styles.codeActions}>
-        <ActionChip icon="copy-outline" label={t('teacher.studentActions.copyCode')} onPress={onCopy} color="#3B82F6" bg="#EFF6FF" />
-        <ActionChip icon="share-outline" label={t('teacher.studentActions.shareCode')} onPress={onShare} color="#3B82F6" bg="#EFF6FF" />
+        <ActionChip icon="copy-outline" label={t('teacher.studentActions.copyCode')} onPress={onCopy} color={colors.brand.primaryDeep} bg={colors.brand.primaryGlow} />
+        <ActionChip icon="share-outline" label={t('teacher.studentActions.shareCode')} onPress={onShare} color={colors.brand.primaryDeep} bg={colors.brand.primaryGlow} />
       </View>
     </>
   );
@@ -176,9 +176,9 @@ export function StudentActionsSheet({ ref, onEdit, onDeleted, onViewPerformance 
           </View>
           <View style={styles.actions}>
             <ActionRow icon="create-outline" label={t('teacher.studentActions.editStudent')} onPress={handleEditPress} />
-            {onViewPerformance && <ActionRow icon="bar-chart-outline" label={t('teacher.performance.studentPerformance')} onPress={handlePerformancePress} color="#3B82F6" />}
+            {onViewPerformance && <ActionRow icon="bar-chart-outline" label={t('teacher.performance.studentPerformance')} onPress={handlePerformancePress} color={colors.brand.primaryDeep} />}
             {state.code && <ActionRow icon="refresh-outline" label={t('teacher.studentActions.regenerateCode')} onPress={() => state.confirmRegenModal.present()} color="#F59E0B" />}
-            <ActionRow icon="trash-outline" label={t('teacher.studentActions.deleteStudent')} onPress={() => state.confirmDeleteModal.present()} color="#DC2626" danger />
+            <ActionRow icon="trash-outline" label={t('teacher.studentActions.deleteStudent')} onPress={() => state.confirmDeleteModal.present()} color={colors.semantic.absent} danger />
           </View>
         </View>
       </Modal>
@@ -221,7 +221,7 @@ function ActionRow({ icon, label, onPress, color = '#374151', danger = false }: 
       style={({ pressed }) => [
         styles.actionRow,
         danger && styles.actionRowDanger,
-        pressed && { backgroundColor: danger ? '#FEF2F2' : '#F9FAFB' },
+        pressed && { backgroundColor: danger ? '#FEF2F2' : colors.neutral.paper },
       ]}
       accessibilityRole="button"
     >
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   codeText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#1D4ED8',
+    color: colors.brand.blue,
     letterSpacing: 3,
     textAlign: 'center',
   },
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   chipLabel: { fontSize: 13, fontWeight: '600' },
-  noCode: { fontSize: 14, color: '#9CA3AF', fontStyle: 'italic' },
+  noCode: { fontSize: 14, color: colors.neutral.dim, fontStyle: 'italic' },
   actions: { gap: 2 },
   actionRow: {
     flexDirection: 'row',

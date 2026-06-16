@@ -34,7 +34,7 @@ export function InviteTeacherModal() {
 
   return (
     <View className="mt-5 rounded-[28px] bg-white p-5">
-      <Text className="font-inter text-lg font-semibold text-slate-900">
+      <Text className="font-inter text-lg font-semibold text-ink">
         {t('manager.teachers.inviteTitle', { defaultValue: 'Invite Teacher' })}
       </Text>
       <Input
@@ -48,7 +48,7 @@ export function InviteTeacherModal() {
         onChangeText={inviteeEmail => setValues(c => ({ ...c, inviteeEmail }))}
       />
       {message
-        ? <Text className="font-inter mt-2 text-sm text-slate-500">{message}</Text>
+        ? <Text className="mt-2 font-inter text-sm text-ink-muted">{message}</Text>
         : null}
       <Button
         className="mt-3"

@@ -11,6 +11,7 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 export function ExpiredBanner() {
   const { t } = useTranslation();
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#DC2626',
+    backgroundColor: colors.semantic.absent,
     alignItems: 'center',
     justifyContent: 'center',
   },

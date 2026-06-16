@@ -1,0 +1,45 @@
+appId: ${APP_ID}
+name: onboarding
+tags:
+  - auth
+  - onboarding
+# Journey: Onboarding (post-OTP profile creation, paper canvas).
+# This screen is reached ONLY after a verified auth session exists, so it cannot
+# be launched cold. The flow documents the anchors + submit path; making it run
+# requires a session seam (see implementation plan). No runtime coverage claimed.
+---
+- launchApp:
+    clearState: false
+
+# --- Onboarding anchors ---
+# TODO(testid): onboarding-screen-root — no testID on the root paper View
+#   (onboarding-screen.tsx:201). Falling back to the submit button + hero copy.
+- assertVisible:
+    id: onboarding-submit-button # onboarding-screen.tsx:267
+    timeout: 10000
+
+# --- Role pill row (shown when no role pre-selected) ---
+# RolePillRow emits per-role testIDs (role-pill-row.tsx:48): role-card-teacher / role-card-parent.
+- assertVisible:
+    id: role-card-teacher # role-pill-row.tsx:48
+- tapOn:
+    id: role-card-teacher
+
+# --- Full name field ---
+# FullNameField emits testID="fullName-input" (full-name-field.tsx:33).
+- assertVisible:
+    id: fullName-input # full-name-field.tsx:33
+
+# --- Phone field ---
+# PhoneField (testIDPrefix="onboarding-phone") emits onboarding-phone-local for
+# the local-number TextInput (phone-field.tsx:89). There is no -input child.
+- assertVisible:
+    id: onboarding-phone-local # phone-field.tsx:89
+
+# --- Submit (will surface onboarding-error without a valid session) ---
+- tapOn:
+    id: onboarding-submit-button
+# Either we advance to a role home, or the error text renders:
+- assertVisible:
+    id: onboarding-error # onboarding-screen.tsx:226
+    optional: true

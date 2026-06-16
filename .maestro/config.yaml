@@ -1,12 +1,18 @@
 flows:
-  - auth/*
-  - app/*
+  - flows/*
 
+# Utility flows (hide-keyboard helpers) are tagged `util` and excluded from the
+# top-level run so they only execute when explicitly invoked via runFlow.
 excludeTags:
   - util
 
 executionOrder:
-  continueOnFailure: false # default is true
+  continueOnFailure: false
   flowsOrder:
+    - auth-login
     - onboarding
-    - login-with-validation
+    - teacher-dashboard
+    - teacher-student-list
+    - teacher-attendance
+    - parent-dashboard
+    - parent-notifications

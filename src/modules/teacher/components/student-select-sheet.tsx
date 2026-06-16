@@ -7,7 +7,7 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { Student } from '../types';
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import { Button, Modal, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type StudentSelectSheetProps = {
   ref?: React.RefObject<BottomSheetModal | null>;
@@ -25,25 +26,26 @@ type StudentSelectSheetProps = {
   onConfirm: (ids: string[]) => void;
 };
 
-function StudentPickerRow({
+const StudentPickerRow = memo(({
   student,
   isSelected,
   onToggle,
 }: {
   student: Student;
   isSelected: boolean;
-  onToggle: () => void;
-}) {
+  onToggle: (id: string) => void;
+}) => {
+  const handlePress = useCallback(() => onToggle(student.id), [onToggle, student.id]);
   return (
     <Pressable
-      onPress={onToggle}
+      onPress={handlePress}
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: isSelected }}
     >
       <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
         {isSelected
-          ? <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+          ? <Ionicons name="checkmark" size={14} color={colors.neutral.white} />
           : null}
       </View>
 
@@ -55,7 +57,7 @@ function StudentPickerRow({
       </View>
     </Pressable>
   );
-}
+});
 
 export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConfirm }: StudentSelectSheetProps) {
   const { t } = useTranslation();
@@ -68,6 +70,8 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
       return availableStudents;
     return availableStudents.filter(s => s.name.toLowerCase().includes(q));
   }, [availableStudents, query]);
+
+  const selectedSet = useMemo(() => new Set(draft), [draft]);
 
   const toggle = useCallback((id: string) => {
     setDraft(prev =>
@@ -84,11 +88,11 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
     ({ item }: { item: Student }) => (
       <StudentPickerRow
         student={item}
-        isSelected={draft.includes(item.id)}
-        onToggle={() => toggle(item.id)}
+        isSelected={selectedSet.has(item.id)}
+        onToggle={toggle}
       />
     ),
-    [draft, toggle],
+    [selectedSet, toggle],
   );
 
   return (
@@ -96,11 +100,11 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
       <View style={styles.container}>
         {/* Search */}
         <View style={styles.search}>
-          <Ionicons name="search-outline" size={16} color="#9CA3AF" />
+          <Ionicons name="search-outline" size={16} color={colors.neutral.dim} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('teacher.students.searchPlaceholder')}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.neutral.dim}
             value={query}
             onChangeText={setQuery}
             clearButtonMode="while-editing"
@@ -136,6 +140,7 @@ export function StudentSelectSheet({ ref, availableStudents, selectedIds, onConf
           data={filtered}
           keyExtractor={item => item.id}
           renderItem={renderItem}
+          extraData={selectedSet}
           style={styles.list}
           contentContainerStyle={styles.listContent}
           keyboardShouldPersistTaps="handled"
@@ -171,7 +176,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 12,
     height: 42,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -201,7 +206,7 @@ const styles = StyleSheet.create({
   },
   selectAllText: {
     fontSize: 13,
-    color: '#3B82F6',
+    color: colors.brand.primaryInk,
     fontWeight: '600',
   },
   countActions: {
@@ -228,7 +233,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rowPressed: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.neutral.cardWarm,
   },
   checkbox: {
     width: 24,
@@ -241,8 +246,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   checkboxActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: colors.brand.primary,
+    borderColor: colors.brand.primary,
   },
   info: {
     flex: 1,
@@ -263,7 +268,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: colors.neutral.dim,
   },
   footer: {
     paddingVertical: 16,

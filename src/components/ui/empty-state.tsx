@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import colors from '@/components/ui/colors';
@@ -27,57 +28,57 @@ type EmptyStateProps = {
 
 const SCOPE_DEFAULTS: Record<
   EmptyStateScope,
-  { icon: string; title: string; body: string }
+  { icon: string; titleKey: string; bodyKey: string }
 > = {
   teacherNoSessions: {
     icon: 'calendar-outline',
-    title: 'No sessions yet',
-    body: 'Create your first session to get started.',
+    titleKey: 'emptyState.teacherNoSessions_title',
+    bodyKey: 'emptyState.teacherNoSessions_body',
   },
   teacherNoStudents: {
     icon: 'people-outline',
-    title: 'No students yet',
-    body: 'Share your connection code to add students.',
+    titleKey: 'emptyState.teacherNoStudents_title',
+    bodyKey: 'emptyState.teacherNoStudents_body',
   },
   parentNoChildren: {
     icon: 'person-outline',
-    title: 'No children linked',
-    body: 'Link a child to start tracking their progress.',
+    titleKey: 'emptyState.parentNoChildren_title',
+    bodyKey: 'emptyState.parentNoChildren_body',
   },
   parentNoAttendance: {
     icon: 'calendar-outline',
-    title: 'No attendance records',
-    body: 'Attendance will appear here after sessions.',
+    titleKey: 'emptyState.parentNoAttendance_title',
+    bodyKey: 'emptyState.parentNoAttendance_body',
   },
   parentNoNotifications: {
     icon: 'notifications-outline',
-    title: 'No notifications',
-    body: 'You\'re all caught up!',
+    titleKey: 'emptyState.parentNoNotifications_title',
+    bodyKey: 'emptyState.parentNoNotifications_body',
   },
   managerNoOrg: {
     icon: 'business-outline',
-    title: 'No organization',
-    body: 'Set up your organization to get started.',
+    titleKey: 'emptyState.managerNoOrg_title',
+    bodyKey: 'emptyState.managerNoOrg_body',
   },
   managerNoStudents: {
     icon: 'people-outline',
-    title: 'No students yet',
-    body: 'Students will appear here once added.',
+    titleKey: 'emptyState.managerNoStudents_title',
+    bodyKey: 'emptyState.managerNoStudents_body',
   },
   managerNoSessions: {
     icon: 'calendar-outline',
-    title: 'No sessions yet',
-    body: 'Sessions will appear here once scheduled.',
+    titleKey: 'emptyState.managerNoSessions_title',
+    bodyKey: 'emptyState.managerNoSessions_body',
   },
   managerNoTeachers: {
     icon: 'people-outline',
-    title: 'No teachers yet',
-    body: 'Add teachers to your organization.',
+    titleKey: 'emptyState.managerNoTeachers_title',
+    bodyKey: 'emptyState.managerNoTeachers_body',
   },
   generic: {
     icon: 'sparkles-outline',
-    title: 'Nothing here',
-    body: 'Check back later.',
+    titleKey: 'emptyState.generic_title',
+    bodyKey: 'emptyState.generic_body',
   },
 };
 
@@ -90,9 +91,10 @@ export function EmptyState({
   tone = 'default',
   testID,
 }: EmptyStateProps) {
+  const { t } = useTranslation();
   const defaults = SCOPE_DEFAULTS[scope];
-  const resolvedTitle = title ?? defaults.title;
-  const resolvedBody = body ?? defaults.body;
+  const resolvedTitle = title ?? t(defaults.titleKey);
+  const resolvedBody = body ?? t(defaults.bodyKey);
 
   const iconTint = tone === 'lime' ? colors.brand.primary : colors.neutral.inkMuted;
 
@@ -163,6 +165,8 @@ export function EmptyState({
             <Pressable
               testID={testID ? `${testID}-action` : undefined}
               onPress={action.onPress}
+              accessibilityRole="button"
+              accessibilityLabel={action.label}
               style={{
                 marginTop: 20,
                 backgroundColor: colors.brand.primary,

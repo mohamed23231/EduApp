@@ -1,11 +1,20 @@
 {
+  "admin": {
+    "dashboard": {
+      "subtitle": "Scaffolded route for admin production flows.",
+      "title": "Admin Dashboard"
+    }
+  },
   "auth": {
     "common": {
       "optional": "optional"
     },
     "errors": {
       "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "Your Google email is not verified. Please verify it and try again.",
-      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again."
+      "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in failed. Please try again.",
+      "invalidCredentials": "Incorrect phone/email or password. Please try again.",
+      "network": "Network error. Please check your connection and try again.",
+      "rateLimited": "Too many attempts. Please wait a moment and try again."
     },
     "invite": {
       "acceptButton": "Activate Account",
@@ -22,7 +31,17 @@
       "subtitle": "Set your password to activate your account.",
       "title": "Parent Invitation",
       "validating": "Validating invitation...",
+      "validation": {
+        "fullNameRequired": "Please enter your full name.",
+        "passwordMinLength": "Password must be at least 8 characters.",
+        "passwordRequired": "Please enter a password."
+      },
       "validationError": "Unable to validate invitation right now."
+    },
+    "legal": {
+      "agreement": "By continuing you agree to Taba3ny's <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms"
     },
     "login": {
       "createAccount": "Create Account",
@@ -38,12 +57,14 @@
       "headline": "The classroom,\non your phone.",
       "heroLine1": "The classroom,",
       "heroLine2": "on your phone.",
+      "hidePassword": "Hide password",
       "legalLine": "By continuing you agree to Taba3ny's Terms and Privacy Policy.",
       "orConnectWith": "OR CONNECT WITH",
       "orDivider": "OR",
       "passwordLabel": "Password",
       "phoneTab": "Phone",
       "protectedBy": "PROTECTED BY TABA3NY SECURITY",
+      "showPassword": "Show password",
       "signInWithGoogle": "Sign in with Google",
       "subheadline": "Sign in to track sessions, attendance, and progress.",
       "submit": "Sign In",
@@ -151,6 +172,9 @@
         "passwordTooShort": "Password must be at least 8 characters",
         "roleRequired": "Please select a role"
       }
+    },
+    "topBar": {
+      "toggleLanguage": "Change language"
     }
   },
   "brandVoice": {
@@ -167,7 +191,15 @@
     "undoLabel": "Undo"
   },
   "common": {
-    "language": "Language"
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "errorTitle": "Something went wrong",
+    "goBack": "Go back",
+    "goToLogin": "Go to Login",
+    "language": "Language",
+    "offline": "You're offline"
   },
   "contextSwitcher": {
     "orgContext": "Organization",
@@ -210,6 +242,7 @@
     "attendance": {
       "absent": "Absent",
       "back": "Back",
+      "backspace": "Backspace",
       "clearRating": "Clear",
       "emptyStudents": "No students assigned to this session.",
       "enterRating": "Enter rating",
@@ -232,12 +265,14 @@
     },
     "common": {
       "cancel": "Cancel",
+      "close": "Close",
       "confirm": "Confirm",
       "errorTitle": "Something went wrong",
       "loading": "Loading...",
       "noOrgCopy": "Create your first organization to get started.",
       "noOrgTitle": "No organization yet",
-      "ok": "OK"
+      "ok": "OK",
+      "retry": "Retry"
     },
     "dashboard": {
       "bellA11y": "Announcements",
@@ -254,6 +289,8 @@
       "emptyCopy": "Create your first organization to unlock the manager dashboard.",
       "emptyTitle": "No organization yet",
       "endSession": "End Session",
+      "errorBody": "Please try again.",
+      "errorTitle": "Could not load dashboard",
       "goodAfternoon": "Good afternoon",
       "goodEvening": "Good evening",
       "goodMorning": "Good morning",
@@ -287,7 +324,9 @@
       "quickAddStudent": "Add student",
       "quickInvite": "Invite",
       "quickNewSession": "New session",
+      "sessionClosed": "Session closed — absent students marked.",
       "sessionDuration": "{{minutes}} min",
+      "sessionStarted": "Session started.",
       "sessionStudents": "{{count}} students",
       "sessionStudents_few": "{{count}} students",
       "sessionStudents_many": "{{count}} students",
@@ -305,7 +344,8 @@
       },
       "title": "Manager dashboard",
       "todayTitle": "Today's sessions",
-      "viewAll": "View all"
+      "viewAll": "View all",
+      "viewAttendance": "View"
     },
     "days": {
       "fri": "Fri",
@@ -369,6 +409,8 @@
         "excusedCount": "Excused",
         "totalSessions": "Total sessions"
       },
+      "errorBody": "Please try again.",
+      "errorTitle": "Could not load reports",
       "range": {
         "month": "Month",
         "term": "Term",
@@ -386,6 +428,7 @@
         "ratingChip": "Rate {{name}} with score {{score}}",
         "statusChip": "Mark {{name}} as {{status}}"
       },
+      "actionError": "This action could not be completed. Please try again.",
       "attendanceError": "Could not save attendance right now.",
       "attendanceTitle": "Attendance",
       "close": "Close session",
@@ -518,6 +561,8 @@
       }
     },
     "settings": {
+      "errorLoading": "Unable to load organization settings.",
+      "errorRetry": "Retry",
       "fields": {
         "address": "Address",
         "email": "Email",
@@ -579,6 +624,7 @@
       "totalSessions": "Sessions"
     },
     "students": {
+      "actionErrorTitle": "Action failed",
       "actions": {
         "copy": "Copy code",
         "create": "Create student",
@@ -600,6 +646,7 @@
       "createSuccess": "Student added successfully",
       "createTitle": "Add student",
       "deleteConfirm": "Delete",
+      "deleteError": "Could not delete student",
       "deleteMessage": "This will remove the student from future sessions. Historical data is preserved.",
       "deleteTitle": "Delete student?",
       "editTitle": "Edit student",
@@ -637,6 +684,7 @@
       "pageInfo": "Page {{page}} of {{total}}",
       "parentLinked": "Parent linked",
       "prevPage": "Previous",
+      "regenerateError": "Could not regenerate code",
       "regenerateMessage": "The old code will stop working immediately.",
       "regenerateTitle": "Regenerate code?",
       "search": "Search students",
@@ -718,6 +766,7 @@
     "whatsapp": {
       "copiedBody": "WhatsApp is unavailable, so the message was copied.",
       "copiedTitle": "Copied",
+      "inviteMessage": "{{name}} - {{code}}\n{{url}}",
       "share": "Share via WhatsApp"
     },
     "wizard": {
@@ -781,6 +830,7 @@
       "absentCount": "Absences",
       "emptyMessage": "No attendance records available.",
       "emptyTitle": "No Records Yet",
+      "errorTitle": "Could not load attendance",
       "excused": "Excused",
       "notMarked": "Not Marked",
       "present": "Present",
@@ -805,6 +855,7 @@
     "dashboard": {
       "emptyMessage": "Link a student to get started.",
       "emptyTitle": "No Students Linked",
+      "errorTitle": "Could not load your family",
       "familyLabel": "Family",
       "greeting": "Hi there",
       "hero": {
@@ -821,6 +872,7 @@
       },
       "linkStudentCta": "Link a Student",
       "noTimeline": "No recent attendance records.",
+      "noTimelineTitle": "No recent activity",
       "performanceSubtitle": "View ratings and progress",
       "performanceTitle": "Student Performance",
       "row": {
@@ -841,6 +893,8 @@
     },
     "linkStudent": {
       "description": "Enter the integration code provided by your school to link your child's account.",
+      "errorExpired": "That code has expired. Ask your tutor for a new one.",
+      "errorInvalid": "That code isn't valid. Double-check it and try again.",
       "fallbackHelp": "Don't have a code? Please contact your school's administration office for assistance.",
       "helpContent": "You can find the integration code in the welcome letter from your school, or contact the school administration.",
       "helpLink": "Where do I find the code?",
@@ -853,10 +907,19 @@
       }
     },
     "notifications": {
+      "a11yRead": "read",
+      "a11yUnread": "unread",
       "absence": {
         "body": "{{studentName}} was marked absent on {{sessionDate}}",
         "title": "Absence Alert"
       },
+      "bellLabel": "Notifications",
+      "bellLabelUnread_few": "{{count}} unread notifications",
+      "bellLabelUnread_many": "{{count}} unread notifications",
+      "bellLabelUnread_one": "{{count}} unread notifications",
+      "bellLabelUnread_other": "{{count}} unread notifications",
+      "bellLabelUnread_two": "{{count}} unread notifications",
+      "bellLabelUnread_zero": "{{count}} unread notifications",
       "earlier": "Earlier",
       "empty": "You don't have any notifications yet.",
       "emptyTitle": "No Notifications",
@@ -867,10 +930,33 @@
         "title": "Low Performance Alert"
       },
       "markAllAsRead": "Mark all as read",
+      "markReadError": "Could not update notifications",
       "openSettings": "Open Settings",
       "pushDisabled": "Push notifications are off. In-app notifications are still active.",
       "pushUnsupported": "Push notifications are not available on simulator builds.",
+      "refreshError": "Could not refresh notifications",
       "thisWeek": "This Week",
+      "time": {
+        "daysAgo_few": "{{count}}d ago",
+        "daysAgo_many": "{{count}}d ago",
+        "daysAgo_one": "{{count}}d ago",
+        "daysAgo_other": "{{count}}d ago",
+        "daysAgo_two": "{{count}}d ago",
+        "daysAgo_zero": "{{count}}d ago",
+        "hoursAgo_few": "{{count}}h ago",
+        "hoursAgo_many": "{{count}}h ago",
+        "hoursAgo_one": "{{count}}h ago",
+        "hoursAgo_other": "{{count}}h ago",
+        "hoursAgo_two": "{{count}}h ago",
+        "hoursAgo_zero": "{{count}}h ago",
+        "justNow": "Just now",
+        "minutesAgo_few": "{{count}}m ago",
+        "minutesAgo_many": "{{count}}m ago",
+        "minutesAgo_one": "{{count}}m ago",
+        "minutesAgo_other": "{{count}}m ago",
+        "minutesAgo_two": "{{count}}m ago",
+        "minutesAgo_zero": "{{count}}m ago"
+      },
       "title": "Notifications",
       "today": "Today",
       "yesterday": "Yesterday"
@@ -883,6 +969,8 @@
       "chartTrendingUp": "Trending up ↗",
       "emptyState": "No performance data yet",
       "emptyStateHint": "Ratings will appear here after sessions are completed",
+      "emptyStateTitle": "No records yet",
+      "errorTitle": "Could not load performance",
       "highest": "Best Rating",
       "lowScoreNote": "Needs attention",
       "lowest": "Lowest",
@@ -891,12 +979,20 @@
       "ratedCount": "Rated",
       "subjectAttendance": "{{rate}}% attendance",
       "subjectsEmpty": "No subjects yet.",
+      "subjectsEmptyTitle": "No subjects yet",
       "tabOverview": "Overview",
       "tabSubjects": "Subjects",
       "tabTimeline": "Timeline",
       "teachersEmpty": "No teachers linked to sessions yet.",
+      "teachersEmptyTitle": "No teachers yet",
       "teachersLabel": "TEACHERS",
       "title": "Performance"
+    },
+    "permissionPrompt": {
+      "body": "Turn on notifications to get attendance and performance alerts.",
+      "cta": "Enable notifications",
+      "dismiss": "Not now",
+      "title": "Stay in the loop"
     },
     "profile": {
       "accountSection": "Account",
@@ -922,6 +1018,7 @@
     "schedule": {
       "emptyMessage": "Upcoming sessions will appear here.",
       "emptyTitle": "Nothing scheduled",
+      "errorTitle": "Could not load the schedule",
       "title": "Schedule",
       "todayLabel": "TODAY",
       "upcomingLabel": "UPCOMING"
@@ -930,6 +1027,7 @@
       "accessCodeCopied": "Copied!",
       "accessCodeCopy": "Copy",
       "accessCodeLabel": "ACCESS CODE",
+      "errorTitle": "Could not load this student",
       "labels": {
         "email": "Email",
         "enrollmentDate": "Enrollment Date",
@@ -943,6 +1041,8 @@
       "statStreak": "STREAK",
       "statStreakSuffix": "d",
       "title": "Student Details",
+      "unlinkedBody": "{{name}} was unlinked — their teacher removed the connection. You are viewing past records only. Contact the center if this is unexpected.",
+      "unlinkedTitle": "This child is no longer linked",
       "viewAttendance": "View Attendance",
       "viewPerformance": "View performance"
     },
@@ -950,7 +1050,13 @@
       "attendanceLabel": "attendance",
       "emptyMessage": "Link a student to see them here.",
       "emptyTitle": "No Students",
-      "title": "Students"
+      "errorTitle": "Could not load your students",
+      "title": "Students",
+      "unlinkedBadge": "Unlinked"
+    },
+    "students": {
+      "avatarNotSelected": "{{name}}, not selected",
+      "avatarSelected": "{{name}}, selected"
     },
     "tabs": {
       "dashboard": "Home",
@@ -995,6 +1101,12 @@
     "pending": "Pending",
     "present": "Present"
   },
+  "superAdmin": {
+    "dashboard": {
+      "subtitle": "Scaffolded route for super admin production flows.",
+      "title": "Super Admin Dashboard"
+    }
+  },
   "teacher": {
     "attendance": {
       "absent": "Absent",
@@ -1006,6 +1118,7 @@
       "applyToAll_other": "Apply {{rating}}/10 to {{count}} students",
       "applyToAll_two": "Apply {{rating}}/10 to {{count}} students",
       "applyToAll_zero": "Apply {{rating}}/10 to {{count}} students",
+      "backspace": "Delete",
       "batchRating": "Quick Rate All",
       "batchRatingButton": "Rate {{count}} students at once",
       "batchRatingButton_few": "Rate {{count}} students at once",
@@ -1024,16 +1137,25 @@
       "batchRatingTip": "You can still adjust individual ratings after applying",
       "clearRating": "Clear",
       "conflictError": "One or more records were already submitted.",
+      "decreaseRating": "Decrease rating",
       "emptyMessage": "No students assigned to this session.",
+      "emptyTitle": "No students assigned",
       "enterRating": "Enter Rating (0-10)",
       "error": "Failed to submit attendance. Please try again.",
       "excuseNote": "Reason",
       "excused": "Excused",
       "excusedLabel": "Mark Excused",
+      "increaseRating": "Increase rating",
       "markAllPresent": "Mark All Present",
       "noRating": "No rating",
       "noSearchResults": "No students found",
       "partialFailureError": "Some attendance records failed to save.",
+      "partialFailure_few": "{{count}} attendance records failed to save",
+      "partialFailure_many": "{{count}} attendance records failed to save",
+      "partialFailure_one": "{{count}} attendance record failed to save",
+      "partialFailure_other": "{{count}} attendance records failed to save",
+      "partialFailure_two": "{{count}} attendance records failed to save",
+      "partialFailure_zero": "{{count}} attendance records failed to save",
       "present": "Present",
       "presentLabel": "Mark Present",
       "progress": "{{marked}} of {{total}} marked",
@@ -1054,6 +1176,7 @@
       "studentCount_two": "{{count}} students",
       "studentCount_zero": "{{count}} students",
       "submitButton": "Submit Attendance",
+      "submitFailed": "Failed to submit attendance",
       "submitSuccess": "Attendance has been recorded successfully.",
       "submitWithCount": "Submit Attendance ({{marked}}/{{total}})",
       "submitting": "Submitting...",
@@ -1067,8 +1190,11 @@
       "delete": "Delete",
       "edit": "Edit",
       "error": "An error occurred",
+      "errorTitle": "Something went wrong",
       "featureDisabled": "This feature is not available for your account.",
+      "featureDisabledTitle": "Feature unavailable",
       "genericError": "Something went wrong. Please try again.",
+      "loadError": "Failed to load. Please try again.",
       "loading": "Loading...",
       "ok": "OK",
       "retry": "Retry",
@@ -1083,11 +1209,15 @@
       "copiedMessage": "Access code copied to clipboard",
       "copiedTitle": "Copied",
       "copyButton": "Copy Code",
+      "copyError": "Failed to copy to clipboard",
       "expiresAt": "Expires on {{date}}",
+      "fetchError": "Failed to fetch access code",
       "regenerateButton": "Regenerate Code",
+      "regenerateError": "Failed to regenerate access code",
       "regenerateWarning": "Regenerating will invalidate the current code",
       "regenerating": "Regenerating...",
       "shareButton": "Share Code",
+      "shareError": "Failed to share access code",
       "title": "Student Access Code"
     },
     "dashboard": {
@@ -1123,6 +1253,7 @@
       "emptyState": "No performance data yet",
       "emptyStateHint": "Ratings will appear here after sessions are rated",
       "highest": "Highest",
+      "loadMore": "Load more",
       "lowest": "Lowest",
       "noRatingLabel": "No rating",
       "ratedCount": "Rated",
@@ -1183,12 +1314,14 @@
     },
     "rankings": {
       "averageRating": "Average Rating",
+      "emptyHint": "Rate students after a session to build the leaderboard.",
       "filterAll": "All",
       "filterLast10": "Last 10",
       "filterLast5": "Last 5",
       "insufficientData": "Insufficient Data",
       "insufficientDataDescription": "Needs at least 1 rated session to rank",
       "midPack": "Mid pack",
+      "nameTab": "Name",
       "noRatings": "No ratings yet for this session",
       "outOfAvg": "/10 avg",
       "ranking": "Ranking",
@@ -1205,7 +1338,8 @@
         "down": "Declining",
         "stable": "Stable",
         "up": "Improving"
-      }
+      },
+      "trendTab": "Trend"
     },
     "sessions": {
       "assignStudentsButton": "Assign Students",
@@ -1400,9 +1534,14 @@
     }
   },
   "teacherOrg": {
+    "actionFailed": "Action failed",
+    "back": "Back",
     "closeSession": "Close session",
     "duration": "{{min}} min · {{n}} students",
     "empty": "No sessions assigned for today.",
+    "errorBody": "Please try again.",
+    "errorTitle": "Could not load sessions",
+    "retry": "Retry",
     "startSession": "Start session",
     "subtitle": "Your assigned sessions",
     "today": "Today",

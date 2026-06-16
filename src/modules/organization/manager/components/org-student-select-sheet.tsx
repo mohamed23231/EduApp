@@ -1,7 +1,7 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { OrgStudent } from '../types/manager.types';
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, TextInput, View } from 'react-native';
 import { Button, Modal, Text } from '@/components/ui';
@@ -14,18 +14,19 @@ type OrgStudentSelectSheetProps = {
   onConfirm: (ids: string[]) => void;
 };
 
-function StudentPickerRow({
+const StudentPickerRow = memo(({
   student,
   isSelected,
   onToggle,
 }: {
   student: OrgStudent;
   isSelected: boolean;
-  onToggle: () => void;
-}) {
+  onToggle: (id: string) => void;
+}) => {
+  const handlePress = useCallback(() => onToggle(student.id), [onToggle, student.id]);
   return (
     <Pressable
-      onPress={onToggle}
+      onPress={handlePress}
       className="flex-row items-center gap-3 rounded-xl border p-3"
       style={({ pressed }) => ({
         backgroundColor: pressed ? colors.neutral.cardWarm : colors.neutral.card,
@@ -51,7 +52,7 @@ function StudentPickerRow({
       </View>
     </Pressable>
   );
-}
+});
 
 function SelectionCountRow({
   count,
@@ -111,6 +112,8 @@ export function OrgStudentSelectSheet({
     return students.filter(s => s.name.toLowerCase().includes(q));
   }, [students, query]);
 
+  const selectedSet = useMemo(() => new Set(draft), [draft]);
+
   const toggle = useCallback((id: string) => {
     setDraft(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
@@ -121,6 +124,17 @@ export function OrgStudentSelectSheet({
     onConfirm(draft);
     ref?.current?.dismiss();
   }, [draft, onConfirm, ref]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: OrgStudent }) => (
+      <StudentPickerRow
+        student={item}
+        isSelected={selectedSet.has(item.id)}
+        onToggle={toggle}
+      />
+    ),
+    [selectedSet, toggle],
+  );
 
   return (
     <Modal
@@ -156,13 +170,8 @@ export function OrgStudentSelectSheet({
         <FlatList
           data={filtered}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <StudentPickerRow
-              student={item}
-              isSelected={draft.includes(item.id)}
-              onToggle={() => toggle(item.id)}
-            />
-          )}
+          renderItem={renderItem}
+          extraData={selectedSet}
           className="flex-1"
           contentContainerClassName="gap-1.5 pb-4"
           keyboardShouldPersistTaps="handled"

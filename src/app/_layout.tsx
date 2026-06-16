@@ -7,11 +7,12 @@ import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import colors from '@/components/ui/colors';
+import { ConnectivityBanner } from '@/components/ui/connectivity-banner';
 import { ThemeProvider as AppThemeProvider, useTheme } from '@/components/ui/theme';
 import { ToastHost } from '@/components/ui/toast-host';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
@@ -158,10 +159,10 @@ function useDeepLinkHandler() {
         const refreshToken = params.refresh_token;
 
         if (code) {
-          router.push({ pathname: '/reset-password' as any, params: { code } });
+          router.push({ pathname: AppRoute.auth.resetPassword, params: { code } });
         }
         else if (accessToken && refreshToken) {
-          router.push({ pathname: '/reset-password' as any, params: { access_token: accessToken, refresh_token: refreshToken } });
+          router.push({ pathname: AppRoute.auth.resetPassword, params: { access_token: accessToken, refresh_token: refreshToken } });
         }
         return;
       }
@@ -170,7 +171,7 @@ function useDeepLinkHandler() {
         const token = params.token;
         if (token && token.length > 0) {
           void setItem('pendingOrgInviteToken', token);
-          router.push({ pathname: '/org-invite' as any, params: { token } });
+          router.push({ pathname: AppRoute.orgInvite, params: { token } });
         }
         return;
       }
@@ -332,7 +333,7 @@ function ThemedRoot({
   return (
     <GestureHandlerRootView
       onLayout={onLayout}
-      style={styles.container}
+      style={{ flex: 1 }}
       // eslint-disable-next-line better-tailwindcss/no-unknown-classes
       className={navTheme.dark ? `dark` : undefined}
       {...rootDataSet}
@@ -347,6 +348,7 @@ function ThemedRoot({
                 {children}
               </ToastHost>
               <FlashMessage position="top" />
+              <ConnectivityBanner />
             </BottomSheetModalProvider>
           </APIProvider>
         </ThemeProvider>
@@ -354,9 +356,3 @@ function ThemedRoot({
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

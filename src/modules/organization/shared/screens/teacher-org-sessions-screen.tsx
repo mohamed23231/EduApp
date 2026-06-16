@@ -1,8 +1,12 @@
 import type { TeacherOrgInstance } from '../services/teacher-org-api.service';
-import { useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl } from 'react-native';
-import { ActivityIndicator, Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
+import { I18nManager, RefreshControl } from 'react-native';
+import { ActivityIndicator, Button, ErrorState, Pressable, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
+import { useToast } from '@/components/ui/toast-host';
 import { useCloseOrgInstance, useMyOrgInstances, useStartOrgInstance } from '../hooks/use-teacher-org-sessions';
 
 type InstanceCardProps = {
@@ -14,33 +18,36 @@ type InstanceCardProps = {
   isClosing: boolean;
 };
 
+const STATE_BADGE: Record<string, { bg: string; text: string }> = {
+  draft: { bg: colors.semantic.excusedSoft, text: colors.semantic.excusedInk },
+  active: { bg: colors.semantic.presentSoft, text: colors.semantic.presentInk },
+  closed: { bg: colors.semantic.absentSoft, text: colors.semantic.absentInk },
+  cancelled: { bg: colors.semantic.excusedSoft, text: colors.semantic.excusedInk },
+};
+
 function InstanceCard({ instance, orgName, onStart, onClose, isStarting, isClosing }: InstanceCardProps) {
   const { t } = useTranslation();
-  const stateColors: Record<string, string> = {
-    draft: 'bg-slate-100 text-slate-600',
-    active: 'bg-emerald-100 text-emerald-700',
-    closed: 'bg-red-100 text-red-700',
-    cancelled: 'bg-amber-100 text-amber-700',
-  };
   const stateKey = instance.state.toLowerCase();
-  const colorPair = stateColors[stateKey] ?? 'bg-slate-100 text-slate-600';
-  const [badgeBg, badgeText] = colorPair.split(' ');
+  const badge = STATE_BADGE[stateKey] ?? STATE_BADGE.draft;
 
   return (
-    <View className="mb-3 rounded-2xl border border-slate-200 bg-white p-4">
+    <View
+      className="mb-3 rounded-2xl border p-4"
+      style={{ backgroundColor: colors.neutral.card, borderColor: colors.neutral.rule }}
+    >
       <View className="flex-row items-center justify-between">
-        <Text className="font-inter text-base font-semibold text-slate-900">{instance.subject}</Text>
-        <View className={`rounded-full px-2 py-0.5 ${badgeBg}`}>
-          <Text className={`font-inter text-xs font-medium ${badgeText}`}>{instance.state}</Text>
+        <Text className="font-inter text-base font-semibold" style={{ color: colors.neutral.ink }}>{instance.subject}</Text>
+        <View className="rounded-full px-2 py-0.5" style={{ backgroundColor: badge.bg }}>
+          <Text className="font-inter text-xs font-medium" style={{ color: badge.text }}>{instance.state}</Text>
         </View>
       </View>
-      <Text className="font-inter mt-1 text-xs font-medium text-[#4338CA]">{orgName}</Text>
-      <Text className="font-inter mt-1 text-sm text-slate-500">
+      <Text className="mt-1 font-inter text-xs font-medium" style={{ color: colors.brand.primaryDeep }}>{orgName}</Text>
+      <Text className="mt-1 font-inter text-sm" style={{ color: colors.neutral.inkMuted }}>
         {instance.date}
         {' · '}
         {instance.time}
       </Text>
-      <Text className="font-inter mt-0.5 text-sm text-slate-500">
+      <Text className="mt-0.5 font-inter text-sm" style={{ color: colors.neutral.inkMuted }}>
         {t('teacherOrg.duration', { min: instance.durationMinutes, n: instance.studentCount })}
       </Text>
       {instance.state === 'DRAFT' && (
@@ -65,23 +72,94 @@ function InstanceCard({ instance, orgName, onStart, onClose, isStarting, isClosi
   );
 }
 
-type Props = { orgId: string; orgName: string };
+type Props = { orgId: string; orgName: string; onBack?: () => void };
 
-export function TeacherOrgSessionsScreen({ orgId, orgName }: Props) {
+function BackBar({ orgName, onBack }: { orgName: string; onBack: () => void }) {
   const { t } = useTranslation();
+  return (
+    <View className="flex-row items-center px-4 pt-2 pb-1">
+      <Pressable
+        onPress={onBack}
+        className="size-10 items-center justify-center rounded-full"
+        accessibilityRole="button"
+        accessibilityLabel={t('teacherOrg.back', { defaultValue: 'Back' })}
+      >
+        <Ionicons
+          name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'}
+          size={24}
+          color={colors.neutral.ink}
+        />
+      </Pressable>
+      <Text className="ms-1 font-inter text-base font-semibold" style={{ color: colors.neutral.ink }} numberOfLines={1}>
+        {orgName}
+      </Text>
+    </View>
+  );
+}
+
+// eslint-disable-next-line max-lines-per-function
+export function TeacherOrgSessionsScreen({ orgId, orgName, onBack }: Props) {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const toast = useToast();
   const today = new Date().toISOString().slice(0, 10);
   const instancesQuery = useMyOrgInstances(orgId, today);
   const startMutation = useStartOrgInstance(orgId);
   const closeMutation = useCloseOrgInstance(orgId);
 
-  const onRefresh = useCallback(() => {
-    void instancesQuery.refetch();
+  const handleBack = useCallback(() => {
+    if (onBack)
+      onBack();
+    else
+      router.back();
+  }, [onBack, router]);
+
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await instancesQuery.refetch();
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
   }, [instancesQuery]);
+
+  const handleActionError = useCallback(() => {
+    toast.show({ message: t('teacherOrg.actionFailed', { defaultValue: 'Action failed' }), kind: 'error' });
+  }, [toast, t]);
+
+  const handleStart = useCallback(
+    (id: string) => startMutation.mutate(id, { onError: handleActionError }),
+    [startMutation, handleActionError],
+  );
+  const handleClose = useCallback(
+    (id: string) => closeMutation.mutate(id, { onError: handleActionError }),
+    [closeMutation, handleActionError],
+  );
 
   if (instancesQuery.isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-[#F9FAFB]">
-        <ActivityIndicator size="large" />
+      <SafeAreaView className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
+        <BackBar orgName={orgName} onBack={handleBack} />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (instancesQuery.isError) {
+    return (
+      <SafeAreaView className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
+        <BackBar orgName={orgName} onBack={handleBack} />
+        <View className="flex-1 items-center justify-center">
+          <ErrorState
+            title={t('teacherOrg.errorTitle', { defaultValue: 'Could not load sessions' })}
+            body={t('teacherOrg.errorBody', { defaultValue: 'Something went wrong loading your sessions. Please try again.' })}
+            action={{ label: t('teacherOrg.retry', { defaultValue: 'Retry' }), onPress: () => instancesQuery.refetch() }}
+          />
+        </View>
       </SafeAreaView>
     );
   }
@@ -91,23 +169,24 @@ export function TeacherOrgSessionsScreen({ orgId, orgName }: Props) {
   const upcomingInstances = instances.filter(i => i.date > today);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.neutral.paper }}>
+      <BackBar orgName={orgName} onBack={handleBack} />
       <ScrollView
         contentContainerClassName="px-6 py-6"
-        refreshControl={<RefreshControl refreshing={instancesQuery.isRefetching} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isManualRefresh} onRefresh={onRefresh} />}
       >
-        <Text className="font-inter text-3xl font-semibold text-slate-900">{orgName}</Text>
-        <Text className="font-inter mt-1 text-base text-slate-500">{t('teacherOrg.subtitle')}</Text>
+        <Text className="font-inter text-3xl font-semibold" style={{ color: colors.neutral.ink }}>{orgName}</Text>
+        <Text className="mt-1 font-inter text-base" style={{ color: colors.neutral.inkMuted }}>{t('teacherOrg.subtitle')}</Text>
         {todayInstances.length > 0 && (
           <View className="mt-5">
-            <Text className="font-inter mb-3 text-lg font-semibold text-slate-900">{t('teacherOrg.today')}</Text>
+            <Text className="mb-3 font-inter text-lg font-semibold" style={{ color: colors.neutral.ink }}>{t('teacherOrg.today')}</Text>
             {todayInstances.map(i => (
               <InstanceCard
                 key={i.id}
                 instance={i}
                 orgName={orgName}
-                onStart={id => startMutation.mutate(id)}
-                onClose={id => closeMutation.mutate(id)}
+                onStart={handleStart}
+                onClose={handleClose}
                 isStarting={startMutation.isPending}
                 isClosing={closeMutation.isPending}
               />
@@ -116,14 +195,14 @@ export function TeacherOrgSessionsScreen({ orgId, orgName }: Props) {
         )}
         {upcomingInstances.length > 0 && (
           <View className="mt-5">
-            <Text className="font-inter mb-3 text-lg font-semibold text-slate-900">{t('teacherOrg.upcoming')}</Text>
+            <Text className="mb-3 font-inter text-lg font-semibold" style={{ color: colors.neutral.ink }}>{t('teacherOrg.upcoming')}</Text>
             {upcomingInstances.map(i => (
               <InstanceCard
                 key={i.id}
                 instance={i}
                 orgName={orgName}
-                onStart={id => startMutation.mutate(id)}
-                onClose={id => closeMutation.mutate(id)}
+                onStart={handleStart}
+                onClose={handleClose}
                 isStarting={startMutation.isPending}
                 isClosing={closeMutation.isPending}
               />
@@ -131,7 +210,7 @@ export function TeacherOrgSessionsScreen({ orgId, orgName }: Props) {
           </View>
         )}
         {instances.length === 0 && (
-          <Text className="font-inter mt-8 text-center text-base text-slate-500">
+          <Text className="mt-8 text-center font-inter text-base" style={{ color: colors.neutral.inkMuted }}>
             {t('teacherOrg.empty')}
           </Text>
         )}

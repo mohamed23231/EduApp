@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
 import { Color } from '@/components/ui/color-utils';
+import colors from '@/components/ui/colors';
 
 export function getInitials(name: string): string {
   const trimmed = name.trim();
@@ -33,9 +34,10 @@ type StudentAvatarProps = {
   size?: 'sm' | 'md' | 'lg';
   selected?: boolean;
   onPress?: () => void;
+  accessibilityLabel?: string;
 };
 
-export function StudentAvatar({ name, size = 'md', selected = false, onPress }: StudentAvatarProps) {
+export function StudentAvatar({ name, size = 'md', selected = false, onPress, accessibilityLabel }: StudentAvatarProps) {
   const initials = getInitials(name);
   const bgColor = getAvatarColor(name);
   const { container, fontSize, ring } = SIZE_MAP[size];
@@ -44,7 +46,7 @@ export function StudentAvatar({ name, size = 'md', selected = false, onPress }: 
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${name}, ${selected ? 'selected' : 'not selected'}`}
+      accessibilityLabel={accessibilityLabel}
       style={styles.pressable}
     >
       <View
@@ -54,7 +56,7 @@ export function StudentAvatar({ name, size = 'md', selected = false, onPress }: 
             width: ring,
             height: ring,
             borderRadius: ring / 2,
-            borderColor: selected ? Color.indigo(500) : 'transparent',
+            borderColor: selected ? colors.brand.primary : 'transparent',
           },
         ]}
       >

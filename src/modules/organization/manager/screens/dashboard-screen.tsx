@@ -19,7 +19,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, Button, ScrollView, Text } from '@/components/ui';
+import { ActivityIndicator, Button, ErrorState, ScrollView, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
 import { Modal, useModal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast-host';
@@ -94,22 +94,22 @@ function QuickActions({
         icon="person-add-outline"
         label={t('manager.dashboard.quickAddStudent', { defaultValue: 'Add student' })}
         onPress={onAddStudent}
-        iconBg="#EDE9FE"
-        iconColor="#7C3AED"
+        iconBg={colors.brand.primaryGlow}
+        iconColor={colors.brand.primaryDeep}
       />
       <QuickActionCard
         icon="calendar-outline"
         label={t('manager.dashboard.quickNewSession', { defaultValue: 'New session' })}
         onPress={onCreateSession}
-        iconBg="#DBEAFE"
-        iconColor="#2563EB"
+        iconBg={colors.semantic.presentSoft}
+        iconColor={colors.semantic.presentInk}
       />
       <QuickActionCard
         icon="mail-outline"
         label={t('manager.dashboard.quickInvite', { defaultValue: 'Invite' })}
         onPress={onInviteTeacher}
-        iconBg="#FEF3C7"
-        iconColor="#D97706"
+        iconBg={colors.semantic.excusedSoft}
+        iconColor={colors.semantic.excusedInk}
       />
     </View>
   );
@@ -117,18 +117,18 @@ function QuickActions({
 
 /** Stripe color per session state — matches teacher card pattern. */
 const STATE_STRIPE: Record<string, string> = {
-  DRAFT: '#F59E0B',
-  ACTIVE: '#10B981',
-  CLOSED: '#9CA3AF',
-  CANCELLED: '#9CA3AF',
+  DRAFT: colors.semantic.excused,
+  ACTIVE: colors.semantic.present,
+  CLOSED: colors.neutral.dim,
+  CANCELLED: colors.neutral.dim,
 };
 
 /** Badge style per session state. */
 const STATE_BADGE: Record<string, { bg: string; text: string; dot: string }> = {
-  DRAFT: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
-  ACTIVE: { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
-  CLOSED: { bg: '#F3F4F6', text: '#374151', dot: '#9CA3AF' },
-  CANCELLED: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
+  DRAFT: { bg: colors.semantic.excusedSoft, text: colors.semantic.excusedInk, dot: colors.semantic.excused },
+  ACTIVE: { bg: colors.semantic.presentSoft, text: colors.semantic.presentInk, dot: colors.semantic.present },
+  CLOSED: { bg: colors.neutral.cardWarm, text: colors.neutral.inkSoft, dot: colors.neutral.dim },
+  CANCELLED: { bg: colors.semantic.excusedSoft, text: colors.semantic.excusedInk, dot: colors.semantic.excused },
 };
 
 function TodaySessionCard({
@@ -151,7 +151,7 @@ function TodaySessionCard({
   t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   const stateKey = instance.state;
-  const stripeColor = STATE_STRIPE[stateKey] ?? '#9CA3AF';
+  const stripeColor = STATE_STRIPE[stateKey] ?? colors.neutral.dim;
   const badge = STATE_BADGE[stateKey] ?? STATE_BADGE.CLOSED;
   const studentCount = instance.studentCount ?? instance.students?.length ?? 0;
 
@@ -175,7 +175,7 @@ function TodaySessionCard({
         </View>
 
         <View style={styles.sessionMeta}>
-          <Ionicons name="time-outline" size={13} color="#9CA3AF" />
+          <Ionicons name="time-outline" size={13} color={colors.neutral.dim} />
           <Text style={styles.sessionMetaText}>
             {instance.time}
             {' · '}
@@ -184,10 +184,10 @@ function TodaySessionCard({
         </View>
 
         <View style={styles.sessionMeta}>
-          <Ionicons name="person-outline" size={13} color="#9CA3AF" />
+          <Ionicons name="person-outline" size={13} color={colors.neutral.dim} />
           <Text style={styles.sessionMetaText}>{instance.assignedTeacher.name}</Text>
           <Text style={styles.sessionDot}>·</Text>
-          <Ionicons name="people-outline" size={13} color="#9CA3AF" />
+          <Ionicons name="people-outline" size={13} color={colors.neutral.dim} />
           <Text style={styles.sessionMetaText}>
             {t('manager.dashboard.sessionStudents', { defaultValue: '{{count}} students', count: studentCount })}
           </Text>
@@ -212,7 +212,7 @@ function TodaySessionCard({
               style={({ pressed }) => [styles.attendanceBtn, pressed && styles.attendanceBtnPressed]}
               accessibilityRole="button"
             >
-              <Ionicons name="checkmark-done-outline" size={16} color="#FFFFFF" />
+              <Ionicons name="checkmark-done-outline" size={16} color={colors.neutral.white} />
               <Text style={styles.attendanceBtnText}>
                 {t('manager.dashboard.markAttendance', { defaultValue: 'Mark Attendance' })}
               </Text>
@@ -223,7 +223,7 @@ function TodaySessionCard({
               style={({ pressed }) => [styles.endBtn, pressed && styles.endBtnPressed, isClosing && styles.endBtnDisabled]}
               accessibilityRole="button"
             >
-              <Ionicons name="stop-circle-outline" size={16} color="#DC2626" />
+              <Ionicons name="stop-circle-outline" size={16} color={colors.semantic.absent} />
               <Text style={styles.endBtnText}>
                 {isClosing ? '...' : t('manager.dashboard.endSession', { defaultValue: 'End Session' })}
               </Text>
@@ -263,7 +263,7 @@ function TodaySessions({
   return (
     <>
       <View style={styles.sectionHeader}>
-        <Ionicons name="today-outline" size={14} color="#6B7280" />
+        <Ionicons name="today-outline" size={14} color={colors.neutral.inkMuted} />
         <Text style={styles.sectionTitle}>
           {t('manager.dashboard.todayTitle', { defaultValue: 'Today\'s sessions' })}
         </Text>
@@ -276,7 +276,7 @@ function TodaySessions({
       {todayInstances.length === 0
         ? (
             <View style={styles.emptyBox}>
-              <Ionicons name="calendar-outline" size={32} color="#D1D5DB" />
+              <Ionicons name="calendar-outline" size={32} color={colors.neutral.dim} />
               <Text style={styles.emptyText}>
                 {t('manager.dashboard.noSessions', { defaultValue: 'No sessions scheduled for today yet.' })}
               </Text>
@@ -356,11 +356,20 @@ export function DashboardScreen() {
   const trialModal = useModal();
   const closeModal = useModal();
 
-  const onRefresh = useCallback(() => {
-    organizationQuery.refetch();
-    stats.overview.refetch();
-    stats.teachers.refetch();
-    instancesQuery.refetch();
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await Promise.all([
+        organizationQuery.refetch(),
+        stats.overview.refetch(),
+        stats.teachers.refetch(),
+        instancesQuery.refetch(),
+      ]);
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
   }, [organizationQuery, stats.overview, stats.teachers, instancesQuery]);
 
   const showMutationError = useCallback(
@@ -375,7 +384,7 @@ export function DashboardScreen() {
       }
       toast.show({
         message: apiMessage ?? t('manager.sessionDetail.actionError', { defaultValue: 'This action could not be completed. Please try again.' }),
-        tone: 'absent',
+        kind: 'error',
       });
     },
     [t, toast, trialModal],
@@ -419,7 +428,7 @@ export function DashboardScreen() {
       onSuccess: () => {
         toast.show({
           message: t('manager.dashboard.sessionClosed', { defaultValue: 'Session closed — absent students marked.' }),
-          tone: 'lime',
+          kind: 'success',
           action: {
             label: t('manager.dashboard.viewAttendance', { defaultValue: 'View' }),
             onPress: () => router.push(AppRoute.manager.attendance(instanceId)),
@@ -454,10 +463,21 @@ export function DashboardScreen() {
     );
   }
 
+  if (organizationQuery.isError || stats.overview.isError || instancesQuery.isError) {
+    return (
+      <SafeAreaView edges={['top']} className="flex-1 items-center justify-center" style={{ backgroundColor: colors.neutral.paper }}>
+        <ErrorState
+          title={t('manager.dashboard.errorTitle', { defaultValue: 'Could not load dashboard' })}
+          body={t('manager.dashboard.errorBody', { defaultValue: 'Something went wrong loading your organization. Please try again.' })}
+          action={{ label: t('manager.common.retry', { defaultValue: 'Retry' }), onPress: onRefresh }}
+        />
+      </SafeAreaView>
+    );
+  }
+
   const organization = organizationQuery.data;
   const overview = stats.overview.data;
   const teacherStats = stats.teachers.data?.data ?? [] as OrgTeacherStatsItem[];
-  const isRefreshing = organizationQuery.isRefetching || stats.overview.isRefetching || instancesQuery.isRefetching;
   // At-risk = students absent today (absentToday is the clearest proxy from overview)
   const atRiskCount = overview?.absentToday ?? 0;
   // Upcoming = scheduled sessions that haven't started yet (todaySessions minus runningNow)
@@ -480,7 +500,7 @@ export function DashboardScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isManualRefresh} onRefresh={onRefresh} />}
       >
         {/* Attendance hero card */}
         <Animated.View entering={FadeInDown.delay(0).duration(350)}>
@@ -594,7 +614,7 @@ export function DashboardScreen() {
             onPress={() => { void Linking.openURL(SUPPORT_WHATSAPP_URL); }}
             style={{ padding: 14, borderRadius: 12, backgroundColor: colors.brand.primary }}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.trial.contactSupport', { defaultValue: 'Contact support' })}
             </Text>
           </Pressable>
@@ -611,7 +631,7 @@ export function DashboardScreen() {
             onPress={handleCloseConfirm}
             style={({ pressed }) => ({ padding: 14, borderRadius: 12, backgroundColor: pressed ? colors.semantic.absentSoft : colors.semantic.absent })}
           >
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff', textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.neutral.white, textAlign: 'center' }}>
               {t('manager.sessionDetail.closeConfirm', { defaultValue: 'Confirm' })}
             </Text>
           </Pressable>
@@ -721,7 +741,7 @@ const styles = {
     overflow: 'hidden',
     borderWidth: 0.5,
     borderColor: colors.neutral.rule,
-    shadowColor: '#000',
+    shadowColor: colors.neutral.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -759,11 +779,11 @@ const styles = {
     gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#10B981',
+    backgroundColor: colors.semantic.present,
     borderRadius: 10,
   },
-  attendanceBtnPressed: { backgroundColor: '#059669' },
-  attendanceBtnText: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
+  attendanceBtnPressed: { backgroundColor: colors.semantic.presentInk },
+  attendanceBtnText: { fontSize: 13, fontWeight: '600', color: colors.neutral.white },
   endBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -774,7 +794,7 @@ const styles = {
     backgroundColor: colors.semantic.absentSoft,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: colors.semantic.absentSoft,
   },
   endBtnPressed: { opacity: 0.85 },
   endBtnDisabled: { opacity: 0.5 },

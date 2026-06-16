@@ -1,120 +1,117 @@
-import * as React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+/**
+ * ConfirmSheet
+ * Canonical branded confirmation bottom sheet (ref-based, @gorhom/bottom-sheet).
+ *
+ * Encodes the locked 3-value confirm-color law via the `intent` prop:
+ *   - intent="routine"     → ink   (neutral.ink)        — default
+ *   - intent="reversible"  → amber (semantic.excused)
+ *   - intent="destructive" → red   (semantic.absent)
+ *
+ * Backward compatibility: the legacy `variant` prop is still accepted and
+ * mapped onto an intent (destructive → destructive, default → routine). When
+ * both are supplied, `intent` wins. This keeps existing call sites unchanged.
+ */
 
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, View } from 'react-native';
+
+import { Button, Modal, Text } from '@/components/ui';
 import colors from '@/components/ui/colors';
-import { Sheet } from '@/components/ui/sheet';
-import { Text } from '@/components/ui/text';
+
+export type ConfirmIntent = 'routine' | 'reversible' | 'destructive';
+
+type LegacyVariant = 'destructive' | 'default';
 
 type ConfirmSheetProps = {
-  open: boolean;
+  ref?: React.RefObject<BottomSheetModal | null>;
   title: string;
-  body?: string;
+  message: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  destructive?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  testID?: string;
+  isLoading?: boolean;
+  /** Drives the confirm button color. Defaults to 'routine' (ink). */
+  intent?: ConfirmIntent;
+  /** @deprecated Use `intent`. Mapped to an intent; `intent` wins if both set. */
+  variant?: LegacyVariant;
 };
 
+const INTENT_STYLE: Record<ConfirmIntent, { backgroundColor: string; textClassName: string }> = {
+  routine: { backgroundColor: colors.neutral.ink, textClassName: 'text-white' },
+  reversible: { backgroundColor: colors.semantic.excused, textClassName: 'text-excused-ink' },
+  destructive: { backgroundColor: colors.semantic.absent, textClassName: 'text-white' },
+};
+
+function resolveIntent(intent?: ConfirmIntent, variant?: LegacyVariant): ConfirmIntent {
+  if (intent)
+    return intent;
+  if (variant === 'destructive')
+    return 'destructive';
+  return 'routine';
+}
+
 export function ConfirmSheet({
-  open,
+  ref,
   title,
-  body,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
-  destructive = false,
+  message,
+  confirmLabel,
+  cancelLabel,
   onConfirm,
   onCancel,
-  testID,
+  isLoading,
+  intent,
+  variant,
 }: ConfirmSheetProps) {
-  const handleConfirm = React.useCallback(() => {
-    onConfirm();
-  }, [onConfirm]);
-
-  const handleCancel = React.useCallback(() => {
-    onCancel();
-  }, [onCancel]);
+  const { t } = useTranslation();
+  const resolvedIntent = resolveIntent(intent, variant);
+  const confirmStyle = INTENT_STYLE[resolvedIntent];
 
   return (
-    <Sheet
-      open={open}
-      onClose={handleCancel}
-      testID={testID}
-    >
-      <View style={styles.container}>
-        <Text style={styles.title}>{title}</Text>
-        {body ? <Text style={styles.body}>{body}</Text> : null}
-
-        <View style={styles.actions}>
-          <Pressable
-            onPress={handleCancel}
-            style={[styles.button, styles.cancelButton]}
-            accessibilityRole="button"
-            accessibilityLabel={cancelLabel}
-          >
-            <Text style={styles.cancelLabel}>{cancelLabel}</Text>
-          </Pressable>
-
-          <Pressable
-            onPress={handleConfirm}
-            style={[
-              styles.button,
-              { backgroundColor: destructive ? colors.semantic.absent : colors.brand.primary },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={confirmLabel}
-          >
-            <Text style={styles.confirmLabel}>{confirmLabel}</Text>
-          </Pressable>
+    <Modal ref={ref} snapPoints={['38%']} title={title}>
+      <View style={styles.content}>
+        <Text style={styles.message}>{message}</Text>
+        <View style={styles.buttons}>
+          <Button
+            label={confirmLabel ?? t('common.confirm')}
+            onPress={onConfirm}
+            loading={isLoading}
+            variant="default"
+            style={[styles.btn, { backgroundColor: confirmStyle.backgroundColor }]}
+            textClassName={confirmStyle.textClassName}
+            testID={`confirm-sheet-confirm-${resolvedIntent}`}
+          />
+          <Button
+            label={cancelLabel ?? t('common.cancel')}
+            onPress={onCancel}
+            variant="outline"
+            style={styles.btn}
+            testID="confirm-sheet-cancel"
+          />
         </View>
       </View>
-    </Sheet>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 32,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.neutral.ink,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  body: {
+  message: {
     fontSize: 15,
     color: colors.neutral.inkMuted,
-    textAlign: 'center',
     lineHeight: 22,
     marginBottom: 24,
+    textAlign: 'center',
   },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
+  buttons: {
+    gap: 10,
   },
-  button: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 14,
-  },
-  cancelButton: {
-    backgroundColor: colors.neutral['50'],
-  },
-  cancelLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.neutral.inkSoft,
-  },
-  confirmLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.neutral.white,
+  btn: {
+    width: '100%',
   },
 });

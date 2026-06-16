@@ -1,11 +1,20 @@
 {
+  "admin": {
+    "dashboard": {
+      "subtitle": "مسار مبدئي لتدفقات المشرف.",
+      "title": "لوحة المشرف"
+    }
+  },
   "auth": {
     "common": {
       "optional": "اختياري"
     },
     "errors": {
       "AUTH_GOOGLE_EMAIL_NOT_VERIFIED": "بريدك الإلكتروني في جوجل غير مُتحقق منه. يرجى التحقق منه والمحاولة مرة أخرى.",
-      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى."
+      "AUTH_GOOGLE_TOKEN_INVALID": "فشل تسجيل الدخول بجوجل. يرجى المحاولة مرة أخرى.",
+      "invalidCredentials": "رقم الهاتف أو البريد الإلكتروني أو كلمة المرور غير صحيحة. يُرجى المحاولة مرة أخرى.",
+      "network": "خطأ في الشبكة. يُرجى التحقق من اتصالك ثم المحاولة مرة أخرى.",
+      "rateLimited": "عدد محاولات كبير جدًا. يُرجى الانتظار قليلًا ثم المحاولة مرة أخرى."
     },
     "invite": {
       "acceptButton": "تفعيل الحساب",
@@ -22,7 +31,17 @@
       "subtitle": "أنشئ كلمة المرور لتفعيل حسابك.",
       "title": "دعوة ولي الأمر",
       "validating": "جارٍ التحقق من الدعوة...",
+      "validation": {
+        "fullNameRequired": "يرجى إدخال اسمك الكامل.",
+        "passwordMinLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+        "passwordRequired": "يرجى إدخال كلمة المرور."
+      },
       "validationError": "تعذر التحقق من الدعوة الآن."
+    },
+    "legal": {
+      "agreement": "بالمتابعة، فإنك توافق على <terms>الشروط</terms> و<privacy>سياسة الخصوصية</privacy> الخاصة بطبعني.",
+      "privacy": "سياسة الخصوصية",
+      "terms": "الشروط"
     },
     "login": {
       "createAccount": "إنشاء حساب",
@@ -38,12 +57,14 @@
       "headline": "الفصل الدراسي،\nفي جيبك.",
       "heroLine1": "الفصل الدراسي،",
       "heroLine2": "في جيبك.",
+      "hidePassword": "إخفاء كلمة المرور",
       "legalLine": "بمتابعتك توافق على شروط طبعني وسياسة الخصوصية.",
       "orConnectWith": "أو الاتصال عبر",
       "orDivider": "أو",
       "passwordLabel": "كلمة المرور",
       "phoneTab": "الهاتف",
       "protectedBy": "محمي بواسطة أمان تابعني",
+      "showPassword": "إظهار كلمة المرور",
       "signInWithGoogle": "تسجيل الدخول عبر Google",
       "subheadline": "سجّل دخولك لمتابعة الحصص والحضور والأداء.",
       "submit": "تسجيل الدخول",
@@ -151,6 +172,9 @@
         "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
         "roleRequired": "يرجى اختيار دور"
       }
+    },
+    "topBar": {
+      "toggleLanguage": "تغيير اللغة"
     }
   },
   "brandVoice": {
@@ -167,7 +191,15 @@
     "undoLabel": "تراجع"
   },
   "common": {
-    "language": "اللغة"
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "errorTitle": "حدث خطأ ما",
+    "goBack": "العودة",
+    "goToLogin": "الذهاب إلى تسجيل الدخول",
+    "language": "اللغة",
+    "offline": "أنت غير متصل بالإنترنت"
   },
   "contextSwitcher": {
     "orgContext": "المؤسسة",
@@ -210,6 +242,7 @@
     "attendance": {
       "absent": "غائب",
       "back": "رجوع",
+      "backspace": "مسح حرف",
       "clearRating": "مسح",
       "emptyStudents": "لا يوجد طلاب مسجلين في هذه الحصة.",
       "enterRating": "أدخل التقييم",
@@ -232,12 +265,14 @@
     },
     "common": {
       "cancel": "إلغاء",
+      "close": "إغلاق",
       "confirm": "تأكيد",
       "errorTitle": "حدث خطأ ما",
       "loading": "جارٍ التحميل...",
       "noOrgCopy": "أنشئ مؤسستك الأولى للبدء.",
       "noOrgTitle": "لا توجد مؤسسة بعد",
-      "ok": "حسنًا"
+      "ok": "حسنًا",
+      "retry": "إعادة المحاولة"
     },
     "dashboard": {
       "bellA11y": "الإعلانات",
@@ -254,6 +289,8 @@
       "emptyCopy": "أنشئ أول مؤسسة لفتح لوحة المدير.",
       "emptyTitle": "لا توجد مؤسسة بعد",
       "endSession": "إنهاء الحصة",
+      "errorBody": "يرجى المحاولة مرة أخرى.",
+      "errorTitle": "تعذّر تحميل لوحة التحكم",
       "goodAfternoon": "مساء الخير",
       "goodEvening": "مساء الخير",
       "goodMorning": "صباح الخير",
@@ -287,7 +324,9 @@
       "quickAddStudent": "إضافة طالب",
       "quickInvite": "دعوة",
       "quickNewSession": "حصة جديدة",
+      "sessionClosed": "تم إغلاق الجلسة — تم تحديد الطلاب الغائبين.",
       "sessionDuration": "{{minutes}} دقيقة",
+      "sessionStarted": "بدأت الجلسة.",
       "sessionStudents": "{{count}} طالب",
       "sessionStudents_few": "{{count}} طلاب",
       "sessionStudents_many": "{{count}} طالباً",
@@ -305,7 +344,8 @@
       },
       "title": "لوحة المدير",
       "todayTitle": "حصص اليوم",
-      "viewAll": "عرض الكل"
+      "viewAll": "عرض الكل",
+      "viewAttendance": "عرض"
     },
     "days": {
       "fri": "الجمعة",
@@ -369,6 +409,8 @@
         "excusedCount": "بعذر",
         "totalSessions": "إجمالي الحصص"
       },
+      "errorBody": "يرجى المحاولة مرة أخرى.",
+      "errorTitle": "تعذّر تحميل التقارير",
       "range": {
         "month": "شهر",
         "term": "فصل",
@@ -386,6 +428,7 @@
         "ratingChip": "تقييم {{name}} بدرجة {{score}}",
         "statusChip": "تسجيل {{name}} كـ {{status}}"
       },
+      "actionError": "تعذّر إتمام هذا الإجراء. يرجى المحاولة مرة أخرى.",
       "attendanceError": "تعذر حفظ الحضور الآن.",
       "attendanceTitle": "الحضور",
       "close": "أغلق الحصة",
@@ -518,6 +561,8 @@
       }
     },
     "settings": {
+      "errorLoading": "تعذّر تحميل إعدادات المؤسسة.",
+      "errorRetry": "إعادة المحاولة",
       "fields": {
         "address": "العنوان",
         "email": "البريد الإلكتروني",
@@ -579,6 +624,7 @@
       "totalSessions": "الحصص"
     },
     "students": {
+      "actionErrorTitle": "فشل الإجراء",
       "actions": {
         "copy": "نسخ الرمز",
         "create": "إنشاء الطالب",
@@ -600,6 +646,7 @@
       "createSuccess": "تمت إضافة الطالب بنجاح",
       "createTitle": "إضافة طالب",
       "deleteConfirm": "حذف",
+      "deleteError": "تعذّر حذف الطالب",
       "deleteMessage": "سيتم إزالة الطالب من الحصص المستقبلية. البيانات التاريخية محفوظة.",
       "deleteTitle": "حذف الطالب؟",
       "editTitle": "تعديل الطالب",
@@ -637,6 +684,7 @@
       "pageInfo": "صفحة {{page}} من {{total}}",
       "parentLinked": "ولي الأمر مرتبط",
       "prevPage": "السابق",
+      "regenerateError": "تعذّر إعادة إنشاء الرمز",
       "regenerateMessage": "الكود القديم سيتوقف عن العمل فوراً.",
       "regenerateTitle": "تجديد الكود؟",
       "search": "ابحث عن الطلاب",
@@ -718,6 +766,7 @@
     "whatsapp": {
       "copiedBody": "واتساب غير متاح حالياً، لذلك تم نسخ الرسالة.",
       "copiedTitle": "تم النسخ",
+      "inviteMessage": "{{name}} - {{code}}\n{{url}}",
       "share": "شارك عبر واتساب"
     },
     "wizard": {
@@ -781,6 +830,7 @@
       "absentCount": "الغيابات",
       "emptyMessage": "لا توجد سجلات حضور متاحة.",
       "emptyTitle": "لا توجد سجلات بعد",
+      "errorTitle": "تعذّر تحميل سجل الحضور",
       "excused": "معذور",
       "notMarked": "لم يُحدَّد",
       "present": "حاضر",
@@ -805,6 +855,7 @@
     "dashboard": {
       "emptyMessage": "ربط طالب للبدء.",
       "emptyTitle": "لم يتم ربط أي طلاب",
+      "errorTitle": "تعذّر تحميل بيانات عائلتك",
       "familyLabel": "العائلة",
       "greeting": "أهلاً",
       "hero": {
@@ -821,6 +872,7 @@
       },
       "linkStudentCta": "ربط طالب",
       "noTimeline": "لا توجد سجلات حضور حديثة.",
+      "noTimelineTitle": "لا يوجد نشاط حديث",
       "performanceSubtitle": "عرض التقييمات والتقدم",
       "performanceTitle": "أداء الطالب",
       "row": {
@@ -841,6 +893,8 @@
     },
     "linkStudent": {
       "description": "أدخل رمز التكامل المقدم من مدرستك لربط حساب طفلك.",
+      "errorExpired": "انتهت صلاحية هذا الرمز. اطلب رمزًا جديدًا من المعلم.",
+      "errorInvalid": "هذا الرمز غير صالح. يُرجى التحقق منه والمحاولة مرة أخرى.",
       "fallbackHelp": "ليس لديك رمز؟ يرجى التواصل مع مكتب إدارة مدرستك للحصول على المساعدة.",
       "helpContent": "يمكنك العثور على رمز التكامل في خطاب الترحيب من مدرستك، أو التواصل مع إدارة المدرسة.",
       "helpLink": "أين أجد الرمز؟",
@@ -853,10 +907,19 @@
       }
     },
     "notifications": {
+      "a11yRead": "مقروء",
+      "a11yUnread": "غير مقروء",
       "absence": {
         "body": "تم تحديد {{studentName}} كغائب في {{sessionDate}}",
         "title": "تنبيه غياب"
       },
+      "bellLabel": "الإشعارات",
+      "bellLabelUnread_few": "{{count}} إشعارات غير مقروءة",
+      "bellLabelUnread_many": "{{count}} إشعارات غير مقروءة",
+      "bellLabelUnread_one": "{{count}} إشعارات غير مقروءة",
+      "bellLabelUnread_other": "{{count}} إشعارات غير مقروءة",
+      "bellLabelUnread_two": "{{count}} إشعارات غير مقروءة",
+      "bellLabelUnread_zero": "{{count}} إشعارات غير مقروءة",
       "earlier": "سابقاً",
       "empty": "ليس لديك أي إشعارات حتى الآن.",
       "emptyTitle": "لا توجد إشعارات",
@@ -867,10 +930,33 @@
         "title": "تنبيه أداء منخفض"
       },
       "markAllAsRead": "وضع علامة على الكل كمقروء",
+      "markReadError": "تعذّر تحديث الإشعارات",
       "openSettings": "فتح الإعدادات",
       "pushDisabled": "الإشعارات الفورية معطلة. الإشعارات داخل التطبيق لا تزال نشطة.",
       "pushUnsupported": "الإشعارات الفورية غير متاحة على المحاكي.",
+      "refreshError": "تعذّر تحديث الإشعارات",
       "thisWeek": "هذا الأسبوع",
+      "time": {
+        "daysAgo_few": "منذ {{count}} يوم",
+        "daysAgo_many": "منذ {{count}} يوم",
+        "daysAgo_one": "منذ {{count}} يوم",
+        "daysAgo_other": "منذ {{count}} يوم",
+        "daysAgo_two": "منذ {{count}} يوم",
+        "daysAgo_zero": "منذ {{count}} يوم",
+        "hoursAgo_few": "منذ {{count}} س",
+        "hoursAgo_many": "منذ {{count}} س",
+        "hoursAgo_one": "منذ {{count}} س",
+        "hoursAgo_other": "منذ {{count}} س",
+        "hoursAgo_two": "منذ {{count}} س",
+        "hoursAgo_zero": "منذ {{count}} س",
+        "justNow": "الآن",
+        "minutesAgo_few": "منذ {{count}} د",
+        "minutesAgo_many": "منذ {{count}} د",
+        "minutesAgo_one": "منذ {{count}} د",
+        "minutesAgo_other": "منذ {{count}} د",
+        "minutesAgo_two": "منذ {{count}} د",
+        "minutesAgo_zero": "منذ {{count}} د"
+      },
       "title": "الإشعارات",
       "today": "اليوم",
       "yesterday": "أمس"
@@ -883,6 +969,8 @@
       "chartTrendingUp": "في تحسن ↗",
       "emptyState": "لا توجد بيانات أداء بعد",
       "emptyStateHint": "ستظهر التقييمات هنا بعد اكتمال الحصص",
+      "emptyStateTitle": "لا توجد سجلات بعد",
+      "errorTitle": "تعذّر تحميل بيانات الأداء",
       "highest": "أفضل تقييم",
       "lowScoreNote": "يحتاج إلى اهتمام",
       "lowest": "الأدنى",
@@ -891,12 +979,20 @@
       "ratedCount": "مقيّم",
       "subjectAttendance": "{{rate}}٪ حضور",
       "subjectsEmpty": "لا توجد مواد بعد.",
+      "subjectsEmptyTitle": "لا توجد مواد بعد",
       "tabOverview": "نظرة عامة",
       "tabSubjects": "المواد",
       "tabTimeline": "السجل",
       "teachersEmpty": "لا يوجد معلمون مرتبطون بالحصص بعد.",
+      "teachersEmptyTitle": "لا يوجد معلمون بعد",
       "teachersLabel": "المعلمون",
       "title": "الأداء"
+    },
+    "permissionPrompt": {
+      "body": "فعّل الإشعارات لتصلك تنبيهات الحضور والأداء.",
+      "cta": "تفعيل الإشعارات",
+      "dismiss": "ليس الآن",
+      "title": "ابقَ على اطلاع"
     },
     "profile": {
       "accountSection": "الحساب",
@@ -922,6 +1018,7 @@
     "schedule": {
       "emptyMessage": "ستظهر الحصص القادمة هنا.",
       "emptyTitle": "لا توجد حصص مجدولة",
+      "errorTitle": "تعذّر تحميل الجدول",
       "title": "الجدول",
       "todayLabel": "اليوم",
       "upcomingLabel": "قادم"
@@ -930,6 +1027,7 @@
       "accessCodeCopied": "تم النسخ!",
       "accessCodeCopy": "نسخ",
       "accessCodeLabel": "كود الوصول",
+      "errorTitle": "تعذّر تحميل بيانات الطالب",
       "labels": {
         "email": "البريد الإلكتروني",
         "enrollmentDate": "تاريخ التسجيل",
@@ -943,6 +1041,8 @@
       "statStreak": "متواصل",
       "statStreakSuffix": "يوم",
       "title": "تفاصيل الطالب",
+      "unlinkedBody": "تم إلغاء ربط {{name}} — أزال المعلم الاتصال. أنت تطّلع على السجلات السابقة فقط. تواصل مع المركز إن لم يكن ذلك متوقعًا.",
+      "unlinkedTitle": "لم يعد هذا الطفل مرتبطًا",
       "viewAttendance": "عرض الحضور",
       "viewPerformance": "عرض الأداء"
     },
@@ -950,7 +1050,13 @@
       "attendanceLabel": "الحضور",
       "emptyMessage": "ربط طالب لرؤيته هنا.",
       "emptyTitle": "لا توجد طلاب",
-      "title": "الطلاب"
+      "errorTitle": "تعذّر تحميل قائمة الأبناء",
+      "title": "الطلاب",
+      "unlinkedBadge": "تم إلغاء الربط"
+    },
+    "students": {
+      "avatarNotSelected": "{{name}}، غير محدد",
+      "avatarSelected": "{{name}}، محدد"
     },
     "tabs": {
       "dashboard": "الرئيسية",
@@ -995,6 +1101,12 @@
     "pending": "قيد الانتظار",
     "present": "حاضر"
   },
+  "superAdmin": {
+    "dashboard": {
+      "subtitle": "مسار مبدئي لتدفقات المشرف العام.",
+      "title": "لوحة المشرف العام"
+    }
+  },
   "teacher": {
     "attendance": {
       "absent": "غائب",
@@ -1006,6 +1118,7 @@
       "applyToAll_other": "تطبيق {{rating}}/10 على {{count}} طالب",
       "applyToAll_two": "تطبيق {{rating}}/10 على طالبين",
       "applyToAll_zero": "تطبيق {{rating}}/10 على لا أحد",
+      "backspace": "حذف",
       "batchRating": "تقييم سريع للجميع",
       "batchRatingButton": "تقييم {{count}} طالب دفعة واحدة",
       "batchRatingButton_few": "تقييم {{count}} طلاب دفعة واحدة",
@@ -1024,16 +1137,25 @@
       "batchRatingTip": "يمكنك تعديل التقييمات الفردية بعد التطبيق",
       "clearRating": "مسح",
       "conflictError": "تم تقديم سجل واحد أو أكثر بالفعل.",
+      "decreaseRating": "خفض التقييم",
       "emptyMessage": "لا يوجد طلاب مسندين لهذه الحصة.",
+      "emptyTitle": "لا يوجد طلاب معيّنون",
       "enterRating": "أدخل التقييم (0-10)",
       "error": "فشل تقديم الحضور. يرجى المحاولة مرة أخرى.",
       "excuseNote": "السبب",
       "excused": "معذور",
       "excusedLabel": "وضع علامة معذور",
+      "increaseRating": "رفع التقييم",
       "markAllPresent": "تحضير الكل",
       "noRating": "بدون تقييم",
       "noSearchResults": "لم يتم العثور على طلاب",
       "partialFailureError": "فشل حفظ بعض سجلات الحضور.",
+      "partialFailure_few": "فشل حفظ {{count}} سجلات حضور",
+      "partialFailure_many": "فشل حفظ {{count}} سجل حضور",
+      "partialFailure_one": "فشل حفظ سجل حضور واحد",
+      "partialFailure_other": "فشل حفظ {{count}} سجل حضور",
+      "partialFailure_two": "فشل حفظ سجلَّي حضور",
+      "partialFailure_zero": "لم يفشل أي سجل حضور",
       "present": "حاضر",
       "presentLabel": "وضع علامة حاضر",
       "progress": "{{marked}} من {{total}} تم تسجيلهم",
@@ -1054,6 +1176,7 @@
       "studentCount_two": "طالبان",
       "studentCount_zero": "بدون طلاب",
       "submitButton": "تقديم الحضور",
+      "submitFailed": "فشل تقديم الحضور",
       "submitSuccess": "تم تسجيل الحضور بنجاح.",
       "submitWithCount": "تقديم الحضور ({{marked}}/{{total}})",
       "submitting": "جاري التقديم...",
@@ -1067,8 +1190,11 @@
       "delete": "حذف",
       "edit": "تعديل",
       "error": "حدث خطأ",
+      "errorTitle": "حدث خطأ ما",
       "featureDisabled": "هذه الميزة غير متاحة لحسابك.",
+      "featureDisabledTitle": "الميزة غير متاحة",
       "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "loadError": "فشل التحميل. يرجى المحاولة مرة أخرى.",
       "loading": "جاري التحميل...",
       "ok": "موافق",
       "retry": "إعادة محاولة",
@@ -1083,11 +1209,15 @@
       "copiedMessage": "تم نسخ رمز الوصول إلى الحافظة",
       "copiedTitle": "تم النسخ",
       "copyButton": "نسخ الرمز",
+      "copyError": "تعذّر النسخ إلى الحافظة",
       "expiresAt": "ينتهي في {{date}}",
+      "fetchError": "تعذّر جلب رمز الوصول",
       "regenerateButton": "إعادة إنشاء الرمز",
+      "regenerateError": "تعذّر إعادة إنشاء رمز الوصول",
       "regenerateWarning": "سيؤدي إعادة الإنشاء إلى إبطال الرمز الحالي",
       "regenerating": "جاري إعادة الإنشاء...",
       "shareButton": "مشاركة الرمز",
+      "shareError": "تعذّر مشاركة رمز الوصول",
       "title": "رمز وصول الطالب"
     },
     "dashboard": {
@@ -1123,6 +1253,7 @@
       "emptyState": "لا توجد بيانات أداء بعد",
       "emptyStateHint": "ستظهر التقييمات هنا بعد تقييم الحصص",
       "highest": "الأعلى",
+      "loadMore": "تحميل المزيد",
       "lowest": "الأدنى",
       "noRatingLabel": "بدون تقييم",
       "ratedCount": "مقيّم",
@@ -1183,12 +1314,14 @@
     },
     "rankings": {
       "averageRating": "متوسط التقييم",
+      "emptyHint": "قيّم الطلاب بعد الجلسة لإنشاء قائمة المتصدرين.",
       "filterAll": "الكل",
       "filterLast10": "آخر 10",
       "filterLast5": "آخر 5",
       "insufficientData": "بيانات غير كافية",
       "insufficientDataDescription": "محتاج حصة مقيّمة واحدة على الأقل للترتيب",
       "midPack": "المستوى المتوسط",
+      "nameTab": "الاسم",
       "noRatings": "مفيش تقييمات للحصة دي لسه",
       "outOfAvg": "/10 متوسط",
       "ranking": "الترتيب",
@@ -1205,7 +1338,8 @@
         "down": "تراجع",
         "stable": "مستقر",
         "up": "تحسّن"
-      }
+      },
+      "trendTab": "الاتجاه"
     },
     "sessions": {
       "assignStudentsButton": "إسناد الطلاب",
@@ -1400,9 +1534,14 @@
     }
   },
   "teacherOrg": {
+    "actionFailed": "فشل الإجراء",
+    "back": "رجوع",
     "closeSession": "إغلاق الجلسة",
     "duration": "{{min}} دقيقة · {{n}} طالب",
     "empty": "لا توجد جلسات معيّنة لليوم.",
+    "errorBody": "يرجى المحاولة مرة أخرى.",
+    "errorTitle": "تعذّر تحميل الجلسات",
+    "retry": "إعادة المحاولة",
     "startSession": "بدء الجلسة",
     "subtitle": "جلساتك المعيّنة",
     "today": "اليوم",

@@ -47,7 +47,7 @@ describe('UI primitives render without crashing', () => {
   });
 
   it('PressButton renders', () => {
-    render(<PressButton />);
+    render(<PressButton variant="primary" />);
   });
 
   it('TabaMark renders with defaults', () => {

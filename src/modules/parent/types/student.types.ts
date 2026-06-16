@@ -3,12 +3,22 @@
  * Validates: Requirements 8.3, 9.1, 10.1, 11.1, 12.2, 12.6
  */
 
+/**
+ * Per-student link status surfaced by `GET /parents/students`.
+ * `'unlinked'` children are revoked/no-longer-linked but still returned (with
+ * `includeUnlinked=true`) so the parent keeps read-only access to past records.
+ * `'pending'` does NOT exist in the contract — do not handle it.
+ */
+export type LinkStatus = 'linked' | 'unlinked';
+
 export type Student = {
   id: string;
   fullName: string;
   gradeLevel?: string;
   teacherName?: string;
   connectionCode?: string;
+  /** Optional — omitted by older backend responses, defaults to linked. */
+  linkStatus?: LinkStatus;
 };
 
 export type StudentDetails = Student & {

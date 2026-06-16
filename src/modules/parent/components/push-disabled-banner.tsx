@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/ui';
-import { Color } from '@/components/ui/color-utils';
+import colors from '@/components/ui/colors';
 import {
   getPushPermissionStatus,
   openNotificationSettings,
@@ -67,7 +67,7 @@ export function PushDisabledBanner() {
       testID="push-disabled-banner"
     >
       <View style={styles.content}>
-        <Ionicons name="notifications-off" size={20} color={Color.warning(500)} style={styles.icon} />
+        <Ionicons name="notifications-off" size={20} color={colors.semantic.excused} style={styles.icon} />
         <Text style={styles.message}>{message}</Text>
       </View>
       {showSettingsButton && (
@@ -77,7 +77,7 @@ export function PushDisabledBanner() {
           accessibilityLabel={t('parent.notifications.openSettings')}
           testID="open-settings-button"
         >
-          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={Color.blue(500)} />
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={colors.semantic.excused} />
         </TouchableOpacity>
       )}
     </View>
@@ -89,9 +89,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Color.warning(50),
+    backgroundColor: colors.semantic.excusedSoft,
     borderBottomWidth: 1,
-    borderBottomColor: Color.warning(200),
+    borderBottomColor: colors.semantic.excused,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     fontSize: 14,
-    color: Color.warning(700),
+    color: colors.semantic.excusedInk,
     fontWeight: '500',
   },
 });

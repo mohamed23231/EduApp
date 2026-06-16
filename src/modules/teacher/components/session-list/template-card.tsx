@@ -49,14 +49,14 @@ export function TemplateCard({ item, index, onPress }: Props) {
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        className="flex-row items-center overflow-hidden rounded-2xl border border-rule"
+        className="flex-row items-center gap-3.5 rounded-2xl border border-rule p-3.5"
         style={({ pressed }) => [
           { backgroundColor: pressed ? colors.neutral.paper : colors.neutral.card },
         ]}
       >
         {/* Time block */}
         <View
-          className="mx-0 w-16 items-center py-4"
+          className="w-14 items-center rounded-xl py-2"
           style={{ backgroundColor: colors.neutral.paper }}
         >
           <Text className="text-[16px] leading-tight font-bold text-ink">
@@ -68,7 +68,7 @@ export function TemplateCard({ item, index, onPress }: Props) {
         </View>
 
         {/* Body */}
-        <View className="flex-1 gap-1 px-3 py-3.5">
+        <View className="flex-1 gap-1">
           <Text className="text-body-lg font-bold text-ink" numberOfLines={1}>
             {item.subject}
           </Text>
@@ -90,7 +90,6 @@ export function TemplateCard({ item, index, onPress }: Props) {
           name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'}
           size={16}
           color={colors.neutral.dim}
-          style={{ marginEnd: 14 }}
         />
       </Pressable>
     </MotiView>

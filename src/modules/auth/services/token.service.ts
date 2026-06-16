@@ -19,10 +19,12 @@ type ValidateTokenUser = {
   phoneE164?: string | null;
 };
 
-type ValidateTokenPayload = {
-  user: ValidateTokenUser;
-};
-
+/**
+ * Wire shape of `POST /auth/validate-token`'s `data` payload, as built inline by
+ * the backend controller (tutoring-backend `auth.controller.ts` validateToken,
+ * ~L195-209). The field is the flat `userId` — NOT a `{ user: {...} }` wrapper.
+ * `status` / `profile` are sometimes present but unused by the mobile client.
+ */
 type ValidateTokenDirectPayload = {
   userId: string;
   email: string;
@@ -59,7 +61,7 @@ export async function refreshToken(currentRefreshToken: string): Promise<Refresh
 
 export async function validateToken(): Promise<ValidateTokenResponse> {
   const response = await authClient.post<
-        ApiSuccess<ValidateTokenPayload | ValidateTokenDirectPayload> | ValidateTokenPayload | ValidateTokenDirectPayload
+        ApiSuccess<ValidateTokenDirectPayload> | ValidateTokenDirectPayload
   >(
     '/auth/validate-token',
   );
@@ -68,12 +70,9 @@ export async function validateToken(): Promise<ValidateTokenResponse> {
     ? (raw.data as Record<string, unknown>)
     : raw;
 
-  // Shape A: { user: { id, email, role } }
-  if (payload.user && typeof payload.user === 'object') {
-    return payload.user as ValidateTokenUser;
-  }
-
-  // Shape B: { userId, email, role, ... } -> normalize to AuthUser shape
+  // The backend returns a single, flat shape: { userId, email, role, ... }
+  // (tutoring-backend auth.controller.ts validateToken). Parse defensively and
+  // normalize to the AuthUser shape callers depend on ({ id, email, role, ... }).
   if (
     typeof payload.userId === 'string'
     && typeof payload.email === 'string'

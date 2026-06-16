@@ -46,7 +46,7 @@ function getStatusStyle(status: StatusChipStatus, dark?: boolean): StatusStyle {
     case 'live':
       return {
         bg: colors.brand.primary,
-        textColor: '#FFFFFF',
+        textColor: colors.brand.primaryInk,
         showDot: true,
       };
     case 'closed':
@@ -83,7 +83,7 @@ function StatusChip({ status, compact = false, dark = false, testID, accessibili
       }}
     >
       {style.showDot && (
-        <Dot size={6} color="#FFFFFF" pulse testID={testID ? `${testID}-dot` : undefined} />
+        <Dot size={6} color={colors.neutral.white} pulse testID={testID ? `${testID}-dot` : undefined} />
       )}
       <Text
         style={{

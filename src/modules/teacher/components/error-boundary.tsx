@@ -1,35 +1,46 @@
 /**
  * ErrorBoundary component
- * Catches and logs errors in teacher screens
+ * Catches and logs errors in teacher screens.
+ * The class boundary renders only translated copy passed in via `copy`
+ * and never surfaces the raw error message to the user.
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { logError } from '../services/logger';
 
-type Props = {
+type BoundaryCopy = {
+  title: string;
+  message: string;
+  retry: string;
+};
+
+type ClassProps = {
   children: React.ReactNode;
   screenName?: string;
+  copy: BoundaryCopy;
 };
 
 type State = {
   hasError: boolean;
-  error: Error | null;
 };
 
-export class ErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
+class ErrorBoundaryClass extends React.Component<ClassProps, State> {
+  constructor(props: ClassProps) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
   }
 
   componentDidCatch(error: Error): void {
+    console.error('[TeacherErrorBoundary] caught error', error);
     logError({
       screen: this.props.screenName || 'Unknown',
       action: 'componentDidCatch',
@@ -38,7 +49,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   handleReset = (): void => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false });
   };
 
   render(): React.ReactNode {
@@ -46,12 +57,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
       return (
         <SafeAreaView edges={['top']} style={styles.container}>
           <View style={styles.content}>
-            <Text style={styles.title}>Something went wrong</Text>
-            <Text style={styles.message}>
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </Text>
+            <Text style={styles.title}>{this.props.copy.title}</Text>
+            <Text style={styles.message}>{this.props.copy.message}</Text>
             <Button
-              label="Try Again"
+              label={this.props.copy.retry}
               onPress={this.handleReset}
               variant="default"
               style={styles.button}
@@ -65,10 +74,29 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
+type Props = {
+  children: React.ReactNode;
+  screenName?: string;
+};
+
+export function ErrorBoundary({ children, screenName }: Props) {
+  const { t } = useTranslation();
+  const copy: BoundaryCopy = {
+    title: t('teacher.common.errorTitle'),
+    message: t('teacher.common.loadError'),
+    retry: t('teacher.common.retry'),
+  };
+  return (
+    <ErrorBoundaryClass screenName={screenName} copy={copy}>
+      {children}
+    </ErrorBoundaryClass>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
   },
   content: {
     flex: 1,
@@ -79,12 +107,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#111827',
+    color: colors.neutral.ink,
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: '#6B7280',
+    color: colors.neutral.inkMuted,
     textAlign: 'center',
     marginBottom: 24,
   },

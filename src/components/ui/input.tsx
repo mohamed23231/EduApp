@@ -13,7 +13,7 @@ const inputTv = tv({
     container: 'mb-2',
     label: 'text-grey-100 mb-1 text-lg dark:text-neutral-100',
     input:
-      'font-inter mt-0 rounded-xl border-[0.5px] border-neutral-300 bg-neutral-100 px-4 py-3 text-base/5 font-medium dark:border-neutral-700 dark:bg-neutral-800 dark:text-white',
+      'mt-0 rounded-xl border-[0.5px] border-neutral-300 bg-neutral-100 px-4 py-3 font-inter text-base/5 font-medium dark:border-neutral-700 dark:bg-neutral-800 dark:text-white',
   },
 
   variants: {
@@ -53,7 +53,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
   const { t } = useTranslation();
 
   const onBlur = React.useCallback(
-    (e: any) => {
+    (e: Parameters<NonNullable<TextInputProps['onBlur']>>[0]) => {
       setIsFocussed(false);
       onBlurProp?.(e);
     },
@@ -61,7 +61,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
   );
 
   const onFocus = React.useCallback(
-    (e: any) => {
+    (e: Parameters<NonNullable<TextInputProps['onFocus']>>[0]) => {
       setIsFocussed(true);
       onFocusProp?.(e);
     },
@@ -95,7 +95,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
         {...inputProps}
         style={StyleSheet.flatten([
           { writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' },
-          { textAlign: I18nManager.isRTL ? 'right' : 'left' },
+          { textAlign: 'auto' },
           inputProps.style,
         ])}
       />

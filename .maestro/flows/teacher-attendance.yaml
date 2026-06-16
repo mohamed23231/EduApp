@@ -1,0 +1,44 @@
+appId: ${APP_ID}
+name: teacher-attendance
+tags:
+  - teacher
+  - attendance
+# Journey: Teacher attendance sheet (mark present/absent/excused, ratings, submit).
+# Auth-gated AND data-gated: requires a logged-in TEACHER with an ACTIVE session
+# instance. The sheet is reached from a session row (dashboard or sessions tab).
+# Almost every element on this screen lacks a testID today — see the missing-
+# testID list in the report. No runtime coverage is claimed.
+---
+- launchApp:
+    clearState: false
+
+# --- Reach an active session, then its attendance sheet ---
+- assertVisible:
+    id: teacher-tab-sessions # app/(teacher)/(tabs)/_layout.tsx:62
+    timeout: 10000
+- tapOn:
+    id: teacher-tab-sessions
+
+# TODO(testid): teacher-session-row-{instanceId} — session rows expose no
+#   testID, so selecting "the active session" is not reliably driveable.
+#   The attendance sheet is normally opened via the dashboard session item's
+#   "mark attendance" action (DashboardSessionItem) — also without a testID.
+
+# --- Attendance sheet anchors (header / footer have NO testIDs) ---
+# TODO(testid): attendance-sheet-header — anchor on the title for now.
+- assertVisible:
+    text: Mark Attendance # teacher.attendance.title (header)
+    optional: true
+
+# --- Per-student status control ---
+# TODO(testid): attendance-row-{studentId},
+#   attendance-status-{present|absent|excused}-{studentId} —
+#   AttendanceStatusControl / AttendanceStudentList rows have no testIDs, so
+#   tapping a present/absent control per student is not driveable today.
+
+# --- Submit ---
+# TODO(testid): attendance-submit-button — AttendanceSheetFooter submit has no
+#   testID (attendance-sheet-footer.tsx). Anchor on the label.
+- assertVisible:
+    text: Submit Attendance # teacher.attendance.submitButton
+    optional: true

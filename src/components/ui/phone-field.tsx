@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import colors from '@/components/ui/colors';
 import {
   getPhoneCountryByDialCode,
   getSupportedPhoneCountries,
@@ -83,7 +84,7 @@ export function PhoneField({
           autoCapitalize="none"
           autoCorrect={false}
           placeholder={localPlaceholder ?? selectedCountry.localPlaceholder}
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={colors.neutral.inkMuted}
           style={[styles.input, styles.localNumberInput, translatedError && styles.inputError]}
           testID={`${testIDPrefix}-local`}
         />
@@ -126,27 +127,27 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   errorText: {
-    color: '#DC2626',
+    color: colors.semantic.absent,
     fontSize: 13,
     marginTop: 2,
   },
   input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
+    backgroundColor: colors.neutral.card,
+    borderColor: colors.neutral.rule,
     borderRadius: 14,
     borderWidth: 1,
-    color: '#0F172A',
+    color: colors.neutral.ink,
     fontSize: 20,
     paddingHorizontal: 14,
     paddingVertical: 15,
   },
   inputError: {
-    borderColor: '#EF4444',
+    borderColor: colors.semantic.absent,
   },
   countryButton: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
+    backgroundColor: colors.neutral.card,
+    borderColor: colors.neutral.rule,
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
@@ -160,43 +161,43 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   countryChevron: {
-    color: '#64748B',
+    color: colors.neutral.inkMuted,
     fontSize: 16,
     fontWeight: '700',
     marginTop: -2,
   },
   countryDialCode: {
-    color: '#0F172A',
+    color: colors.neutral.ink,
     fontSize: 18,
     fontWeight: '700',
   },
   countryOption: {
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: colors.neutral.paper,
+    borderColor: colors.neutral.rule,
     borderRadius: 12,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   countryOptionSelected: {
-    backgroundColor: '#DBEAFE',
-    borderColor: '#3B82F6',
+    backgroundColor: colors.brand.primaryGlow,
+    borderColor: colors.brand.primary,
   },
   countryOptionLabel: {
-    color: '#0F172A',
+    color: colors.neutral.ink,
     fontSize: 16,
     fontWeight: '600',
   },
   label: {
-    color: '#334155',
+    color: colors.neutral.inkSoft,
     fontSize: 17,
     fontWeight: '700',
     marginBottom: 2,
     textAlign: I18nManager.isRTL ? 'right' : 'left',
   },
   labelError: {
-    color: '#DC2626',
+    color: colors.semantic.absent,
   },
   localNumberInput: {
     flex: 1,
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   countryOptionLabelSelected: {
-    color: '#1D4ED8',
+    color: colors.brand.primaryDeep,
     fontWeight: '700',
   },
 });

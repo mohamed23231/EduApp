@@ -2,25 +2,26 @@ import type { PhoneResetPasswordConfirmParams, PhoneResetPasswordRequestParams }
 import { useForm } from '@tanstack/react-form';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import {
   AuthFieldShell,
   AuthInput,
   Icon,
-  isoToFlagEmoji,
   PressButton,
 } from '@/components/ui';
 import colors from '@/components/ui/colors';
-import { Modal, useModal } from '@/components/ui/modal';
+import { useModal } from '@/components/ui/modal';
 import { getApiErrorMessage } from '@/shared/services/api-utils';
 import {
   buildE164Phone,
   DEFAULT_COUNTRY_CODE,
-  getPhoneCountryByDialCode,
   getPhoneValidationErrorKey,
-  getSupportedPhoneCountries,
   sanitizeOtpCode,
 } from '@/shared/utils/phone';
+import { FormErrorText } from './auth-error-text';
+import { CountryCodeChip } from './phone/country-code-chip';
+import { CountryPickerSheet } from './phone/country-picker-sheet';
+import { OtpCells } from './phone/otp-cells';
 
 /**
  * PhoneResetPasswordForm — dark identity per `contracts/visual-auth.md`.
@@ -35,73 +36,6 @@ export type PhoneResetPasswordFormProps = {
   isSubmitting: boolean;
   error?: string | null;
 };
-
-type OtpCellsProps = {
-  value: string;
-  onChange: (value: string) => void;
-  isRTL: boolean;
-};
-
-function OtpCells({ value, onChange, isRTL }: OtpCellsProps) {
-  const cells = Array.from({ length: 6 }, (_, idx) => value[idx] ?? '');
-  return (
-    <View style={{ position: 'relative' }}>
-      <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
-        {cells.map((char, idx) => {
-          const filled = char.length > 0;
-          return (
-            <View
-              // eslint-disable-next-line react/no-array-index-key
-              key={idx}
-              style={{
-                width: 46,
-                height: 60,
-                borderRadius: 14,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: filled
-                  ? 'rgba(34,197,114,0.18)'
-                  : 'rgba(255,255,255,0.06)',
-                borderWidth: 1.5,
-                borderColor: filled
-                  ? colors.brand.primary
-                  : 'rgba(255,255,255,0.15)',
-              }}
-            >
-              <Text style={{ color: colors.neutral.white, fontSize: 26, fontWeight: '700' }}>
-                {char}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
-      <View
-        style={{
-          position: 'absolute',
-          top: 0,
-          start: 0,
-          end: 0,
-          bottom: 0,
-          opacity: 0.01,
-        }}
-      >
-        <AuthFieldShell>
-          <AuthInput
-            value={value}
-            onChangeText={onChange}
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={6}
-            autoFocus
-            textContentType="oneTimeCode"
-            testID="otp-input"
-            textAlign={isRTL ? 'right' : 'left'}
-          />
-        </AuthFieldShell>
-      </View>
-    </View>
-  );
-}
 
 // eslint-disable-next-line max-lines-per-function
 export function PhoneResetPasswordForm({
@@ -121,9 +55,6 @@ export function PhoneResetPasswordForm({
   const [clientError, setClientError] = React.useState<string | null>(null);
 
   const countryPickerModal = useModal();
-  const supportedCountries = React.useMemo(() => getSupportedPhoneCountries(), []);
-  const phoneCountry = getPhoneCountryByDialCode(phoneCountryCode);
-  const phoneFlag = isoToFlagEmoji(phoneCountry.iso2);
   const composedPhone = buildE164Phone(phoneCountryCode, phoneLocalNumber);
 
   const translateApiError = React.useCallback(
@@ -180,53 +111,16 @@ export function PhoneResetPasswordForm({
 
   return (
     <View style={{ gap: 14 }}>
-      {errorMsg
-        ? (
-            <Text
-              style={{
-                color: colors.semantic.absent,
-                fontSize: 13,
-                fontWeight: '600',
-                textAlign: 'center',
-              }}
-            >
-              {errorMsg}
-            </Text>
-          )
-        : null}
+      <FormErrorText message={errorMsg} />
 
       {step === 'request' && (
         <View style={{ gap: 12 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Pressable
+            <CountryCodeChip
+              dialCode={phoneCountryCode}
               onPress={() => countryPickerModal.present()}
-              accessibilityRole="button"
-              accessibilityLabel={t('auth.phone.countryCodeLabel', 'Country')}
               testID="phone-reset-country-chip"
-              style={({ pressed }) => ({
-                height: 56,
-                borderRadius: 16,
-                paddingHorizontal: 14,
-                backgroundColor: pressed
-                  ? 'rgba(34,197,114,0.30)'
-                  : 'rgba(255,255,255,0.06)',
-                borderWidth: 1.5,
-                borderColor: pressed
-                  ? colors.brand.primary
-                  : 'rgba(255,255,255,0.12)',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 6,
-              })}
-            >
-              <Text style={{ fontSize: 18 }}>{phoneFlag}</Text>
-              <Text style={{ color: colors.neutral.white, fontSize: 15, fontWeight: '700' }}>
-                {phoneCountryCode}
-              </Text>
-              <Text style={{ color: colors.neutral.dim, fontSize: 14, marginStart: 2 }}>
-                ▾
-              </Text>
-            </Pressable>
+            />
             <AuthFieldShell>
               <AuthInput
                 value={phoneLocalNumber}
@@ -312,6 +206,8 @@ export function PhoneResetPasswordForm({
                   onPress={() => setShowPassword(s => !s)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   style={{ marginStart: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(showPassword ? 'auth.login.hidePassword' : 'auth.login.showPassword')}
                 >
                   <Icon
                     name={showPassword ? 'eyeOff' : 'eye'}
@@ -336,71 +232,15 @@ export function PhoneResetPasswordForm({
         </View>
       )}
 
-      {/* Country picker — same Modal+useModal pattern as login/signup. */}
-      <Modal
-        ref={countryPickerModal.ref}
-        snapPoints={['38%']}
-        title={t('auth.phone.countryCodeLabel', 'Country')}
-      >
-        <View style={{ paddingHorizontal: 20, paddingBottom: 22, gap: 8 }}>
-          {supportedCountries.map((country) => {
-            const selected = country.dialCode === phoneCountryCode;
-            const flag = isoToFlagEmoji(country.iso2);
-            const label = t(`auth.phone.countries.${country.iso2.toLowerCase()}`, {
-              dialCode: country.dialCode,
-              defaultValue: `${country.iso2} (${country.dialCode})`,
-            });
-            return (
-              <Pressable
-                key={country.iso2}
-                onPress={() => {
-                  setPhoneCountryCode(country.dialCode);
-                  countryPickerModal.dismiss();
-                }}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                testID={`phone-reset-country-option-${country.iso2.toLowerCase()}`}
-                style={({ pressed }) => ({
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 12,
-                  paddingVertical: 14,
-                  paddingHorizontal: 14,
-                  borderRadius: 14,
-                  backgroundColor: selected
-                    ? colors.brand.primaryGlow
-                    : pressed
-                      ? colors.neutral.paper
-                      : 'transparent',
-                })}
-              >
-                <Text style={{ fontSize: 24 }}>{flag}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: colors.neutral.ink, fontSize: 15, fontWeight: '700' }}>
-                    {label}
-                  </Text>
-                  <Text
-                    style={{
-                      color: colors.neutral.inkMuted,
-                      fontSize: 13,
-                      fontWeight: '500',
-                      marginTop: 2,
-                    }}
-                  >
-                    {country.dialCode}
-                  </Text>
-                </View>
-                {selected
-                  ? <Icon name="check" size={20} color={colors.brand.primary} />
-                  : null}
-              </Pressable>
-            );
-          })}
-        </View>
-      </Modal>
-
-      {/* Reference Platform once for clean import diff (formatter-stable) */}
-      {Platform.OS === 'web' ? null : null}
+      <CountryPickerSheet
+        modalRef={countryPickerModal.ref}
+        selectedDialCode={phoneCountryCode}
+        onSelect={(dialCode) => {
+          setPhoneCountryCode(dialCode);
+          countryPickerModal.dismiss();
+        }}
+        testIDPrefix="phone-reset-country"
+      />
     </View>
   );
 }

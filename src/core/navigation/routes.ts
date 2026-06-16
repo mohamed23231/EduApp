@@ -57,4 +57,5 @@ export const AppRoute = {
     plans: '/(super-admin)/plans',
     admins: '/(super-admin)/admins',
   },
+  orgInvite: '/org-invite',
 } as const;

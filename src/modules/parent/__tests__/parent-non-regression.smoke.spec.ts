@@ -36,7 +36,9 @@ describe('parent Non-Regression Smoke Test (Requirements 23.7, 22.5)', () => {
           id: fc.uuid(),
           title: fc.string({ minLength: 1 }),
           message: fc.string({ minLength: 1 }),
-          timestamp: fc.date(),
+          // noInvalidDate: never generate `new Date(NaN)` — the payload calls
+          // .toISOString(), which throws RangeError on an invalid date (flaky-fail).
+          timestamp: fc.date({ noInvalidDate: true }),
         }),
         async (notification) => {
           const payload = {
