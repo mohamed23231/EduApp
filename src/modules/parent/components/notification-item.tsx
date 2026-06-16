@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Animated, I18nManager, Pressable, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type Notification = {
   id: string;
@@ -198,8 +199,8 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
         testID={`notification-item-${notification.id}`}
         className={containerClasses}
         style={isUnread
-          ? { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E6E3DB' }
-          : { backgroundColor: '#F5F5F0' }}
+          ? { backgroundColor: colors.neutral.card, borderWidth: 1, borderColor: colors.neutral.rule }
+          : { backgroundColor: colors.neutral.paper }}
       >
         <View className={`size-12 items-center justify-center rounded-full ${iconConfig.bgClass} ${isRTL ? 'ms-3' : 'me-3'}`}>
           <Ionicons name={iconConfig.name} size={24} color={iconConfig.color} />
@@ -210,26 +211,26 @@ export function NotificationItem({ notification, onPress }: NotificationItemProp
             <Text
               className={`flex-1 text-sm ${isUnread ? 'font-bold' : 'font-semibold'}`}
               numberOfLines={1}
-              style={{ textAlign: alignment, color: isUnread ? '#0B0D10' : '#5C636E' }}
+              style={{ textAlign: alignment, color: isUnread ? colors.neutral.ink : colors.neutral.inkMuted }}
             >
               {title}
             </Text>
             {isUnread && (
-              <View className="mx-2 size-2 rounded-full" style={{ backgroundColor: '#22C572' }} />
+              <View className="mx-2 size-2 rounded-full" style={{ backgroundColor: colors.brand.primary }} />
             )}
           </View>
 
           <Text
             className={`text-sm ${isUnread ? 'font-medium' : 'font-normal'}`}
             numberOfLines={2}
-            style={{ textAlign: alignment, lineHeight: 20, color: isUnread ? '#0B0D10' : '#5C636E' }}
+            style={{ textAlign: alignment, lineHeight: 20, color: isUnread ? colors.neutral.ink : colors.neutral.inkMuted }}
           >
             {body}
           </Text>
 
           <Text
             className="mt-2 text-xs font-medium"
-            style={{ textAlign: alignment, color: isUnread ? '#22C572' : '#9CA3AF' }}
+            style={{ textAlign: alignment, color: isUnread ? colors.brand.primary : colors.neutral.dim }}
           >
             {formatDate(notification.createdAt, t)}
           </Text>

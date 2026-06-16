@@ -145,13 +145,13 @@ function EntitlementSection({ org }: { org: { entitlementSource?: string; trial?
         : null}
       <SettingsDivider />
       <View className="px-4 py-3">
-        <Text className="font-inter mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+        <Text className="font-inter mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
           {t('manager.more.usage.title', { defaultValue: 'Usage' })}
         </Text>
         {usageRows.map(row => (
           <View key={row.label} className="mt-2 flex-row items-center justify-between">
-            <Text className="font-inter text-sm text-slate-600">{row.label}</Text>
-            <Text className="font-inter text-sm font-medium text-slate-900">
+            <Text className="font-inter text-sm text-ink-soft">{row.label}</Text>
+            <Text className="font-inter text-sm font-medium text-ink">
               {row.current}
               {' / '}
               {row.limit ?? t('manager.more.usage.unlimited', { defaultValue: '∞' })}
@@ -171,13 +171,13 @@ function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onRepor
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
             <SettingsIcon name="settings-outline" />
-            <Text className="font-inter text-base font-medium text-slate-900">
+            <Text className="font-inter text-base font-medium text-ink">
               {t('manager.more.settings.title', { defaultValue: 'Settings' })}
             </Text>
           </View>
-          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={colors.neutral.inkMuted} />
         </View>
-        <Text className="font-inter ms-11 mt-1 text-sm text-slate-500">
+        <Text className="font-inter ms-11 mt-1 text-sm text-ink-muted">
           {t('manager.more.settings.body', { defaultValue: 'Update contact information and monitor limit usage.' })}
         </Text>
       </Pressable>
@@ -185,13 +185,13 @@ function QuickLinks({ onSettings, onReports }: { onSettings: () => void; onRepor
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
             <SettingsIcon name="bar-chart-outline" />
-            <Text className="font-inter text-base font-medium text-slate-900">
+            <Text className="font-inter text-base font-medium text-ink">
               {t('manager.more.reports.title', { defaultValue: 'Reports' })}
             </Text>
           </View>
-          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9CA3AF" />
+          <Ionicons name={I18nManager.isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={colors.neutral.inkMuted} />
         </View>
-        <Text className="font-inter ms-11 mt-1 text-sm text-slate-500">
+        <Text className="font-inter ms-11 mt-1 text-sm text-ink-muted">
           {t('manager.more.reports.body', { defaultValue: 'Review attendance, engagement, and teacher performance trends.' })}
         </Text>
       </Pressable>
@@ -217,7 +217,7 @@ export function MoreScreen() {
     : (user?.email ?? '');
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB]">
+    <SafeAreaView className="flex-1 bg-paper">
       <ScrollView contentContainerClassName="px-6 py-6 pb-20" showsVerticalScrollIndicator={false}>
         {/* Profile header */}
         <View className="items-center rounded-[28px] bg-white py-6">
@@ -234,7 +234,7 @@ export function MoreScreen() {
           >
             <Text className="text-[26px] font-bold" style={{ color: colors.neutral.white }}>{initials}</Text>
           </View>
-          <Text className="font-inter mt-3 text-lg font-semibold text-slate-900">{displayName}</Text>
+          <Text className="font-inter mt-3 text-lg font-semibold text-ink">{displayName}</Text>
           <View className="mt-1 rounded-full px-3 py-1" style={{ backgroundColor: colors.brand.primaryGlow }}>
             <Text className="font-inter text-xs font-semibold" style={{ color: colors.brand.primaryInk }}>
               {t('manager.more.roleManager', { defaultValue: 'Manager' })}
@@ -242,13 +242,13 @@ export function MoreScreen() {
           </View>
           {organizationQuery.data?.name
             ? (
-                <Text className="font-inter mt-2 text-sm text-slate-500">{organizationQuery.data.name}</Text>
+                <Text className="font-inter mt-2 text-sm text-ink-muted">{organizationQuery.data.name}</Text>
               )
             : null}
         </View>
 
         {/* Account section */}
-        <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+        <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
           {t('manager.more.accountSection', { defaultValue: 'Account' })}
         </Text>
         <View className="rounded-2xl bg-white shadow-sm">
@@ -277,7 +277,7 @@ export function MoreScreen() {
         {organizationQuery.data
           ? (
               <>
-                <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
                   {t('manager.more.entitlementSection', { defaultValue: 'Subscription' })}
                 </Text>
                 <EntitlementSection org={{ ...organizationQuery.data, limits: organizationQuery.data.limits ?? undefined }} />
@@ -286,7 +286,7 @@ export function MoreScreen() {
           : null}
 
         {/* Quick links */}
-        <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+        <Text className="font-inter ms-1 mt-5 mb-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
           {t('manager.more.quickLinksSection', { defaultValue: 'Quick links' })}
         </Text>
         <QuickLinks

@@ -8,6 +8,7 @@ import type { Student } from '../types';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Checkbox, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type StudentPickerProps = {
   availableStudents: Student[];
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
   selectAllText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#3B82F6',
+    color: colors.semantic.info,
   },
   emptyText: {
     fontSize: 14,

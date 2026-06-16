@@ -46,7 +46,7 @@ function getStatusStyle(status: StatusChipStatus, dark?: boolean): StatusStyle {
     case 'live':
       return {
         bg: colors.brand.primary,
-        textColor: '#FFFFFF',
+        textColor: colors.brand.primaryInk,
         showDot: true,
       };
     case 'closed':

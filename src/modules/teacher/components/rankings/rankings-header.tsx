@@ -77,8 +77,8 @@ export function RankSortTabs({ active, onChange }: { active: RankSortBy; onChang
   const { t } = useTranslation();
   const tabs: { key: RankSortBy; label: string }[] = [
     { key: 'rating', label: t('teacher.rankings.averageRating', 'Rating') },
-    { key: 'delta', label: t('teacher.rankings.trend', 'Trend') },
-    { key: 'name', label: t('teacher.students.title', 'Name') },
+    { key: 'delta', label: t('teacher.rankings.trendTab', 'Trend') },
+    { key: 'name', label: t('teacher.rankings.nameTab', 'Name') },
   ];
   return (
     <View className="mx-4 mb-3 flex-row rounded-xl p-0.5" style={{ backgroundColor: colors.neutral.paper }}>

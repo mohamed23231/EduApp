@@ -152,6 +152,7 @@ function SessionsList() {
   const deleteMutation = useDeleteSession(activeOrgId);
   const pauseResumeMutation = usePauseResumeSession(activeOrgId);
   const [selectedSession, setSelectedSession] = useState<OrgSessionTemplate | null>(null);
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
   const actionsSheet = useModal();
 
   const handleSessionPress = (session: OrgSessionTemplate) => {
@@ -192,7 +193,15 @@ function SessionsList() {
     );
   };
 
-  const onRefresh = useCallback(() => sessionsQuery.refetch(), [sessionsQuery]);
+  const onRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await sessionsQuery.refetch();
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
+  }, [sessionsQuery]);
 
   if (sessionsQuery.isLoading) {
     return (
@@ -220,7 +229,7 @@ function SessionsList() {
     <>
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120, paddingTop: 4, gap: 8 }}
-        refreshControl={<RefreshControl refreshing={sessionsQuery.isRefetching} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isManualRefresh} onRefresh={onRefresh} />}
       >
         {sessions.length === 0
           ? (

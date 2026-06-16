@@ -18,6 +18,7 @@ export function ReportsScreen() {
   const organizationsQuery = useOrganizations();
   const [range, setRange] = useState<'week' | 'month' | 'term'>('month');
   const { overview, teachers } = useOrgStats(activeOrgId, range);
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
 
   useEffect(() => {
     if (!activeOrgId && organizationsQuery.data?.data[0]) {
@@ -25,9 +26,14 @@ export function ReportsScreen() {
     }
   }, [activeOrgId, organizationsQuery.data, setActiveOrgId]);
 
-  const onRefresh = useCallback(() => {
-    overview.refetch();
-    teachers.refetch();
+  const onRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await Promise.all([overview.refetch(), teachers.refetch()]);
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
   }, [overview, teachers]);
 
   if (overview.isLoading || teachers.isLoading) {
@@ -72,7 +78,7 @@ export function ReportsScreen() {
         contentContainerClassName="px-6 py-6"
         refreshControl={(
           <RefreshControl
-            refreshing={overview.isRefetching || teachers.isRefetching}
+            refreshing={isManualRefresh}
             onRefresh={onRefresh}
           />
         )}

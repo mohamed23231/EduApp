@@ -26,7 +26,7 @@ export function StudentListScreen() {
   const actionsRef = useRef<StudentActionsSheetRef>(null);
   const { isTeacherPerformanceEnabled } = useFeatureFlags();
 
-  const { students, isLoading, isRefreshing, isPaginating, error, setSearch, loadMore, refetch } = useStudents();
+  const { students, isLoading, isRefreshing, isPaginating, error, setSearch, loadMore, refetch, silentRefetch } = useStudents();
   const { sessionMap, assignedStudentIds, refetch: refetchSessions } = useStudentSessions();
   const { filter, setFilter, filteredStudents, filterOptions } = useStudentFiltering(
     students,
@@ -70,9 +70,9 @@ export function StudentListScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      refetch();
+      silentRefetch();
       refetchSessions();
-    }, [refetch, refetchSessions]),
+    }, [silentRefetch, refetchSessions]),
   );
 
   const renderItem = useCallback(
@@ -113,6 +113,6 @@ export function StudentListScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  container: { flex: 1, backgroundColor: '#F5F5F0' },
   filterRow: { marginBottom: 10 },
 });

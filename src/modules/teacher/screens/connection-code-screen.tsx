@@ -117,5 +117,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FECACA',
   },
-  errorText: { flex: 1, fontSize: 14, color: '#DC2626' },
+  errorText: { flex: 1, fontSize: 14, color: colors.semantic.absent },
 });

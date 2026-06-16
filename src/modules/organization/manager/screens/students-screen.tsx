@@ -424,6 +424,16 @@ export function StudentsScreen() {
   const activeOrgId = useManagerStore.use.activeOrgId();
   const studentsListQuery = useOrgStudents(activeOrgId);
   const totalCount = studentsListQuery.data?.meta?.total ?? 0;
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const handlePullRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await studentsListQuery.refetch();
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
+  }, [studentsListQuery]);
 
   if (!activeOrgId) {
     return <NoOrgEmptyState />;
@@ -462,8 +472,8 @@ export function StudentsScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 80, paddingTop: 4 }}
         refreshControl={(
           <RefreshControl
-            refreshing={studentsListQuery.isRefetching}
-            onRefresh={() => studentsListQuery.refetch()}
+            refreshing={isManualRefresh}
+            onRefresh={handlePullRefresh}
           />
         )}
       >

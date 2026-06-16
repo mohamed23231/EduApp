@@ -12,7 +12,7 @@ export function AttendanceSheetHeader({ sessionClosed, sessionNotActive, onBack 
   const { t } = useTranslation();
   return (
     <>
-      <View className="flex-row items-center border-b border-[#E5E7EB] bg-white px-5 py-4">
+      <View className="flex-row items-center border-b border-[#E6E3DB] bg-[#FFFFFF] px-5 py-4">
         <TouchableOpacity onPress={onBack}>
           <Text className="me-3 text-base text-brand">{t('teacher.common.back')}</Text>
         </TouchableOpacity>

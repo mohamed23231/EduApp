@@ -7,6 +7,7 @@ import type { Student } from '../../types';
 import { Ionicons } from '@expo/vector-icons';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { ErrorState } from '@/components/ui';
+import colors from '@/components/ui/colors';
 import { EmptyState, StudentListSkeleton } from '..';
 
 export type StudentFilterKey = 'all' | 'assigned' | 'unassigned';
@@ -93,7 +94,7 @@ export function StudentListBody({
       onEndReached={onLoadMore}
       onEndReachedThreshold={0.4}
       refreshControl={(
-        <RefreshControl refreshing={isRefreshing} onRefresh={onRefetch} tintColor="#3B82F6" />
+        <RefreshControl refreshing={isRefreshing} onRefresh={onRefetch} tintColor={colors.brand.primary} />
       )}
     />
   );

@@ -206,7 +206,7 @@ export function StudentEditScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.neutral.paper,
   },
   flex: {
     flex: 1,

@@ -167,7 +167,7 @@ export function StudentCreateScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F5F5F0',
   },
   flex: {
     flex: 1,

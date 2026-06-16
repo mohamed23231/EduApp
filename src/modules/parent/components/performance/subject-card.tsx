@@ -12,11 +12,11 @@ export type SubjectCardProps = {
 };
 
 const TONE_BG: Record<string, { bg: string; fg: string }> = {
-  indigo: { bg: '#E0E7FF', fg: '#4338CA' },
+  indigo: { bg: colors.semantic.infoSoft, fg: colors.semantic.info },
   rose: { bg: '#FFE4E6', fg: '#BE123C' },
   teal: { bg: '#CCFBF1', fg: '#0F766E' },
   amber: { bg: '#FFEDD0', fg: '#B45309' },
-  violet: { bg: '#EDE4FF', fg: '#6D28D9' },
+  violet: { bg: colors.semantic.presentSoft, fg: colors.semantic.presentInk },
   sky: { bg: '#DCECFF', fg: '#0369A1' },
   lime: { bg: '#ECFCCB', fg: '#3F6212' },
 };

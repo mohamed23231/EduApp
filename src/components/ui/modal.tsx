@@ -40,6 +40,7 @@ import { I18nManager, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import tokens from './colors';
 import { Text } from './text';
 
 type ModalProps = Omit<BottomSheetModalProps, 'children'> & {
@@ -148,7 +149,7 @@ export function renderBackdrop(props: BottomSheetBackdropProps) {
 const floatingStyles = StyleSheet.create({
   background: {
     borderRadius: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: tokens.neutral.card,
   },
   container: {
     marginHorizontal: 14,
@@ -168,7 +169,7 @@ const handleStyles = StyleSheet.create({
   notch: {
     width: 40,
     height: 4,
-    backgroundColor: '#9CA3AF',
+    backgroundColor: tokens.neutral.dim,
     borderRadius: 32,
   },
   titleRow: {
@@ -179,7 +180,7 @@ const handleStyles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
+    color: tokens.neutral.ink,
     textAlign: 'center',
   },
 });

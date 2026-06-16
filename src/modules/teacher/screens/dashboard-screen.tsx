@@ -106,7 +106,7 @@ export function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  container: { flex: 1, backgroundColor: '#F5F5F0' },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',

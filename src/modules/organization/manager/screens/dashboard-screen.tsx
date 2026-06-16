@@ -356,11 +356,20 @@ export function DashboardScreen() {
   const trialModal = useModal();
   const closeModal = useModal();
 
-  const onRefresh = useCallback(() => {
-    organizationQuery.refetch();
-    stats.overview.refetch();
-    stats.teachers.refetch();
-    instancesQuery.refetch();
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await Promise.all([
+        organizationQuery.refetch(),
+        stats.overview.refetch(),
+        stats.teachers.refetch(),
+        instancesQuery.refetch(),
+      ]);
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
   }, [organizationQuery, stats.overview, stats.teachers, instancesQuery]);
 
   const showMutationError = useCallback(
@@ -469,7 +478,6 @@ export function DashboardScreen() {
   const organization = organizationQuery.data;
   const overview = stats.overview.data;
   const teacherStats = stats.teachers.data?.data ?? [] as OrgTeacherStatsItem[];
-  const isRefreshing = organizationQuery.isRefetching || stats.overview.isRefetching || instancesQuery.isRefetching;
   // At-risk = students absent today (absentToday is the clearest proxy from overview)
   const atRiskCount = overview?.absentToday ?? 0;
   // Upcoming = scheduled sessions that haven't started yet (todaySessions minus runningNow)
@@ -492,7 +500,7 @@ export function DashboardScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isManualRefresh} onRefresh={onRefresh} />}
       >
         {/* Attendance hero card */}
         <Animated.View entering={FadeInDown.delay(0).duration(350)}>

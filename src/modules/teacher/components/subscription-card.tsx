@@ -12,6 +12,7 @@ import type { SubscriptionData, TeacherStatus } from '../types';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 type SubscriptionCardProps = {
   subscription: SubscriptionData;
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1E40AF',
+    color: colors.brand.blue,
   },
   titleExpired: {
     color: '#6B7280',
@@ -167,12 +168,12 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1E40AF',
+    color: colors.brand.blue,
   },
   daysRemaining: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1D4ED8',
+    color: colors.brand.blue,
     marginTop: 4,
     marginBottom: 4,
   },

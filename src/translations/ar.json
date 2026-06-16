@@ -1285,6 +1285,7 @@
       "insufficientData": "بيانات غير كافية",
       "insufficientDataDescription": "محتاج حصة مقيّمة واحدة على الأقل للترتيب",
       "midPack": "المستوى المتوسط",
+      "nameTab": "الاسم",
       "noRatings": "مفيش تقييمات للحصة دي لسه",
       "outOfAvg": "/10 متوسط",
       "ranking": "الترتيب",
@@ -1301,7 +1302,8 @@
         "down": "تراجع",
         "stable": "مستقر",
         "up": "تحسّن"
-      }
+      },
+      "trendTab": "الاتجاه"
     },
     "sessions": {
       "assignStudentsButton": "إسناد الطلاب",

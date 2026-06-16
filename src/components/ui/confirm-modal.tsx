@@ -33,6 +33,7 @@ import Animated, {
   ZoomOut,
 } from 'react-native-reanimated';
 
+import tokens from './colors';
 import { Text } from './text';
 
 type ConfirmModalVariant = 'default' | 'destructive' | 'success';
@@ -54,9 +55,9 @@ type ConfirmModalProps = {
 };
 
 const VARIANT_COLORS: Record<ConfirmModalVariant, { bg: string; text: string }> = {
-  default: { bg: '#111827', text: '#FFFFFF' },
-  destructive: { bg: '#DC2626', text: '#FFFFFF' },
-  success: { bg: '#16A34A', text: '#FFFFFF' },
+  default: { bg: tokens.neutral.ink, text: '#FFFFFF' },
+  destructive: { bg: tokens.semantic.absent, text: '#FFFFFF' },
+  success: { bg: tokens.semantic.present, text: '#FFFFFF' },
 };
 
 export function ConfirmModal({

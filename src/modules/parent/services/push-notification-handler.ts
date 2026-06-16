@@ -11,6 +11,7 @@ import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
+import colors from '@/components/ui/colors';
 import { getAuthUser, getToken } from '@/lib/auth/utils';
 import i18n from '@/lib/i18n';
 import {
@@ -105,7 +106,7 @@ async function ensureAndroidNotificationChannel(
       name: 'General Notifications',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#6366F1',
+      lightColor: colors.brand.primary,
       enableLights: true,
       enableVibrate: true,
       showBadge: true,

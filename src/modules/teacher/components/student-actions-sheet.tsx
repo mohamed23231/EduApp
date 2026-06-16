@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   codeText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#1D4ED8',
+    color: colors.brand.blue,
     letterSpacing: 3,
     textAlign: 'center',
   },

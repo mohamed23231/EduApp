@@ -1285,6 +1285,7 @@
       "insufficientData": "Insufficient Data",
       "insufficientDataDescription": "Needs at least 1 rated session to rank",
       "midPack": "Mid pack",
+      "nameTab": "Name",
       "noRatings": "No ratings yet for this session",
       "outOfAvg": "/10 avg",
       "ranking": "Ranking",
@@ -1301,7 +1302,8 @@
         "down": "Declining",
         "stable": "Stable",
         "up": "Improving"
-      }
+      },
+      "trendTab": "Trend"
     },
     "sessions": {
       "assignStudentsButton": "Assign Students",

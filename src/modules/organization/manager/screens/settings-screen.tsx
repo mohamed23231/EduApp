@@ -15,14 +15,14 @@ function UsageBar({ label, current, limit }: { label: string; current: number; l
   return (
     <View className="mt-4">
       <View className="flex-row items-center justify-between">
-        <Text className="font-inter text-sm text-slate-700">{label}</Text>
-        <Text className="font-inter text-sm text-slate-500">
+        <Text className="font-inter text-sm text-ink-soft">{label}</Text>
+        <Text className="font-inter text-sm text-ink-muted">
           {current}
           /
           {limit ?? '∞'}
         </Text>
       </View>
-      <View className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+      <View className="mt-2 h-2 overflow-hidden rounded-full bg-rule">
         <View style={{ height: 8, borderRadius: 999, backgroundColor: colors.brand.primary, width: `${percent}%` }} />
       </View>
     </View>
@@ -74,13 +74,13 @@ function OrgEditForm({ org }: { org: OrganizationDetails }) {
         <Input label={t('manager.settings.fields.phone', { defaultValue: 'Phone' })} value={values.phoneE164} onChangeText={phoneE164 => setValues(c => ({ ...c, phoneE164 }))} />
         <Input label={t('manager.settings.fields.email', { defaultValue: 'Email' })} value={values.email} onChangeText={email => setValues(c => ({ ...c, email }))} />
         <Input label={t('manager.settings.fields.address', { defaultValue: 'Address' })} value={values.address} onChangeText={address => setValues(c => ({ ...c, address }))} multiline />
-        {message ? <Text className="font-inter mt-2 text-sm text-slate-500">{message}</Text> : null}
+        {message ? <Text className="font-inter mt-2 text-sm text-ink-muted">{message}</Text> : null}
         <Button className="mt-3" label={t('manager.settings.save', { defaultValue: 'Save settings' })} onPress={submit} loading={updateMutation.isPending} />
       </View>
       <View className="mt-5 rounded-[28px] bg-white p-5">
-        <Text className="font-inter text-lg font-semibold text-slate-900">{t('manager.settings.usage.title', { defaultValue: 'Usage' })}</Text>
-        <Text className="font-inter mt-1 text-sm text-slate-500">{t('manager.settings.usage.source', { defaultValue: 'Source: {{source}}', source: org.entitlementSource ?? 'trial' })}</Text>
-        {entitlementDateLine ? <Text className="font-inter mt-1 text-sm text-slate-500">{entitlementDateLine}</Text> : null}
+        <Text className="font-inter text-lg font-semibold text-ink">{t('manager.settings.usage.title', { defaultValue: 'Usage' })}</Text>
+        <Text className="font-inter mt-1 text-sm text-ink-muted">{t('manager.settings.usage.source', { defaultValue: 'Source: {{source}}', source: org.entitlementSource ?? 'trial' })}</Text>
+        {entitlementDateLine ? <Text className="font-inter mt-1 text-sm text-ink-muted">{entitlementDateLine}</Text> : null}
         {usage.map(item => <UsageBar key={item.label} label={item.label} current={item.current} limit={item.limit} />)}
       </View>
     </>
@@ -103,7 +103,7 @@ export function SettingsScreen() {
 
   if (organizationQuery.isLoading) {
     return (
-      <RNView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+      <RNView style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
         <TopBar
           title={t('manager.settings.title', { defaultValue: 'Settings' })}
           onBack={() => router.back()}
@@ -117,14 +117,14 @@ export function SettingsScreen() {
 
   if (organizationQuery.isError) {
     return (
-      <RNView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+      <RNView style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
         <TopBar
           title={t('manager.settings.title', { defaultValue: 'Settings' })}
           onBack={() => router.back()}
         />
         <View className="mt-5 items-center gap-3 py-6">
-          <Ionicons name="alert-circle-outline" size={32} color="#DC2626" />
-          <Text className="font-inter text-sm text-red-600">{t('manager.settings.errorLoading', { defaultValue: 'Failed to load organization settings.' })}</Text>
+          <Ionicons name="alert-circle-outline" size={32} color={colors.semantic.absent} />
+          <Text className="font-inter text-sm text-absent">{t('manager.settings.errorLoading', { defaultValue: 'Failed to load organization settings.' })}</Text>
           <Button variant="outline" size="sm" label={t('manager.settings.errorRetry', { defaultValue: 'Retry' })} fullWidth={false} onPress={() => organizationQuery.refetch()} />
         </View>
       </RNView>
@@ -132,7 +132,7 @@ export function SettingsScreen() {
   }
 
   return (
-    <RNView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <RNView style={{ flex: 1, backgroundColor: colors.neutral.paper }}>
       <TopBar
         title={t('manager.settings.title', { defaultValue: 'Settings' })}
         onBack={() => router.back()}
@@ -142,7 +142,7 @@ export function SettingsScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerClassName="px-6 py-6">
-          <Text className="font-inter mt-2 text-base text-slate-500">{t('manager.settings.subtitle', { defaultValue: 'Keep organization details current and watch entitlement usage at a glance.' })}</Text>
+          <Text className="font-inter mt-2 text-base text-ink-muted">{t('manager.settings.subtitle', { defaultValue: 'Keep organization details current and watch entitlement usage at a glance.' })}</Text>
           {organizationQuery.data && <OrgEditForm org={organizationQuery.data} />}
         </ScrollView>
       </KeyboardAvoidingView>

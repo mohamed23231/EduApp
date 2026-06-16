@@ -1,7 +1,7 @@
 import type { TeacherOrgInstance } from '../services/teacher-org-api.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { I18nManager, RefreshControl } from 'react-native';
 import { ActivityIndicator, Button, ErrorState, Pressable, SafeAreaView, ScrollView, Text, View } from '@/components/ui';
@@ -114,8 +114,15 @@ export function TeacherOrgSessionsScreen({ orgId, orgName, onBack }: Props) {
       router.back();
   }, [onBack, router]);
 
-  const onRefresh = useCallback(() => {
-    void instancesQuery.refetch();
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setIsManualRefresh(true);
+    try {
+      await instancesQuery.refetch();
+    }
+    finally {
+      setIsManualRefresh(false);
+    }
   }, [instancesQuery]);
 
   const handleActionError = useCallback(() => {
@@ -166,7 +173,7 @@ export function TeacherOrgSessionsScreen({ orgId, orgName, onBack }: Props) {
       <BackBar orgName={orgName} onBack={handleBack} />
       <ScrollView
         contentContainerClassName="px-6 py-6"
-        refreshControl={<RefreshControl refreshing={instancesQuery.isRefetching} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isManualRefresh} onRefresh={onRefresh} />}
       >
         <Text className="font-inter text-3xl font-semibold" style={{ color: colors.neutral.ink }}>{orgName}</Text>
         <Text className="font-inter mt-1 text-base" style={{ color: colors.neutral.inkMuted }}>{t('teacherOrg.subtitle')}</Text>

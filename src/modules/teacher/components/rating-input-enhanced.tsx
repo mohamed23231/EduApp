@@ -90,7 +90,7 @@ function NumpadModal({ visible, value, onInput, onConfirm, onCancel, onClear }: 
         <Pressable style={styles.numpadContainer} onPress={e => e.stopPropagation()}>
           <View style={[styles.numpadHeader, isRTL && styles.numpadHeaderRTL]}>
             <Pressable onPress={onCancel} style={styles.numpadClose} accessibilityRole="button" accessibilityLabel={t('common.close', 'Close')}>
-              <Ionicons name="close" size={24} color="#6B7280" />
+              <Ionicons name="close" size={24} color={colors.neutral.inkMuted} />
             </Pressable>
             <Text style={styles.numpadTitle}>{t('teacher.attendance.enterRating')}</Text>
             <View style={{ width: 32 }} />
@@ -120,7 +120,7 @@ function NumpadModal({ visible, value, onInput, onConfirm, onCancel, onClear }: 
               <Text style={styles.numpadKeyText}>0</Text>
             </Pressable>
             <Pressable style={({ pressed }) => [styles.numpadKey, styles.numpadKeyAction, pressed && styles.numpadKeyPressed]} onPress={() => onInput('backspace')} accessibilityRole="button" accessibilityLabel={t('teacher.attendance.backspace', 'Delete')}>
-              <Ionicons name="backspace-outline" size={24} color="#6B7280" />
+              <Ionicons name="backspace-outline" size={24} color={colors.neutral.inkMuted} />
             </Pressable>
           </View>
           <View style={[styles.numpadActions, isRTL && styles.numpadActionsRTL]}>
@@ -172,13 +172,13 @@ export function RatingInputEnhanced({ value, onChange, disabled = false, compact
         <Text style={styles.label}>{t('teacher.attendance.rating')}</Text>
         {value !== null && (
           <Pressable onPress={handleClear} style={styles.clearButton} accessibilityLabel={t('teacher.attendance.clearRating')} accessibilityRole="button">
-            <Ionicons name="close-circle" size={16} color="#9CA3AF" />
+            <Ionicons name="close-circle" size={16} color={colors.neutral.dim} />
           </Pressable>
         )}
       </View>
       <Pressable style={[styles.valueDisplay, disabled && styles.valueDisplayDisabled]} onPress={openNumpad} disabled={disabled} accessibilityRole="button">
         <Text style={[styles.valueText, value === null && styles.valuePlaceholder]}>{value !== null ? t('teacher.attendance.ratingLabel', { value }) : t('teacher.attendance.noRating')}</Text>
-        <Ionicons name="create-outline" size={16} color="#9CA3AF" />
+        <Ionicons name="create-outline" size={16} color={colors.neutral.dim} />
       </Pressable>
       <View style={[styles.presetsRow, isRTL && styles.presetsRowRTL]}>
         {QUICK_PRESETS.map(preset => (
@@ -204,10 +204,10 @@ const styles = StyleSheet.create({
   compactBadge: { alignItems: 'center', backgroundColor: '#F9FAFB', borderColor: '#E5E7EB', borderRadius: 8, borderWidth: 1, height: 32, justifyContent: 'center', minWidth: 52, paddingHorizontal: 10 },
   compactBadgeActive: { backgroundColor: colors.brand.primaryGlow, borderColor: colors.brand.primary },
   compactBadgeDisabled: { opacity: 0.5 },
-  compactBadgePlaceholder: { color: '#9CA3AF', fontWeight: '400' },
+  compactBadgePlaceholder: { color: colors.neutral.dim, fontWeight: '400' },
   compactBadgeText: { color: colors.brand.primaryDeep, fontSize: 13, fontWeight: '600' },
   container: { gap: 8, marginTop: 10 },
-  label: { color: '#6B7280', fontSize: 12, fontWeight: '500' },
+  label: { color: colors.neutral.inkMuted, fontSize: 12, fontWeight: '500' },
   labelRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   modalOverlay: { alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', flex: 1, justifyContent: 'center' },
   numpadActionBtn: { alignItems: 'center', borderRadius: 10, flex: 1, height: 48, justifyContent: 'center' },
@@ -227,18 +227,18 @@ const styles = StyleSheet.create({
   numpadKeyAction: { backgroundColor: colors.semantic.excusedSoft },
   numpadKeyPressed: { backgroundColor: '#E5E7EB' },
   numpadKeyText: { color: '#111827', fontSize: 22, fontWeight: '600' },
-  numpadMax: { color: '#9CA3AF', fontSize: 28, fontWeight: '500' },
+  numpadMax: { color: colors.neutral.dim, fontSize: 28, fontWeight: '500' },
   numpadTitle: { color: '#111827', fontSize: 16, fontWeight: '600' },
   numpadValue: { color: '#111827', fontSize: 36, fontWeight: '700' },
   presetButton: { alignItems: 'center', backgroundColor: '#F9FAFB', borderColor: '#E5E7EB', borderRadius: 8, borderWidth: 1, flex: 1, height: 40, justifyContent: 'center' },
   presetButtonActive: { backgroundColor: colors.brand.primaryGlow, borderColor: colors.brand.primary },
   presetButtonDisabled: { opacity: 0.5 },
-  presetText: { color: '#6B7280', fontSize: 14, fontWeight: '600' },
+  presetText: { color: colors.neutral.inkMuted, fontSize: 14, fontWeight: '600' },
   presetTextActive: { color: colors.brand.primaryDeep },
   presetsRow: { flexDirection: 'row', gap: 8 },
   presetsRowRTL: { flexDirection: 'row-reverse' },
   valueDisplay: { alignItems: 'center', backgroundColor: '#FFFFFF', borderColor: '#E5E7EB', borderRadius: 10, borderWidth: 1, flexDirection: 'row', height: 44, justifyContent: 'space-between', paddingHorizontal: 14 },
   valueDisplayDisabled: { backgroundColor: '#F9FAFB', opacity: 0.5 },
-  valuePlaceholder: { color: '#9CA3AF', fontWeight: '400' },
+  valuePlaceholder: { color: colors.neutral.dim, fontWeight: '400' },
   valueText: { color: '#111827', fontSize: 15, fontWeight: '600' },
 });

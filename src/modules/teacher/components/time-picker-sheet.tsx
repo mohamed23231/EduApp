@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Button, Modal, Text } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
 const MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   columnItemActive: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: colors.brand.primary,
   },
   columnItemText: {
     fontSize: 20,
