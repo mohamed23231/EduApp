@@ -11,7 +11,7 @@ tags:
 
 # --- Land on the teacher tab bar (real tabBarButtonTestID values) ---
 - assertVisible:
-    id: teacher-tab-dashboard     # app/(teacher)/(tabs)/_layout.tsx:40
+    id: teacher-tab-dashboard # app/(teacher)/(tabs)/_layout.tsx:40
     timeout: 10000
 - tapOn:
     id: teacher-tab-dashboard
@@ -20,24 +20,24 @@ tags:
 # TODO(testid): teacher-dashboard-hero — DashboardHero has no testID
 #   (dashboard-hero.tsx). Anchor on the stat labels instead.
 - assertVisible:
-    text: "Today"                 # teacher.dashboard.sessionsToday
+    text: Today # teacher.dashboard.sessionsToday
 - assertVisible:
-    text: "Active"                # teacher.dashboard.activeSessions
+    text: Active # teacher.dashboard.activeSessions
 
 # --- Quick actions ---
 # TODO(testid): teacher-quick-create-student / teacher-quick-create-session —
 #   QuickActionCard has no testID (dashboard-quick-actions.tsx). Anchor on labels.
 - assertVisible:
-    text: "Create Student"        # teacher.students.createButton
+    text: Create Student # teacher.students.createButton
 - assertVisible:
-    text: "New Session"           # teacher.sessions.createTitle
+    text: New Session # teacher.sessions.createTitle
 
 # --- Today's sessions section header ---
 - assertVisible:
-    text: "Today's Sessions"      # teacher.dashboard.sessionsTitle
+    text: "Today's Sessions" # teacher.dashboard.sessionsTitle
 
 # --- Open create-student from the quick action ---
 - tapOn:
-    text: "Create Student"
+    text: Create Student
 # TODO(testid): student-create-screen-root — assert a known field once the
 #   create-student screen exposes a stable anchor.

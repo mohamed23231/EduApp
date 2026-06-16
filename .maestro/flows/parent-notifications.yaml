@@ -12,7 +12,7 @@ tags:
 
 # --- Notifications tab ---
 - assertVisible:
-    id: parent-tab-notifications  # app/(parent)/(tabs)/_layout.tsx:73 pattern
+    id: parent-tab-notifications # app/(parent)/(tabs)/_layout.tsx:73 pattern
     timeout: 10000
 - tapOn:
     id: parent-tab-notifications
@@ -20,15 +20,15 @@ tags:
 # --- One of three states renders. Anchor on whichever is present. ---
 # Populated list -> mark-all-read bar (real testID):
 - assertVisible:
-    id: mark-all-as-read-button   # notification-header.tsx:26
+    id: mark-all-as-read-button # notification-header.tsx:26
     optional: true
 # Empty state (real testID):
 - assertVisible:
-    id: notification-empty        # notification-states.tsx:77
+    id: notification-empty # notification-states.tsx:77
     optional: true
 # Error state (real testID):
 - assertVisible:
-    id: notification-error        # notification-states.tsx:61
+    id: notification-error # notification-states.tsx:61
     optional: true
 
 # --- If list is populated, exercise mark-all-as-read ---
@@ -40,5 +40,5 @@ tags:
 #   no per-item testID, so "tap a notification -> deep link" is not driveable.
 #   Anchor on the screen title to confirm we're on the right screen:
 - assertVisible:
-    text: "Notifications"         # parent.notifications.title
+    text: Notifications # parent.notifications.title
     optional: true

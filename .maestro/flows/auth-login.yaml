@@ -18,38 +18,38 @@ tags:
 - assertVisible:
     id: auth-mark
 - assertVisible:
-    text: "The classroom,"        # auth.login.heroLine1
+    text: 'The classroom,' # auth.login.heroLine1
 
 # --- Default mode is phone: phone fields present ---
 - assertVisible:
-    id: login-country-chip        # login/phone-login-fields.tsx:47
+    id: login-country-chip # login/phone-login-fields.tsx:47
 - assertVisible:
-    id: login-phone-input         # login/phone-login-fields.tsx:54
+    id: login-phone-input # login/phone-login-fields.tsx:54
 - assertVisible:
-    id: phone-password-input      # login/phone-login-fields.tsx:66
+    id: phone-password-input # login/phone-login-fields.tsx:66
 
 # --- Toggle to email mode ("Use email instead") ---
 - tapOn:
-    text: "Use email instead"     # auth.login.useEmailInstead
+    text: Use email instead # auth.login.useEmailInstead
 - assertVisible:
-    id: email-input               # login/email-login-fields.tsx:76
+    id: email-input # login/email-login-fields.tsx:76
 - assertVisible:
-    id: password-input            # login/email-login-fields.tsx:100
+    id: password-input # login/email-login-fields.tsx:100
 
 # --- Fill email login fields (does NOT submit — no backend/test account) ---
 - tapOn:
     id: email-input
-- inputText: "teacher@example.com"
+- inputText: teacher@example.com
 - runFlow: ../utils/hide-keyboard.yaml
 - tapOn:
     id: password-input
-- inputText: "password123"
+- inputText: password123
 - runFlow: ../utils/hide-keyboard.yaml
 - assertVisible:
-    id: login-submit-button       # login/email-login-fields.tsx:140
+    id: login-submit-button # login/email-login-fields.tsx:140
 
 # --- Navigate to signup ("Create Account") ---
 - tapOn:
-    text: "Create Account"        # auth.login.createAccount
+    text: Create Account # auth.login.createAccount
 - assertVisible:
-    id: signup-auth-shell         # signup-screen-view.tsx:83
+    id: signup-auth-shell # signup-screen-view.tsx:83

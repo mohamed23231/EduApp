@@ -14,7 +14,7 @@ tags:
 
 # --- Reach an active session, then its attendance sheet ---
 - assertVisible:
-    id: teacher-tab-sessions      # app/(teacher)/(tabs)/_layout.tsx:62
+    id: teacher-tab-sessions # app/(teacher)/(tabs)/_layout.tsx:62
     timeout: 10000
 - tapOn:
     id: teacher-tab-sessions
@@ -27,7 +27,7 @@ tags:
 # --- Attendance sheet anchors (header / footer have NO testIDs) ---
 # TODO(testid): attendance-sheet-header — anchor on the title for now.
 - assertVisible:
-    text: "Mark Attendance"       # teacher.attendance.title (header)
+    text: Mark Attendance # teacher.attendance.title (header)
     optional: true
 
 # --- Per-student status control ---
@@ -40,5 +40,5 @@ tags:
 # TODO(testid): attendance-submit-button — AttendanceSheetFooter submit has no
 #   testID (attendance-sheet-footer.tsx). Anchor on the label.
 - assertVisible:
-    text: "Submit Attendance"     # teacher.attendance.submitButton
+    text: Submit Attendance # teacher.attendance.submitButton
     optional: true

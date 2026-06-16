@@ -11,7 +11,7 @@ tags:
 
 # --- Navigate to the Students tab ---
 - assertVisible:
-    id: teacher-tab-students      # app/(teacher)/(tabs)/_layout.tsx:51
+    id: teacher-tab-students # app/(teacher)/(tabs)/_layout.tsx:51
     timeout: 10000
 - tapOn:
     id: teacher-tab-students
@@ -20,14 +20,14 @@ tags:
 # TODO(testid): teacher-students-header / teacher-students-add-button —
 #   StudentListHeader has no testID (student-list-header.tsx). Anchor on title.
 - assertVisible:
-    text: "Students"              # teacher.students.title
+    text: Students # teacher.students.title
 
 # --- Search bar ---
 # TODO(testid): teacher-students-search-input — StudentSearchBar TextInput has
 #   no testID (student-list-header.tsx:48). Anchor on the placeholder text.
 - tapOn:
-    text: "Type to search..."     # teacher.students.searchPlaceholder
-- inputText: "Ahmed"
+    text: Type to search... # teacher.students.searchPlaceholder
+- inputText: Ahmed
 - runFlow: ../utils/hide-keyboard.yaml
 
 # --- Filter chips (All / Assigned / Unassigned) ---

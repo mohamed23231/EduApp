@@ -11,31 +11,31 @@ tags:
 
 # --- Parent tab bar (testID pattern: parent-tab-{route}) ---
 - assertVisible:
-    id: parent-tab-dashboard      # app/(parent)/(tabs)/_layout.tsx:73
+    id: parent-tab-dashboard # app/(parent)/(tabs)/_layout.tsx:73
     timeout: 10000
 - tapOn:
     id: parent-tab-dashboard
 
 # --- Hero ---
 - assertVisible:
-    id: parent-hero               # parent-hero.tsx:49
+    id: parent-hero # parent-hero.tsx:49
 
 # --- This-week tiles (real testIDs) ---
 - assertVisible:
-    id: tile-attendance           # this-week-tiles.tsx:40
+    id: tile-attendance # this-week-tiles.tsx:40
 - assertVisible:
-    id: tile-streak               # this-week-tiles.tsx:78
+    id: tile-streak # this-week-tiles.tsx:78
 - assertVisible:
-    id: tile-rating               # this-week-tiles.tsx:119
+    id: tile-rating # this-week-tiles.tsx:119
 
 # --- Child switcher: tap "add child" (always present) ---
 - assertVisible:
-    id: add-child-button          # child-switcher.tsx:108
+    id: add-child-button # child-switcher.tsx:108
 
 # --- Performance CTA ---
 - assertVisible:
-    id: performance-button        # dashboard-screen.tsx:267
-    optional: true                # hidden when no performance data
+    id: performance-button # dashboard-screen.tsx:267
+    optional: true # hidden when no performance data
 - tapOn:
     id: performance-button
     optional: true
