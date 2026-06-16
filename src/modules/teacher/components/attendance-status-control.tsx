@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   },
   containerUnmarked: {
     borderStyle: 'dashed',
-    borderColor: colors.neutral.border,
+    borderColor: colors.neutral.rule,
   },
   header: {
     flexDirection: 'row',
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: colors.neutral.border,
+    borderColor: colors.neutral.rule,
   },
   statusButtons: {
     flexDirection: 'row',

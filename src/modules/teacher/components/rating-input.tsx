@@ -54,7 +54,7 @@ export function RatingInput({ value, onChange, disabled = false }: RatingInputPr
       accessibilityLabel={t('teacher.attendance.decreaseRating')}
       accessibilityRole="button"
     >
-      <Ionicons name="remove" size={20} color={disabled ? colors.neutral.border : colors.neutral.inkMuted} />
+      <Ionicons name="remove" size={20} color={disabled ? colors.neutral.dim : colors.neutral.inkMuted} />
     </Pressable>
   );
 
@@ -66,7 +66,7 @@ export function RatingInput({ value, onChange, disabled = false }: RatingInputPr
       accessibilityLabel={t('teacher.attendance.increaseRating')}
       accessibilityRole="button"
     >
-      <Ionicons name="add" size={20} color={disabled || value === 10 ? colors.neutral.border : colors.neutral.inkMuted} />
+      <Ionicons name="add" size={20} color={disabled || value === 10 ? colors.neutral.dim : colors.neutral.inkMuted} />
     </Pressable>
   );
 

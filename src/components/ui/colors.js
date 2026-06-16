@@ -33,7 +33,6 @@ module.exports = {
     inkSoft: '#3A3F47',
     inkMuted: '#5C636E',
     dim: '#C7CBD3',
-    border: '#D1D5DB',
     black: '#000000',
     white: '#FFFFFF',
     // Legacy numeric scale (consumed by unmigrated screens via colors.neutral[400] etc.)

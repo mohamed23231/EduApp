@@ -276,7 +276,7 @@ function TodaySessions({
       {todayInstances.length === 0
         ? (
             <View style={styles.emptyBox}>
-              <Ionicons name="calendar-outline" size={32} color={colors.neutral.border} />
+              <Ionicons name="calendar-outline" size={32} color={colors.neutral.dim} />
               <Text style={styles.emptyText}>
                 {t('manager.dashboard.noSessions', { defaultValue: 'No sessions scheduled for today yet.' })}
               </Text>
